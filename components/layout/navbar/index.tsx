@@ -18,7 +18,7 @@ export interface MenuItem {
   items?: MenuItem[];
 }
 
-export async function Navbar({ siteName }: NavbarProps) {
+export async function Navbar() {
   const menu: MenuItem[] = await getMenu('main-menu');
 
   return (
