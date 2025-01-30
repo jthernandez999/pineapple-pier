@@ -1,32 +1,33 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 
 interface BannerProps {
   banners: {
-    image: string; // URL of the banner image
-    title?: string; // Optional title text
-    description?: string; // Optional description text
-    buttonText?: string; // Optional button text
-    buttonLink?: string; // Optional button link
+    image: string;
+    mobileImage?: string;
+    title?: string;
+    description?: string;
+    buttonText?: string;
+    buttonLink?: string;
   }[];
-  interval?: number; // Interval in milliseconds for changing banners
+  interval?: number;
 }
 
 export default function HeroBanner({ banners, interval = 4000 }: BannerProps) {
   const [currentBanner, setCurrentBanner] = useState(0);
-  const bannerRef = useRef<HTMLDivElement>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const touchStartX = useRef<number | null>(null);
   const touchEndX = useRef<number | null>(null);
+  const bannerRef = useRef<HTMLDivElement>(null);
 
-  // Auto-rotate banners
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentBanner((prev) => (prev + 1) % banners.length);
     }, interval);
-
-    return () => clearInterval(timer); // Cleanup timer on unmount
+    return () => clearInterval(timer);
   }, [banners.length, interval]);
 
   // Handle swipe gestures
@@ -69,7 +70,9 @@ export default function HeroBanner({ banners, interval = 4000 }: BannerProps) {
 
   return (
     <section
-      className="relative w-full"
+    //   className="relative w-full overflow-hidden"
+    className='relative w-full overflow-hidden h-[calc(100vh-64px)] md:h-[calc(100vh-80px)] lg:h-[calc(100vh-96px)] xl:h-[calc(100vh-112px)] 2xl:h-[calc(100vh-128px)]
+    '
       ref={bannerRef}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
@@ -79,60 +82,47 @@ export default function HeroBanner({ banners, interval = 4000 }: BannerProps) {
       onMouseUp={handleTouchEnd}
       onMouseLeave={handleTouchEnd}
     >
-      {/* Banner Container */}
-      <div className="relative h-0 w-full overflow-hidden" style={{ paddingBottom: '56.25%' }}>
-        {banners.map((banner, index) => (
-          <div
-            key={index}
-            className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
-              index === currentBanner
-                ? 'pointer-events-auto opacity-100'
-                : 'pointer-events-none opacity-0'
-            }`}
-          >
-            {/* Background Image */}
-            <div
-              className="absolute inset-0 bg-cover bg-center"
-              style={{
-                backgroundImage: `url(${banner.image || ''})`
-              }}
-            ></div>
+      {banners.map((banner, index) => (
+        <div
+          key={index}
+          className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${index === currentBanner ? 'opacity-100' : 'opacity-0'}`}
+          style={{ display: 'grid', placeItems: 'center' }}
+        >
+            {banner.image ?(
+          <Image
+            // src={banner.image || 'https://cdn.shopify.com/s/files/1/1024/2207/files/Hero1_Na_SPR25_JAN.jpg?v=1737502973'}
+            src={banner.image}
+            alt={banner.title || 'Banner'}
+            priority={index === 0}
+            fill 
+            onLoad={() => setIsLoading(false)}
+            className={`${isLoading ? 'scale-110 blur-2xl' : 'scale-100 blur-none'} transition-all duration-700 ease-in-out`}
+          />
+          ) : null}
 
-            {/* Overlay */}
-            <div className="absolute inset-0 bg-black/10"></div>
+          <div className="absolute inset-0 bg-black/10"></div>
 
-            {/* Content */}
-            <div className="relative z-20 flex h-full w-full flex-col items-center justify-center px-4 text-center text-white">
-              {banner.title && (
-                <h2 className="mb-2 text-xl font-bold md:text-3xl">{banner.title || ''}</h2>
-              )}
-              {banner.description && (
-                <p className="mb-4 text-sm md:text-lg">{banner.description || ''}</p>
-              )}
-              {banner.buttonText && banner.buttonLink && (
-                <Link
-                  href={banner.buttonLink || '#'}
-                  className="inline-block rounded bg-white px-6 py-2 text-sm font-medium text-black hover:bg-gray-200"
-                >
-                  {banner.buttonText || 'Learn More'}
-                </Link>
-              )}
-            </div>
+          <div className="relative z-10 p-4 text-center text-white">
+            {banner.title && <h2 className="text-xl font-bold md:text-3xl">{banner.title}</h2>}
+            {banner.description && <p className="text-sm md:text-lg">{banner.description}</p>}
+            {banner.buttonText && banner.buttonLink && (
+              <Link
+                href={banner.buttonLink}
+                className="mt-4 inline-block rounded bg-white px-6 py-2 text-sm font-medium text-black hover:bg-gray-200"
+              >
+                {banner.buttonText}
+              </Link>
+            )}
           </div>
-        ))}
-      </div>
+        </div>
+      ))}
 
-      {/* Pagination Dots */}
       <div className="absolute bottom-4 right-4 flex gap-3">
         {banners.map((_, index) => (
           <button
             key={index}
             onClick={() => setCurrentBanner(index)}
-            className={`h-3 w-3 rounded-full transition-all duration-300 ${
-              index === currentBanner
-                ? 'scale-125 bg-white shadow-lg'
-                : 'bg-gray-400 hover:bg-white'
-            }`}
+            className={`h-3 w-3 rounded-full ${index === currentBanner ? 'bg-white shadow-lg' : 'bg-gray-400 hover:bg-white'} transition-scale duration-300`}
           ></button>
         ))}
       </div>
