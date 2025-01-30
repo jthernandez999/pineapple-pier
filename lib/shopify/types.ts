@@ -59,18 +59,20 @@ export type Image = {
 //   items?: Menu[]; 
 // };
 
-export type MenuItem = {
-  title: string;
-  url: string;
-  items?: MenuItem[];
-}
-
 export type Menu = {
   path: string;
   title: string;
   url: string;
   items?: Menu[];
 }
+
+export type MenuItem = {
+  title: string;
+  url: string;
+  items?: MenuItem[];
+}
+
+
 
 export type Money = {
   amount: string;

@@ -1,8 +1,10 @@
 import type { Config } from 'tailwindcss';
 import plugin from 'tailwindcss/plugin';
+const flowbite = require('flowbite-react/tailwind') 
 
 const config: Config = {
-  content: ['./app/**/*.{js,ts,jsx,tsx}', './components/**/*.{js,ts,jsx,tsx}'],
+  content: ['./app/**/*.{js,ts,jsx,tsx}', './components/**/*.{js,ts,jsx,tsx}',flowbite.content(),],
+
   theme: {
     extend: {
       fontFamily: {
@@ -49,7 +51,8 @@ const config: Config = {
           values: theme('transitionDelay')
         }
       );
-    })
+    }),
+    flowbite.plugin(),
   ]
 };
 
