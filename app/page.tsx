@@ -17,27 +17,27 @@ export default function HomePage() {
         banners={[
           {
             image:
-              'https://cdn.shopify.com/s/files/1/1024/2207/files/20241014_00189_mb1_lp_369e1f9c-d0d5-4082-b1ba-e7a14781a882.jpg?v=17321271034',
-            title: 'New Arrivals',
-            description: 'Discover the latest trends.',
-            buttonText: 'Explore',
-            buttonLink: '/collections/shop-new-arrivals'
+              'https://cdn.shopify.com/s/files/1/1024/2207/files/HAMPTON_SHORTS_YOUR_SPRING_MUST-HAVES.jpg?v=1737565216',
+            // title: 'Summer Sale',
+            // // description: 'Get up to 50% off!',
+            // buttonText: 'Shop Now',
+            // buttonLink: '/collections/shop-all-clothing'
           },
           {
             image:
-              'https://cdn.shopify.com/s/files/1/1024/2207/files/Happy_Couple_Wedding_Thank_You_Postcard_2100_x_1100_px_1.png?v=1732063540',
-            title: 'Summer Sale',
-            description: 'Get up to 50% off!',
-            buttonText: 'Shop Now',
-            buttonLink: '/collections/shop-all-clothing'
+              'https://cdn.shopify.com/s/files/1/1024/2207/files/HAMPTON_SHORTS_YOUR_SPRING_MUST-HAVES.jpg?v=1737565216',
+            // title: 'Summer Sale',
+            // description: 'Get up to 50% off!',
+            // buttonText: 'Shop Now',
+            // buttonLink: '/collections/shop-all-clothing'
           },
           {
             image:
-              'https://cdn.shopify.com/s/files/1/1024/2207/files/20241014_01662_copymb3_lp_c03e1eea-fbbc-4068-95ae-e0cb103f7ea5.jpg?v=1732127515',
-            title: 'Exclusive Denim',
-            description: 'Experience premium denim.',
-            buttonText: 'Discover',
-            buttonLink: '/collections/shop-all-denim'
+              'https://cdn.shopify.com/s/files/1/1024/2207/files/HAMPTON_SHORTS_YOUR_SPRING_MUST-HAVES.jpg?v=1737565216',
+          //   title: 'Summer Sale',
+          //   description: 'Get up to 50% off!',
+          //   buttonText: 'Shop Now',
+          //   buttonLink: '/collections/shop-all-clothing'
           }
         ]}
         interval={5500} // Adjust interval to 5 seconds
