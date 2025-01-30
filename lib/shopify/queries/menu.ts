@@ -30,3 +30,5 @@ export const getMenuQuery = /* GraphQL */ `
     }
   }
 `;
+
+console.log('GETMENUQUERY', getMenuQuery)

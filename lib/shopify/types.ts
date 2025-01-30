@@ -47,10 +47,17 @@ export type Image = {
   height: number;
 };
 
+// export type Menu = {
+//   title: string;
+//   path: string;
+// };
+
 export type Menu = {
   title: string;
   path: string;
+  items?: Menu[]; // Optional array of Menu type for submenus
 };
+
 
 export type Money = {
   amount: string;
