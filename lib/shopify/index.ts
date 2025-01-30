@@ -29,6 +29,7 @@ import {
   Connection,
   Image,
   Menu,
+  MenuItem,
   Page,
   Product,
   ShopifyAddToCartOperation,
@@ -38,8 +39,7 @@ import {
   ShopifyCollectionOperation,
   ShopifyCollectionProductsOperation,
   ShopifyCollectionsOperation,
-  ShopifyCreateCartOperation,
-  ShopifyPageOperation,
+  ShopifyCreateCartOperation, ShopifyMenuOperation, ShopifyPageOperation,
   ShopifyPagesOperation,
   ShopifyProduct,
   ShopifyProductOperation,
@@ -388,6 +388,7 @@ export async function getMenu(handle: string): Promise<Menu[]> {
     return items.map(item => ({
       title: item.title,
       path: item.url.replace(domain, ''), // Simplified transformation
+      url: item.url, // Add the 'url' property
       items: item.items ? processMenuItems(item.items) : undefined
     }));
   }
