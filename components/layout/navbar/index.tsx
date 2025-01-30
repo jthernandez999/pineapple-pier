@@ -11,18 +11,16 @@ import Search, { SearchSkeleton } from './search';
 interface NavbarProps {
   siteName: string;
 }
-// export interface MenuItem {
-//   title: string;
-//   path: string;
-//   items?: MenuItem[];
-// }
 
 export async function Navbar() {
   const menu: Menu[] = await getMenu('main-menu');
 console.log('MENU', menu);
   return (
-    <nav className="bg-white shadow-lg fixed w-full h-20 z-[60] ease-in-out duration-300">
-      <div className="container mx-auto flex items-center justify-between px-4 py-4 lg:px-8 fixed">
+    <nav className="sticky z-50 top-0 bg-white border-gray-200 dark:border-gray-600 dark:bg-gray-900">
+    <div className="flex flex-wrap justify-between items-center mx-auto max-w-screen-xl p-4">
+{/* <nav className="bg-white border-gray-200 dark:bg-gray-900 dark:border-gray-700">
+  <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4"> */}
+
         <div className="block flex-none md:hidden">
           <MobileMenu menu={menu} />
         </div>
@@ -67,7 +65,7 @@ interface MegaMenuComponentProps {
 const MegaMenuComponent: React.FC<MegaMenuComponentProps> = ({ item }) => {
   const hasSubmenu = item.items && item.items.length > 0;
   return (
-    <li className="group relative">
+    <li className="group relative flex-grow">
       <Link
         href={item.url}
    
@@ -79,6 +77,7 @@ const MegaMenuComponent: React.FC<MegaMenuComponentProps> = ({ item }) => {
         <div className="absolute min-w-max inset-x-0 top-full z-50 hidden bg-white shadow-lg group-hover:flex">
           <div className="flex justify-around w-full px-8 py-4">
             <ul className="flex justify-around space-x-8">
+
               {item.items && item.items.map((subItem) => (
                 <li key={subItem.title} className="text-left">
                   <Link

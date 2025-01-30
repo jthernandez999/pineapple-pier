@@ -99,7 +99,7 @@ export default function HeroBanner({ banners, interval = 4000 }: BannerProps) {
             ></div>
 
             {/* Overlay */}
-            <div className="absolute inset-0 bg-black/30"></div>
+            <div className="absolute inset-0 bg-black/10"></div>
 
             {/* Content */}
             <div className="relative z-20 flex h-full w-full flex-col items-center justify-center px-4 text-center text-white">

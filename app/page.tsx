@@ -17,30 +17,30 @@ export default function HomePage() {
         banners={[
           {
             image:
-              'https://cdn.shopify.com/s/files/1/1024/2207/files/HAMPTON_SHORTS_YOUR_SPRING_MUST-HAVES.jpg?v=1737565216',
-            // title: 'Summer Sale',
-            // // description: 'Get up to 50% off!',
-            // buttonText: 'Shop Now',
-            // buttonLink: '/collections/shop-all-clothing'
+              'https://cdn.shopify.com/s/files/1/1024/2207/files/Hero1_Na_SPR25_JAN.jpg?v=1737502973',
+            title: 'Spring Refresh',
+            description: 'SIMPLE, CHIC, EFFORTLESS',
+            buttonText: 'Shop Now New Arrivals',
+            buttonLink: '/collections/shop-new-arrivals'
           },
-          {
-            image:
-              'https://cdn.shopify.com/s/files/1/1024/2207/files/HAMPTON_SHORTS_YOUR_SPRING_MUST-HAVES.jpg?v=1737565216',
-            // title: 'Summer Sale',
-            // description: 'Get up to 50% off!',
-            // buttonText: 'Shop Now',
-            // buttonLink: '/collections/shop-all-clothing'
-          },
-          {
-            image:
-              'https://cdn.shopify.com/s/files/1/1024/2207/files/HAMPTON_SHORTS_YOUR_SPRING_MUST-HAVES.jpg?v=1737565216',
-          //   title: 'Summer Sale',
-          //   description: 'Get up to 50% off!',
-          //   buttonText: 'Shop Now',
-          //   buttonLink: '/collections/shop-all-clothing'
-          }
+          // {
+          //   image:
+          //     'https://cdn.shopify.com/s/files/1/1024/2207/files/Hero1_Na_SPR25_JAN.jpg?v=1737502973',
+          //   // title: 'Summer Sale',
+          //   // description: 'Get up to 50% off!',
+          //   // buttonText: 'Shop Now',
+          //   // buttonLink: '/collections/shop-all-clothing'
+          // },
+          // {
+          //   image:
+          //     'https://cdn.shopify.com/s/files/1/1024/2207/files/Hero1_Na_SPR25_JAN.jpg?v=1737502973',
+          // //   title: 'Summer Sale',
+          // //   description: 'Get up to 50% off!',
+          // //   buttonText: 'Shop Now',
+          // //   buttonLink: '/collections/shop-all-clothing'
+          // }
         ]}
-        interval={15500} // Adjust interval to 5 seconds
+        // interval={15500} // Adjust interval to 5 seconds
       />      
       <ThreeItemGrid />
       <Carousel />
