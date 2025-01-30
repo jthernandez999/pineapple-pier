@@ -134,14 +134,14 @@ console.log('MENU', menu)
   
 
   return (
-    <nav className="relative flex items-center justify-between p-4 lg:px-6">
+    <nav className="relative flex items-center justify-between p-4 lg:px-6 bg-white shadow-lg">
       <div className="block flex-none md:hidden">
         <Suspense fallback={null}>
           <MobileMenu menu={menu} />
         </Suspense>
       </div>
-      <div className="flex w-full items-center">
-        <div className="flex w-full md:w-1/3">
+      <div className="flex w-full items-center justify-self-center">
+        <div className="flex w-full md:w-1/3 justify-self-center">
           <Link
             href="/"
             prefetch={true}
@@ -154,7 +154,8 @@ console.log('MENU', menu)
           </Link>
           <div className="hidden md:flex md:items-center">
           {menu.length ? (
-          <ul className="hidden gap-6 text-sm md:flex md:items-center">
+          // <ul className="hidden gap-6 text-sm md:flex md:items-center">
+          <ul className=" flex gap-12 ">
           {menu.map((item: Menu) => (
               <MegaMenuComponent key={item.title} item={item} path={item.url} />
           ))}
@@ -183,9 +184,13 @@ interface MegaMenuComponentProps {
   path: string;
 }
 
-const MegaMenuComponent: React.FC<MegaMenuComponentProps> = ({ item, path }) => {
+const MegaMenuComponent: React.FC<MegaMenuComponentProps> = ({ item }) => {
   const hasSubmenu = item.items && item.items.length > 0;
   return (
+    // this nav is a drop down menu that spans acrros the full screen on desktop and the links are always at start position 
+
+
+    <div className="flex items-center justify-center">
     <li className="group relative">
       <Link
         href={item.path}
@@ -201,7 +206,7 @@ const MegaMenuComponent: React.FC<MegaMenuComponentProps> = ({ item, path }) => 
                 <li key={subItem.title} className="text-center">
                   <Link
                     href={subItem.path}
-                    className="block py-2 text-lg font-semibold text-gray-700 hover:text-gray-900"
+                    className="block py-2 text-lg font-semibold text-gray-700 hover:text-gray-900" 
                   >
                     {subItem.title}
                   </Link>
@@ -227,5 +232,6 @@ const MegaMenuComponent: React.FC<MegaMenuComponentProps> = ({ item, path }) => 
         </div>
       )}
     </li>
+    </div>
   );
 };
