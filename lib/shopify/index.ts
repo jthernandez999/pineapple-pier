@@ -39,7 +39,6 @@ import {
   ShopifyCollectionProductsOperation,
   ShopifyCollectionsOperation,
   ShopifyCreateCartOperation,
-  ShopifyMenuOperation,
   ShopifyPageOperation,
   ShopifyPagesOperation,
   ShopifyProduct,
@@ -340,6 +339,41 @@ export async function getCollections(): Promise<Collection[]> {
   return collections;
 }
 
+// export async function getMenu(handle: string): Promise<Menu[]> {
+//   const res = await shopifyFetch<ShopifyMenuOperation>({
+//     query: getMenuQuery,
+//     tags: [TAGS.collections],
+//     variables: {
+//       handle
+//     }
+//   });
+
+//   return (
+//     console.log('MENU', res.body?.data?.menu?.items),
+//     res.body?.data?.menu?.items.map((item: { title: string; url: string }) => ({
+//       title: item.title,
+//       path: item.url.replace(domain, '').replace('/collections', '/search').replace('/pages', '')
+//     })) || []
+//   );
+// }
+
+// export async function getMenu(handle: string): Promise<Menu[]> {
+//   const res = await shopifyFetch<ShopifyMenuOperation>({
+//     query: getMenuQuery,
+//     tags: [TAGS.collections],
+//     variables: {
+//       handle
+//     }
+//   });
+//   console.log('MENU RES.BODY', JSON.stringify(res.body?.data?.menu, null, 2)); // Better structured logging
+//   return (
+//     res.body?.data?.menu?.items.map((item: { title: string; url: string }) => ({
+//             title: item.title,
+//       path: item.url.replace(domain, '').replace('/collections', '/search').replace('/pages', '')
+//   })) || []
+//   );
+// }
+
 export async function getMenu(handle: string): Promise<Menu[]> {
   const res = await shopifyFetch<ShopifyMenuOperation>({
     query: getMenuQuery,
@@ -349,13 +383,20 @@ export async function getMenu(handle: string): Promise<Menu[]> {
     }
   });
 
-  return (
-    res.body?.data?.menu?.items.map((item: { title: string; url: string }) => ({
+  // Function to recursively process menu items
+  function processMenuItems(items: MenuItem[]): Menu[] {
+    return items.map(item => ({
       title: item.title,
-      path: item.url.replace(domain, '').replace('/collections', '/search').replace('/pages', '')
-    })) || []
-  );
+      path: item.url.replace(domain, ''), // Simplified transformation
+      items: item.items ? processMenuItems(item.items) : undefined
+    }));
+  }
+
+  console.log('MENU RES.BODY', JSON.stringify(res.body?.data?.menu, null, 2));
+  return res.body?.data?.menu?.items ? processMenuItems(res.body.data.menu.items) : [];
 }
+
+
 
 export async function getPage(handle: string): Promise<Page> {
   const res = await shopifyFetch<ShopifyPageOperation>({

@@ -1,3 +1,4 @@
+
 export type Maybe<T> = T | null;
 
 export type Connection<T> = {
@@ -47,17 +48,29 @@ export type Image = {
   height: number;
 };
 
-// export type Menu = {
+// export type Menu = { original
 //   title: string;
 //   path: string;
 // };
 
-export type Menu = {
-  title: string;
-  path: string;
-  items?: Menu[]; // Optional array of Menu type for submenus
-};
+// export type Menu = { 2nd iteration
+//   title: string;
+//   path: string;
+//   items?: Menu[]; 
+// };
 
+export type MenuItem = {
+  title: string;
+  url: string;
+  items?: MenuItem[];
+}
+
+export type Menu = {
+  path: string;
+  title: string;
+  url: string;
+  items?: Menu[];
+}
 
 export type Money = {
   amount: string;

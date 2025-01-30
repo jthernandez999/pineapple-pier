@@ -123,6 +123,7 @@ import { Suspense } from 'react';
 import MobileMenu from './mobile-menu';
 import Search, { SearchSkeleton } from './search';
 
+
 const { SITE_NAME } = process.env;
 
 export async function Navbar() {
@@ -155,7 +156,7 @@ console.log('MENU', menu)
           {menu.length ? (
           <ul className="hidden gap-6 text-sm md:flex md:items-center">
           {menu.map((item: Menu) => (
-              <MegaMenuComponent key={item.title} item={item} />
+              <MegaMenuComponent key={item.title} item={item} path={item.url} />
           ))}
         </ul>
           )
@@ -179,9 +180,10 @@ console.log('MENU', menu)
 
 interface MegaMenuComponentProps {
   item: Menu;
+  path: string;
 }
 
-const MegaMenuComponent: React.FC<MegaMenuComponentProps> = ({ item }) => {
+const MegaMenuComponent: React.FC<MegaMenuComponentProps> = ({ item, path }) => {
   const hasSubmenu = item.items && item.items.length > 0;
   return (
     <li className="group relative">
