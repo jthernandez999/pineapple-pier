@@ -40,7 +40,7 @@ export default function HomePage() {
           //   buttonLink: '/collections/shop-all-clothing'
           }
         ]}
-        interval={5500} // Adjust interval to 5 seconds
+        // interval={5500} // Adjust interval to 5 seconds
       />      
       <ThreeItemGrid />
       <Carousel />
