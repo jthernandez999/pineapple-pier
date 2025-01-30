@@ -135,7 +135,7 @@ console.log('MENU', menu)
 
   return (
     <nav className="relative flex items-center justify-between p-4 lg:px-6 bg-white shadow-lg">
-      <div className="block flex-none md:hidden">
+      <div className="block flex-none md:hidden ">
         <Suspense fallback={null}>
           <MobileMenu menu={menu} />
         </Suspense>
@@ -187,7 +187,7 @@ interface MegaMenuComponentProps {
 const MegaMenuComponent: React.FC<MegaMenuComponentProps> = ({ item }) => {
   const hasSubmenu = item.items && item.items.length > 0;
   return (
-    // this nav is a drop down menu that spans acrros the full screen on desktop and the links are always at start position 
+    // this nav is a drop down menu that spans across the full screen on desktop and the links are always at start position 
 
 
     <div className="flex items-center justify-center">
@@ -199,7 +199,8 @@ const MegaMenuComponent: React.FC<MegaMenuComponentProps> = ({ item }) => {
         {item.title}
       </Link>
       {hasSubmenu && (
-        <div className="absolute inset-x-0 top-full z-50 hidden bg-white shadow-lg group-hover:flex">
+        <div className="absolute w-full inset-x-10 top-full z-50 hidden bg-white shadow-lg group-hover:flex">
+          
           <div className="mx-auto px-8 py-4 w-full max-w-screen-xl">
             <ul className="flex justify-around space-x-8">
               {item.items && item.items.map((subItem) => (
