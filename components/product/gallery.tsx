@@ -39,8 +39,10 @@ export function Gallery({ images }: { images: { src: string; altText: string }[]
                 <Image
                   className="object-fit h-full w-full object-cover" // Adjusted class names for full coverage
                   fill // Keeps fill layout
-                  alt={images[imageIndex]?.altText as string}
-                  src={images[imageIndex]?.src as string}
+                  alt={image.altText as string}
+                  src={image.src as string}
+                  // alt={images[imageIndex]?.altText as string}
+                  // src={images[imageIndex]?.src as string}
                 />
               </div>
             ))}
@@ -48,46 +50,56 @@ export function Gallery({ images }: { images: { src: string; altText: string }[]
         </div>
 
         <div className="hidden md:block">
-          {/* Existing desktop layout */}
-          <div className="flex flex-col md:mb-4 md:flex-row">
-            {images.slice(imageIndex, imageIndex + 2).map((image, idx) => (
-              <div
-                key={idx}
-                className="relative aspect-square h-full w-full flex-1 overflow-hidden"
-              >
-                <Image
-                  className="h-full w-full object-cover"
-                  fill
-                  sizes="(min-width: 1024px) 50vw, 100vw"
-                  alt={images[imageIndex]?.altText as string}
-                  src={images[imageIndex]?.src as string}
-                  priority={idx === 0} // Priority true for only the first image
-                />
-              </div>
-            ))}
+          {/* Main large image taking full width */}
+          <div className="flex h-screen w-full">
+            <div className="w-full">
+              <Image
+                className="h-full w-full object-cover"
+                fill
+                sizes="(min-width: 1024px) 100vw, 100vw"
+                alt={images[imageIndex]?.altText as string}
+                src={images[imageIndex]?.src as string}
+                priority={true} // Priority for the first main image
+              />
+            </div>
           </div>
-          <div className="flex flex-col md:flex-row">
-            {images.slice(imageIndex + 2, imageIndex + 4).map((image, idx) => (
-              <div
-                key={idx + 2}
-                className="relative aspect-square h-full w-full flex-1 overflow-hidden"
-              >
-                <Image
-                  className="h-full w-full object-cover"
-                  fill
-                  sizes="(min-width: 1024px) 50vw, 100vw"
-                  alt={images[imageIndex]?.altText as string}
-                  src={images[imageIndex]?.src as string}
-                  priority={false}
-                />
-              </div>
-            ))}
+          {/* Rows of two images each, each taking half the width of the main image */}
+          <div className="flex w-full flex-wrap">
+            {images.slice(imageIndex + 1).map(
+              (image, idx) =>
+                idx % 2 === 0 && (
+                  <div key={idx} className="flex w-full">
+                    <div className="w-1/2">
+                      <Image
+                        className="h-full w-full object-cover"
+                        fill
+                        sizes="(min-width: 1024px) 50vw, 100vw"
+                        alt={image.altText as string}
+                        src={image.src as string}
+                        priority={false}
+                      />
+                    </div>
+                    {images[imageIndex + 1 + idx + 1] && (
+                      <div className="w-1/2">
+                        <Image
+                          className="h-full w-full object-cover"
+                          fill
+                          sizes="(min-width: 1024px) 50vw, 100vw"
+                          alt={images[imageIndex + 1 + idx + 1]?.altText as string}
+                          src={images[imageIndex + 1 + idx + 1]?.src as string}
+                          priority={false}
+                        />
+                      </div>
+                    )}
+                  </div>
+                )
+            )}
           </div>
         </div>
 
         {/* Navigation and thumbnail components remain unchanged */}
         {images.length > 1 ? (
-          <div className="absolute bottom-[15%] flex w-full justify-center">
+          <div className="absolute bottom-[15%] flex w-full justify-center md:hidden">
             <div className="mx-auto flex h-11 items-center rounded-full border border-white bg-neutral-50/80 text-neutral-500 backdrop-blur dark:border-black dark:bg-neutral-900/80">
               <button
                 onClick={(event) => {
@@ -139,7 +151,7 @@ export function Gallery({ images }: { images: { src: string; altText: string }[]
         ) : null}
       </div>
       {images.length > 1 ? (
-        <ul className="my-12 flex flex-wrap items-center justify-center gap-2 overflow-auto py-1 lg:mb-0">
+        <ul className="my-12 flex flex-wrap items-center justify-center gap-2 overflow-auto py-1 md:hidden lg:mb-0">
           {images.map((image, index) => {
             const isActive = index === imageIndex;
 
