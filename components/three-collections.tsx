@@ -14,9 +14,9 @@ interface CollectionImageProps {
 
 export default function ThreeImageCollections({ collectionImages }: CollectionImageProps) {
   return (
-<div className="flex w-full 2xl:h-[1060px] 2xl:w-[2548px] flex-col justify-center gap-4 bg-white p-4 h-full sm:w-[100vh] xs:w-[100vw] xs:h-[100vh] md:flex-row">
+    <div className="xs:w-[100vw] xs:h-[100vh] flex h-full w-full flex-col justify-center gap-4 bg-white p-4 sm:w-[100vh] md:flex-row 2xl:h-[1060px] 2xl:w-[2548px]">
       {collectionImages.map((image, index) => (
-        <div key={index} className="relative h-screen 2xl:h-full w-full">
+        <div key={index} className="relative h-screen w-full 2xl:h-full">
           <Link href={image.buttonLink} className="relative block h-[100%]">
             <Image
               src={image.image}
@@ -27,7 +27,7 @@ export default function ThreeImageCollections({ collectionImages }: CollectionIm
                 objectPosition: 'center'
               }}
             />
-            <h3 className="absolute bottom-0 left-0 w-full bg-black bg-opacity-10 p-2 text-lg font-semibold text-white">
+            <h3 className="absolute bottom-2 left-2 w-full bg-black bg-opacity-0 p-2 text-2xl font-semibold capitalize text-white">
               {image.title}
             </h3>
           </Link>

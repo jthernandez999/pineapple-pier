@@ -31,4 +31,4 @@ export const getMenuQuery = /* GraphQL */ `
   }
 `;
 
-console.log('GETMENUQUERY', getMenuQuery)
+// console.log('GETMENUQUERY', getMenuQuery)

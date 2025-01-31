@@ -1,22 +1,20 @@
-'use client'
+'use client';
 
 import Image from 'next/image';
 import type { FC } from 'react';
 import { useState } from 'react';
 
-
-
 interface highlightCollectionProps {
-    highlightCollectionImages: {
-        title?: string;
-        description?: string;
-        image: string;
-        video?: string;
-        mobileImage?: string;
-        mobileVideo?: string;
-        buttonText?: string;
-        buttonLink?: string;
-    }[];
+  highlightCollectionImages: {
+    title?: string;
+    description?: string;
+    image: string;
+    video?: string;
+    mobileImage?: string;
+    mobileVideo?: string;
+    buttonText?: string;
+    buttonLink?: string;
+  }[];
 }
 
 const HighlightCollection: FC<highlightCollectionProps> = ({ highlightCollectionImages = [] }) => {

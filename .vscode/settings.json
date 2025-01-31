@@ -5,5 +5,7 @@
     "source.fixAll": "explicit",
     "source.organizeImports": "explicit",
     "source.sortMembers": "explicit"
-  }
+  },
+  "prettier.tabWidth": 3,
+  "editor.formatOnSave": true
 }
