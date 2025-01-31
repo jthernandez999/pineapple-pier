@@ -70,9 +70,7 @@ export default function HeroBanner({ banners, interval = 4000 }: BannerProps) {
 
   return (
     <section
-    //   className="relative w-full overflow-hidden"
-    className='relative w-full overflow-hidden h-[calc(100vh-64px)] md:h-[calc(100vh-80px)] lg:h-[calc(100vh-96px)] xl:h-[calc(100vh-112px)] 2xl:h-[calc(100vh-128px)]
-    '
+      className="relative h-[calc(100vh-64px)] w-full overflow-hidden md:h-[calc(100vh-80px)] lg:h-[calc(100vh-96px)] xl:h-[calc(100vh-112px)] 2xl:h-[calc(100vh-128px)]"
       ref={bannerRef}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
@@ -82,23 +80,34 @@ export default function HeroBanner({ banners, interval = 4000 }: BannerProps) {
       onMouseUp={handleTouchEnd}
       onMouseLeave={handleTouchEnd}
     >
-      {banners.map((banner, index) => (
+         {banners.map((banner, index) => (
         <div
           key={index}
           className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${index === currentBanner ? 'opacity-100' : 'opacity-0'}`}
           style={{ display: 'grid', placeItems: 'center' }}
         >
-            {banner.image ?(
-          <Image
-            // src={banner.image || 'https://cdn.shopify.com/s/files/1/1024/2207/files/Hero1_Na_SPR25_JAN.jpg?v=1737502973'}
-            src={banner.image}
-            alt={banner.title || 'Banner'}
-            priority={index === 0}
-            fill 
-            onLoad={() => setIsLoading(false)}
-            className={`${isLoading ? 'scale-110 blur-2xl' : 'scale-100 blur-none'} transition-all duration-700 ease-in-out`}
-          />
-          ) : null}
+          {/* Desktop Image */}
+          <div className="hidden md:block">
+            <Image
+              src={banner.image}
+              alt={banner.title || 'Banner'}
+              priority={index === 0}
+              fill
+              onLoad={() => setIsLoading(false)}
+              className={`${isLoading ? 'scale-110 blur-2xl' : 'scale-100 blur-none'} transition-all duration-700 ease-in-out`}
+            />
+          </div>
+          {/* Mobile Image */}
+          <div className="block md:hidden">
+            <Image
+              src={banner.mobileImage || banner.image} // Fallback to desktop image if mobile image not specified
+              alt={banner.title || 'Banner'}
+              priority={index === 0}
+              fill
+              onLoad={() => setIsLoading(false)}
+              className={`${isLoading ? 'scale-110 blur-2xl' : 'scale-100 blur-none'} transition-all duration-700 ease-in-out`}
+            />
+          </div>
 
           <div className="absolute inset-0 bg-black/10"></div>
 
@@ -126,6 +135,7 @@ export default function HeroBanner({ banners, interval = 4000 }: BannerProps) {
           ></button>
         ))}
       </div>
+      
     </section>
   );
 }
