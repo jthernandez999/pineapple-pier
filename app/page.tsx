@@ -12,14 +12,13 @@ export const metadata = {
   }
 };
 
-
 export default function HomePage() {
   return (
     <>
-  <HeroBanner banners={banners} interval={1100} /> 
-  <ThreeImageCollections collectionImages={collectionImages} />     
-      <ThreeItemGrid />
+      <HeroBanner banners={banners} interval={1100} />
+      <ThreeImageCollections collectionImages={collectionImages} />
       <Carousel />
+      <ThreeItemGrid />
       <Footer />
     </>
   );
