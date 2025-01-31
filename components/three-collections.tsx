@@ -27,7 +27,7 @@ export default function ThreeImageCollections({ collectionImages }: CollectionIm
                 objectPosition: 'center'
               }}
             />
-            <h3 className="absolute bottom-2 left-2 w-full bg-black bg-opacity-0 p-2 text-2xl font-semibold capitalize text-white">
+            <h3 className="absolute bottom-2 left-2 w-full bg-black bg-opacity-0 p-2 text-2xl font-semibold uppercase text-white hover:text-gray-300">
               {image.title}
             </h3>
           </Link>
