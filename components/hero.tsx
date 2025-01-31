@@ -93,6 +93,10 @@ export default function HeroBanner({ banners, interval = 4000 }: BannerProps) {
               alt={banner.title || 'Banner'}
               priority={index === 0}
               fill
+              style={{
+                objectFit: 'cover',
+                objectPosition: 'center'
+              }}
               onLoad={() => setIsLoading(false)}
               className={`${isLoading ? 'scale-110 blur-2xl' : 'scale-100 blur-none'} transition-all duration-700 ease-in-out`}
             />

@@ -1,5 +1,5 @@
 // assets.js
-const banners = [
+export const banners = [
     {
       image: 'https://cdn.shopify.com/s/files/1/1024/2207/files/Hero1_Na_SPR25_JAN.jpg?v=1737502973',
       mobileImage: 'https://cdn.shopify.com/s/files/1/1024/2207/files/alldenim.jpg?v=1737503628',
@@ -11,5 +11,30 @@ const banners = [
     // Add more banners as needed
   ];
   
-  export default banners;
+
   
+
+ export const collectionImages = [
+    {
+      image: 'https://cdn.shopify.com/s/files/1/1024/2207/files/wideleg.jpg?v=1737503628',
+      title: 'Spring 2025 Collection',
+    //   description: 'SIMPLE, CHIC, EFFORTLESS',
+    //   buttonText: 'Shop Now New Arrivals',
+      buttonLink: '/collections/shop-new-arrivals'
+    },
+    {
+      image: 'https://cdn.shopify.com/s/files/1/1024/2207/files/tops_shirts.jpg?v=1737503628',
+      title: 'Spring 2025 Collection',
+    //   description: 'SIMPLE, CHIC, EFFORTLESS',
+    //   buttonText: 'Shop Now New Arrivals',
+      buttonLink: '/collections/shop-new-arrivals'
+    },
+    {
+      image: 'https://cdn.shopify.com/s/files/1/1024/2207/files/outerwear.jpg?v=1737503628',
+      title: 'Spring 2025 Collection',
+    //   description: 'SIMPLE, CHIC, EFFORTLESS',
+    //   buttonText: 'Shop Now New Arrivals',
+      buttonLink: '/collections/shop-new-arrivals'
+    },
+   
+  ];
