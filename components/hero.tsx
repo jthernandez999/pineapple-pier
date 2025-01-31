@@ -117,7 +117,7 @@ export default function HeroBanner({ banners, interval = 4000 }: BannerProps) {
             />
           </div>
 
-          <div className="absolute inset-0 bg-black/10"></div>
+          <div className="absolute inset-0 bg-black/01"></div>
 
           <div className="relative z-10 p-4 text-center text-white">
             {banner.title && <h2 className="text-xl font-bold md:text-3xl">{banner.title}</h2>}
