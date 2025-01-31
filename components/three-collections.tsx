@@ -14,12 +14,11 @@ interface CollectionImageProps {
 
 export default function ThreeImageCollections({ collectionImages }: CollectionImageProps) {
   return (
-<div className="flex aspect-auto h-[100vh] w-[100vw] min-h-max flex-col justify-center gap-4 bg-white p-4 sm:aspect-square md:h-[100vh] md:flex-row">
+<div className="flex w-full 2xl:h-[1060px] 2xl:w-[2548px] flex-col justify-center gap-4 bg-white p-4 h-full sm:w-[100vh] xs:w-[100vw] xs:h-[100vh] md:flex-row">
       {collectionImages.map((image, index) => (
-        <div key={index} className="aspect-w-4 aspect-h-5 relative h-full w-full min-h-max">
+        <div key={index} className="relative h-screen 2xl:h-full w-full">
           <Link href={image.buttonLink} className="relative block h-[100%]">
             <Image
-              className='py-auto h-full w-full rounded-md shadow-md aspect-auto sm:aspect-square md:rounded-none md:aspect-square'
               src={image.image}
               alt={`Image ${index + 1}`}
               fill
