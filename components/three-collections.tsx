@@ -28,7 +28,7 @@ export default function ThreeImageCollections({ collectionImages }: CollectionIm
               }}
               className="h-full w-full rounded-md shadow-md"
             />
-            <h3 className="absolute bottom-0 left-0 w-full bg-black bg-opacity-50 p-2 text-lg font-semibold text-white">
+            <h3 className="absolute bottom-0 left-0 w-full bg-black bg-opacity-10 p-2 text-lg font-semibold text-white">
               {image.title}
             </h3>
           </Link>
