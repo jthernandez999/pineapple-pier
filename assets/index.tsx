@@ -38,3 +38,15 @@ export const banners = [
     },
    
   ];
+
+
+  export const highlightCollectionImages = [
+    {
+        image: 'https://cdn.shopify.com/s/files/1/1024/2207/files/HAMPTON_SHORTS_YOUR_SPRING_MUST-HAVES.jpg?v=1737565216',
+        mobileImage: 'https://cdn.shopify.com/s/files/1/1024/2207/files/Untitled_design_24.jpg?v=1737565216',
+        // title: 'Spring 2025 Collection',
+        // description: 'SIMPLE, CHIC, EFFORTLESS',
+        buttonText: 'Shop The Collection',
+        buttonLink: '/collections/shop-new-arrivals'
+        },  
+    ]
