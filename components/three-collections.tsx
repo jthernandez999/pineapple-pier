@@ -17,7 +17,7 @@ export default function ThreeImageCollections({ collectionImages }: CollectionIm
     <div className="flex h-[100vh] w-[100vw] flex-col justify-center gap-4 bg-white p-4 md:h-[100vh] md:flex-row">
       {collectionImages.map((image, index) => (
         <div key={index} className="aspect-w-4 aspect-h-5 relative h-full w-full">
-          <Link href={image.buttonLink} className="relative block h-full">
+          <Link href={image.buttonLink} className="relative block h-[100%]">
             <Image
               src={image.image}
               alt={`Image ${index + 1}`}

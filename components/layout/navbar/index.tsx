@@ -16,7 +16,7 @@ export async function Navbar() {
   const menu: Menu[] = await getMenu('main-menu');
 console.log('MENU', menu);
   return (
-    <nav className="sticky z-50 top-0 bg-white border-gray-200 dark:border-gray-600 dark:bg-gray-900">
+    <nav className="sticky z-50 top-0 shadow-xl bg-white border-gray-200 dark:border-gray-600 dark:bg-gray-900">
     <div className="flex flex-wrap justify-between items-center mx-auto max-w-screen-xl p-4">
 {/* <nav className="bg-white border-gray-200 dark:bg-gray-900 dark:border-gray-700">
   <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4"> */}
