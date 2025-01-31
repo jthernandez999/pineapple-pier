@@ -98,12 +98,16 @@ export default function HeroBanner({ banners, interval = 4000 }: BannerProps) {
             />
           </div>
           {/* Mobile Image */}
-          <div className="block md:hidden">
+          <div className="block md:hidden ">
             <Image
               src={banner.mobileImage || banner.image} // Fallback to desktop image if mobile image not specified
               alt={banner.title || 'Banner'}
               priority={index === 0}
               fill
+              style={{
+                objectFit: 'cover',
+                objectPosition: 'center'
+              }}
               onLoad={() => setIsLoading(false)}
               className={`${isLoading ? 'scale-110 blur-2xl' : 'scale-100 blur-none'} transition-all duration-700 ease-in-out`}
             />
