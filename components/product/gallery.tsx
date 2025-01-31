@@ -39,8 +39,8 @@ export function Gallery({ images }: { images: { src: string; altText: string }[]
                 <Image
                   className="object-fit h-full w-full object-cover" // Adjusted class names for full coverage
                   fill // Keeps fill layout
-                  alt={image.altText}
-                  src={image.src}
+                  alt={images[imageIndex]?.altText as string}
+                  src={images[imageIndex]?.src as string}
                 />
               </div>
             ))}
@@ -59,8 +59,8 @@ export function Gallery({ images }: { images: { src: string; altText: string }[]
                   className="h-full w-full object-cover"
                   fill
                   sizes="(min-width: 1024px) 50vw, 100vw"
-                  alt={image.altText as string}
-                  src={image.src as string}
+                  alt={images[imageIndex]?.altText as string}
+                  src={images[imageIndex]?.src as string}
                   priority={idx === 0} // Priority true for only the first image
                 />
               </div>
@@ -76,8 +76,8 @@ export function Gallery({ images }: { images: { src: string; altText: string }[]
                   className="h-full w-full object-cover"
                   fill
                   sizes="(min-width: 1024px) 50vw, 100vw"
-                  alt={image.altText as string}
-                  src={image.src as string}
+                  alt={images[imageIndex]?.altText as string}
+                  src={images[imageIndex]?.src as string}
                   priority={false}
                 />
               </div>
@@ -90,6 +90,30 @@ export function Gallery({ images }: { images: { src: string; altText: string }[]
           <div className="absolute bottom-[15%] flex w-full justify-center">
             <div className="mx-auto flex h-11 items-center rounded-full border border-white bg-neutral-50/80 text-neutral-500 backdrop-blur dark:border-black dark:bg-neutral-900/80">
               <button
+                onClick={(event) => {
+                  event.preventDefault(); // Prevent the form submission
+                  const newState = updateImage(previousImageIndex.toString());
+                  updateURL(newState);
+                }}
+                aria-label="Previous product image"
+                className={buttonClassName}
+              >
+                <ArrowLeftIcon className="h-5" />
+              </button>
+
+              <button
+                onClick={(event) => {
+                  event.preventDefault(); // Prevent the form submission
+                  const newState = updateImage(nextImageIndex.toString());
+                  updateURL(newState);
+                }}
+                aria-label="Next product image"
+                className={buttonClassName}
+              >
+                <ArrowRightIcon className="h-5" />
+              </button>
+
+              {/* <button
                 formAction={() => {
                   const newState = updateImage(previousImageIndex.toString());
                   updateURL(newState);
@@ -109,7 +133,7 @@ export function Gallery({ images }: { images: { src: string; altText: string }[]
                 className={buttonClassName}
               >
                 <ArrowRightIcon className="h-5" />
-              </button>
+              </button> */}
             </div>
           </div>
         ) : null}
@@ -122,7 +146,8 @@ export function Gallery({ images }: { images: { src: string; altText: string }[]
             return (
               <li key={image.src} className="h-20 w-20">
                 <button
-                  formAction={() => {
+                  onClick={(event) => {
+                    event.preventDefault(); // Prevent the form submission
                     const newState = updateImage(index.toString());
                     updateURL(newState);
                   }}
@@ -132,8 +157,8 @@ export function Gallery({ images }: { images: { src: string; altText: string }[]
                   <GridTileImage
                     alt={image.altText}
                     src={image.src}
-                    width={80}
-                    height={80}
+                    width={75}
+                    height={75}
                     active={isActive}
                   />
                 </button>
@@ -141,7 +166,33 @@ export function Gallery({ images }: { images: { src: string; altText: string }[]
             );
           })}
         </ul>
-      ) : null}
+      ) : // <ul className="my-12 flex flex-wrap items-center justify-center gap-2 overflow-auto py-1 lg:mb-0">
+      //   {images.map((image, index) => {
+      //     const isActive = index === imageIndex;
+
+      //     return (
+      //       <li key={image.src} className="h-20 w-20">
+      //         <button
+      //           formAction={() => {
+      //             const newState = updateImage(index.toString());
+      //             updateURL(newState);
+      //           }}
+      //           aria-label="Select product image"
+      //           className="h-full w-full"
+      //         >
+      //           <GridTileImage
+      //             alt={image.altText}
+      //             src={image.src}
+      //             width={75}
+      //             height={75}
+      //             active={isActive}
+      //           />
+      //         </button>
+      //       </li>
+      //     );
+      //   })}
+      // </ul>
+      null}
     </form>
   );
 }
