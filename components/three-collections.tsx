@@ -14,7 +14,7 @@ interface CollectionImageProps {
 
 export default function ThreeImageCollections({ collectionImages }: CollectionImageProps) {
   return (
-    <div className="flex aspect-auto h-screen flex-col justify-center gap-4 bg-white p-4 sm:aspect-square md:h-[100vh] md:flex-row">
+<div className="flex aspect-auto h-[100vh] w-[100vw] min-h-max flex-col justify-center gap-4 bg-white p-4 sm:aspect-square md:h-[100vh] md:flex-row">
       {collectionImages.map((image, index) => (
         <div key={index} className="aspect-w-4 aspect-h-5 relative h-full w-full min-h-max">
           <Link href={image.buttonLink} className="relative block h-[100%]">
