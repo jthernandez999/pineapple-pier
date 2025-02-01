@@ -22,11 +22,14 @@ const HighlightCollection: FC<highlightCollectionProps> = ({ highlightCollection
   const [isLoading, setIsLoading] = useState(true);
 
   return (
-    <div className="relative h-screen w-screen">
+    // Use w-full for width, and a different height on mobile (60vh) versus desktop (h-screen)
+    <div className="relative h-[60vh] w-full md:h-screen">
       {highlightCollectionImages?.map((banner, index) => (
         <div
           key={index}
-          className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${index === currentBanner ? 'opacity-100' : 'opacity-0'}`}
+          className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
+            index === currentBanner ? 'opacity-100' : 'opacity-0'
+          }`}
           style={{ display: 'grid', placeItems: 'center' }}
         >
           {/* Desktop Media */}
@@ -37,8 +40,6 @@ const HighlightCollection: FC<highlightCollectionProps> = ({ highlightCollection
                 loop
                 muted
                 playsInline
-                // priority={index === 0}
-                // fill
                 style={{
                   objectFit: 'cover',
                   width: '100%',
@@ -70,8 +71,6 @@ const HighlightCollection: FC<highlightCollectionProps> = ({ highlightCollection
                 loop
                 muted
                 playsInline
-                // priority={index === 1}
-                // fill
                 style={{
                   objectFit: 'cover',
                   width: '100%',
@@ -118,7 +117,9 @@ const HighlightCollection: FC<highlightCollectionProps> = ({ highlightCollection
           <button
             key={index}
             onClick={() => setCurrentBanner(index)}
-            className={`h-3 w-3 rounded-full ${index === currentBanner ? 'bg-white shadow-lg' : 'bg-gray-400 hover:bg-white'} transition-scale duration-300`}
+            className={`h-3 w-3 rounded-full ${
+              index === currentBanner ? 'bg-white shadow-lg' : 'bg-gray-400 hover:bg-white'
+            } transition-scale duration-300`}
           ></button>
         ))}
       </div>
