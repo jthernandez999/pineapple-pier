@@ -40,7 +40,7 @@ export function Gallery({ images }: { images: { src: string; altText: string }[]
                   className="object-fit h-full w-full object-cover" // Adjusted class names for full coverage
                   fill // Keeps fill layout
                   alt={image.altText as string}
-                  src={image.src as string}
+                  src={(image.src as string) && (images[imageIndex]?.src as string)}
                   // alt={images[imageIndex]?.altText as string}
                   // src={images[imageIndex]?.src as string}
                 />
