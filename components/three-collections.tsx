@@ -14,20 +14,18 @@ interface CollectionImageProps {
 
 export default function ThreeImageCollections({ collectionImages }: CollectionImageProps) {
   return (
-    <div className="xs:w-[100vw] xs:h-[100vh] flex h-full w-full flex-col justify-center gap-4 bg-white p-4 sm:w-[100vh] md:flex-row 2xl:h-[1060px] 2xl:w-[2548px]">
+    <div className="flex h-screen w-full flex-col justify-center gap-4 overflow-hidden bg-white p-4 sm:aspect-square md:h-screen md:flex-row">
       {collectionImages.map((image, index) => (
-        <div key={index} className="relative h-screen w-full 2xl:h-full">
+        <div key={index} className="aspect-w-4 aspect-h-5 relative h-full min-h-max w-full">
           <Link href={image.buttonLink} className="relative block h-[100%]">
             <Image
+              className="xs:object-cover h-full w-full rounded-md object-cover shadow-md sm:object-cover md:rounded-none md:object-cover md:object-center"
               src={image.image}
               alt={`Image ${index + 1}`}
               fill
-              style={{
-                objectFit: 'cover',
-                objectPosition: 'center'
-              }}
             />
-            <h3 className="absolute bottom-2 left-2 w-full bg-black bg-opacity-0 p-2 text-2xl font-semibold uppercase text-white hover:text-gray-300">
+
+            <h3 className="absolute bottom-0 left-0 w-full bg-black bg-opacity-10 p-2 text-lg font-semibold text-white">
               {image.title}
             </h3>
           </Link>
