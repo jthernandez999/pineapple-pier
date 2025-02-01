@@ -12,7 +12,7 @@ interface CollectionImageProps {
   collectionImages: CollectionImage[];
 }
 
-export default function ThreeImageCollections({ collectionImages }: CollectionImageProps) {
+export default function ThreeCollections({ collectionImages }: CollectionImageProps) {
   return (
     <div className="flex h-screen w-full flex-col justify-center gap-4 overflow-hidden bg-white p-4 sm:aspect-square md:h-screen md:flex-row">
       {collectionImages.map((image, index) => (
