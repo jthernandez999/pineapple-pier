@@ -3,6 +3,7 @@ import { ArrowLeftIcon, ArrowRightIcon } from '@heroicons/react/24/outline';
 import { GridTileImage } from 'components/grid/tile';
 import { useProduct, useUpdateURL } from 'components/product/product-context';
 import Image from 'next/image';
+import { useEffect, useRef } from 'react';
 import Slider from 'react-slick';
 import 'slick-carousel/slick/slick-theme.css';
 import 'slick-carousel/slick/slick.css';
@@ -11,6 +12,7 @@ export function Gallery({ images }: { images: { src: string; altText: string }[]
    const { state, updateImage } = useProduct();
    const updateURL = useUpdateURL();
    const imageIndex = state.image ? parseInt(state.image) : 0;
+   const sliderRef = useRef<Slider>(null);
 
    const nextImageIndex = imageIndex + 1 < images.length ? imageIndex + 1 : 0;
    const previousImageIndex = imageIndex === 0 ? images.length - 1 : imageIndex - 1;
@@ -27,22 +29,23 @@ export function Gallery({ images }: { images: { src: string; altText: string }[]
       adaptiveHeight: true
    };
 
+   useEffect(() => {
+      // Tell the slider to go to the slide that matches imageIndex
+      sliderRef.current?.slickGoTo(imageIndex);
+   }, [imageIndex]);
+
    return (
       <form>
          <div className="relative h-full w-full overflow-hidden">
             <div className="md:hidden">
-               <Slider {...settings}>
+               <Slider ref={sliderRef} {...settings}>
                   {images.map((image, idx) => (
                      <div key={idx} className="relative h-screen w-screen">
-                        {' '}
-                        {/* Ensure the container has height of the screen */}
                         <Image
                            className="object-fit h-full w-full object-cover" // Adjusted class names for full coverage
-                           fill // Keeps fill layout
                            alt={image.altText as string}
-                           src={(image.src as string) && (images[imageIndex]?.src as string)}
-                           // alt={images[imageIndex]?.altText as string}
-                           // src={images[imageIndex]?.src as string}
+                           src={image.src as string}
+                           fill
                         />
                      </div>
                   ))}
@@ -106,28 +109,6 @@ export function Gallery({ images }: { images: { src: string; altText: string }[]
                      >
                         <ArrowRightIcon className="h-5" />
                      </button>
-
-                     {/* <button
-                formAction={() => {
-                  const newState = updateImage(previousImageIndex.toString());
-                  updateURL(newState);
-                }}
-                aria-label="Previous product image"
-                className={buttonClassName}
-              >
-                <ArrowLeftIcon className="h-5" />
-              </button>
-              <div className="mx-1 h-6 w-px bg-neutral-500"></div>
-              <button
-                formAction={() => {
-                  const newState = updateImage(nextImageIndex.toString());
-                  updateURL(newState);
-                }}
-                aria-label="Next product image"
-                className={buttonClassName}
-              >
-                <ArrowRightIcon className="h-5" />
-              </button> */}
                   </div>
                </div>
             ) : null}
@@ -160,33 +141,7 @@ export function Gallery({ images }: { images: { src: string; altText: string }[]
                   );
                })}
             </ul>
-         ) : // <ul className="my-12 flex flex-wrap items-center justify-center gap-2 overflow-auto py-1 lg:mb-0">
-         //   {images.map((image, index) => {
-         //     const isActive = index === imageIndex;
-
-         //     return (
-         //       <li key={image.src} className="h-20 w-20">
-         //         <button
-         //           formAction={() => {
-         //             const newState = updateImage(index.toString());
-         //             updateURL(newState);
-         //           }}
-         //           aria-label="Select product image"
-         //           className="h-full w-full"
-         //         >
-         //           <GridTileImage
-         //             alt={image.altText}
-         //             src={image.src}
-         //             width={75}
-         //             height={75}
-         //             active={isActive}
-         //           />
-         //         </button>
-         //       </li>
-         //     );
-         //   })}
-         // </ul>
-         null}
+         ) : null}
       </form>
    );
 }

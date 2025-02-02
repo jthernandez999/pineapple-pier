@@ -14,7 +14,7 @@ interface CollectionImageProps {
 
 export default function ThreeCollections({ collectionImages }: CollectionImageProps) {
    return (
-      <div className="w-full overflow-hidden bg-white p-4 md:h-screen">
+      <div className="mt= w-full overflow-hidden bg-white p-4 md:h-screen">
          {/* Use flex-col on mobile and flex-row on desktop */}
          <div className="flex flex-col gap-4 md:flex-row">
             {collectionImages.map((image, index) => {
