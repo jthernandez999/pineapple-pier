@@ -40,9 +40,9 @@ export function Gallery({ images }: { images: { src: string; altText: string }[]
             <div className="md:hidden">
                <Slider ref={sliderRef} {...settings}>
                   {images.map((image, idx) => (
-                     <div key={idx} className="relative h-screen w-screen">
+                     <div key={idx} className="relative h-[70vh] w-screen">
                         <Image
-                           className="object-fit h-full w-full object-cover" // Adjusted class names for full coverage
+                           className="object-fit h-full w-full object-contain" // Adjusted class names for full coverage
                            alt={image.altText as string}
                            src={image.src as string}
                            fill
