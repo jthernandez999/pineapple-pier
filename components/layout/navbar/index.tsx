@@ -105,6 +105,7 @@ const MegaMenuComponent: React.FC<MegaMenuComponentProps> = ({ item }) => {
                   </ul>
                   <div className="flex flex-col-reverse">
                      <Image
+                        alt="Essential Tees"
                         src="https://cdn.shopify.com/s/files/1/1024/2207/files/essentialTees.jpg?v=1737503628"
                         width={200}
                         height={200}
