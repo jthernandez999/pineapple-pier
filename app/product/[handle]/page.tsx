@@ -80,30 +80,38 @@ export default async function ProductPage(props: { params: Promise<{ handle: str
                __html: JSON.stringify(productJsonLd)
             }}
          />
-         <div className="mx-auto max-w-screen-2xl">
-            <div className="flex flex-col rounded-lg border border-neutral-200 bg-white dark:border-neutral-800 dark:bg-black lg:flex-row">
-               <div className="h-full w-full basis-full lg:basis-4/6">
-                  <Suspense
-                     fallback={
-                        <div className="relative aspect-square h-full max-h-[550px] w-full overflow-hidden" />
-                     }
-                  >
-                     <Gallery
-                        images={product.images.slice(0, 5).map((image: Image) => ({
-                           src: image.url,
-                           altText: image.altText
-                        }))}
-                     />
-                  </Suspense>
-               </div>
+         <div className="mx-auto">
+            <main>
+               <div className="mx-auto max-w-full">
+                  <div className="md:pb-[32px] min-[770px]:max-[1024px]:pb-8 lg:mx-auto lg:w-[80vw] lg:items-center lg:justify-center 2xl:w-[80vw]">
+                     <div className="flex min-[770px]:max-[1024px]:flex min-[770px]:max-[1024px]:w-full min-[770px]:max-[1024px]:flex-col lg:flex-row">
+                        {/* Left: Product Media */}
+                        <div className="px-auto mx-auto mt-0 w-screen basis-full pt-0 min-[770px]:max-[1024px]:basis-full lg:basis-4/6 lg:flex-row lg:pr-[2.2rem]">
+                           <Suspense
+                              fallback={
+                                 <div className="relative h-full max-h-[550px] w-full overflow-hidden" />
+                              }
+                           >
+                              <Gallery
+                                 images={product.images.slice(0, 5).map((image: Image) => ({
+                                    src: image.url,
+                                    altText: image.altText
+                                 }))}
+                              />
+                           </Suspense>
+                        </div>
 
-               <div className="basis-full lg:basis-2/6">
-                  <Suspense fallback={null}>
-                     <ProductDescription product={product} />
-                  </Suspense>
+                        {/* Right: Product Details */}
+                        <div className="product_productDetail__hIV0I mx-auto flex basis-full flex-col lg:basis-1/2">
+                           <Suspense fallback={null}>
+                              <ProductDescription product={product} />
+                           </Suspense>
+                        </div>
+                     </div>
+                  </div>
                </div>
-            </div>
-            <RelatedProducts id={product.id} />
+               <RelatedProducts id={product.id} />
+            </main>
          </div>
          <Footer />
       </ProductProvider>

@@ -36,7 +36,7 @@ export function Gallery({ images }: { images: { src: string; altText: string }[]
 
    return (
       <form>
-         <div className="relative h-full w-full overflow-hidden">
+         <div className="relative mt-0 h-full w-full overflow-hidden pt-0">
             <div className="md:hidden">
                <Slider ref={sliderRef} {...settings}>
                   {images.map((image, idx) => (
@@ -51,37 +51,43 @@ export function Gallery({ images }: { images: { src: string; altText: string }[]
                   ))}
                </Slider>
             </div>
-
-            <div className="hidden md:block">
+            {/* Desktop Layout  */}
+            <div className="hidden w-[50vw] md:block">
                {/* Main large image */}
-               <div className="relative h-[60vh] w-full">
-                  <Image
-                     src={images[imageIndex]?.src as string}
-                     alt={images[imageIndex]?.altText as string}
-                     fill
-                     sizes="100vw"
-                     className="object-cover"
-                     priority={true} // Main image gets the VIP treatment
-                  />
-               </div>
-
-               {/* 2x2 grid of smaller images */}
-               <div className="flex flex-wrap">
-                  {images.slice(imageIndex + 1, imageIndex + 5).map((img, idx) => (
-                     <div key={idx} className="relative h-[30vh] w-1/2">
+               <div>
+                  <div className="relative h-[100vh] w-full">
+                     <figure className="relative h-full w-full 2xl:h-full">
                         <Image
-                           src={img.src as string}
-                           alt={img.altText as string}
+                           src={images[imageIndex]?.src as string}
+                           alt={images[imageIndex]?.altText as string}
                            fill
-                           sizes="50vw"
+                           sizes="100vw"
                            className="object-cover"
-                           priority={false}
+                           priority={true} // Main image gets the VIP treatment
                         />
-                     </div>
-                  ))}
+                     </figure>
+                  </div>
+
+                  {/* 2x2 grid of smaller images */}
+                  {/* <div className="grid w-full grid-cols-2 flex-wrap gap-5"> */}
+                  <div className="grid grid-flow-col grid-cols-2 gap-4 pt-4 md:grid-flow-row">
+                     {images.slice(imageIndex + 1, imageIndex + 5).map((img, idx) => (
+                        <div key={idx} className="relative h-[55vh] w-full">
+                           <figure className="relative h-full w-full">
+                              <Image
+                                 src={img.src as string}
+                                 alt={img.altText as string}
+                                 fill
+                                 sizes="50vw"
+                                 className="object-cover"
+                                 priority={false}
+                              />
+                           </figure>
+                        </div>
+                     ))}
+                  </div>
                </div>
             </div>
-
             {/* Navigation and thumbnail components remain unchanged */}
             {images.length > 1 ? (
                <div className="absolute bottom-[15%] flex w-full justify-center md:hidden">
@@ -113,8 +119,10 @@ export function Gallery({ images }: { images: { src: string; altText: string }[]
                </div>
             ) : null}
          </div>
+
+         {/* thumbnails */}
          {images.length > 1 ? (
-            <ul className="my-12 flex flex-wrap items-center justify-center gap-2 overflow-auto py-1 md:hidden lg:mb-0">
+            <ul className="my-0 flex flex-wrap items-center justify-center gap-0 overflow-auto py-0 md:hidden lg:mb-0">
                {images.map((image, index) => {
                   const isActive = index === imageIndex;
 
