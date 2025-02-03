@@ -6,109 +6,107 @@ import Link from 'next/link';
 import { Suspense } from 'react';
 import MobileMenu from './mobile-menu';
 import Search, { SearchSkeleton } from './search';
- const { SITE_NAME } = process.env;
+const { SITE_NAME } = process.env;
 
 interface NavbarProps {
-  siteName: string;
+   siteName: string;
 }
 
 export async function Navbar() {
-  const menu: Menu[] = await getMenu('main-menu');
-console.log('MENU', menu);
-  return (
-    <nav className="sticky z-50 top-0 shadow-xl bg-white border-gray-200 dark:border-gray-600 dark:bg-gray-900">
-    <div className="flex flex-wrap justify-between items-center mx-auto max-w-screen-xl p-4">
-{/* <nav className="bg-white border-gray-200 dark:bg-gray-900 dark:border-gray-700">
+   const menu: Menu[] = await getMenu('main-menu');
+   console.log('MENU', menu);
+   return (
+      <nav className="sticky top-0 z-50 border-gray-200 bg-white shadow-xl dark:border-gray-600 dark:bg-gray-900">
+         <div className="mx-auto flex max-w-screen-xl flex-wrap items-center justify-between p-4">
+            {/* <nav className="bg-white border-gray-200 dark:bg-gray-900 dark:border-gray-700">
   <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4"> */}
 
-        <div className="block flex-none md:hidden">
-          <MobileMenu menu={menu} />
-        </div>
-        <div className="flex items-center">
-          <Link href="/" className="flex items-center gap-2">
-            <LogoSquare />
-             <div className="ml-2 flex-none text-sm font-medium uppercase md:hidden lg:block">
-               {SITE_NAME}
-             </div>
-          </Link>
-        </div>
-        <div className="hidden md:flex md:items-center">
-          {menu.length > 0 && (
-            <ul className="flex gap-8">
-              {menu.map((item: MenuItem) => (
-                <MegaMenuComponent key={item.title} item={item} />
-              ))}
-            </ul>
+            <div className="block flex-none md:hidden">
+               <MobileMenu menu={menu} />
+            </div>
+            <div className="flex items-center">
+               <Link href="/" className="flex items-center gap-2">
+                  <LogoSquare />
+                  <div className="ml-2 flex-none text-sm font-medium uppercase md:hidden lg:block">
+                     {SITE_NAME}
+                  </div>
+               </Link>
+            </div>
+            <div className="hidden md:flex md:items-center">
+               {menu.length > 0 && (
+                  <ul className="flex gap-8">
+                     {menu.map((item: MenuItem) => (
+                        <MegaMenuComponent key={item.title} item={item} />
+                     ))}
+                  </ul>
+               )}
+            </div>
 
-          )}
-        </div>
-
-        <div className="hidden justify-center md:flex md:w-1/3">
-       <Suspense fallback={<SearchSkeleton />}>
-         <Search />
-       </Suspense>
-     </div>
-        <div className="flex items-center">
-          {/* <Suspense fallback={<OpenCart />}> */}
-          <CartModal />
-          {/* </Suspense> */}
-        </div>
-      </div>
-    </nav>
-  );
+            <div className="hidden justify-center md:flex md:w-1/3">
+               <Suspense fallback={<SearchSkeleton />}>
+                  <Search />
+               </Suspense>
+            </div>
+            <div className="flex items-center">
+               {/* <Suspense fallback={<OpenCart />}> */}
+               <CartModal />
+               {/* </Suspense> */}
+            </div>
+         </div>
+      </nav>
+   );
 }
 
 interface MegaMenuComponentProps {
-  item: MenuItem;
+   item: MenuItem;
 }
 
 const MegaMenuComponent: React.FC<MegaMenuComponentProps> = ({ item }) => {
-  const hasSubmenu = item.items && item.items.length > 0;
-  return (
-    <li className="group relative flex-grow">
-      <Link
-        href={item.url}
-   
-        className="text-base font-medium text-black hover:text-gray-900 w-full text-center py-2.5 inline-flex items-left justify-center"
-      >
-        {item.title}
-      </Link>
-      {hasSubmenu && (
-        <div className="absolute min-w-max inset-x-0 top-full z-50 hidden bg-white shadow-lg group-hover:flex">
-          <div className="flex justify-around w-full px-8 py-4">
-            <ul className="flex justify-around space-x-8">
-
-              {item.items && item.items.map((subItem) => (
-                <li key={subItem.title} className="text-left">
-                  <Link
-                    href={subItem.url}
-                    className="block py-2 text-md font-semibold text-gray-700 hover:text-gray-900"
-                  >
-                    {subItem.title}
-                  </Link>
-                  {/* Optional: Add nested submenus if needed */}
-                  {subItem.items && (
-                    <ul className="ml-4 mt-2 space-y-2">
-                      {subItem.items.map((nestedItem) => (
-                        <li key={nestedItem.title}>
-                          <Link
-                            href={nestedItem.url}
-                            className="block text-sm text-gray-700 hover:bg-gray-100"
-                          >
-                            {nestedItem.title}
-                          </Link>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      )}
-    </li>
-  );
+   const hasSubmenu = item.items && item.items.length > 0;
+   return (
+      <li className="group relative flex-grow">
+         <Link
+            href={item.url}
+            className="items-left inline-flex w-full justify-center py-2.5 text-center text-base font-medium text-black hover:text-gray-900"
+         >
+            {item.title}
+         </Link>
+         {hasSubmenu && (
+            <div className="invisible fixed left-0 top-0 z-50 min-h-[25vh] w-screen translate-y-[21%] transform bg-white opacity-0 shadow-md transition-all duration-300 group-hover:visible group-hover:opacity-100">
+               <div className="flex w-full justify-around px-8 py-4">
+                  <ul className="flex justify-around space-x-8">
+                     {item.items &&
+                        item.items.map((subItem) => (
+                           <li key={subItem.title} className="text-left">
+                              <Link
+                                 href={subItem.url}
+                                 className="text-md block py-2 font-semibold text-gray-700 hover:text-gray-900"
+                              >
+                                 {subItem.title}
+                              </Link>
+                              {/* Optional: Add nested submenus if needed */}
+                              {subItem.items && (
+                                 <ul className="ml-4 mt-2 space-y-2">
+                                    {subItem.items.map((nestedItem) => (
+                                       <li key={nestedItem.title}>
+                                          <Link
+                                             href={nestedItem.url}
+                                             className="block text-sm text-gray-700 hover:bg-gray-100"
+                                          >
+                                             {nestedItem.title}
+                                          </Link>
+                                       </li>
+                                    ))}
+                                 </ul>
+                              )}
+                           </li>
+                        ))}
+                  </ul>
+               </div>
+            </div>
+         )}
+      </li>
+   );
 };
 
 // import CartModal from 'components/cart/modal';
@@ -219,7 +217,6 @@ const MegaMenuComponent: React.FC<MegaMenuComponentProps> = ({ item }) => {
 // //     </div>
 // //   );
 // // };
-
 
 // const MegaMenuComponent: React.FC<MegaMenuComponentProps> = ({ item }) => {
 //   const hasSubmenu = item.items && item.items.length > 0;
