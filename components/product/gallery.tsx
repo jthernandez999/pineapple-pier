@@ -37,12 +37,13 @@ export function Gallery({ images }: { images: { src: string; altText: string }[]
    return (
       <form>
          <div className="relative mt-0 h-full w-full overflow-hidden pt-0">
+            {/* Mobile Layout */}
             <div className="md:hidden">
                <Slider ref={sliderRef} {...settings}>
                   {images.map((image, idx) => (
                      <div key={idx} className="relative h-[70vh] w-screen">
                         <Image
-                           className="object-fit h-full w-full object-contain" // Adjusted class names for full coverage
+                           className="object-fit h-full w-full object-cover" // Adjusted class names for full coverage
                            alt={image.altText as string}
                            src={image.src as string}
                            fill
