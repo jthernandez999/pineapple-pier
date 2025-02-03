@@ -80,11 +80,12 @@ export default async function ProductPage(props: { params: Promise<{ handle: str
                __html: JSON.stringify(productJsonLd)
             }}
          />
-         <div className="mx-auto">
+         <div className="mx-auto flex justify-center">
             <main>
-               <div className="mx-auto max-w-full">
+               <div className="mx-auto flex max-w-full">
                   <div className="md:pb-[32px] min-[770px]:max-[1024px]:pb-8 lg:mx-auto lg:w-[80vw] lg:items-center lg:justify-center 2xl:w-[80vw]">
-                     <div className="flex min-[770px]:max-[1024px]:flex min-[770px]:max-[1024px]:w-full min-[770px]:max-[1024px]:flex-col lg:flex-row">
+                     {/* <div className="flex min-[770px]:max-[1024px]:flex min-[770px]:max-[1024px]:w-full min-[770px]:max-[1024px]:flex-col lg:flex-row"> */}
+                     <div className="flex w-full flex-col lg:flex-row">
                         {/* Left: Product Media */}
                         <div className="px-auto mx-auto mt-0 w-screen basis-full pt-0 min-[770px]:max-[1024px]:basis-full lg:basis-4/6 lg:flex-row lg:pr-[2.2rem]">
                            <Suspense
