@@ -10,112 +10,112 @@ import Search, { SearchSkeleton } from './search';
 const { SITE_NAME } = process.env;
 
 interface NavbarProps {
-   siteName: string;
+  siteName: string;
 }
 
 export async function Navbar() {
-   const menu: Menu[] = await getMenu('main-menu');
-   console.log('MENU', menu);
-   return (
-      <nav className="sticky top-0 z-50 border-gray-200 bg-white shadow-xl dark:border-gray-600 dark:bg-gray-900">
-         <div className="mx-auto flex max-w-screen-xl flex-wrap items-center justify-between p-4">
-            {/* <nav className="bg-white border-gray-200 dark:bg-gray-900 dark:border-gray-700">
+  const menu: Menu[] = await getMenu('main-menu');
+  console.log('MENU', menu);
+  return (
+    <nav className="sticky top-0 z-50 border-gray-200 bg-white shadow-sm dark:border-gray-600 dark:bg-gray-900">
+      <div className="mx-auto flex max-w-screen-xl flex-wrap items-center justify-between p-4">
+        {/* <nav className="bg-white border-gray-200 dark:bg-gray-900 dark:border-gray-700">
   <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4"> */}
 
-            <div className="block flex-none md:hidden">
-               <MobileMenu menu={menu} />
+        <div className="block flex-none md:hidden">
+          <MobileMenu menu={menu} />
+        </div>
+        <div className="flex items-center">
+          <Link href="/" className="flex items-center gap-2">
+            <LogoSquare />
+            <div className="ml-2 flex-none text-sm font-medium uppercase md:hidden lg:block">
+              {SITE_NAME}
             </div>
-            <div className="flex items-center">
-               <Link href="/" className="flex items-center gap-2">
-                  <LogoSquare />
-                  <div className="ml-2 flex-none text-sm font-medium uppercase md:hidden lg:block">
-                     {SITE_NAME}
-                  </div>
-               </Link>
-            </div>
-            <div className="hidden md:flex md:items-center">
-               {menu.length > 0 && (
-                  <ul className="flex gap-8">
-                     {menu.map((item: MenuItem) => (
-                        <MegaMenuComponent key={item.title} item={item} />
-                     ))}
-                  </ul>
-               )}
-            </div>
+          </Link>
+        </div>
+        <div className="hidden md:flex md:items-center">
+          {menu.length > 0 && (
+            <ul className="flex gap-8">
+              {menu.map((item: MenuItem) => (
+                <MegaMenuComponent key={item.title} item={item} />
+              ))}
+            </ul>
+          )}
+        </div>
 
-            <div className="hidden justify-center md:flex md:w-1/3">
-               <Suspense fallback={<SearchSkeleton />}>
-                  <Search />
-               </Suspense>
-            </div>
-            <div className="flex items-center">
-               {/* <Suspense fallback={<OpenCart />}> */}
-               <CartModal />
-               {/* </Suspense> */}
-            </div>
-         </div>
-      </nav>
-   );
+        <div className="hidden justify-center md:flex md:w-1/3">
+          <Suspense fallback={<SearchSkeleton />}>
+            <Search />
+          </Suspense>
+        </div>
+        <div className="flex items-center">
+          {/* <Suspense fallback={<OpenCart />}> */}
+          <CartModal />
+          {/* </Suspense> */}
+        </div>
+      </div>
+    </nav>
+  );
 }
 
 interface MegaMenuComponentProps {
-   item: MenuItem;
+  item: MenuItem;
 }
 
 const MegaMenuComponent: React.FC<MegaMenuComponentProps> = ({ item }) => {
-   const hasSubmenu = item.items && item.items.length > 0;
-   return (
-      <li className="group relative flex-grow">
-         <Link
-            href={item.url}
-            className="items-left inline-flex w-full justify-center py-2.5 text-center text-base font-medium text-black hover:text-gray-900"
-         >
-            {item.title}
-         </Link>
-         {hasSubmenu && (
-            <div className="invisible fixed left-0 top-0 z-50 min-h-[25vh] w-screen translate-y-[21%] transform bg-white opacity-0 shadow-md transition-all duration-300 group-hover:visible group-hover:opacity-100">
-               <div className="flex w-full justify-around px-8 py-4">
-                  <ul className="flex justify-around space-x-8">
-                     {item.items &&
-                        item.items.map((subItem) => (
-                           <li key={subItem.title} className="text-left">
-                              <Link
-                                 href={subItem.url}
-                                 className="text-md block py-2 font-semibold text-gray-700 hover:text-gray-900"
-                              >
-                                 {subItem.title}
-                              </Link>
-                              {/* Optional: Add nested submenus if needed */}
-                              {subItem.items && (
-                                 <ul className="ml-4 mt-2 space-y-2">
-                                    {subItem.items.map((nestedItem) => (
-                                       <li key={nestedItem.title} className="justify-start">
-                                          <Link
-                                             href={nestedItem.url}
-                                             className="block text-sm text-gray-700 hover:bg-gray-100"
-                                          >
-                                             {nestedItem.title}
-                                          </Link>
-                                       </li>
-                                    ))}
-                                 </ul>
-                              )}
-                           </li>
+  const hasSubmenu = item.items && item.items.length > 0;
+  return (
+    <li className="group relative flex-grow">
+      <Link
+        href={item.url}
+        className="items-left inline-flex w-full justify-center py-2.5 text-center text-base font-medium text-black hover:text-gray-900"
+      >
+        {item.title}
+      </Link>
+      {hasSubmenu && (
+        <div className="invisible fixed left-0 top-0 z-50 min-h-[25vh] w-screen translate-y-[21%] transform bg-white opacity-0 shadow-md transition-all duration-300 group-hover:visible group-hover:opacity-100">
+          <div className="flex w-full justify-around px-8 py-4">
+            <ul className="flex justify-around space-x-8">
+              {item.items &&
+                item.items.map((subItem) => (
+                  <li key={subItem.title} className="text-left">
+                    <Link
+                      href={subItem.url}
+                      className="text-md block py-2 font-semibold text-gray-700 hover:text-gray-900"
+                    >
+                      {subItem.title}
+                    </Link>
+                    {/* Optional: Add nested submenus if needed */}
+                    {subItem.items && (
+                      <ul className="ml-4 mt-2 space-y-2">
+                        {subItem.items.map((nestedItem) => (
+                          <li key={nestedItem.title} className="justify-start">
+                            <Link
+                              href={nestedItem.url}
+                              className="block text-sm text-gray-700 hover:bg-gray-100"
+                            >
+                              {nestedItem.title}
+                            </Link>
+                          </li>
                         ))}
-                  </ul>
-                  <div className="flex flex-col-reverse">
-                     <Image
-                        alt="Essential Tees"
-                        src="https://cdn.shopify.com/s/files/1/1024/2207/files/essentialTees.jpg?v=1737503628"
-                        width={200}
-                        height={200}
-                     />
-                  </div>
-               </div>
+                      </ul>
+                    )}
+                  </li>
+                ))}
+            </ul>
+            <div className="flex flex-col-reverse">
+              <Image
+                alt="Essential Tees"
+                src="https://cdn.shopify.com/s/files/1/1024/2207/files/essentialTees.jpg?v=1737503628"
+                width={200}
+                height={200}
+              />
             </div>
-         )}
-      </li>
-   );
+          </div>
+        </div>
+      )}
+    </li>
+  );
 };
 
 // import CartModal from 'components/cart/modal';
