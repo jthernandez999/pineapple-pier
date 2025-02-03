@@ -7,21 +7,21 @@ import Footer from 'components/layout/footer';
 import ThreeImageCollections from 'components/three-collections';
 
 export const metadata = {
-  description: 'High-performance ecommerce store built with Next.js, Vercel, and Shopify.',
-  openGraph: {
-    type: 'website'
-  }
+   description: 'Dear John Denim, a premium denim brand that offers a wide range of denim',
+   openGraph: {
+      type: 'website'
+   }
 };
 
 export default function HomePage() {
-  return (
-    <>
-      <HeroBanner banners={banners} interval={1100} />
-      <ThreeImageCollections collectionImages={collectionImages} />
-      <Carousel />
-      <HighlightCollection highlightCollectionImages={highlightCollectionImages} />
-      <ThreeItemGrid />
-      <Footer />
-    </>
-  );
+   return (
+      <>
+         <HeroBanner banners={banners} interval={1100} />
+         <ThreeImageCollections collectionImages={collectionImages} />
+         <Carousel />
+         <HighlightCollection highlightCollectionImages={highlightCollectionImages} />
+         <ThreeItemGrid />
+         <Footer />
+      </>
+   );
 }
