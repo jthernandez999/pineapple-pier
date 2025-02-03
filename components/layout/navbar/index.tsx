@@ -2,6 +2,7 @@ import CartModal from 'components/cart/modal';
 import LogoSquare from 'components/logo-square';
 import { getMenu } from 'lib/shopify';
 import { Menu, MenuItem } from 'lib/shopify/types';
+import Image from 'next/image';
 import Link from 'next/link';
 import { Suspense } from 'react';
 import MobileMenu from './mobile-menu';
@@ -88,7 +89,7 @@ const MegaMenuComponent: React.FC<MegaMenuComponentProps> = ({ item }) => {
                               {subItem.items && (
                                  <ul className="ml-4 mt-2 space-y-2">
                                     {subItem.items.map((nestedItem) => (
-                                       <li key={nestedItem.title}>
+                                       <li key={nestedItem.title} className="justify-start">
                                           <Link
                                              href={nestedItem.url}
                                              className="block text-sm text-gray-700 hover:bg-gray-100"
@@ -102,6 +103,13 @@ const MegaMenuComponent: React.FC<MegaMenuComponentProps> = ({ item }) => {
                            </li>
                         ))}
                   </ul>
+                  <div className="flex flex-col-reverse">
+                     <Image
+                        src="https://cdn.shopify.com/s/files/1/1024/2207/files/essentialTees.jpg?v=1737503628"
+                        width={200}
+                        height={200}
+                     />
+                  </div>
                </div>
             </div>
          )}
