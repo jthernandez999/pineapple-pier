@@ -25,7 +25,6 @@ export function ProductSpec({ product }: { product: Product }) {
       </div>
     );
   }
-
   // Get the spec for the selected variant
   const variantIndex = product.variants.findIndex((v) => v.id === selectedVariant.id);
   const selectedSpec = productSpec.values[variantIndex] || '';
