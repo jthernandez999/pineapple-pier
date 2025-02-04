@@ -27,7 +27,6 @@ function SubmitButton({
     );
   }
 
-  console.log(selectedVariantId);
   if (!selectedVariantId) {
     return (
       <button
@@ -75,7 +74,7 @@ export function AddToCart({ product }: { product: Product }) {
   return (
     <form
       action={async () => {
-        addCartItem(finalVariant, product);
+        console.log('selectedVariantID', selectedVariantId), addCartItem(finalVariant, product);
         await actionWithVariant();
       }}
     >

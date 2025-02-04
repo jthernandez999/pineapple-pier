@@ -79,3 +79,13 @@ export function useUpdateURL() {
     router.push(`?${newParams.toString()}`, { scroll: false });
   };
 }
+
+export function useUpdateSpec() {
+  const { state, updateOption } = useProduct();
+
+  return (spec: ProductState) => {
+    Object.entries(spec).forEach(([key, value]) => {
+      updateOption(key, value);
+    });
+  };
+}

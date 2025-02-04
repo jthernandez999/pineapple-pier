@@ -15,7 +15,7 @@ interface NavbarProps {
 
 export async function Navbar() {
   const menu: Menu[] = await getMenu('main-menu');
-  console.log('MENU', menu);
+  //   console.log('MENU', menu);
   return (
     <nav className="sticky top-0 z-50 border-gray-200 bg-white shadow-sm dark:border-gray-600 dark:bg-gray-900">
       <div className="mx-auto flex max-w-screen-xl flex-wrap items-center justify-between p-4">

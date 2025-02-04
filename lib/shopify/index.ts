@@ -393,7 +393,7 @@ export async function getMenu(handle: string): Promise<Menu[]> {
     }));
   }
 
-  console.log('MENU RES.BODY', JSON.stringify(res.body?.data?.menu, null, 2));
+  // console.log('MENU RES.BODY', JSON.stringify(res.body?.data?.menu, null, 2));
   return res.body?.data?.menu?.items ? processMenuItems(res.body.data.menu.items) : [];
 }
 

@@ -93,6 +93,12 @@ export type Page = {
 export type Product = Omit<ShopifyProduct, 'variants' | 'images'> & {
   variants: ProductVariant[];
   images: Image[];
+  spec?:{
+    Material?: string;
+    'Front Rise'?: string;
+    'Leg Opening'?: string;
+    Inseam?: string;
+  }
 };
 
 export type ProductOption = {
