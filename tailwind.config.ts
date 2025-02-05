@@ -8,6 +8,7 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
+        poppins: ['var(--font-poppins)'],
         sans: ['var(--font-geist-sans)']
       },
       keyframes: {
