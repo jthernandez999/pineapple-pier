@@ -75,16 +75,35 @@ export function Gallery({ images }: { images: { src: string; altText: string }[]
             <div className="hidden w-[50vw] md:block">
                <div>
                   <div className="relative h-[100vh] w-full">
-                     <figure className="relative h-full w-full">
+                     <figure className="relative h-full w-full 2xl:h-full">
                         <Image
-                           src={effectiveImages[imageIndex]?.src ?? ''}
-                           alt={effectiveImages[imageIndex]?.altText ?? 'Product Image'}
+                           src={images[imageIndex]?.src as string}
+                           alt={images[imageIndex]?.altText as string}
                            fill
                            sizes="100vw"
                            className="object-cover"
-                           priority={true}
+                           priority={true} // Main image gets the VIP treatment
                         />
                      </figure>
+                  </div>
+
+                  {/* 2x2 grid of smaller images */}
+                  {/* <div className="grid w-full grid-cols-2 flex-wrap gap-5"> */}
+                  <div className="grid grid-flow-col grid-cols-2 gap-4 pt-4 md:grid-flow-row">
+                     {images.slice(imageIndex + 1, imageIndex + 5).map((img, idx) => (
+                        <div key={idx} className="relative h-[55vh] w-full">
+                           <figure className="relative h-full w-full">
+                              <Image
+                                 src={img.src as string}
+                                 alt={img.altText as string}
+                                 fill
+                                 sizes="50vw"
+                                 className="object-cover"
+                                 priority={false}
+                              />
+                           </figure>
+                        </div>
+                     ))}
                   </div>
                </div>
             </div>
