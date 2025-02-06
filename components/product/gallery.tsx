@@ -81,7 +81,7 @@ export function Gallery({ images }: { images: { src: string; altText: string }[]
                            alt={images[imageIndex]?.altText as string}
                            fill
                            sizes="100vw"
-                           className="object-cover"
+                           className="object-contain"
                            priority={true} // Main image gets the VIP treatment
                         />
                      </figure>
