@@ -5,6 +5,7 @@ import { useProduct } from '../../components/product/product-context'; // Assumi
 
 export function ProductSpec({ product }: { product: Product }) {
    const { state } = useProduct(); // Get the selected variant state
+   console.log('Current state in Gallery/ProductSpec:', state);
 
    // Find the "Spec" option in product options
    const productSpec = product.options.find((option) => option.name.toLowerCase() === 'spec');

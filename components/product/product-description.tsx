@@ -16,7 +16,7 @@ export function ProductDescription({ product }: { product: Product }) {
                   <h1 className="mb-4 flex justify-start text-start text-2xl font-medium 2xl:text-4xl">
                      {product.title}
                   </h1>
-                  <div className="py-2text-start mr-auto w-auto text-lg text-black">
+                  <div className="mr-auto w-auto pb-3 text-start text-lg text-black">
                      <Price
                         amount={product.priceRange.maxVariantPrice.amount}
                         currencyCode={product.priceRange.maxVariantPrice.currencyCode}
