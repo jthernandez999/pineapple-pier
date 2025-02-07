@@ -16,7 +16,7 @@ export function ProductSpec({ product }: { product: Product }) {
          variant.selectedOptions.some((option) => option.name === key && option.value === value)
       )
    );
-   console.log('Selected Variant:', selectedVariant);
+   // console.log('Selected Variant:', selectedVariant);
    // Ensure we have a valid spec and variant
    if (!productSpec || !selectedVariant) {
       return (
