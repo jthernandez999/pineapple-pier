@@ -1,4 +1,5 @@
 
+
 export type Maybe<T> = T | null;
 
 export type Connection<T> = {
@@ -162,6 +163,18 @@ export type ShopifyProduct = {
   tags: string[];
   updatedAt: string;
 };
+
+export type ProductGroup = {
+  id: string;
+  title: string;
+  products: Product[];
+};
+
+export type ProductGroupsResponse = {
+  groups: ProductGroup[];
+};
+
+
 
 export type ShopifyCartOperation = {
   data: {

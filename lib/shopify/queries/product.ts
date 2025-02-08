@@ -30,3 +30,21 @@ export const getProductRecommendationsQuery = /* GraphQL */ `
   }
   ${productFragment}
 `;
+
+
+
+export const getProductGroups = /* GraphQL */ `
+query GetProductGroups($handle: String!, $type: String!) {
+  metaobjectByHandle(handle: { handle: $handle, type: $type }) {
+    id
+    handle
+    type
+    fields {
+      key
+      value
+    }
+  }
+}
+`;
+
+
