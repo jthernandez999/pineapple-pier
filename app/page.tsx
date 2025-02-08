@@ -15,22 +15,14 @@ export const metadata = {
       type: 'website'
    }
 };
+const SHOPIFY_ENDPOINT = process.env.SHOPIFY_GRAPHQL_ENDPOINT;
+const SHOPIFY_STOREFRONT_ACCESS_TOKEN = process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN;
 
 // This tells Next.js to revalidate the page every 60 seconds.
 export const revalidate = 60;
 
 export default async function HomePage() {
    // Fetch your product groups metaobject from Shopify.
-   const SHOPIFY_ENDPOINT = process.env.SHOPIFY_GRAPHQL_ENDPOINT;
-   console.log('SHOPIFY_ENDPOINT:', SHOPIFY_ENDPOINT);
-   if (!SHOPIFY_ENDPOINT) {
-      throw new Error('SHOPIFY_GRAPHQL_ENDPOINT is not defined');
-   }
-
-   const SHOPIFY_STOREFRONT_ACCESS_TOKEN = process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN;
-   if (!SHOPIFY_STOREFRONT_ACCESS_TOKEN) {
-      throw new Error('SHOPIFY_STOREFRONT_TOKEN is not defined');
-   }
 
    const query = `
   query GetProductGroups($handle: MetaobjectHandleInput!) {
