@@ -37,9 +37,9 @@ export function Gallery({ images }: { images: { src: string; altText: string }[]
    //  - Checking if you have multiple color options on the product
    //  - Or checking if `state.product.options` has only one entry for 'Color'
    //
-   // For simplicity here, we'll assume you know how to detect it. We'll mock it:
+   // For testing purposes here, we'll assume you know how to detect it. We'll mock it:
    // const hasSingleColorVariant = false;
-   // If you actually have the product data in `state.product`, you might do something like:
+
    const colorOption = (
       state.product as { options?: { name: string; values?: string[] }[] }
    )?.options?.find((opt) => opt.name.toLowerCase() === 'color');

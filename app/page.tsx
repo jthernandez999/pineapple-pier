@@ -7,7 +7,6 @@ import HighlightCollection from 'components/highlightCollection';
 import Footer from 'components/layout/footer';
 import ProductGroupsDisplay from 'components/product/ProductGroupsDisplay';
 import ThreeImageCollections from 'components/three-collections';
-import { ProductGroup } from 'lib/shopify/types';
 
 export const metadata = {
    description: 'Dear John Denim, a premium denim brand that offers a wide range of denim',
@@ -24,54 +23,105 @@ export const revalidate = 60;
 export default async function HomePage() {
    // Fetch your product groups metaobject from Shopify.
 
-   const query = `
-  query GetProductGroups($handle: MetaobjectHandleInput!) {
-    metaobject(handle: $handle) {
-      id
-      handle
-      fields {
-        key
-        value
+   // Fetch the metaobject
+   const metaobjectQuery = `
+    query GetProductGroupMetaobject($handle: MetaobjectHandleInput!) {
+      metaobject(handle: $handle) {
+        id
+        handle
+        fields {
+          key
+          value
+        }
       }
     }
-  }
-`;
-
-   const variables = {
+  `;
+   const metaobjectVariables = {
       handle: {
-         handle: 'yanis-top',
-         type: 'product_groups'
+         handle: 'yanis-top', // Adjust if needed
+         type: 'product_groups' // Adjust if needed
       }
    };
 
-   const res = await fetch(SHOPIFY_ENDPOINT, {
+   const metaRes = await fetch(SHOPIFY_ENDPOINT, {
       method: 'POST',
       headers: {
          'Content-Type': 'application/json',
          'X-Shopify-Storefront-Access-Token': SHOPIFY_STOREFRONT_ACCESS_TOKEN
       },
-      body: JSON.stringify({ query, variables })
+      body: JSON.stringify({ query: metaobjectQuery, variables: metaobjectVariables })
    });
+   const metaJson = await metaRes.json();
+   console.log('Metaobject response:', metaJson);
+   const metaobject = metaJson.data?.metaobject;
 
-   const json = await res.json();
-   console.log('GraphQL response:', json);
-
-   const metaobject = json.data?.metaobject;
-   let groups: ProductGroup[] = [];
-
+   let groupTitle = '';
+   let productIds: string[] = [];
    if (metaobject) {
-      // Assuming one of the fields is "groups" holding a JSON-encoded string.
-      const groupsField = metaobject.fields.find(
-         (field: { key: string }) => field.key === 'groups'
-      );
-      if (groupsField) {
+      const nameField = metaobject.fields.find((field: { key: string }) => field.key === 'name');
+      groupTitle = nameField ? nameField.value : 'Unnamed Group';
+
+      const groupField = metaobject.fields.find((field: { key: string }) => field.key === 'group');
+      if (groupField) {
          try {
-            groups = JSON.parse(groupsField.value);
+            productIds = JSON.parse(groupField.value);
          } catch (error) {
-            console.error('Error parsing product groups:', error);
+            console.error('Error parsing product IDs:', error);
          }
       }
-      console.log('Metaobject fields:', JSON.stringify(metaobject.fields, null, 2));
+   }
+   console.log('Group Title:', groupTitle);
+   console.log('Product IDs:', productIds);
+
+   // Fetch product details
+   let products: any[] = [];
+   if (productIds.length > 0) {
+      const productsQuery = `
+      query GetProducts($ids: [ID!]!) {
+  nodes(ids: $ids) {
+    ... on Product {
+      id
+      title
+      handle
+      options {
+        name
+        values
+      }
+      images(first: 1) {
+        edges {
+          node {
+            url
+          }
+        }
+      }
+      variants(first: 1) {
+        edges {
+          node {
+            priceV2 {
+              amount
+              currencyCode
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+    `;
+      const productsVariables = { ids: productIds };
+      const productsRes = await fetch(SHOPIFY_ENDPOINT, {
+         method: 'POST',
+         headers: {
+            'Content-Type': 'application/json',
+            'X-Shopify-Storefront-Access-Token': SHOPIFY_STOREFRONT_ACCESS_TOKEN
+         },
+         body: JSON.stringify({ query: productsQuery, variables: productsVariables })
+      });
+      const productsJson = await productsRes.json();
+      console.log('Products query response:', productsJson);
+      products = productsJson.data?.nodes || [];
+      console.log('Fetched products:', products);
    }
 
    return (
@@ -82,11 +132,8 @@ export default async function HomePage() {
          <HighlightCollection highlightCollectionImages={highlightCollectionImages} />
          <ThreeItemGrid />
          {/* Render the Product Groups section if data exists */}
-         {groups.length > 0 ? (
-            <section className="my-12">
-               <h2 className="mb-8 text-center text-4xl font-bold">Product Groups</h2>
-               <ProductGroupsDisplay groups={groups} />
-            </section>
+         {groupTitle && products.length > 0 ? (
+            <ProductGroupsDisplay groupTitle={groupTitle} products={products} />
          ) : (
             <p className="text-center text-gray-500">No product groups found.</p>
          )}
