@@ -14,43 +14,68 @@ export function Gallery({ images }: { images: { src: string; altText: string }[]
    const updateURL = useUpdateURL();
    const sliderRef = useRef<Slider>(null);
 
-   // Normalize a string: trim, uppercase, and remove spaces/hyphens.
+   // -- Helpers --
    const normalize = (s: string) => s.trim().toUpperCase().replace(/[\s-]/g, '');
 
-   // Parse alt text using a regex.
-   // Expected format: [COLOR]-[SKU]-[IMAGE NUMBER]
    const parseAltText = (alt: string) => {
+      // Expects format: "Color - SKU - #"
+      // e.g. "Red - ABC123 - 1"
       const regex = /^(.+?)\s*-\s*(.+?)\s*-\s*(\d+)$/;
       const match = alt.match(regex);
       if (!match) return null;
       return {
-         color: normalize(match[1] as string),
+         color: normalize(match[1] || ''), // Provide a default value for match[1]
          sku: match[2]?.trim().toUpperCase(),
-         imageNumber: match[3]?.trim() // remains as string
+         imageNumber: match[3]?.trim()
       };
    };
 
-   // Get the selected color from context and normalize it.
+   // Get selected color from context and normalize it.
    const selectedColor = state.color ? normalize(state.color) : '';
 
-   // Use useMemo for efficient filtering, especially with many images.
+   // In many Shopify / Commerce setups, you can detect if there's only 1 color option by:
+   //  - Checking if you have multiple color options on the product
+   //  - Or checking if `state.product.options` has only one entry for 'Color'
+   //
+   // For simplicity here, we'll assume you know how to detect it. We'll mock it:
+   // const hasSingleColorVariant = false;
+   // If you actually have the product data in `state.product`, you might do something like:
+   const colorOption = (
+      state.product as { options?: { name: string; values?: string[] }[] }
+   )?.options?.find((opt) => opt.name.toLowerCase() === 'color');
+   const hasSingleColorVariant = colorOption?.values?.length === 1;
+
    const effectiveImages = useMemo(() => {
-      if (!selectedColor) return images;
-      // Strict filtering: only keep images where parsed color matches selectedColor.
-      let strict = images.filter((img) => {
+      // 1) Check if any image has valid alt text
+      const validParsedImages = images.filter((img) => parseAltText(img.altText) !== null);
+
+      // 2) If there’s only one color or no valid alt text at all, show original images
+      //    (i.e., skip color-based filtering).
+      if (!selectedColor || hasSingleColorVariant || validParsedImages.length === 0) {
+         return images;
+      }
+
+      // 3) Otherwise, filter strictly for the selected color
+      let strictFiltered = images.filter((img) => {
          const parsed = parseAltText(img.altText);
          return parsed ? parsed.color === selectedColor : false;
       });
-      // If strict filtering yields no images, you can optionally fall back to a looser filter.
-      if (strict.length > 0) return strict;
-      return images.filter((img) => normalize(img.altText).includes(selectedColor));
-   }, [images, selectedColor]);
 
+      // 4) If strict yields nothing, optionally do a looser filter, or fall back to all images
+      if (strictFiltered.length > 0) {
+         return strictFiltered;
+      } else {
+         // Fallback if we found no images for the selected color
+         return images;
+      }
+   }, [images, selectedColor, hasSingleColorVariant]);
+
+   // If effectiveImages ends up empty, at least show a message.
    if (effectiveImages.length === 0) {
       console.error(`No images found for selected color: ${selectedColor}`);
    }
 
-   // Determine the default main image index (the one whose imageNumber === "1")
+   // Find the default index: any image whose imageNumber is "1"
    const findDefaultIndex = (): number => {
       const idx = effectiveImages.findIndex((img) => {
          const parsed = parseAltText(img.altText);
@@ -61,16 +86,17 @@ export function Gallery({ images }: { images: { src: string; altText: string }[]
 
    const [currentIndex, setCurrentIndex] = useState<number>(findDefaultIndex());
 
-   // Reset main image index when effectiveImages change.
+   // Whenever the effectiveImages list changes (e.g., new color), reset to default index.
    useEffect(() => {
       setCurrentIndex(findDefaultIndex());
    }, [effectiveImages]);
 
-   // For mobile: update slider when currentIndex changes.
+   // For mobile slider:
    useEffect(() => {
       sliderRef.current?.slickGoTo(currentIndex);
    }, [currentIndex]);
 
+   // Helpers for nav
    const nextIndex = currentIndex + 1 < effectiveImages.length ? currentIndex + 1 : 0;
    const prevIndex = currentIndex === 0 ? effectiveImages.length - 1 : currentIndex - 1;
 
@@ -80,6 +106,7 @@ export function Gallery({ images }: { images: { src: string; altText: string }[]
       updateURL(newState);
    };
 
+   // Build the thumbnail set for desktop
    const desktopThumbnails = effectiveImages.filter((_, idx) => idx !== currentIndex).slice(0, 4);
 
    return (
@@ -94,7 +121,7 @@ export function Gallery({ images }: { images: { src: string; altText: string }[]
                   {/* Mobile Layout: Slider */}
                   <div className="md:hidden">
                      <Slider
-                        key={selectedColor} // Forces remount when color changes.
+                        key={selectedColor} // Force re-mount on color change
                         ref={sliderRef}
                         dots={false}
                         infinite={true}
