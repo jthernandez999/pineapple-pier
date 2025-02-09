@@ -8,6 +8,7 @@ import { VariantSelector } from './variant-selector';
 
 export function ProductDescription({ product }: { product: Product }) {
    const productSpec = product.options.filter((option) => option.name === 'Spec');
+
    return (
       <>
          <div className="mx-auto flex flex-col justify-start border-b pb-6 dark:border-neutral-700 2xl:mx-auto">
@@ -23,7 +24,11 @@ export function ProductDescription({ product }: { product: Product }) {
                      />
                   </div>
                </div>
-               <VariantSelector options={product.options} variants={product.variants} />
+               <VariantSelector
+                  options={product.options}
+                  variants={product.variants}
+                  product={product}
+               />
                <AddToCart product={product} />
 
                {product.descriptionHtml

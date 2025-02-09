@@ -238,6 +238,7 @@ export function Gallery({ images }: { images: { src: string; altText: string }[]
                                        src={img.src}
                                        width={75}
                                        height={75}
+                                       style={{ objectFit: 'cover' }}
                                        active={isActive}
                                     />
                                  </button>

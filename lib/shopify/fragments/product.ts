@@ -2,63 +2,66 @@ import imageFragment from './image';
 import seoFragment from './seo';
 
 const productFragment = /* GraphQL */ `
-  fragment product on Product {
-    id
-    handle
-    availableForSale
-    title
-    description
-    descriptionHtml
-    options {
+   fragment product on Product {
       id
-      name
-      values
-    }
-    priceRange {
-      maxVariantPrice {
-        amount
-        currencyCode
+      handle
+      availableForSale
+      title
+      description
+      descriptionHtml
+      options {
+         id
+         name
+         values
       }
-      minVariantPrice {
-        amount
-        currencyCode
-      }
-    }
-    variants(first: 250) {
-      edges {
-        node {
-          id
-          title
-          availableForSale
-          selectedOptions {
-            name
-            value
-          }
-          price {
+      priceRange {
+         maxVariantPrice {
             amount
             currencyCode
-          }
-        }
+         }
+         minVariantPrice {
+            amount
+            currencyCode
+         }
       }
-    }
-    featuredImage {
-      ...image
-    }
-    images(first: 20) {
-      edges {
-        node {
-          ...image
-        }
+      variants(first: 250) {
+         edges {
+            node {
+               id
+               title
+               availableForSale
+               selectedOptions {
+                  name
+                  value
+               }
+               price {
+                  amount
+                  currencyCode
+               }
+            }
+         }
       }
-    }
-    seo {
-      ...seo
-    }
-    tags
-    updatedAt
-  }
-  ${imageFragment}
-  ${seoFragment}
+      featuredImage {
+         ...image
+      }
+      images(first: 20) {
+         edges {
+            node {
+               ...image
+            }
+         }
+      }
+      seo {
+         ...seo
+      }
+      tags
+      updatedAt
+      metafield(namespace: "shopify", key: "color-pattern") {
+         value
+      }
+   }
+   ${imageFragment}
+   ${seoFragment}
 `;
 
 export default productFragment;

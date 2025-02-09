@@ -17,7 +17,7 @@ export async function generateMetadata(props: {
 }): Promise<Metadata> {
    const params = await props.params;
    const product = await getProduct(params.handle);
-
+   console.log('PRODUCT:', product);
    if (!product) return notFound();
 
    const { url, width, height, altText: alt } = product.featuredImage || {};

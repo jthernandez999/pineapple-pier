@@ -7,5 +7,9 @@
     "source.sortMembers": "explicit"
   },
   "prettier.tabWidth": 3,
-  "editor.formatOnSave": true
+  "editor.formatOnSave": true,
+  "cSpell.words": [
+    "metafields",
+    "metaobject"
+  ]
 }
