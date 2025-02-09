@@ -41,8 +41,13 @@ const ProductGroupsDisplay: React.FC<ProductGroupsDisplayProps> = ({
    // Helper: extract price from product
    const extractPrice = (product: ParentProduct): string => {
       if (product.price) return product.price;
-      if (product.variants && product.variants.edges.length > 0) {
-         return product.variants.edges[0].node.priceV2.amount;
+      if (
+         product.variants &&
+         product.variants.edges &&
+         product.variants.edges.length > 0 &&
+         product.variants.edges[0]?.node?.priceV2
+      ) {
+         return product.variants.edges[0]?.node.priceV2?.amount || '';
       }
       return '';
    };
@@ -52,7 +57,7 @@ const ProductGroupsDisplay: React.FC<ProductGroupsDisplayProps> = ({
    const initialColorName =
       products[0]?.options?.find((option) => option.name.toLowerCase() === 'color')?.values[0] ||
       '';
-   const initialPrice = extractPrice(products[0]);
+   const initialPrice = products[0] ? extractPrice(products[0]) : '';
 
    // Main display states
    const [mainImage, setMainImage] = useState(initialImage);
@@ -72,7 +77,7 @@ const ProductGroupsDisplay: React.FC<ProductGroupsDisplayProps> = ({
       const colorValue = colorOption ? colorOption.values[0] : '';
       const priceValue = extractPrice(product);
       setMainImage(productImage);
-      setSelectedColorName(colorValue);
+      setSelectedColorName(colorValue || '');
       setSelectedPrice(priceValue);
    };
 
@@ -106,7 +111,7 @@ const ProductGroupsDisplay: React.FC<ProductGroupsDisplayProps> = ({
                      const colorOption = product.options.find(
                         (option) => option.name.toLowerCase() === 'color'
                      );
-                     const colorValue = colorOption ? colorOption.values[0] : '';
+                     const colorValue = colorOption ? colorOption.values[0] : undefined;
                      return (
                         <div
                            key={product.id}
@@ -131,7 +136,7 @@ const ProductGroupsDisplay: React.FC<ProductGroupsDisplayProps> = ({
                               updateSelection(product);
                               setLockedSelection({
                                  image: product.images?.edges?.[0]?.node?.url || '/placeholder.png',
-                                 color: colorValue,
+                                 color: colorValue as string,
                                  price: extractPrice(product)
                               });
                            }}
