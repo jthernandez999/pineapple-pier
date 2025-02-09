@@ -127,10 +127,15 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
 
                         if (optionNameLowerCase === 'color') {
                            let metaobjectId: string | null = null;
-                           if (product && product.metafields && product.metafields.length > 0) {
+                           if (
+                              product &&
+                              product.metafields &&
+                              product.metafields.length &&
+                              product.metafields.length > 0
+                           ) {
                               try {
                                  const found = product.metafields.find(
-                                    (mf) => mf.key === 'color-pattern'
+                                    (mf: { key: string }) => mf.key === 'color-pattern'
                                  );
                                  if (found && found.value) {
                                     // Parse the JSON string (e.g. '["gid://shopify/Metaobject/78677147737"]')
