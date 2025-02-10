@@ -28,6 +28,7 @@ export async function Carousel() {
                            currencyCode: product.priceRange.maxVariantPrice.currencyCode
                         }}
                         src={product.featuredImage?.url}
+                        secondarySrc={product.images[1]?.url}
                         fill
                         sizes="100vw, (min-width: 768px) 20vw" // adjust as needed
                         className="object-cover"

@@ -23,6 +23,7 @@ function ThreeItemGridItem({
          >
             <GridTileImage
                src={item.featuredImage.url}
+               secondarySrc={item.images[1]?.url}
                fill
                sizes={
                   size === 'full'
