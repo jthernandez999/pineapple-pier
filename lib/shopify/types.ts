@@ -121,6 +121,10 @@ export type ProductVariant = {
       value: string;
    }[];
    price: Money;
+   priceV2?: {
+      amount: string;
+      currencyCode: string;
+   };
 };
 
 export type SEO = {
@@ -166,6 +170,7 @@ export type ShopifyProduct = {
    seo: SEO;
    tags: string[];
    updatedAt: string;
+   metafields?: Metafield[];
 };
 
 export type ProductGroup = {
@@ -313,3 +318,42 @@ export type ShopifyProductsOperation = {
       sortKey?: string;
    };
 };
+
+export type ParentProduct = Omit<ShopifyProduct, 'variants' | 'images'> & {
+   variants: ProductVariant[]; // flat array
+   images: Image[]; // flat array
+   options?: { name: string; values: string[] }[];
+   metafields?: Metafield[];
+   price?: string; // Optional top-level price field if available
+};
+
+// export type ParentProduct = {
+//    id: string;
+//    title: string;
+//    handle: string;
+//    // Price can be a top-level field or come from the first variant:
+//    price?: string;
+//    variants?: {
+//       edges: {
+//          node: {
+//             priceV2: {
+//                amount: string;
+//                currencyCode: string;
+//             };
+//          };
+//       }[];
+//    };
+//    options: { name: string; values: string[] }[];
+//    images: {
+//       edges: {
+//          node: {
+//             url: string;
+//          };
+//       }[];
+//    };
+// };
+
+export interface ProductGroupsDisplayProps {
+   groupTitle: string;
+   products: Product[];
+}

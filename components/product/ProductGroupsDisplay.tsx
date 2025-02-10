@@ -1,79 +1,42 @@
 'use client';
+import Image from 'next/image';
 import React, { useState } from 'react';
+import { ParentProduct, ProductGroupsDisplayProps } from '../../lib/shopify/types';
 
-type ParentProduct = {
-   id: string;
-   title: string;
-   handle: string;
-   // Price can be a top-level field or come from the first variant:
-   price?: string;
-   variants?: {
-      edges: {
-         node: {
-            priceV2: {
-               amount: string;
-               currencyCode: string;
-            };
-         };
-      }[];
-   };
-   options: { name: string; values: string[] }[];
-   images: {
-      edges: {
-         node: {
-            url: string;
-         };
-      }[];
-   };
-};
+const MAX_SWATCHES = 4;
 
-type ProductGroupsDisplayProps = {
-   groupTitle: string;
-   products: ParentProduct[];
-   onClick?: () => void;
-};
-
-const ProductGroupsDisplay: React.FC<ProductGroupsDisplayProps> = ({
-   groupTitle,
-   products,
-   onClick
-}) => {
-   // Helper: extract price from product
+const ProductGroupsDisplay: React.FC<ProductGroupsDisplayProps> = ({ groupTitle, products }) => {
+   // Helper: extract price from product.
    const extractPrice = (product: ParentProduct): string => {
       if (product.price) return product.price;
-      if (
-         product.variants &&
-         product.variants.edges &&
-         product.variants.edges.length > 0 &&
-         product.variants.edges[0]?.node?.priceV2
-      ) {
-         return product.variants.edges[0]?.node.priceV2?.amount || '';
+      if (product.variants && product.variants.length > 0 && product.variants[0]?.priceV2) {
+         return product.variants[0].priceV2.amount || '';
       }
       return '';
    };
 
-   // Initial selection from the first product
-   const initialImage = products[0]?.images?.edges?.[0]?.node?.url || '/placeholder.png';
+   // Initial selection from the first product.
+   const initialImage = products[0]?.images[0]?.url || '/placeholder.png';
    const initialColorName =
       products[0]?.options?.find((option) => option.name.toLowerCase() === 'color')?.values[0] ||
       '';
    const initialPrice = products[0] ? extractPrice(products[0]) : '';
 
-   // Main display states
+   // Main display states.
    const [mainImage, setMainImage] = useState(initialImage);
    const [selectedColorName, setSelectedColorName] = useState(initialColorName);
    const [selectedPrice, setSelectedPrice] = useState(initialPrice);
-   // When a swatch is clicked, lock its selection
+   // When a swatch is clicked, lock its selection.
    const [lockedSelection, setLockedSelection] = useState<{
       image: string;
       color: string;
       price: string;
    } | null>(null);
 
-   // Function to update the display state from a given product
+   // Function to update the display state from a given product.
    const updateSelection = (product: ParentProduct) => {
-      const productImage = product.images?.edges?.[0]?.node?.url || '/placeholder.png';
-      const colorOption = product.options.find((option) => option.name.toLowerCase() === 'color');
+      const productImage = product.images[0]?.url || '/placeholder.png';
+      const colorOption = product.options?.find((option) => option.name.toLowerCase() === 'color');
       const colorValue = colorOption ? colorOption.values[0] : '';
       const priceValue = extractPrice(product);
       setMainImage(productImage);
@@ -81,18 +44,53 @@ const ProductGroupsDisplay: React.FC<ProductGroupsDisplayProps> = ({
       setSelectedPrice(priceValue);
    };
 
+   // Build swatches for color options.
+   const swatches = products.map((product) => {
+      // Extract the first color option value for this product.
+      const colorOption = product.options?.find((option) => option.name.toLowerCase() === 'color');
+      const colorValue = colorOption ? colorOption.values[0] : undefined;
+
+      return (
+         <div
+            key={product.id}
+            onMouseEnter={() => updateSelection(product)}
+            onMouseLeave={() => {
+               if (lockedSelection) {
+                  setMainImage(lockedSelection.image);
+                  setSelectedColorName(lockedSelection.color);
+                  setSelectedPrice(lockedSelection.price);
+               } else {
+                  setMainImage(initialImage);
+                  setSelectedColorName(initialColorName);
+                  setSelectedPrice(initialPrice);
+               }
+            }}
+            onClick={(e) => {
+               e.stopPropagation(); // Prevent parent onClick if any.
+               updateSelection(product);
+               setLockedSelection({
+                  image: product.images[0]?.url || '/placeholder.png',
+                  color: colorValue as string,
+                  price: extractPrice(product)
+               });
+            }}
+            className="h-8 w-8 cursor-pointer rounded-full border border-gray-300"
+            style={{ backgroundColor: colorValue }}
+            title={colorValue}
+         />
+      );
+   });
+
    return (
       <section className="my-12">
-         <div
-            className="w-64 cursor-pointer rounded-lg border p-4 transition-shadow hover:shadow-lg"
-            onClick={onClick}
-         >
+         <div className="mx-auto w-64 rounded-lg border p-4 transition-shadow hover:shadow-lg">
             <div className="flex flex-col">
                {/* Main Image */}
                <div className="relative h-64 w-64">
-                  <img
+                  <Image
                      src={mainImage}
                      alt={groupTitle}
+                     fill
                      className="h-full w-full rounded object-cover"
                   />
                </div>
@@ -107,45 +105,12 @@ const ProductGroupsDisplay: React.FC<ProductGroupsDisplayProps> = ({
                </div>
                {/* Swatches Row */}
                <div className="mt-4 flex gap-2">
-                  {products.map((product) => {
-                     const colorOption = product.options.find(
-                        (option) => option.name.toLowerCase() === 'color'
-                     );
-                     const colorValue = colorOption ? colorOption.values[0] : undefined;
-                     return (
-                        <div
-                           key={product.id}
-                           onMouseEnter={() => {
-                              // Only preview if no locked selection exists or we want to preview over locked selection
-                              updateSelection(product);
-                           }}
-                           onMouseLeave={() => {
-                              // On mouse leave, if a swatch is locked, revert to its values; otherwise revert to initial.
-                              if (lockedSelection) {
-                                 setMainImage(lockedSelection.image);
-                                 setSelectedColorName(lockedSelection.color);
-                                 setSelectedPrice(lockedSelection.price);
-                              } else {
-                                 setMainImage(initialImage);
-                                 setSelectedColorName(initialColorName);
-                                 setSelectedPrice(initialPrice);
-                              }
-                           }}
-                           onClick={(e) => {
-                              e.stopPropagation(); // Prevent parent onClick
-                              updateSelection(product);
-                              setLockedSelection({
-                                 image: product.images?.edges?.[0]?.node?.url || '/placeholder.png',
-                                 color: colorValue as string,
-                                 price: extractPrice(product)
-                              });
-                           }}
-                           className="h-8 w-8 cursor-pointer rounded-full border border-gray-300"
-                           style={{ backgroundColor: colorValue }}
-                           title={colorValue}
-                        />
-                     );
-                  })}
+                  {swatches.slice(0, MAX_SWATCHES)}
+                  {swatches.length > MAX_SWATCHES && (
+                     <div className="flex h-8 w-8 items-center justify-center rounded-full border border-gray-300 text-xs text-gray-700">
+                        +{swatches.length - MAX_SWATCHES} more
+                     </div>
+                  )}
                </div>
             </div>
          </div>
