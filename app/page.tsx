@@ -14,8 +14,8 @@ export const metadata = {
       type: 'website'
    }
 };
-const SHOPIFY_ENDPOINT = process.env.NEXT_PUBLIC_SHOPIFY_GRAPHQL_ENDPOINT || '';
-const SHOPIFY_STOREFRONT_ACCESS_TOKEN = process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_TOKEN || '';
+const SHOPIFY_ENDPOINT = process.env.SHOPIFY_GRAPHQL_ENDPOINT || '';
+const SHOPIFY_STOREFRONT_ACCESS_TOKEN = process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN || '';
 
 // This tells Next.js to revalidate the page every 60 seconds.
 export const revalidate = 60;
