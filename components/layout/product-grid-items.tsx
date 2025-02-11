@@ -8,7 +8,13 @@ const SHOPIFY_ENDPOINT = process.env.SHOPIFY_GRAPHQL_ENDPOINT || '';
 const SHOPIFY_STOREFRONT_ACCESS_TOKEN = process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN || '';
 export const revalidate = 60;
 
-export default async function ProductGridItems({ products }: { products: Product[] }) {
+export default async function ProductGridItems({
+   products,
+   groupHandle
+}: {
+   products: Product[];
+   groupHandle?: string;
+}) {
    // --- 1. Fetch the metaobject for the product group ---
    const metaobjectQuery = `
     query GetProductGroupMetaobject($handle: MetaobjectHandleInput!) {
@@ -22,13 +28,19 @@ export default async function ProductGridItems({ products }: { products: Product
       }
     }
   `;
+   // A simple example assuming products have a `collectionHandle` property.
+   // Ensure you have a valid default in case the dynamic source is missing.
+   const dynamicHandle =
+      products.length > 0 && (products[0] as any).collectionHandle
+         ? (products[0] as any).collectionHandle
+         : 'yanis-top';
+
    const metaobjectVariables = {
       handle: {
-         handle: 'yanis-top', // Adjust if needed.
-         type: 'product_groups' // Adjust if needed.
+         handle: dynamicHandle, // now dynamic
+         type: 'product_groups'
       }
    };
-
    const metaRes = await fetch(SHOPIFY_ENDPOINT, {
       method: 'POST',
       headers: {

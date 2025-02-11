@@ -59,6 +59,13 @@ const productFragment = /* GraphQL */ `
       metafield(namespace: "shopify", key: "color-pattern") {
          value
       }
+      collections(first: 10) {
+         nodes {
+            id
+            title
+            handle
+         }
+      }
    }
    ${imageFragment}
    ${seoFragment}

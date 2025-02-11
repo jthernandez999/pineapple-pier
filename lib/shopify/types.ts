@@ -104,6 +104,10 @@ export type Product = Omit<ShopifyProduct, 'variants' | 'images'> & {
       Inseam?: string;
    };
    metafields?: Metafield[] | null;
+   collectionHandle?: string;
+   collections: {
+      nodes: Collection[];
+   };
 };
 
 export type ProductOption = {
@@ -145,6 +149,7 @@ export type ShopifyCart = {
 };
 
 export type ShopifyCollection = {
+   id?: string;
    handle: string;
    title: string;
    description: string;
