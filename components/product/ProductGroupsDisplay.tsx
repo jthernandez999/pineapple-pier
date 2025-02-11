@@ -16,7 +16,9 @@ const ProductGroupsDisplay: React.FC<ProductGroupsDisplayProps> = ({ groupTitle,
    };
 
    // Initial selection from the first product.
-   const initialImage = products[0]?.images[0]?.url || '/placeholder.png';
+   const initialImage =
+      products[0]?.images[0]?.url ||
+      'https://cdn.shopify.com/s/files/1/1024/2207/files/default_logo_dear_john_denim.jpg?v=1739228110';
    const initialColorName =
       products[0]?.options?.find((option) => option.name.toLowerCase() === 'color')?.values[0] ||
       '';
@@ -35,7 +37,9 @@ const ProductGroupsDisplay: React.FC<ProductGroupsDisplayProps> = ({ groupTitle,
 
    // Function to update the display state from a given product.
    const updateSelection = (product: ParentProduct) => {
-      const productImage = product.images[0]?.url || '/placeholder.png';
+      const productImage =
+         product.images[0]?.url ||
+         'https://cdn.shopify.com/s/files/1/1024/2207/files/default_logo_dear_john_denim.jpg?v=1739228110';
       const colorOption = product.options?.find((option) => option.name.toLowerCase() === 'color');
       const colorValue = colorOption ? colorOption.values[0] : '';
       const priceValue = extractPrice(product);
@@ -69,7 +73,9 @@ const ProductGroupsDisplay: React.FC<ProductGroupsDisplayProps> = ({ groupTitle,
                e.stopPropagation(); // Prevent parent onClick if any.
                updateSelection(product);
                setLockedSelection({
-                  image: product.images[0]?.url || '/placeholder.png',
+                  image:
+                     product.images[0]?.url ||
+                     'https://cdn.shopify.com/s/files/1/1024/2207/files/default_logo_dear_john_denim.jpg?v=1739228110',
                   color: colorValue as string,
                   price: extractPrice(product)
                });
