@@ -105,7 +105,7 @@ export type Product = Omit<ShopifyProduct, 'variants' | 'images'> & {
    };
    metafields?: Metafield[] | null;
    collectionHandle?: string;
-   collections: {
+   collections?: {
       nodes: Collection[];
    };
 };
