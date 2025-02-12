@@ -30,8 +30,8 @@ export default async function CategoryPage(props: {
    const { sort } = searchParams as { [key: string]: string };
    const { sortKey, reverse } = sorting.find((item) => item.slug === sort) || defaultSort;
 
-   // Fetch the initial products
-   const initialProducts = await getCollectionProducts({
+   // Destructure to get both products and pageInfo
+   const { products, pageInfo } = await getCollectionProducts({
       collection: params.collection,
       sortKey,
       reverse
@@ -39,19 +39,18 @@ export default async function CategoryPage(props: {
 
    return (
       <section>
-         {initialProducts.length === 0 ? (
+         {products.length === 0 ? (
             <p className="py-3 text-lg">No products found in this collection</p>
          ) : (
-            <>
-               <Grid className="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-                  <InfiniteScrollProductGrid
-                     initialProducts={initialProducts}
-                     collectionHandle={params.collection}
-                     sortKey={sortKey}
-                     reverse={reverse}
-                  />
-               </Grid>
-            </>
+            <Grid className="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+               <InfiniteScrollProductGrid
+                  initialProducts={products}
+                  initialPageInfo={pageInfo}
+                  collectionHandle={params.collection}
+                  sortKey={sortKey}
+                  reverse={reverse}
+               />
+            </Grid>
          )}
       </section>
    );

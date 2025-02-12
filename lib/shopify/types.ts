@@ -178,6 +178,16 @@ export type ShopifyProduct = {
    metafields?: Metafield[];
 };
 
+// export interface ShopifyProductConnection {
+//    edges: {
+//       node: ShopifyProduct;
+//    }[];
+//    pageInfo: {
+//       hasNextPage: boolean;
+//       endCursor: string | null;
+//    };
+// }
+
 export type ProductGroup = {
    id: string;
    title: string;

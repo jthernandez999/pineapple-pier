@@ -14,6 +14,10 @@ const ProductGridItems = dynamic(() => import('../components/layout/product-grid
 
 interface InfiniteScrollProductGridProps {
    initialProducts: Product[];
+   initialPageInfo: {
+      endCursor: string | null;
+      hasNextPage: boolean;
+   };
    collectionHandle: string;
    sortKey: string;
    reverse: boolean;
@@ -21,13 +25,14 @@ interface InfiniteScrollProductGridProps {
 
 export default function InfiniteScrollProductGrid({
    initialProducts,
+   initialPageInfo,
    collectionHandle,
    sortKey,
    reverse
 }: InfiniteScrollProductGridProps) {
    const [products, setProducts] = useState<Product[]>(initialProducts);
-   const [cursor, setCursor] = useState<string | undefined>(undefined);
-   const [hasNextPage, setHasNextPage] = useState(true);
+   const [cursor, setCursor] = useState<string | undefined>(initialPageInfo.endCursor || undefined);
+   const [hasNextPage, setHasNextPage] = useState(initialPageInfo.hasNextPage);
    const [isLoading, setIsLoading] = useState(false);
 
    const loadMoreProducts = useCallback(async () => {
@@ -35,7 +40,6 @@ export default function InfiniteScrollProductGrid({
       setIsLoading(true);
       console.log('Load More triggered. Current cursor:', cursor);
 
-      // If cursor is undefined, omit the 'after' field from variables.
       const variables: any = {
          handle: collectionHandle,
          sortKey,

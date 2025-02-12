@@ -1,6 +1,5 @@
 // app/page.tsx
 import { banners, collectionImages, highlightCollectionImages } from 'assets/index';
-import { Carousel } from 'components/carousel';
 import { ThreeItemGrid } from 'components/grid/three-items';
 import HeroBanner from 'components/hero';
 import HighlightCollection from 'components/highlightCollection';
@@ -128,7 +127,7 @@ export default async function HomePage() {
       <>
          <HeroBanner banners={banners} interval={1100} />
          <ThreeImageCollections collectionImages={collectionImages} />
-         <Carousel />
+         {/* <Carousel products={products} /> */}
          <HighlightCollection highlightCollectionImages={highlightCollectionImages} />
          <ThreeItemGrid />
          {/* Render the Product Groups section if data exists */}
