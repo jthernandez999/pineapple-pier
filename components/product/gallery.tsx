@@ -158,6 +158,7 @@ export function Gallery({ images }: { images: { src: string; altText: string }[]
                                  sizes="100vw"
                                  className="object-cover"
                                  priority={true}
+                                 unoptimized
                               />
                            </figure>
                         </div>
