@@ -136,7 +136,9 @@ export function Gallery({ images }: { images: { src: string; altText: string }[]
                                  src={img.src}
                                  alt={img.altText}
                                  fill
+                                 sizes="(max-width: 768px) 100vw, 50vw"
                                  className="object-cover"
+                                 unoptimized
                               />
                            </div>
                         ))}
@@ -181,6 +183,7 @@ export function Gallery({ images }: { images: { src: string; altText: string }[]
                                           fill
                                           sizes="50vw"
                                           className="object-cover"
+                                          unoptimized
                                        />
                                     </figure>
                                  </button>

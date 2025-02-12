@@ -47,6 +47,7 @@ export function GridTileImage({
                })}
                {...props}
                src={displayedSrc}
+               unoptimized
             />
          ) : null}
          {label ? (
