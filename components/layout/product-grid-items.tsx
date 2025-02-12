@@ -15,161 +15,239 @@ export default async function ProductGridItems({
    products: Product[];
    groupHandle?: string;
 }) {
-   // --- 1. Fetch the metaobject for the product group ---
-   const metaobjectQuery = `
-    query GetProductGroupMetaobject($handle: MetaobjectHandleInput!) {
-      metaobject(handle: $handle) {
-        id
-        handle
-        fields {
-          key
-          value
-        }
-      }
-    }
-  `;
-   // A simple example assuming products have a `collectionHandle` property.
-   // Ensure you have a valid default in case the dynamic source is missing.
-   const dynamicHandle =
-      products.length > 0 && (products[0] as any).collectionHandle
-         ? (products[0] as any).collectionHandle
-         : 'yanis-top';
+   // --- 1. Group products by their metaobject reference (metafield "color-pattern") ---
+   const groupsMap: { [groupKey: string]: Product[] } = {};
 
-   const metaobjectVariables = {
-      handle: {
-         handle: dynamicHandle, // now dynamic
-         type: 'product_groups'
-      }
-   };
-   const metaRes = await fetch(SHOPIFY_ENDPOINT, {
-      method: 'POST',
-      headers: {
-         'Content-Type': 'application/json',
-         'X-Shopify-Storefront-Access-Token': SHOPIFY_STOREFRONT_ACCESS_TOKEN
-      },
-      body: JSON.stringify({ query: metaobjectQuery, variables: metaobjectVariables })
-   });
-   const metaJson = await metaRes.json();
-   console.log('Metaobject response:', metaJson);
-   const metaobject = metaJson.data?.metaobject;
-
-   let groupTitle = '';
-   let productIds: string[] = [];
-   if (metaobject) {
-      const nameField = metaobject.fields.find((field: { key: string }) => field.key === 'name');
-      groupTitle = nameField ? nameField.value : 'Unnamed Group';
-
-      const groupField = metaobject.fields.find((field: { key: string }) => field.key === 'group');
-      if (groupField) {
-         try {
-            productIds = JSON.parse(groupField.value);
-         } catch (error) {
-            console.error('Error parsing product IDs:', error);
+   for (const product of products) {
+      if (product.metafields && product.metafields.length > 0) {
+         const found = product.metafields.find((mf) => mf.key === 'color-pattern');
+         if (found && found.value) {
+            try {
+               const groupHandles: string[] = JSON.parse(found.value);
+               // Ensure the first element exists before using it as a key.
+               if (Array.isArray(groupHandles) && groupHandles.length > 0 && groupHandles[0]) {
+                  const groupKey = groupHandles[0];
+                  if (!groupsMap[groupKey]) {
+                     groupsMap[groupKey] = [];
+                  }
+                  groupsMap[groupKey].push(product);
+               }
+            } catch (error) {
+               console.error('Error parsing metafield value:', error);
+            }
          }
       }
    }
-   console.log('Group Title:', groupTitle);
-   console.log('Product IDs:', productIds);
 
-   // --- 2. Fetch parent product details if product IDs exist ---
-   let parentProducts: any[] = [];
-   if (productIds.length > 0) {
-      const productsQuery = `
-      query GetProducts($ids: [ID!]!) {
-        nodes(ids: $ids) {
-          ... on Product {
-            id
-            title
-            handle
-            options {
-              name
-              values
-            }
-            images(first: 1) {
-              edges {
-                node {
-                  url
-                }
-              }
-            }
-            variants(first: 1) {
-              edges {
-                node {
-                  priceV2 {
-                    amount
-                    currencyCode
-                  }
-                }
-              }
-            }
+   // --- 2. Fetch metaobject details for each group ---
+   const groupKeys = Object.keys(groupsMap);
+   const metaobjectQueries = groupKeys.map(async (groupKey) => {
+      const metaobjectQuery = `
+      query GetProductGroupMetaobject($handle: MetaobjectHandleInput!) {
+        metaobject(handle: $handle) {
+          id
+          handle
+          fields {
+            key
+            value
           }
         }
       }
     `;
-      const productsVariables = { ids: productIds };
-      const productsRes = await fetch(SHOPIFY_ENDPOINT, {
+      const metaobjectVariables = {
+         handle: {
+            handle: groupKey,
+            type: 'product_groups'
+         }
+      };
+      const res = await fetch(SHOPIFY_ENDPOINT, {
          method: 'POST',
          headers: {
             'Content-Type': 'application/json',
             'X-Shopify-Storefront-Access-Token': SHOPIFY_STOREFRONT_ACCESS_TOKEN
          },
-         body: JSON.stringify({ query: productsQuery, variables: productsVariables })
+         body: JSON.stringify({ query: metaobjectQuery, variables: metaobjectVariables })
       });
-      const productsJson = await productsRes.json();
-      console.log('Products query response:', productsJson);
-      parentProducts = productsJson.data?.nodes || [];
-   }
+      const json = await res.json();
+      return { groupKey, metaobject: json.data?.metaobject };
+   });
 
-   // --- 3. Render product grid items and group display ---
+   const metaobjectResults = await Promise.all(metaobjectQueries);
+   // Only keep groups for which Shopify returned a valid metaobject.
+   const validGroups = metaobjectResults.filter((r) => r.metaobject !== null);
+
+   // --- 3. Create grid items for all products ---
+   const gridItems = products.map((product) => (
+      <Grid.Item key={product.handle} className="animate-fadeIn">
+         <Link
+            className="relative inline-block h-full w-full"
+            href={`/product/${product.handle}`}
+            prefetch={true}
+         >
+            <GridTileImage
+               alt={product.title}
+               label={{
+                  title: product.title,
+                  amount: product.priceRange.maxVariantPrice.amount,
+                  currencyCode: product.priceRange.maxVariantPrice.currencyCode
+               }}
+               src={product.featuredImage?.url}
+               secondarySrc={product.images[1]?.url}
+               fill
+               sizes="(min-width: 768px) 33vw, (min-width: 640px) 50vw, 100vw"
+            />
+         </Link>
+      </Grid.Item>
+   ));
+
+   // --- 4. Render the parent groups at the top, then all product grid items ---
    return (
       <>
-         {products.map((product) => {
-            // Attempt to extract the metaobject ID for the color swatch.
-            let metaobjectId: string | null = null;
-            if (product.metafields && product.metafields.length > 0) {
-               // Find the metafield with key "color-pattern"
-               const found = product.metafields.find((mf) => mf.key === 'color-pattern');
-               if (found && found.value) {
-                  try {
-                     // Parse the JSON string (e.g. '["gid://shopify/Metaobject/78677147737"]')
-                     const metaobjectIds = JSON.parse(found.value);
-                     if (Array.isArray(metaobjectIds) && metaobjectIds.length > 0) {
-                        metaobjectId = metaobjectIds[0]; // Use the first metaobject ID.
-                     }
-                  } catch (error) {
-                     console.error('Error parsing metafield value:', error);
-                  }
-               }
-            }
+         {/* Render parent group displays at the top */}
+         {validGroups.length > 0 &&
+            validGroups.map(({ groupKey, metaobject }) => {
+               // Extract the group title (e.g., field with key "name")
+               const nameField = metaobject.fields.find((f: any) => f.key === 'name');
+               const groupTitleFromMeta = nameField ? nameField.value : groupKey;
+               // Retrieve the child products for this group
+               const groupProducts: Product[] = groupsMap[groupKey] || [];
+               return (
+                  <ProductGroupsDisplay
+                     key={groupKey}
+                     groupTitle={groupTitleFromMeta}
+                     products={groupProducts}
+                  />
+               );
+            })}
 
-            return (
-               <Grid.Item key={product.handle} className="animate-fadeIn">
-                  <Link
-                     className="relative inline-block h-full w-full"
-                     href={`/product/${product.handle}`}
-                     prefetch={true}
-                  >
-                     <GridTileImage
-                        alt={product.title}
-                        label={{
-                           title: product.title,
-                           amount: product.priceRange.maxVariantPrice.amount,
-                           currencyCode: product.priceRange.maxVariantPrice.currencyCode
-                        }}
-                        src={product.featuredImage?.url}
-                        secondarySrc={product.images[1]?.url} // Use the second image if available.
-                        fill
-                        sizes="(min-width: 768px) 33vw, (min-width: 640px) 50vw, 100vw"
-                     />
-                  </Link>
-               </Grid.Item>
-            );
-         })}
-         {groupTitle && products.length > 0 ? (
-            <ProductGroupsDisplay groupTitle={groupTitle} products={products} />
-         ) : (
-            <p className="text-center text-gray-500">No product groups found collection page.</p>
-         )}
+         {/* Then render the full product grid */}
+         {gridItems}
       </>
    );
 }
+
+// import Grid from 'components/grid';
+// import { GridTileImage } from 'components/grid/tile';
+// import { Product } from 'lib/shopify/types';
+// import Link from 'next/link';
+// import ProductGroupsDisplay from '../../components/product/ProductGroupsDisplay';
+
+// const SHOPIFY_ENDPOINT = process.env.SHOPIFY_GRAPHQL_ENDPOINT || '';
+// const SHOPIFY_STOREFRONT_ACCESS_TOKEN = process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN || '';
+// export const revalidate = 60;
+
+// export default async function ProductGridItems({
+//    products,
+//    groupHandle
+// }: {
+//    products: Product[];
+//    groupHandle?: string;
+// }) {
+//    // --- 1. Render product grid items (all products) ---
+//    const gridItems = products.map((product) => (
+//       <Grid.Item key={product.handle} className="animate-fadeIn">
+//          <Link
+//             className="relative inline-block h-full w-full"
+//             href={`/product/${product.handle}`}
+//             prefetch={true}
+//          >
+//             <GridTileImage
+//                alt={product.title}
+//                label={{
+//                   title: product.title,
+//                   amount: product.priceRange.maxVariantPrice.amount,
+//                   currencyCode: product.priceRange.maxVariantPrice.currencyCode
+//                }}
+//                src={product.featuredImage?.url}
+//                secondarySrc={product.images[1]?.url}
+//                fill
+//                sizes="(min-width: 768px) 33vw, (min-width: 640px) 50vw, 100vw"
+//             />
+//          </Link>
+//       </Grid.Item>
+//    ));
+
+//    // --- 2. Group products by their metaobject reference (metafield "color-pattern") ---
+//    const groupsMap: { [groupKey: string]: Product[] } = {};
+
+//    for (const product of products) {
+//       if (product.metafields && product.metafields.length > 0) {
+//          const found = product.metafields.find((mf) => mf.key === 'color-pattern');
+//          if (found && found.value) {
+//             try {
+//                const groupHandles: string[] = JSON.parse(found.value);
+//                // Ensure that the first element exists before using it as a key.
+//                if (Array.isArray(groupHandles) && groupHandles.length > 0 && groupHandles[0]) {
+//                   const groupKey = groupHandles[0];
+//                   if (!groupsMap[groupKey]) {
+//                      groupsMap[groupKey] = [];
+//                   }
+//                   groupsMap[groupKey].push(product);
+//                }
+//             } catch (error) {
+//                console.error('Error parsing metafield value:', error);
+//             }
+//          }
+//       }
+//    }
+
+//    // --- 3. Fetch metaobject details for each group ---
+//    const groupKeys = Object.keys(groupsMap);
+//    const metaobjectQueries = groupKeys.map(async (groupKey) => {
+//       const metaobjectQuery = `
+//       query GetProductGroupMetaobject($handle: MetaobjectHandleInput!) {
+//         metaobject(handle: $handle) {
+//           id
+//           handle
+//           fields {
+//             key
+//             value
+//           }
+//         }
+//       }
+//     `;
+//       const metaobjectVariables = {
+//          handle: {
+//             handle: groupKey,
+//             type: 'product_groups'
+//          }
+//       };
+//       console.log('Fetching metaobject for group:', groupKey);
+//       const res = await fetch(SHOPIFY_ENDPOINT, {
+//          method: 'POST',
+//          headers: {
+//             'Content-Type': 'application/json',
+//             'X-Shopify-Storefront-Access-Token': SHOPIFY_STOREFRONT_ACCESS_TOKEN
+//          },
+//          body: JSON.stringify({ query: metaobjectQuery, variables: metaobjectVariables })
+//       });
+//       const json = await res.json();
+//       return { groupKey, metaobject: json.data?.metaobject };
+//    });
+
+//    const metaobjectResults = await Promise.all(metaobjectQueries);
+//    // Only keep groups for which Shopify returned a valid metaobject.
+//    const validGroups = metaobjectResults.filter((r) => r.metaobject !== null);
+
+//    // --- 4. Render the full component ---
+//    return (
+//       <>
+//          {validGroups.length > 0 &&
+//             validGroups.map(({ groupKey, metaobject }) => {
+//                // Extract the group title (for example, by finding the field with key "name")
+//                const nameField = metaobject.fields.find((f: any) => f.key === 'name');
+//                const groupTitleFromMeta = nameField ? nameField.value : groupKey;
+//                // Get the group products (defaulting to an empty array if not defined)
+//                const groupProducts: Product[] = groupsMap[groupKey] || [];
+//                return (
+//                   <ProductGroupsDisplay
+//                      key={groupKey}
+//                      groupTitle={groupTitleFromMeta}
+//                      products={groupProducts}
+//                   />
+//                );
+//             })}
+//          {gridItems}
+//       </>
+//    );
+// }

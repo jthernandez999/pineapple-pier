@@ -2,55 +2,79 @@ import productFragment from '../fragments/product';
 import seoFragment from '../fragments/seo';
 
 const collectionFragment = /* GraphQL */ `
-  fragment collection on Collection {
-    handle
-    title
-    description
-    seo {
-      ...seo
-    }
-    updatedAt
-  }
-  ${seoFragment}
+   fragment collection on Collection {
+      handle
+      title
+      description
+      seo {
+         ...seo
+      }
+      updatedAt
+   }
+   ${seoFragment}
 `;
 
 export const getCollectionQuery = /* GraphQL */ `
-  query getCollection($handle: String!) {
-    collection(handle: $handle) {
-      ...collection
-    }
-  }
-  ${collectionFragment}
+   query getCollection($handle: String!) {
+      collection(handle: $handle) {
+         ...collection
+      }
+   }
+   ${collectionFragment}
 `;
 
 export const getCollectionsQuery = /* GraphQL */ `
-  query getCollections {
-    collections(first: 100, sortKey: TITLE) {
-      edges {
-        node {
-          ...collection
-        }
+   query getCollections {
+      collections(first: 100, sortKey: TITLE) {
+         edges {
+            node {
+               ...collection
+            }
+         }
       }
-    }
-  }
-  ${collectionFragment}
+   }
+   ${collectionFragment}
 `;
 
+// export const getCollectionProductsQuery = /* GraphQL */ `
+//    query getCollectionProducts(
+//       $handle: String!
+//       $sortKey: ProductCollectionSortKeys
+//       $reverse: Boolean
+//    ) {
+//       collection(handle: $handle) {
+//          products(sortKey: $sortKey, reverse: $reverse, first: 100) {
+//             edges {
+//                node {
+//                   ...product
+//                }
+//             }
+//          }
+//       }
+//    }
+//    ${productFragment}
+// `;
+
 export const getCollectionProductsQuery = /* GraphQL */ `
-  query getCollectionProducts(
-    $handle: String!
-    $sortKey: ProductCollectionSortKeys
-    $reverse: Boolean
-  ) {
-    collection(handle: $handle) {
-      products(sortKey: $sortKey, reverse: $reverse, first: 100) {
-        edges {
-          node {
-            ...product
-          }
-        }
+   query getCollectionProducts(
+      $handle: String!
+      $sortKey: ProductCollectionSortKeys
+      $reverse: Boolean
+      $cursor: String
+   ) {
+      collection(handle: $handle) {
+         products(sortKey: $sortKey, reverse: $reverse, first: 100, after: $cursor) {
+            pageInfo {
+               hasNextPage
+               endCursor
+            }
+            edges {
+               node {
+                  ...product
+               }
+            }
+         }
       }
-    }
-  }
-  ${productFragment}
+   }
+   ${productFragment}
 `;
