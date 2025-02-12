@@ -4,8 +4,8 @@ import { Product } from 'lib/shopify/types';
 import Link from 'next/link';
 import ProductGroupsDisplay from '../../components/product/ProductGroupsDisplay';
 
-const SHOPIFY_ENDPOINT = process.env.SHOPIFY_GRAPHQL_ENDPOINT || '';
-const SHOPIFY_STOREFRONT_ACCESS_TOKEN = process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN || '';
+const SHOPIFY_ENDPOINT = process.env.NEXT_PUBLIC_SHOPIFY_GRAPHQL_ENDPOINT || '';
+const SHOPIFY_STOREFRONT_ACCESS_TOKEN = process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_TOKEN || '';
 export const revalidate = 60;
 
 export default async function ProductGridItems({
