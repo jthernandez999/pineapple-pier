@@ -45,15 +45,18 @@ function ThreeItemGridItem({
 }
 
 export async function ThreeItemGrid() {
-   // Collections that start with `hidden-*` are hidden from the search page.
-   const homepageItems = await getCollectionProducts({
-      // collection: 'hidden-homepage-featured-items'
+   // Destructure the products from the returned object.
+   const { products: homepageItems } = await getCollectionProducts({
       collection: 'shop-new-arrivals'
    });
 
-   if (!homepageItems[0] || !homepageItems[1] || !homepageItems[2]) return null;
+   // Check that we have at least three items.
+   if (homepageItems.length < 3) return null;
 
-   const [firstProduct, secondProduct, thirdProduct] = homepageItems;
+   // Now use non-null assertions (the ! operator) to tell TypeScript these items exist.
+   const firstProduct = homepageItems[0]!;
+   const secondProduct = homepageItems[1]!;
+   const thirdProduct = homepageItems[2]!;
 
    return (
       <section className="mx-auto grid max-w-screen-2xl gap-4 px-4 pb-4 md:grid-cols-6 md:grid-rows-2 lg:max-h-[calc(100vh-200px)]">
