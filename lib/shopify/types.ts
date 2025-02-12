@@ -93,10 +93,24 @@ export type Metafield = {
    key: string;
    value: string;
 };
+export type Video = {
+   id: string;
+   sources: {
+      url: string;
+      format: string;
+      mimeType: string;
+   }[];
+   alt?: string;
+};
 
 export type Product = Omit<ShopifyProduct, 'variants' | 'images'> & {
    variants: ProductVariant[];
    images: Image[];
+   media?: {
+      edges: Array<{
+         node: Video;
+      }>;
+   };
    spec?: {
       Material?: string;
       'Front Rise'?: string;

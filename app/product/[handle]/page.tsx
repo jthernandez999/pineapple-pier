@@ -19,6 +19,7 @@ export async function generateMetadata(props: {
    const product = await getProduct(params.handle);
    console.log('PRODUCT_COLLECTIONS:', product?.collections?.nodes);
    console.log('PRODUCT:', product);
+   console.log('PRODUCT MEDIA:', product?.media?.edges[2]?.node?.sources);
    if (!product) return notFound();
 
    const { url, width, height, altText: alt } = product.featuredImage || {};
