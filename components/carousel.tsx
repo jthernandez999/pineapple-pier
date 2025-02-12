@@ -1,14 +1,25 @@
-import { getCollectionProducts } from 'lib/shopify';
 import Link from 'next/link';
+import { Product } from '../lib/shopify/types';
 import { GridTileImage } from './grid/tile';
 
-export async function Carousel() {
-   // Collections that start with `hidden-*` are hidden from the search page.
-   const products = await getCollectionProducts({ collection: 'whats-hot' });
+export interface CarouselData {
+   products: Product[];
+   pageInfo: {
+      endCursor: string | null;
+      hasNextPage: boolean;
+   };
+}
 
-   if (!products?.length) return null;
+export interface CarouselProps {
+   data: CarouselData;
+}
 
-   // Purposefully duplicating products to make the carousel loop and not run out of products on wide screens.
+export function Carousel({ data }: CarouselProps) {
+   // Extract the products array from the data object.
+   const { products } = data;
+   if (!products || products.length === 0) return null;
+
+   // Duplicate products to make the carousel loop.
    const carouselProducts = [...products, ...products, ...products];
 
    return (
@@ -30,7 +41,7 @@ export async function Carousel() {
                         src={product.featuredImage?.url}
                         secondarySrc={product.images[1]?.url}
                         fill
-                        sizes="100vw, (min-width: 768px) 20vw" // adjust as needed
+                        sizes="100vw, (min-width: 768px) 20vw"
                         className="object-cover"
                      />
                   </Link>

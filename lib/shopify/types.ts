@@ -372,3 +372,7 @@ export interface ProductGroupsDisplayProps {
    groupTitle: string;
    products: Product[];
 }
+
+export interface CarouselProps {
+   products: Product[];
+}
