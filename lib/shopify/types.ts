@@ -110,6 +110,7 @@ export type Product = Omit<ShopifyProduct, 'variants' | 'images'> & {
          node: Video;
       }>;
    };
+   options?: { name: string; values: string[] }[];
    spec?: {
       Material?: string;
       'Front Rise'?: string;
@@ -117,6 +118,8 @@ export type Product = Omit<ShopifyProduct, 'variants' | 'images'> & {
       Inseam?: string;
    };
    metafields?: Metafield[] | null;
+   // metafield?: Metafield;
+   price?: string;
    collectionHandle?: string;
    collections?: {
       nodes: Collection[];

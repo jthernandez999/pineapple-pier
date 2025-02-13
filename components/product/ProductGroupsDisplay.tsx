@@ -2,6 +2,7 @@
 import Image from 'next/image';
 import React, { useState } from 'react';
 import { ParentProduct, ProductGroupsDisplayProps } from '../../lib/shopify/types';
+import ProductGroupsDisplayLabel from './ProductGroupDisplayLabel';
 
 const MAX_SWATCHES = 4;
 
@@ -54,8 +55,24 @@ const ProductGroupsDisplay: React.FC<ProductGroupsDisplayProps> = ({ groupTitle,
       const colorOption = product.options?.find((option) => option.name.toLowerCase() === 'color');
       const colorValue = colorOption ? colorOption.values[0] : undefined;
 
+      // Attempt to extract the metaobject ID for the color swatch.
+      let metaobjectId: string | null = null;
+      if (product.metafields && product.metafields.length > 0) {
+         const found = product.metafields.find((mf) => mf.key === 'color-pattern');
+         if (found && found.value) {
+            try {
+               const metaobjectIds = JSON.parse(found.value); // e.g. '["gid://shopify/Metaobject/78677147737"]'
+               if (Array.isArray(metaobjectIds) && metaobjectIds.length > 0) {
+                  metaobjectId = metaobjectIds[0]; // Use the first metaobject ID.
+               }
+            } catch (error) {
+               console.error('Error parsing metafield value:', error);
+            }
+         }
+      }
+
       return (
-         <div
+         <button
             key={product.id}
             onMouseEnter={() => updateSelection(product)}
             onMouseLeave={() => {
@@ -70,7 +87,7 @@ const ProductGroupsDisplay: React.FC<ProductGroupsDisplayProps> = ({ groupTitle,
                }
             }}
             onClick={(e) => {
-               e.stopPropagation(); // Prevent parent onClick if any.
+               e.stopPropagation();
                updateSelection(product);
                setLockedSelection({
                   image:
@@ -120,6 +137,16 @@ const ProductGroupsDisplay: React.FC<ProductGroupsDisplayProps> = ({ groupTitle,
                </div>
             </div>
          </div>
+         {/* Render the group label overlay. Note: Replace metaobjectId={null} with undefined. */}
+         <ProductGroupsDisplayLabel
+            title={groupTitle}
+            amount={selectedPrice}
+            currencyCode="USD" // or use dynamic currency code if available.
+            colorName={selectedColorName}
+            metaobjectId={undefined} // Changed from null to undefined.
+            fallbackColor="#ccc"
+            position="bottom"
+         />
       </section>
    );
 };

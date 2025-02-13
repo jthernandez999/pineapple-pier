@@ -37,7 +37,6 @@ export const ColorSwatch: React.FC<ColorSwatchProps> = ({ metaobjectId, fallback
             });
             const data = await res.json();
             console.log('Metaobject response:', data);
-            // Look for the field with key "color_code"
             const field = data.data?.metaobject?.fields?.find((f: any) => f.key === 'color_code');
             if (field && field.value) {
                setColorCode(field.value);
@@ -57,7 +56,7 @@ export const ColorSwatch: React.FC<ColorSwatchProps> = ({ metaobjectId, fallback
             backgroundColor: colorCode,
             width: '100%',
             height: '100%',
-            borderRadius: 'inherit' // Inherit the parent's borderRadius so it remains circular.
+            borderRadius: 'inherit'
          }}
          title={colorCode}
       />
