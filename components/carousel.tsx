@@ -1,7 +1,7 @@
+import { dynamicMetaobjectId } from 'lib/helpers/metafieldHelpers';
 import Link from 'next/link';
 import { Product } from '../lib/shopify/types';
 import { GridTileImage } from './grid/tile';
-
 export interface CarouselData {
    products: Product[];
    pageInfo: {
@@ -43,6 +43,10 @@ export function Carousel({ data }: CarouselProps) {
                         fill
                         sizes="100vw, (min-width: 768px) 20vw"
                         className="object-cover"
+                        swatchMetaobjectId={dynamicMetaobjectId(product)}
+                        swatchFallbackColor={product.options
+                           ?.find((o) => o.name.toLowerCase() === 'color')
+                           ?.values[0]?.toLowerCase()}
                      />
                   </Link>
                </li>
