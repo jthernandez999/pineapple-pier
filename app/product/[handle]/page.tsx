@@ -1,15 +1,15 @@
-import type { Metadata } from 'next';
-import { notFound } from 'next/navigation';
-
 import { GridTileImage } from 'components/grid/tile';
 import Footer from 'components/layout/footer';
 import { Gallery } from 'components/product/gallery';
 import { ProductProvider } from 'components/product/product-context';
 import { ProductDescription } from 'components/product/product-description';
 import { HIDDEN_PRODUCT_TAG } from 'lib/constants';
+import { dynamicMetaobjectId } from 'lib/helpers/metafieldHelpers';
 import { getProduct, getProductRecommendations } from 'lib/shopify';
 import { Image } from 'lib/shopify/types';
+import type { Metadata } from 'next';
 import Link from 'next/link';
+import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
 
 export async function generateMetadata(props: {
@@ -150,6 +150,10 @@ async function RelatedProducts({ id }: { id: string }) {
                         src={product.featuredImage?.url}
                         fill
                         sizes="(min-width: 1024px) 20vw, (min-width: 768px) 25vw, (min-width: 640px) 33vw, (min-width: 475px) 50vw, 100vw"
+                        swatchMetaobjectId={dynamicMetaobjectId(product)}
+                        swatchFallbackColor={product.options
+                           ?.find((o) => o.name.toLowerCase() === 'color')
+                           ?.values[0]?.toLowerCase()}
                      />
                   </Link>
                </li>
