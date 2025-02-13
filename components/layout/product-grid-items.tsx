@@ -75,6 +75,9 @@ export default async function ProductGridItems({
    const metaobjectResults = await Promise.all(metaobjectQueries);
    // Only keep groups for which Shopify returned a valid metaobject.
    const validGroups = metaobjectResults.filter((r) => r.metaobject !== null);
+   function isImageConnection(images: any): images is { edges: Array<{ node: any }> } {
+      return images && typeof images === 'object' && 'edges' in images;
+   }
 
    // --- 3. Create grid items for all products ---
    const gridItems = products.map((product) => (
@@ -92,7 +95,15 @@ export default async function ProductGridItems({
                   currencyCode: product.priceRange.maxVariantPrice.currencyCode
                }}
                src={product.featuredImage?.url}
-               secondarySrc={product.images[1]?.url}
+               // secondarySrc={product.images[1]?.url}
+               // secondarySrc={
+               //    product.images.edges ? product.images.edges[1]?.node.url : product.images[1]?.url
+               // }
+               secondarySrc={
+                  isImageConnection(product.images)
+                     ? product.images.edges[1]?.node.url
+                     : product.images[1]?.url
+               }
                fill
                sizes="(min-width: 768px) 33vw, (min-width: 640px) 50vw, 100vw"
             />

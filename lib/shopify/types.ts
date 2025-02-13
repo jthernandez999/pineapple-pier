@@ -8,10 +8,6 @@ export type Edge<T> = {
    node: T;
 };
 
-export type Cart = Omit<ShopifyCart, 'lines'> & {
-   lines: CartItem[];
-};
-
 export type CartProduct = {
    id: string;
    handle: string;
@@ -47,6 +43,9 @@ export type Image = {
    height: number;
 };
 
+export type Cart = Omit<ShopifyCart, 'lines'> & {
+   lines: CartItem[];
+};
 // export type Menu = { original
 //   title: string;
 //   path: string;
