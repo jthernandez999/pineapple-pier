@@ -3,7 +3,6 @@
 import clsx from 'clsx';
 import Image from 'next/image';
 import React, { useState } from 'react';
-import { ColorSwatch } from '../ColorSwatch';
 import Label from '../label';
 
 export function GridTileImage({
@@ -11,8 +10,8 @@ export function GridTileImage({
    active,
    label,
    secondarySrc, // Optional prop for the second image
-   swatchMetaobjectId, // New: metaobject ID for the color swatch
-   swatchFallbackColor, // New: fallback color if metaobject fetch fails
+   swatchMetaobjectId, // Metaobject ID for the color swatch
+   swatchFallbackColor, // Fallback color if metaobject fetch fails
    ...props
 }: {
    isInteractive?: boolean;
@@ -22,6 +21,7 @@ export function GridTileImage({
       amount: string;
       currencyCode: string;
       position?: 'bottom' | 'center';
+      colorName?: string; // Optional: if you want to pass a static color name.
    };
    secondarySrc?: string;
    swatchMetaobjectId?: string;
@@ -29,8 +29,13 @@ export function GridTileImage({
 } & React.ComponentProps<typeof Image>) {
    // Local state to track hover.
    const [isHovered, setIsHovered] = useState(false);
-   // If hovered and secondarySrc exists, use it; otherwise use the primary src.
+   // If hovered and secondarySrc exists, use it; otherwise, use the primary src.
    const displayedSrc = isHovered && secondarySrc ? secondarySrc : props.src;
+
+   // Build an enhanced label by merging swatch properties.
+   const enhancedLabel = label
+      ? { ...label, metaobjectId: swatchMetaobjectId, fallbackColor: swatchFallbackColor }
+      : undefined;
 
    return (
       <div
@@ -55,23 +60,17 @@ export function GridTileImage({
                unoptimized
             />
          ) : null}
-         {label ? (
+         {enhancedLabel ? (
             <Label
-               title={label.title}
-               amount={label.amount}
-               currencyCode={label.currencyCode}
-               position={label.position}
+               title={enhancedLabel.title}
+               amount={enhancedLabel.amount}
+               currencyCode={enhancedLabel.currencyCode}
+               position={enhancedLabel.position}
+               colorName={enhancedLabel.colorName}
+               metaobjectId={enhancedLabel.metaobjectId}
+               fallbackColor={enhancedLabel.fallbackColor}
             />
          ) : null}
-         {/* Render ColorSwatch overlay if swatchMetaobjectId is provided */}
-         {swatchMetaobjectId && (
-            <div className="absolute bottom-2 left-2 h-6 w-6">
-               <ColorSwatch
-                  metaobjectId={swatchMetaobjectId}
-                  fallbackColor={swatchFallbackColor || '#ccc'}
-               />
-            </div>
-         )}
       </div>
    );
 }

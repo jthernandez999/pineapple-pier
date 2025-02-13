@@ -1,6 +1,6 @@
 import Grid from 'components/grid';
 import { GridTileImage } from 'components/grid/tile';
-import { getSwatchMetaobjectId } from 'lib/helpers/metafieldHelpers';
+import { dynamicMetaobjectId, getSwatchMetaobjectId } from 'lib/helpers/metafieldHelpers';
 import { Product } from 'lib/shopify/types';
 import Link from 'next/link';
 import ProductGroupsDisplay from '../../components/product/ProductGroupsDisplay';
@@ -101,7 +101,11 @@ export default async function ProductGridItems({
                secondarySrc={product.images[1]?.url}
                fill
                sizes="(min-width: 768px) 33vw, (min-width: 640px) 50vw, 100vw"
-               swatchMetaobjectId={getSwatchMetaobjectId(product)}
+               // swatchMetaobjectId={getSwatchMetaobjectId(product)}
+               // swatchFallbackColor={product.options
+               //    ?.find((o) => o.name.toLowerCase() === 'color')
+               //    ?.values[0]?.toLowerCase()}
+               swatchMetaobjectId={dynamicMetaobjectId(product)}
                swatchFallbackColor={product.options
                   ?.find((o) => o.name.toLowerCase() === 'color')
                   ?.values[0]?.toLowerCase()}

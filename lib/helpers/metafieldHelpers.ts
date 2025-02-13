@@ -1,4 +1,5 @@
 // lib/helpers/metafieldHelpers.ts
+
 export type Metafield = {
    key: string;
    value: string;
@@ -20,6 +21,13 @@ export function flattenMetafields(product: any): Metafield[] {
    return [];
 }
 
+/**
+ * getSwatchMetaobjectId
+ *
+ * Searches the product's metafields (flattened via flattenMetafields)
+ * for the metafield with key "color-pattern", then parses its JSON value
+ * (expected to be an array of metaobject IDs) and returns the first ID.
+ */
 export function getSwatchMetaobjectId(product: any): string | undefined {
    const metafields = flattenMetafields(product);
    const found = metafields.find((mf: Metafield) => mf.key === 'color-pattern');
@@ -43,3 +51,10 @@ export function getSwatchMetaobjectId(product: any): string | undefined {
    console.log(`getSwatchMetaobjectId: No valid metaobject ID found for product ${product.handle}`);
    return undefined;
 }
+
+/**
+ * dynamicMetaobjectId is a convenience wrapper around getSwatchMetaobjectId,
+ * emphasizing that this value is dynamically derived from the product's metafields.
+ */
+export const dynamicMetaobjectId = (product: any): string | undefined =>
+   getSwatchMetaobjectId(product);
