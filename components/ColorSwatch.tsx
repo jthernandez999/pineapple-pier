@@ -15,16 +15,60 @@ export const ColorSwatch: React.FC<ColorSwatchProps> = ({ metaobjectId, fallback
    useEffect(() => {
       async function fetchMetaobject() {
          const query = `
-        query GetColorMetaobject($id: ID!) {
-          metaobject(id: $id) {
-            id
-            fields {
-              key
-              value
+         query GetProductColorMetaobject($productId: ID!) {
+            product(id: $productId) {
+              id
+              metafield(namespace: "shopify", key: "color-pattern") {
+                value
+                references(first: 1) {
+                  edges {
+                    node {
+                      ... on Metaobject {
+                        id
+                        type
+                        fields {
+                          key
+                          value
+                        }
+                      }
+                    }
+                  }
+                }
+              }
             }
           }
-        }
+          
       `;
+         // query GetColorMetaobject($id: ID!) {
+         //    metaobject(id: $id) {
+         //      id
+         //      type
+         //      fields {
+         //        key
+         //        value
+         //      }
+         //    }
+         //  }
+         // query GetProductColorMetafield($productId: ID!) {
+         //    product(id: $productId) {
+         //      metafield(namespace: "shopify", key: "color-pattern") {
+         //        value
+         //        references(first: 1) {
+         //          edges {
+         //            node {
+         //              ... on Metaobject {
+         //                id
+         //                fields {
+         //                  key
+         //                  value
+         //                }
+         //              }
+         //            }
+         //          }
+         //        }
+         //      }
+         //    }
+         //  }
          const variables = { id: metaobjectId };
          try {
             const res = await fetch(SHOPIFY_ENDPOINT, {

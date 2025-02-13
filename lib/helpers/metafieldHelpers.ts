@@ -4,13 +4,18 @@ export type Metafield = {
    value: string;
 };
 
-// This helper handles both flat arrays and connection objects.
 export function flattenMetafields(product: any): Metafield[] {
-   if (!product) return [];
-   if (Array.isArray(product.metafields)) {
-      return product.metafields;
-   } else if (product.metafields && product.metafields.edges) {
-      return product.metafields.edges.map((edge: any) => edge.node);
+   // Check for a plural metafields property first.
+   if (product.metafields) {
+      if (Array.isArray(product.metafields)) {
+         return product.metafields;
+      } else if (product.metafields.edges) {
+         return product.metafields.edges.map((edge: any) => edge.node);
+      }
+   }
+   // Fallback: if there's a singular metafield, return it as an array.
+   if (product.metafield) {
+      return [{ key: 'color-pattern', value: product.metafield.value }];
    }
    return [];
 }
