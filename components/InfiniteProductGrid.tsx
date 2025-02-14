@@ -106,7 +106,7 @@ export default function InfiniteScrollProductGrid({
       if (!sentinel) return;
       const observer = new IntersectionObserver(
          (entries) => {
-            if (entries[0].isIntersecting && hasNextPage && !loadingRef.current) {
+            if (entries[0]?.isIntersecting && hasNextPage && !loadingRef.current) {
                loadMoreProducts();
             }
          },
