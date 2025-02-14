@@ -1,9 +1,8 @@
-// components/InfiniteScrollProductGrid.tsx
 'use client';
 
 import { Product } from 'lib/shopify/types';
 import dynamic from 'next/dynamic';
-import { Suspense, useCallback, useState } from 'react';
+import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { getCollectionProductsQuery } from '../lib/shopify/queries/collection';
 
 // Dynamically import your server component with SSR enabled.
@@ -35,8 +34,15 @@ export default function InfiniteScrollProductGrid({
    const [hasNextPage, setHasNextPage] = useState(initialPageInfo.hasNextPage);
    const [isLoading, setIsLoading] = useState(false);
 
+   // Use a ref flag to prevent repeated triggers before loading finishes.
+   const loadingRef = useRef(false);
+
+   // Sentinel ref for the intersection observer.
+   const sentinelRef = useRef<HTMLDivElement>(null);
+
    const loadMoreProducts = useCallback(async () => {
-      if (!hasNextPage || isLoading) return;
+      if (!hasNextPage || isLoading || loadingRef.current) return;
+      loadingRef.current = true;
       setIsLoading(true);
       console.log('Load More triggered. Current cursor:', cursor);
 
@@ -66,6 +72,10 @@ export default function InfiniteScrollProductGrid({
             console.error('No collection found in response:', json);
             setHasNextPage(false);
             setIsLoading(false);
+            // Delay resetting loadingRef to ensure the sentinel isn’t immediately triggering again
+            setTimeout(() => {
+               loadingRef.current = false;
+            }, 500);
             return;
          }
 
@@ -85,7 +95,32 @@ export default function InfiniteScrollProductGrid({
          console.error('Error loading more products:', error);
       }
       setIsLoading(false);
+      // Delay resetting the flag (500ms) so that the new products render and the sentinel moves out of view
+      setTimeout(() => {
+         loadingRef.current = false;
+      }, 500);
    }, [collectionHandle, sortKey, reverse, cursor, hasNextPage, isLoading]);
+
+   useEffect(() => {
+      const sentinel = sentinelRef.current;
+      if (!sentinel) return;
+      const observer = new IntersectionObserver(
+         (entries) => {
+            if (entries[0].isIntersecting && hasNextPage && !loadingRef.current) {
+               loadMoreProducts();
+            }
+         },
+         {
+            rootMargin: '100px'
+         }
+      );
+      observer.observe(sentinel);
+      return () => {
+         if (sentinel) {
+            observer.unobserve(sentinel);
+         }
+      };
+   }, [loadMoreProducts, hasNextPage]);
 
    return (
       <>
@@ -93,14 +128,8 @@ export default function InfiniteScrollProductGrid({
             <ProductGridItems products={products} groupHandle={collectionHandle} />
          </Suspense>
          {hasNextPage && (
-            <div className="mt-4 text-center">
-               <button
-                  onClick={loadMoreProducts}
-                  className="mx-auto rounded border px-4 py-2"
-                  disabled={isLoading}
-               >
-                  {isLoading ? 'Loading...' : 'Load More Products'}
-               </button>
+            <div ref={sentinelRef} className="mt-4 text-center">
+               {isLoading && <p>Loading more products...</p>}
             </div>
          )}
       </>

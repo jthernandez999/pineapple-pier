@@ -30,7 +30,10 @@ export default async function SearchPage(props: {
          ) : null}
          {products.length > 0 ? (
             <Grid className="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-               <ProductGridItems products={products} />
+               <ProductGridItems
+                  products={products}
+                  // groupHandle={collectionHandle}
+               />
             </Grid>
          ) : null}
       </>

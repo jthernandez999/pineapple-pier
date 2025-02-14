@@ -36,21 +36,25 @@ export default async function CategoryPage(props: {
       sortKey,
       reverse
    });
-
+   // this is the title converted to uppercase without the dashes
+   const collectionTitle = params.collection.replace(/-/g, ' ').toUpperCase();
    return (
       <section>
          {products.length === 0 ? (
             <p className="py-3 text-lg">No products found in this collection</p>
          ) : (
-            <Grid className="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-               <InfiniteScrollProductGrid
-                  initialProducts={products}
-                  initialPageInfo={pageInfo}
-                  collectionHandle={params.collection}
-                  sortKey={sortKey}
-                  reverse={reverse}
-               />
-            </Grid>
+            <>
+               <h1 className="mb-4 text-2xl font-bold">{collectionTitle}</h1>
+               <Grid className="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                  <InfiniteScrollProductGrid
+                     initialProducts={products}
+                     initialPageInfo={pageInfo}
+                     collectionHandle={params.collection}
+                     sortKey={sortKey}
+                     reverse={reverse}
+                  />
+               </Grid>
+            </>
          )}
       </section>
    );
