@@ -4,6 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
+
 export default function AnimatedLogo() {
    const pathname = usePathname();
    const isHome = pathname === '/';
@@ -14,7 +15,7 @@ export default function AnimatedLogo() {
          // On the homepage when not scrolled: display the white logo overlay.
          // Rendered inside a relatively positioned hero container.
          return (
-            <div className="pointer-events-none absolute left-1/2 top-1/4 z-50 h-[60vh] w-[80vw] -translate-x-1/2 transform md:w-[100vw]">
+            <div className="z-100 pointer-events-none absolute left-1/2 top-1/4 h-[60vh] w-[80vw] -translate-x-1/2 transform md:w-[100vw]">
                <Image
                   src="/dj_white_logo.png"
                   alt="DJ White Logo"
@@ -29,7 +30,7 @@ export default function AnimatedLogo() {
          return (
             <Link
                href="/"
-               className="absolute left-1/2 top-1/2 z-50 -translate-x-1/2 -translate-y-1/2 transform md:left-0 md:ml-4 md:-translate-x-0"
+               className="z-100 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transform md:left-0 md:ml-4 md:-translate-x-0"
             >
                <div className="relative h-64 w-64">
                   <Image
@@ -47,9 +48,9 @@ export default function AnimatedLogo() {
       return (
          <Link
             href="/"
-            className="absolute left-1/2 top-1/2 z-50 -translate-x-1/2 -translate-y-1/2 transform md:left-0 md:ml-4 md:-translate-x-0"
+            className="z-100 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transform md:left-0 md:ml-4 md:-translate-x-0"
          >
-            <div className="z-100 relative h-64 w-64">
+            <div className="relative h-64 w-64">
                <Image
                   src="/dj_black_logo.png"
                   alt="DJ Black Logo"
