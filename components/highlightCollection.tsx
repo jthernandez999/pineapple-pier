@@ -4,7 +4,7 @@ import Image from 'next/image';
 import type { FC } from 'react';
 import { useState } from 'react';
 
-interface highlightCollectionProps {
+interface HighlightCollectionProps {
    highlightCollectionImages: {
       title?: string;
       description?: string;
@@ -17,13 +17,13 @@ interface highlightCollectionProps {
    }[];
 }
 
-const HighlightCollection: FC<highlightCollectionProps> = ({ highlightCollectionImages = [] }) => {
+const HighlightCollection: FC<HighlightCollectionProps> = ({ highlightCollectionImages = [] }) => {
    const [currentBanner, setCurrentBanner] = useState(0);
    const [isLoading, setIsLoading] = useState(true);
 
    return (
-      // Use w-full for width, and a different height on mobile (60vh) versus desktop (h-screen)
-      <div className="relative my-4 h-[60vh] w-full p-4 md:h-screen">
+      // Added overflow-x-hidden to prevent horizontal scroll
+      <div className="relative my-4 h-[60vh] w-full overflow-x-hidden p-4 md:h-screen">
          {highlightCollectionImages?.map((banner, index) => (
             <div
                key={index}
@@ -117,7 +117,7 @@ const HighlightCollection: FC<highlightCollectionProps> = ({ highlightCollection
                </div>
             </div>
          ))}
-         {/* arrows to navigate between banners */}
+         {/* Navigation Arrows */}
          <div className="absolute bottom-4 right-4 flex gap-3">
             {highlightCollectionImages?.map((_, index) => (
                <button
