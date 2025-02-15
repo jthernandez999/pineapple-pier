@@ -16,7 +16,7 @@ export default function AnimatedLogo() {
          return (
             <div className="pointer-events-none absolute left-1/2 top-1/4 z-50 h-[60vh] w-[80vw] -translate-x-1/2 transform md:w-[100vw]">
                <Image
-                  src="/assets/dj_white_logo.png"
+                  src="/dj_white_logo.png"
                   alt="DJ White Logo"
                   fill
                   style={{ objectFit: 'contain', objectPosition: 'center' }}
@@ -33,7 +33,7 @@ export default function AnimatedLogo() {
             >
                <div className="relative h-64 w-64">
                   <Image
-                     src="/assets/dj_black_logo.png"
+                     src="/dj_black_logo.png"
                      alt="DJ Black Logo"
                      fill
                      style={{ objectFit: 'contain', objectPosition: 'center' }}
@@ -49,9 +49,9 @@ export default function AnimatedLogo() {
             href="/"
             className="absolute left-1/2 top-1/2 z-50 -translate-x-1/2 -translate-y-1/2 transform md:left-0 md:ml-4 md:-translate-x-0"
          >
-            <div className="relative h-64 w-64">
+            <div className="z-100 relative h-64 w-64">
                <Image
-                  src="/assets/dj_black_logo.png"
+                  src="/dj_black_logo.png"
                   alt="DJ Black Logo"
                   fill
                   style={{ objectFit: 'contain', objectPosition: 'center' }}
