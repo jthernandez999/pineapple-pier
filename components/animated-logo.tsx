@@ -4,6 +4,7 @@ import NextImage from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import dj_black_logo from '../assets/dj_black_logo.png';
 import dj_white_logo from '../assets/dj_white_logo.png';
 
 // Custom hook to detect if the window has scrolled past a threshold.
@@ -25,10 +26,9 @@ export default function AnimatedLogo() {
    const scrolled = useScrolled(100);
 
    if (isHome) {
-      // On the homepage:
       if (!scrolled) {
-         // When not scrolled, display the white logo overlay.
-         // IMPORTANT: This overlay should be rendered within the hero container (which is relative).
+         // On the homepage when not scrolled: display the white logo overlay.
+         // Ensure this is rendered inside a relatively positioned hero container.
          return (
             <div className="pointer-events-none absolute left-1/2 top-1/4 z-50 h-[60vh] w-[80vw] -translate-x-1/2 transform md:w-[100vw]">
                <NextImage
@@ -40,18 +40,32 @@ export default function AnimatedLogo() {
             </div>
          );
       } else {
-         // When scrolled on the homepage, display the drop-in placeholder text (navbar version).
+         // On the homepage when scrolled: display the black logo in the navbar.
          return (
             <Link href="/" className="absolute left-0 top-1/2 z-50 ml-4 -translate-y-1/2 transform">
-               <div className="animate-dropIn text-lg font-bold text-black">Dear John Denim</div>
+               <div className="relative h-64 w-64">
+                  <NextImage
+                     src={dj_black_logo}
+                     alt="DJ Black Logo"
+                     fill
+                     style={{ objectFit: 'contain', objectPosition: 'center' }}
+                  />
+               </div>
             </Link>
          );
       }
    } else {
-      // On other pages, always show the navbar version.
+      // On non-home pages: always display the black logo in the navbar.
       return (
          <Link href="/" className="absolute left-0 top-1/2 z-50 ml-4 -translate-y-1/2 transform">
-            <div className="animate-dropIn text-lg font-bold text-black">Dear John Denim</div>
+            <div className="relative h-64 w-64">
+               <NextImage
+                  src={dj_black_logo}
+                  alt="DJ Black Logo"
+                  fill
+                  style={{ objectFit: 'contain', objectPosition: 'center' }}
+               />
+            </div>
          </Link>
       );
    }
