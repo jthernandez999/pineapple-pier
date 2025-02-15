@@ -32,6 +32,7 @@ export default function AnimatedLogo() {
                   fill
                   style={{ objectFit: 'contain', objectPosition: 'center' }}
                   priority
+                  unoptimized
                />
             </div>
          );
@@ -49,6 +50,7 @@ export default function AnimatedLogo() {
                      alt="DJ Black Logo"
                      fill
                      style={{ objectFit: 'contain', objectPosition: 'center' }}
+                     unoptimized
                   />
                </div>
             </Link>
@@ -67,6 +69,7 @@ export default function AnimatedLogo() {
                   alt="DJ Black Logo"
                   fill
                   style={{ objectFit: 'contain', objectPosition: 'center' }}
+                  unoptimized
                />
             </div>
          </Link>
