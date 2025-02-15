@@ -4,8 +4,6 @@ import NextImage from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import dj_black_logo from '../assets/dj_black_logo.png';
-import dj_white_logo from '../assets/dj_white_logo.png';
 
 // Custom hook to detect if the window has scrolled past a threshold.
 function useScrolled(threshold: number = 100) {
@@ -32,7 +30,7 @@ export default function AnimatedLogo() {
          return (
             <div className="pointer-events-none absolute left-1/2 top-1/4 z-50 h-[60vh] w-[80vw] -translate-x-1/2 transform md:w-[100vw]">
                <NextImage
-                  src={dj_white_logo}
+                  src="/assets/dj_white_logo.png"
                   alt="DJ White Logo"
                   fill
                   style={{ objectFit: 'contain', objectPosition: 'center' }}
@@ -45,7 +43,7 @@ export default function AnimatedLogo() {
             <Link href="/" className="absolute left-0 top-1/2 z-50 ml-4 -translate-y-1/2 transform">
                <div className="relative h-64 w-64">
                   <NextImage
-                     src={dj_black_logo}
+                     src="/assets/dj_black_logo.png"
                      alt="DJ Black Logo"
                      fill
                      style={{ objectFit: 'contain', objectPosition: 'center' }}
@@ -60,7 +58,7 @@ export default function AnimatedLogo() {
          <Link href="/" className="absolute left-0 top-1/2 z-50 ml-4 -translate-y-1/2 transform">
             <div className="relative h-64 w-64">
                <NextImage
-                  src={dj_black_logo}
+                  src="/assets/dj_black_logo.png"
                   alt="DJ Black Logo"
                   fill
                   style={{ objectFit: 'contain', objectPosition: 'center' }}
