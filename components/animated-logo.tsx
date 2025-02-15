@@ -30,7 +30,7 @@ export default function AnimatedLogo() {
          return (
             <div className="pointer-events-none absolute left-1/2 top-1/4 z-50 h-[60vh] w-[80vw] -translate-x-1/2 transform md:w-[100vw]">
                <NextImage
-                  src="/assets/dj_white_logo.png"
+                  src="https://cdn.shopify.com/s/files/1/1024/2207/files/dj_white_logo.png?v=1739607697"
                   alt="DJ White Logo"
                   fill
                   style={{ objectFit: 'contain', objectPosition: 'center' }}
@@ -43,7 +43,7 @@ export default function AnimatedLogo() {
             <Link href="/" className="absolute left-0 top-1/2 z-50 ml-4 -translate-y-1/2 transform">
                <div className="relative h-64 w-64">
                   <NextImage
-                     src="/assets/dj_black_logo.png"
+                     src="https://cdn.shopify.com/s/files/1/1024/2207/files/dj_black_logo.png?v=1739607697"
                      alt="DJ Black Logo"
                      fill
                      style={{ objectFit: 'contain', objectPosition: 'center' }}
@@ -58,7 +58,7 @@ export default function AnimatedLogo() {
          <Link href="/" className="absolute left-0 top-1/2 z-50 ml-4 -translate-y-1/2 transform">
             <div className="relative h-64 w-64">
                <NextImage
-                  src="/assets/dj_black_logo.png"
+                  src="https://cdn.shopify.com/s/files/1/1024/2207/files/dj_black_logo.png?v=1739607697"
                   alt="DJ Black Logo"
                   fill
                   style={{ objectFit: 'contain', objectPosition: 'center' }}
