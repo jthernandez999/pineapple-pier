@@ -16,16 +16,11 @@ export function WelcomeToast() {
             },
             description: (
                <>
-                  This is a high-performance, SSR storefront powered by Shopify, Next.js, and
-                  Vercel.{' '}
-                  <a
-                     href="https://vercel.com/templates/next.js/nextjs-commerce"
-                     className="text-blue-600 hover:underline"
-                     target="_blank"
-                  >
-                     Dear John Denim
-                  </a>
-                  .
+                  {/* welcome to dear john denim we are updating our site to make it better for you. we will be back soon. thank you for your patience.*/}
+                  <p className="text-sm">
+                     Welcome to Dear John Denim! We are updating our site to make it better for you.
+                     We will be back soon. Thank you for your patience.
+                  </p>
                </>
             )
          });
