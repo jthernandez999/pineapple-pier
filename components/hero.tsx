@@ -30,9 +30,8 @@ export default function HeroBanner({ banners, interval = 4000 }: BannerProps) {
       return () => clearInterval(timer);
    }, [banners.length, interval]);
 
-   // Handle swipe gestures
+   // Handle swipe gestures (touch and mouse events)
    const handleTouchStart = (e: React.TouchEvent | React.MouseEvent) => {
-      // Check if `touches` exist and access safely
       if ('touches' in e && e.touches[0]) {
          touchStartX.current = e.touches[0].clientX;
       } else if ('clientX' in e) {
@@ -41,7 +40,6 @@ export default function HeroBanner({ banners, interval = 4000 }: BannerProps) {
    };
 
    const handleTouchMove = (e: React.TouchEvent | React.MouseEvent) => {
-      // Check if `touches` exist and access safely
       if ('touches' in e && e.touches[0]) {
          touchEndX.current = e.touches[0].clientX;
       } else if ('clientX' in e) {
@@ -52,18 +50,13 @@ export default function HeroBanner({ banners, interval = 4000 }: BannerProps) {
    const handleTouchEnd = () => {
       if (touchStartX.current !== null && touchEndX.current !== null) {
          const deltaX = touchStartX.current - touchEndX.current;
-
-         // Swipe left to go to the next banner
          if (deltaX > 50) {
             setCurrentBanner((prev) => (prev + 1) % banners.length);
          }
-
-         // Swipe right to go to the previous banner
          if (deltaX < -50) {
             setCurrentBanner((prev) => (prev - 1 + banners.length) % banners.length);
          }
       }
-
       touchStartX.current = null;
       touchEndX.current = null;
    };
@@ -83,7 +76,9 @@ export default function HeroBanner({ banners, interval = 4000 }: BannerProps) {
          {banners.map((banner, index) => (
             <div
                key={index}
-               className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${index === currentBanner ? 'opacity-100' : 'opacity-0'}`}
+               className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
+                  index === currentBanner ? 'opacity-100' : 'opacity-0'
+               }`}
                style={{ display: 'grid', placeItems: 'center' }}
             >
                {/* Desktop Image */}
@@ -98,13 +93,20 @@ export default function HeroBanner({ banners, interval = 4000 }: BannerProps) {
                         objectPosition: 'center'
                      }}
                      onLoad={() => setIsLoading(false)}
-                     className={`${isLoading ? 'scale-110 blur-2xl' : 'scale-100 blur-none'} transition-all duration-700 ease-in-out`}
+                     // Apply the custom scaling transition:
+                     className={`${
+                        isLoading ? 'scale-110' : 'scale-100'
+                     } duration-1200 ease-custom transition-transform`}
+
+                     // className={` ${
+                     //    isLoading ? 'scale-110 blur-2xl' : 'scale-100 blur-none'
+                     // } duration-1200 ease-custom transition-transform hover:scale-105`}
                   />
                </div>
                {/* Mobile Image */}
                <div className="block h-[20vh] w-screen object-contain md:hidden">
                   <Image
-                     src={banner.mobileImage || banner.image} // Fallback to desktop image if mobile image not specified
+                     src={banner.mobileImage || banner.image}
                      alt={banner.title || 'Banner'}
                      priority={index === 0}
                      fill
@@ -113,7 +115,9 @@ export default function HeroBanner({ banners, interval = 4000 }: BannerProps) {
                         objectPosition: 'center'
                      }}
                      onLoad={() => setIsLoading(false)}
-                     className={`${isLoading ? 'scale-110 blur-2xl' : 'scale-100 blur-none'} transition-all duration-700 ease-in-out`}
+                     className={`${
+                        isLoading ? 'scale-110 blur-2xl' : 'scale-100 blur-none'
+                     } duration-1200 ease-custom transition-transform hover:scale-105`}
                   />
                </div>
 
@@ -127,7 +131,7 @@ export default function HeroBanner({ banners, interval = 4000 }: BannerProps) {
                   {banner.buttonText && banner.buttonLink && (
                      <Link
                         href={banner.buttonLink}
-                        className="mt-4 inline-block rounded bg-white px-6 py-2 text-sm font-medium text-black hover:bg-gray-200"
+                        className="ease-custom mt-4 inline-block bg-white px-6 py-2 text-sm font-medium text-black transition-all duration-1000 ease-in-out hover:scale-95"
                      >
                         {banner.buttonText}
                      </Link>
@@ -135,13 +139,17 @@ export default function HeroBanner({ banners, interval = 4000 }: BannerProps) {
                </div>
             </div>
          ))}
-
+         {/* arrows to navigate between banners */}
          <div className="absolute bottom-4 right-4 flex gap-3">
             {banners.map((_, index) => (
                <button
                   key={index}
                   onClick={() => setCurrentBanner(index)}
-                  className={`h-3 w-3 rounded-full ${index === currentBanner ? 'bg-white shadow-lg' : 'bg-gray-400 hover:bg-white'} transition-scale duration-300`}
+                  className={`h-3 w-3 ${
+                     index === currentBanner
+                        ? 'rounded-lg bg-white shadow-lg'
+                        : 'bg-gray-400 hover:bg-white'
+                  } transition-transform duration-300`}
                ></button>
             ))}
          </div>

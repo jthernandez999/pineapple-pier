@@ -59,7 +59,9 @@ const HighlightCollection: FC<highlightCollectionProps> = ({ highlightCollection
                            objectPosition: 'center'
                         }}
                         onLoad={() => setIsLoading(false)}
-                        className={`${isLoading ? 'scale-110 blur-2xl' : 'scale-100 blur-none'} transition-all duration-700 ease-in-out`}
+                        className={`${
+                           isLoading ? 'scale-110' : 'scale-100'
+                        } duration-1200 ease-custom transition-transform`}
                      />
                   )}
                </div>
@@ -105,7 +107,7 @@ const HighlightCollection: FC<highlightCollectionProps> = ({ highlightCollection
                   {banner.buttonText && banner.buttonLink && (
                      <a
                         href={banner.buttonLink}
-                        className="mt-4 inline-block rounded bg-white px-6 py-2 text-sm font-medium text-black hover:bg-gray-200"
+                        className="ease-custom mt-4 inline-block bg-white px-6 py-2 text-sm font-medium text-black transition-all duration-1000 ease-in-out hover:scale-95"
                      >
                         {banner.buttonText}
                      </a>
@@ -119,9 +121,9 @@ const HighlightCollection: FC<highlightCollectionProps> = ({ highlightCollection
                <button
                   key={index}
                   onClick={() => setCurrentBanner(index)}
-                  className={`h-3 w-3 rounded-full ${
+                  className={`h-3 w-3 ${
                      index === currentBanner ? 'bg-white shadow-lg' : 'bg-gray-400 hover:bg-white'
-                  } transition-scale duration-300`}
+                  } transition-transform duration-300`}
                ></button>
             ))}
          </div>
