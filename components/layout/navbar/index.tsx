@@ -53,7 +53,7 @@ export async function Navbar() {
 // Helper component for the logo area.
 function LogoArea() {
    return (
-      <div className="relative flex h-64 w-64 items-center">
+      <div className="flex items-center">
          <Link href="/" className="flex items-center gap-2">
             <AnimatedLogo />
             {/* <div className="ml-2 hidden text-sm font-medium uppercase md:block">{SITE_NAME}</div> */}
