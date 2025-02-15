@@ -1,15 +1,9 @@
 'use client';
 
 import { Product } from 'lib/shopify/types';
-import dynamic from 'next/dynamic';
-import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
+import { Suspense, useCallback, useState } from 'react';
+import { ProductGridItems } from '../components/layout/product-grid-items'; // Now a client component.
 import { getCollectionProductsQuery } from '../lib/shopify/queries/collection';
-
-// Dynamically import your server component with SSR enabled.
-const ProductGridItems = dynamic(() => import('../components/layout/product-grid-items'), {
-   ssr: true,
-   loading: () => <div>Loading products...</div>
-});
 
 interface InfiniteScrollProductGridProps {
    initialProducts: Product[];
@@ -34,15 +28,8 @@ export default function InfiniteScrollProductGrid({
    const [hasNextPage, setHasNextPage] = useState(initialPageInfo.hasNextPage);
    const [isLoading, setIsLoading] = useState(false);
 
-   // Use a ref flag to prevent repeated triggers before loading finishes.
-   const loadingRef = useRef(false);
-
-   // Sentinel ref for the intersection observer.
-   const sentinelRef = useRef<HTMLDivElement>(null);
-
    const loadMoreProducts = useCallback(async () => {
-      if (!hasNextPage || isLoading || loadingRef.current) return;
-      loadingRef.current = true;
+      if (!hasNextPage || isLoading) return;
       setIsLoading(true);
       console.log('Load More triggered. Current cursor:', cursor);
 
@@ -51,9 +38,7 @@ export default function InfiniteScrollProductGrid({
          sortKey,
          reverse
       };
-      if (cursor) {
-         variables.cursor = cursor;
-      }
+      if (cursor) variables.cursor = cursor;
 
       try {
          const res = await fetch(process.env.NEXT_PUBLIC_SHOPIFY_GRAPHQL_ENDPOINT || '', {
@@ -72,10 +57,6 @@ export default function InfiniteScrollProductGrid({
             console.error('No collection found in response:', json);
             setHasNextPage(false);
             setIsLoading(false);
-            // Delay resetting loadingRef to ensure the sentinel isn’t immediately triggering again
-            setTimeout(() => {
-               loadingRef.current = false;
-            }, 500);
             return;
          }
 
@@ -95,43 +76,29 @@ export default function InfiniteScrollProductGrid({
          console.error('Error loading more products:', error);
       }
       setIsLoading(false);
-      // Delay resetting the flag (500ms) so that the new products render and the sentinel moves out of view
-      setTimeout(() => {
-         loadingRef.current = false;
-      }, 500);
    }, [collectionHandle, sortKey, reverse, cursor, hasNextPage, isLoading]);
 
-   useEffect(() => {
-      const sentinel = sentinelRef.current;
-      if (!sentinel) return;
-      const observer = new IntersectionObserver(
-         (entries) => {
-            if (entries[0]?.isIntersecting && hasNextPage && !loadingRef.current) {
-               loadMoreProducts();
-            }
-         },
-         {
-            rootMargin: '100px'
-         }
-      );
-      observer.observe(sentinel);
-      return () => {
-         if (sentinel) {
-            observer.unobserve(sentinel);
-         }
-      };
-   }, [loadMoreProducts, hasNextPage]);
-
    return (
-      <>
+      <div>
          <Suspense fallback={<div>Loading products...</div>}>
             <ProductGridItems products={products} groupHandle={collectionHandle} />
          </Suspense>
          {hasNextPage && (
-            <div ref={sentinelRef} className="mt-4 text-center">
-               {isLoading && <p>Loading more products...</p>}
+            <div style={{ textAlign: 'center', marginTop: '2rem' }}>
+               <button
+                  type="button"
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={(e) => {
+                     e.preventDefault();
+                     loadMoreProducts();
+                  }}
+                  onFocus={(e) => e.currentTarget.blur()}
+                  disabled={isLoading}
+               >
+                  {isLoading ? 'Loading...' : 'Load More Products'}
+               </button>
             </div>
          )}
-      </>
+      </div>
    );
 }
