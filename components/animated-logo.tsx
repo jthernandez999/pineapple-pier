@@ -4,7 +4,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
-
+import dj_black_logo from '../public/assets/dj_black_logo.png';
+import dj_white_logo from '../public/assets/dj_white_logo.png';
 export default function AnimatedLogo() {
    const pathname = usePathname();
    const isHome = pathname === '/';
@@ -17,10 +18,11 @@ export default function AnimatedLogo() {
          return (
             <div className="pointer-events-none absolute left-1/2 top-1/4 z-50 h-[60vh] w-[80vw] -translate-x-1/2 transform md:w-[100vw]">
                <Image
-                  src="https://cdn.shopify.com/s/files/1/1024/2207/files/dj_white_logo.png?v=1739607697"
+                  src={dj_white_logo}
                   alt="DJ White Logo"
                   fill
                   style={{ objectFit: 'contain', objectPosition: 'center' }}
+                  priority
                />
             </div>
          );
@@ -33,7 +35,7 @@ export default function AnimatedLogo() {
             >
                <div className="relative h-64 w-64">
                   <Image
-                     src="https://cdn.shopify.com/s/files/1/1024/2207/files/dj_black_logo.png?v=1739607697"
+                     src={dj_black_logo}
                      alt="DJ Black Logo"
                      fill
                      style={{ objectFit: 'contain', objectPosition: 'center' }}
@@ -51,7 +53,7 @@ export default function AnimatedLogo() {
          >
             <div className="relative h-64 w-64">
                <Image
-                  src="https://cdn.shopify.com/s/files/1/1024/2207/files/dj_black_logo.png?v=1739607697"
+                  src={dj_black_logo}
                   alt="DJ Black Logo"
                   fill
                   style={{ objectFit: 'contain', objectPosition: 'center' }}
