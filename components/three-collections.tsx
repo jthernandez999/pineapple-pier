@@ -35,7 +35,7 @@ export default function ThreeCollections({ collectionImages }: CollectionImagePr
                            onLoad={() => setIsLoading(false)}
                            className={`${
                               isLoading ? 'scale-110' : 'scale-100'
-                           } duration-1200 ease-custom object-cover transition-all ease-in-out hover:scale-95 ${objectPosition} h-full w-full rounded-md shadow-md`}
+                           } duration-1200 ease-custom object-cover transition-all ease-in-out hover:scale-95 ${objectPosition} h-full w-full shadow-md`}
                            // className={`${
                            //    isLoading ? 'scale-110' : 'scale-100'
                            // } duration-1200 ease-custom object-cover transition-all ease-in-out ${objectPosition} h-full w-full rounded-md shadow-md`}
@@ -44,7 +44,7 @@ export default function ThreeCollections({ collectionImages }: CollectionImagePr
                            alt={`Image ${index + 1}`}
                            fill
                         />
-                        <h3 className="absolute bottom-0 left-0 w-full bg-black bg-opacity-10 p-2 text-lg font-semibold text-white">
+                        <h3 className="absolute bottom-0 left-0 w-full p-2 text-lg font-semibold text-white">
                            {image.title}
                         </h3>
                      </Link>
