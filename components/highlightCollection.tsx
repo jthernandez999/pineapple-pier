@@ -92,7 +92,9 @@ const HighlightCollection: FC<highlightCollectionProps> = ({ highlightCollection
                            objectPosition: 'center'
                         }}
                         onLoad={() => setIsLoading(false)}
-                        className={`${isLoading ? 'scale-110 blur-2xl' : 'scale-100 blur-none'} transition-all duration-700 ease-in-out`}
+                        className={`${
+                           isLoading ? 'scale-110' : 'scale-100'
+                        } duration-1200 ease-custom transition-transform`}
                      />
                   )}
                </div>
@@ -115,14 +117,16 @@ const HighlightCollection: FC<highlightCollectionProps> = ({ highlightCollection
                </div>
             </div>
          ))}
-
+         {/* arrows to navigate between banners */}
          <div className="absolute bottom-4 right-4 flex gap-3">
             {highlightCollectionImages?.map((_, index) => (
                <button
                   key={index}
                   onClick={() => setCurrentBanner(index)}
                   className={`h-3 w-3 ${
-                     index === currentBanner ? 'bg-white shadow-lg' : 'bg-gray-400 hover:bg-white'
+                     index === currentBanner
+                        ? 'rounded-lg bg-white shadow-lg'
+                        : 'bg-gray-400 hover:bg-white'
                   } transition-transform duration-300`}
                ></button>
             ))}
