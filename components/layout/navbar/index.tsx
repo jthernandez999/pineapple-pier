@@ -20,67 +20,60 @@ export async function Navbar() {
 
    return (
       <nav className="sticky top-0 z-50 border-gray-200 bg-white shadow-sm dark:border-gray-600 dark:bg-gray-900">
-         <div className="mx-auto flex max-w-screen-xl flex-wrap items-center justify-between p-4">
-            <MobileMenuArea menu={menu} />
-            <LogoArea />
-            <DesktopMenu menu={menu} />
-            <SearchArea />
-            <CartModalArea />
+         <div className="mx-auto flex max-w-screen-xl items-center justify-between p-4">
+            {/* Left Section: Logo (and mobile menu icon) */}
+            <div className="flex items-center">
+               {/* Mobile Menu icon only shows on mobile */}
+               <div className="block md:hidden">
+                  <MobileMenu menu={menu} />
+               </div>
+               {/* Logo area */}
+               <LogoArea />
+            </div>
+
+            {/* Center Section: Desktop Menu Items */}
+            <div className="hidden md:block">
+               <DesktopMenu menu={menu} />
+            </div>
+
+            {/* Right Section: Search and Cart */}
+            <div className="flex items-center gap-4">
+               <div className="hidden md:block">
+                  <Suspense fallback={<SearchSkeleton />}>
+                     <Search />
+                  </Suspense>
+               </div>
+               <CartModalArea />
+            </div>
          </div>
       </nav>
    );
 }
 
-// Helper component for mobile menu area
-function MobileMenuArea({ menu }: { menu: Menu[] }) {
-   return (
-      <div className="block flex-none md:hidden">
-         <MobileMenu menu={menu} />
-      </div>
-   );
-}
-
-// Helper component for the logo area
+// Helper component for the logo area.
 function LogoArea() {
    return (
       <div className="flex items-center">
          <Link href="/" className="flex items-center gap-2">
             <AnimatedLogo />
-            <div className="ml-2 flex-none text-sm font-medium uppercase md:hidden lg:block">
-               {SITE_NAME}
-            </div>
+            <div className="ml-2 hidden text-sm font-medium uppercase md:block">{SITE_NAME}</div>
          </Link>
       </div>
    );
 }
 
-// Helper component for the desktop menu area
+// Helper component for the desktop menu area.
 function DesktopMenu({ menu }: { menu: Menu[] }) {
    return (
-      <div className="hidden md:flex md:items-center">
-         {menu.length > 0 && (
-            <ul className="flex gap-8">
-               {menu.map((item: MenuItem) => (
-                  <MegaMenuComponent key={item.title} item={item} />
-               ))}
-            </ul>
-         )}
-      </div>
+      <ul className="flex gap-8">
+         {menu.map((item: MenuItem) => (
+            <MegaMenuComponent key={item.title} item={item} />
+         ))}
+      </ul>
    );
 }
 
-// Helper component for the search area
-function SearchArea() {
-   return (
-      <div className="hidden justify-center md:flex md:w-1/3">
-         <Suspense fallback={<SearchSkeleton />}>
-            <Search />
-         </Suspense>
-      </div>
-   );
-}
-
-// Helper component for the cart modal area
+// Helper component for the cart modal area.
 function CartModalArea() {
    return (
       <div className="flex items-center">
@@ -99,7 +92,7 @@ const MegaMenuComponent: React.FC<MegaMenuComponentProps> = ({ item }) => {
       <li className="group relative flex-grow">
          <Link
             href={item.url}
-            className="items-left inline-flex w-full justify-center py-2.5 text-center text-base font-medium text-black hover:text-gray-900"
+            className="inline-flex w-full justify-center py-2.5 text-center text-base font-medium text-black hover:text-gray-900"
          >
             {item.title}
          </Link>
