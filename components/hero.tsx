@@ -62,9 +62,11 @@ export default function HeroBanner({ banners, interval = 4000 }: BannerProps) {
    };
 
    return (
-      <div className="relative mt-0 h-full w-full p-4 pb-0 pt-0 md:h-screen">
+      // Outer container now uses h-screen for full viewport height.
+      <div className="relative h-screen w-full">
+         {/* Inner section fills the container. */}
          <section
-            className="relative h-[calc(100vh-64px)] w-full overflow-hidden md:h-[calc(100vh-80px)] lg:h-[calc(100vh-96px)] xl:h-[calc(100vh-112px)] 2xl:h-[calc(100vh-128px)]"
+            className="relative h-full w-full overflow-hidden"
             ref={bannerRef}
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
@@ -94,18 +96,13 @@ export default function HeroBanner({ banners, interval = 4000 }: BannerProps) {
                            objectPosition: 'center'
                         }}
                         onLoad={() => setIsLoading(false)}
-                        // Apply the custom scaling transition:
                         className={`${
                            isLoading ? 'scale-110' : 'scale-100'
                         } duration-1200 ease-custom transition-transform`}
-
-                        // className={` ${
-                        //    isLoading ? 'scale-110 blur-2xl' : 'scale-100 blur-none'
-                        // } duration-1200 ease-custom transition-transform hover:scale-105`}
                      />
                   </div>
                   {/* Mobile Image */}
-                  <div className="scroll m-auto aspect-square md:hidden">
+                  <div className="m-auto aspect-square md:hidden">
                      <Image
                         src={banner.mobileImage || banner.image}
                         alt={banner.title || 'Banner'}
@@ -142,7 +139,8 @@ export default function HeroBanner({ banners, interval = 4000 }: BannerProps) {
                   </div>
                </div>
             ))}
-            {/* arrows to navigate between banners */}
+
+            {/* Navigation Arrows */}
             <div className="absolute bottom-4 right-4 flex gap-3">
                {banners.map((_, index) => (
                   <button
