@@ -6,7 +6,7 @@ export const banners = [
          'https://cdn.shopify.com/s/files/1/1024/2207/files/mb1_lp_copyv2.jpg?v=1738954132',
       title: 'Spring Refresh',
       description: 'SIMPLE, CHIC, EFFORTLESS',
-      buttonText: 'Shop Now New Arrivals',
+      buttonText: 'Shop The Spring Collection',
       buttonLink: '/collections/shop-new-arrivals'
    }
    // Add more banners as needed
