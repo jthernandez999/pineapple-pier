@@ -18,21 +18,21 @@ export const collectionImages = [
       title: 'Denim',
       //   description: 'SIMPLE, CHIC, EFFORTLESS',
       //   buttonText: 'Shop Now New Arrivals',
-      buttonLink: '/collections/shop-new-arrivals'
+      buttonLink: '/collections/shop-all-denim'
    },
    {
       image: 'https://cdn.shopify.com/s/files/1/1024/2207/files/tops_and_shirts.jpg?v=1738773584',
       title: 'Tops & Shirts',
       //   description: 'SIMPLE, CHIC, EFFORTLESS',
       //   buttonText: 'Shop Now New Arrivals',
-      buttonLink: '/collections/shop-new-arrivals'
+      buttonLink: '/collections/shop-all-tops'
    },
    {
       image: 'https://cdn.shopify.com/s/files/1/1024/2207/files/outerwear_88e6fd11-2791-4584-bda9-435ef523459b.jpg?v=1738773585',
       title: 'Outerwear',
       //   description: 'SIMPLE, CHIC, EFFORTLESS',
       //   buttonText: 'Shop Now New Arrivals',
-      buttonLink: '/collections/shop-new-arrivals'
+      buttonLink: '/collections/basics'
    }
 ];
 
@@ -45,6 +45,6 @@ export const highlightCollectionImages = [
       // title: 'Spring 2025 Collection',
       // description: 'SIMPLE, CHIC, EFFORTLESS',
       buttonText: 'Shop The Collection',
-      buttonLink: '/collections/shop-new-arrivals'
+      buttonLink: '/collections/valentines-edit'
    }
 ];

@@ -49,15 +49,22 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
       )
    }));
 
-   // On initial render, if no color is selected, choose the default color.
+   // On initial render, if no color or size is selected, choose the default ones.
    useEffect(() => {
+      const defaults: Partial<ProductState> = {};
       const colorOption = filteredOptions.find((option) => option.name.toLowerCase() === 'color');
+      const sizeOption = filteredOptions.find((option) => option.name.toLowerCase() === 'size');
+
       if (colorOption && !state['color']) {
-         const defaultColor = colorOption.values[0];
-         const mergedState = updateProductState({
-            color: defaultColor,
-            image: '0'
-         });
+         defaults.color = colorOption.values[0];
+         defaults.image = '0';
+      }
+      if (sizeOption && !state['size']) {
+         defaults.size = sizeOption.values[0];
+      }
+
+      if (Object.keys(defaults).length) {
+         const mergedState = updateProductState(defaults);
          updateURL(mergedState);
       }
    }, [filteredOptions, state, updateProductState, updateURL]);
