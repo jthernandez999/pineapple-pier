@@ -21,7 +21,7 @@ export function ProductSpec({ product }: { product: Product }) {
    if (!productSpec || !selectedVariant) {
       return (
          <div className="mb-6">
-            <h2>Hello</h2>
+            {/* <h2>Hello</h2> */}
             <p>No specifications available for this variant.</p>
          </div>
       );
