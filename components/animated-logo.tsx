@@ -1,6 +1,6 @@
 'use client';
 
-import NextImage from 'next/image';
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -16,7 +16,7 @@ export default function AnimatedLogo() {
          // Rendered inside a relatively positioned hero container.
          return (
             <div className="pointer-events-none absolute left-1/2 top-1/4 z-50 h-[60vh] w-[80vw] -translate-x-1/2 transform md:w-[100vw]">
-               <NextImage
+               <Image
                   src="https://cdn.shopify.com/s/files/1/1024/2207/files/dj_white_logo.png?v=1739607697"
                   alt="DJ White Logo"
                   fill
@@ -32,7 +32,7 @@ export default function AnimatedLogo() {
                className="absolute left-1/2 top-1/2 z-50 -translate-x-1/2 -translate-y-1/2 transform md:left-0 md:ml-4 md:-translate-x-0"
             >
                <div className="relative h-64 w-64">
-                  <NextImage
+                  <Image
                      src="https://cdn.shopify.com/s/files/1/1024/2207/files/dj_black_logo.png?v=1739607697"
                      alt="DJ Black Logo"
                      fill
@@ -50,7 +50,7 @@ export default function AnimatedLogo() {
             className="absolute left-1/2 top-1/2 z-50 -translate-x-1/2 -translate-y-1/2 transform md:left-0 md:ml-4 md:-translate-x-0"
          >
             <div className="relative h-64 w-64">
-               <NextImage
+               <Image
                   src="https://cdn.shopify.com/s/files/1/1024/2207/files/dj_black_logo.png?v=1739607697"
                   alt="DJ Black Logo"
                   fill
