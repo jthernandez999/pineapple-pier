@@ -19,7 +19,7 @@ export async function Navbar() {
    const menu: Menu[] = await getMenu('main-menu');
 
    return (
-      <nav className="sticky top-0 z-30 w-full border-gray-200 bg-white shadow-xl dark:border-gray-600 dark:bg-gray-900">
+      <nav className="shadow- sticky top-0 z-30 w-full border-gray-200 bg-white dark:border-gray-600 dark:bg-gray-900">
          <div className="mx-auto flex max-w-screen-xl items-center justify-between p-4">
             {/* Left Section: Logo (and mobile menu icon) */}
             <div className="flex items-center">
@@ -97,7 +97,7 @@ const MegaMenuComponent: React.FC<MegaMenuComponentProps> = ({ item }) => {
             {item.title}
          </Link>
          {hasSubmenu && (
-            <div className="invisible fixed left-0 top-0 z-50 min-h-[25vh] w-screen translate-y-[21%] transform bg-white opacity-0 shadow-md transition-all duration-300 group-hover:visible group-hover:opacity-100">
+            <div className="invisible fixed left-0 top-0 z-50 min-h-[25vh] w-full translate-y-[21%] transform bg-white opacity-0 shadow-md transition-all duration-300 group-hover:visible group-hover:opacity-100">
                <div className="flex w-full justify-around px-8 py-4">
                   <ul className="flex justify-around space-x-8">
                      {item.items?.map((subItem) => (
