@@ -61,7 +61,7 @@ const HighlightCollection: FC<HighlightCollectionProps> = ({ highlightCollection
                         onLoad={() => setIsLoading(false)}
                         className={`${
                            isLoading ? 'scale-110' : 'scale-100'
-                        } duration-1200 ease-custom transition-transform`}
+                        } ease-custom transition-transform duration-1200`}
                      />
                   )}
                </div>
@@ -83,6 +83,7 @@ const HighlightCollection: FC<HighlightCollectionProps> = ({ highlightCollection
                      </video>
                   ) : (
                      <Image
+                        unoptimized
                         src={banner.mobileImage || banner.image} // Fallback to desktop image if mobile image not specified
                         alt={banner.title || 'Banner'}
                         priority={index === 0}
@@ -94,7 +95,7 @@ const HighlightCollection: FC<HighlightCollectionProps> = ({ highlightCollection
                         onLoad={() => setIsLoading(false)}
                         className={`${
                            isLoading ? 'scale-110' : 'scale-100'
-                        } duration-1200 ease-custom transition-transform`}
+                        } ease-custom transition-transform duration-1200`}
                      />
                   )}
                </div>

@@ -32,10 +32,11 @@ export default function ThreeCollections({ collectionImages }: CollectionImagePr
                   <div key={index} className="relative aspect-[2/3] w-full md:w-1/3">
                      <Link href={image.buttonLink} className="relative block h-full">
                         <Image
+                           unoptimized
                            onLoad={() => setIsLoading(false)}
                            className={`${
                               isLoading ? 'scale-110' : 'scale-100'
-                           } duration-1200 ease-custom object-cover transition-all ease-in-out hover:scale-95 ${objectPosition} h-full w-full shadow-md`}
+                           } ease-custom object-cover transition-all duration-1200 ease-in-out hover:scale-95 ${objectPosition} h-full w-full shadow-md`}
                            // className={`${
                            //    isLoading ? 'scale-110' : 'scale-100'
                            // } duration-1200 ease-custom object-cover transition-all ease-in-out ${objectPosition} h-full w-full rounded-md shadow-md`}
