@@ -31,7 +31,7 @@ export default function AnimatedLogo() {
       return (
          <Link
             href="/"
-            className={`absolute z-10 transform transition-all duration-1000 ${containerClasses}`}
+            className={`absolute z-30 transform transition-all duration-1000 ${containerClasses}`}
          >
             <div className="relative my-0 h-72 w-72 py-0 md:z-[10] md:h-96 md:w-96">
                <Image
