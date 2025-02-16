@@ -96,6 +96,7 @@ export default function HeroBanner({ banners, interval = 4000 }: BannerProps) {
                   {/* Desktop Image */}
                   <div className="hidden md:block">
                      <Image
+                        unoptimized
                         src={banner.image}
                         alt={banner.title || 'Banner'}
                         priority={index === 0}
@@ -107,12 +108,13 @@ export default function HeroBanner({ banners, interval = 4000 }: BannerProps) {
                         onLoad={() => setIsLoading(false)}
                         className={`${
                            isLoading ? 'scale-110' : 'scale-100'
-                        } duration-1200 ease-custom transition-transform`}
+                        } ease-custom transition-transform duration-1200`}
                      />
                   </div>
                   {/* Mobile Image */}
                   <div className="m-auto aspect-square md:hidden">
                      <Image
+                        unoptimized
                         src={banner.mobileImage || banner.image}
                         alt={banner.title || 'Banner'}
                         priority={index === 0}
@@ -124,7 +126,7 @@ export default function HeroBanner({ banners, interval = 4000 }: BannerProps) {
                         onLoad={() => setIsLoading(false)}
                         className={`${
                            isLoading ? 'scale-110' : 'scale-100'
-                        } duration-1200 ease-custom transition-transform`}
+                        } ease-custom transition-transform duration-1200`}
                      />
                   </div>
 
