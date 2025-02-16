@@ -24,8 +24,8 @@ export default function AnimatedLogo() {
       // On the homepage, we render a single container that shows either
       // the white logo overlay (when not scrolled) or the black logo (when scrolled).
       const containerClasses = scrolled
-         ? 'left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 md:left-0 md:ml-4 md:-translate-x-0'
-         : 'left-1/2 top-1/4 -translate-x-1/2';
+         ? 'left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 md:left-0 md:ml-4 md:-translate-x-0 '
+         : 'left-1/2 top-1/4 -translate-x-1/2 md:scale-[3.5] scale-[1.6]';
       const imageSrc = scrolled ? '/dj_black_logo.png' : '/dj_white_logo.png';
 
       return (
