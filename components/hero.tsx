@@ -30,6 +30,9 @@ export default function HeroBanner({ banners, interval = 4000 }: BannerProps) {
       return () => clearInterval(timer);
    }, [banners.length, interval]);
 
+   // Check if mobile by window width (e.g., less than 768px)
+   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+
    // Handle swipe gestures (touch and mouse events)
    const handleTouchStart = (e: React.TouchEvent | React.MouseEvent) => {
       if ('touches' in e && e.touches[0]) {
@@ -48,6 +51,12 @@ export default function HeroBanner({ banners, interval = 4000 }: BannerProps) {
    };
 
    const handleTouchEnd = () => {
+      // If mobile, don't change the banner on swipe.
+      if (isMobile) {
+         touchStartX.current = null;
+         touchEndX.current = null;
+         return;
+      }
       if (touchStartX.current !== null && touchEndX.current !== null) {
          const deltaX = touchStartX.current - touchEndX.current;
          if (deltaX > 50) {
@@ -62,9 +71,9 @@ export default function HeroBanner({ banners, interval = 4000 }: BannerProps) {
    };
 
    return (
-      // Outer container now uses h-screen for full viewport height.
+      // Outer container uses h-screen for full viewport height.
       <div className="relative h-screen w-full overflow-hidden">
-         {/* Inner section fills the container. */}
+         {/* Inner section fills the container */}
          <section
             className="relative h-full w-full overflow-hidden"
             ref={bannerRef}
@@ -131,7 +140,7 @@ export default function HeroBanner({ banners, interval = 4000 }: BannerProps) {
                      {banner.buttonText && banner.buttonLink && (
                         <Link
                            href={banner.buttonLink}
-                           className="ease-custom z-20 mt-4 inline-block bg-white px-6 py-2 text-sm font-medium text-black transition-all duration-1000 ease-in-out hover:scale-95"
+                           className="ease-custom mt-4 inline-block bg-white px-6 py-2 text-sm font-medium text-black transition-all duration-1000 ease-in-out hover:scale-95"
                         >
                            {banner.buttonText}
                         </Link>
