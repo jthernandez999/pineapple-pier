@@ -25,15 +25,15 @@ export default function AnimatedLogo() {
       // the white logo overlay (when not scrolled) or the black logo (when scrolled).
       const containerClasses = scrolled
          ? 'left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 md:left-0 md:ml-4 md:-translate-x-0 '
-         : 'left-1/2 top-1/4 -translate-x-1/2 md:scale-[3.5] scale-[1.6]';
+         : 'left-1/2 top-1/4 -translate-x-1/2 md:scale-[3.5] scale-[1.6] ';
       const imageSrc = scrolled ? '/dj_black_logo.png' : '/dj_white_logo.png';
 
       return (
          <Link
             href="/"
-            className={`absolute z-[999] transform transition-all duration-1000 ${containerClasses}`}
+            className={`absolute z-10 transform transition-all duration-1000 ${containerClasses}`}
          >
-            <div className="relative h-72 w-72 md:h-96 md:w-96">
+            <div className="relative my-0 h-72 w-72 py-0 md:z-[10] md:h-96 md:w-96">
                <Image
                   src={imageSrc}
                   alt="DJ Logo"
@@ -49,7 +49,7 @@ export default function AnimatedLogo() {
       return (
          <Link
             href="/"
-            className="absolute left-1/2 top-1/2 z-[999] -translate-x-1/2 -translate-y-1/2 transform md:left-0 md:ml-4 md:-translate-x-0"
+            className="absolute left-1/2 top-1/2 z-[10] -translate-x-1/2 -translate-y-1/2 transform md:left-0 md:ml-4 md:-translate-x-0"
          >
             <div className="relative h-72 w-72 md:h-80 md:w-80">
                <Image
@@ -92,7 +92,7 @@ export default function AnimatedLogo() {
 //          // On the homepage when not scrolled: display the white logo overlay.
 //          // Render this inside a relatively positioned hero container.
 //          return (
-//             <div className="pointer-events-none absolute left-1/2 top-1/4 z-[999] h-[60vh] w-[80vw] -translate-x-1/2 transform md:w-[100vw]">
+//             <div className="pointer-events-none absolute left-1/2 top-1/4 z-[10] h-[60vh] w-[80vw] -translate-x-1/2 transform md:w-[100vw]">
 //                <Image
 //                   src="/dj_white_logo.png"
 //                   alt="DJ White Logo"
@@ -109,7 +109,7 @@ export default function AnimatedLogo() {
 //          return (
 //             <Link
 //                href="/"
-//                className="absolute left-1/2 top-1/2 z-[999] ml-0 -translate-x-1/2 -translate-y-1/2 transform md:left-0 md:ml-4 md:-translate-x-0"
+//                className="absolute left-1/2 top-1/2 z-[10] ml-0 -translate-x-1/2 -translate-y-1/2 transform md:left-0 md:ml-4 md:-translate-x-0"
 //             >
 //                <div className="relative h-64 w-64">
 //                   <Image
@@ -128,7 +128,7 @@ export default function AnimatedLogo() {
 //       return (
 //          <Link
 //             href="/"
-//             className="absolute left-1/2 top-1/2 z-[999] ml-0 -translate-x-1/2 -translate-y-1/2 transform md:left-0 md:ml-4 md:-translate-x-0"
+//             className="absolute left-1/2 top-1/2 z-[10] ml-0 -translate-x-1/2 -translate-y-1/2 transform md:left-0 md:ml-4 md:-translate-x-0"
 //          >
 //             <div className="relative h-64 w-64">
 //                <Image

@@ -19,7 +19,7 @@ export async function Navbar() {
    const menu: Menu[] = await getMenu('main-menu');
 
    return (
-      <nav className="sticky top-0 z-50 border-gray-200 bg-white shadow-sm dark:border-gray-600 dark:bg-gray-900">
+      <nav className="sticky top-0 z-10 w-full border-gray-200 bg-white shadow-sm dark:border-gray-600 dark:bg-gray-900">
          <div className="mx-auto flex max-w-screen-xl items-center justify-between p-4">
             {/* Left Section: Logo (and mobile menu icon) */}
             <div className="flex items-center">

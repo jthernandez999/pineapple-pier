@@ -131,7 +131,7 @@ export default function HeroBanner({ banners, interval = 4000 }: BannerProps) {
                      {banner.buttonText && banner.buttonLink && (
                         <Link
                            href={banner.buttonLink}
-                           className="ease-custom mt-4 inline-block bg-white px-6 py-2 text-sm font-medium text-black transition-all duration-1000 ease-in-out hover:scale-95"
+                           className="ease-custom z-20 mt-4 inline-block bg-white px-6 py-2 text-sm font-medium text-black transition-all duration-1000 ease-in-out hover:scale-95"
                         >
                            {banner.buttonText}
                         </Link>
