@@ -63,7 +63,7 @@ export default function HeroBanner({ banners, interval = 4000 }: BannerProps) {
 
    return (
       // Outer container now uses h-screen for full viewport height.
-      <div className="relative h-screen w-full">
+      <div className="relative h-screen w-full overflow-hidden">
          {/* Inner section fills the container. */}
          <section
             className="relative h-full w-full overflow-hidden"
