@@ -20,7 +20,7 @@ export async function Navbar() {
 
    return (
       <nav className="shadow- sticky top-0 z-30 w-full border-gray-200 bg-white dark:border-gray-600 dark:bg-gray-900">
-         <div className="mx-auto flex max-w-screen-xl items-center justify-between p-4">
+         <div className="mx-auto flex w-full items-center justify-between p-4">
             {/* Left Section: Logo (and mobile menu icon) */}
             <div className="flex items-center">
                {/* Mobile Menu icon only shows on mobile */}
