@@ -19,7 +19,7 @@ export function WelcomeToast() {
                   {/* welcome to dear john denim we are updating our site to make it better for you. we will be back soon. thank you for your patience.*/}
                   <p className="text-sm">
                      We are updating our site to make it better for you. We will have scheduled
-                     updates through out the month. Thank you for your patience.
+                     updates throughout the month. Thank you for your patience.
                   </p>
                </>
             )
