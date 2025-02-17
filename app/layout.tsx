@@ -1,3 +1,4 @@
+import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { CartProvider } from 'components/cart/cart-context';
 import { WelcomeToast } from 'components/welcome-toast';
@@ -54,6 +55,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
                </main>
             </CartProvider>
             <SpeedInsights />
+            <Analytics />
          </body>
       </html>
    );
