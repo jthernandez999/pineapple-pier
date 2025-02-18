@@ -1,7 +1,6 @@
 'use client';
 
 import { ArrowLeftIcon, ArrowRightIcon } from '@heroicons/react/24/outline';
-import { GridTileImage } from 'components/grid/tile';
 import { useProduct, useUpdateURL } from 'components/product/product-context';
 import Image from 'next/image';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -129,6 +128,7 @@ export function Gallery({ images }: { images: { src: string; altText: string }[]
                         slidesToShow={1}
                         slidesToScroll={1}
                         adaptiveHeight={true}
+                        beforeChange={(oldIndex, newIndex) => setCurrentIndex(newIndex)}
                      >
                         {effectiveImages.map((img, idx) => (
                            <div key={idx} className="relative h-[70vh] w-full">
@@ -173,7 +173,7 @@ export function Gallery({ images }: { images: { src: string; altText: string }[]
                                     key={img.src}
                                     onClick={(e) => {
                                        e.preventDefault();
-                                       handleImageChange(actualIndex);
+                                       sliderRef.current?.slickPrev();
                                     }}
                                     className="relative h-[55vh] w-full"
                                  >
@@ -205,7 +205,7 @@ export function Gallery({ images }: { images: { src: string; altText: string }[]
                            <button
                               onClick={(e) => {
                                  e.preventDefault();
-                                 handleImageChange(prevIndex);
+                                 sliderRef.current?.slickPrev();
                               }}
                               aria-label="Previous product image"
                               className="flex h-full items-center justify-center px-6 transition-all ease-in-out hover:scale-110 hover:text-black dark:hover:text-white"
@@ -215,7 +215,7 @@ export function Gallery({ images }: { images: { src: string; altText: string }[]
                            <button
                               onClick={(e) => {
                                  e.preventDefault();
-                                 handleImageChange(nextIndex);
+                                 sliderRef.current?.slickNext();
                               }}
                               aria-label="Next product image"
                               className="flex h-full items-center justify-center px-6 transition-all ease-in-out hover:scale-110 hover:text-black dark:hover:text-white"
@@ -227,7 +227,7 @@ export function Gallery({ images }: { images: { src: string; altText: string }[]
                   )}
 
                   {/* Mobile Thumbnails */}
-                  {effectiveImages.length > 1 && (
+                  {/* {effectiveImages.length > 1 && (
                      <ul className="my-0 flex flex-wrap items-center justify-center gap-0 overflow-auto py-0 md:hidden lg:mb-0">
                         {effectiveImages.map((img, idx) => {
                            const isActive = idx === currentIndex;
@@ -254,7 +254,7 @@ export function Gallery({ images }: { images: { src: string; altText: string }[]
                            );
                         })}
                      </ul>
-                  )}
+                  )} */}
                </>
             )}
          </div>
