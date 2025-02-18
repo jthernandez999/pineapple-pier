@@ -14,61 +14,18 @@ export const ColorSwatch: React.FC<ColorSwatchProps> = ({ metaobjectId, fallback
 
    useEffect(() => {
       async function fetchMetaobject() {
+         // Query the metaobject directly.
          const query = `
-         query GetProductColorMetaobject($productId: ID!) {
-            product(id: $productId) {
-              id
-              metafield(namespace: "shopify", key: "color-pattern") {
-                value
-                references(first: 1) {
-                  edges {
-                    node {
-                      ... on Metaobject {
-                        id
-                        type
-                        fields {
-                          key
-                          value
-                        }
-                      }
-                    }
-                  }
-                }
-              }
+        query GetMetaobject($id: ID!) {
+          metaobject(id: $id) {
+            id
+            fields {
+              key
+              value
             }
           }
-          
+        }
       `;
-         // query GetColorMetaobject($id: ID!) {
-         //    metaobject(id: $id) {
-         //      id
-         //      type
-         //      fields {
-         //        key
-         //        value
-         //      }
-         //    }
-         //  }
-         // query GetProductColorMetafield($productId: ID!) {
-         //    product(id: $productId) {
-         //      metafield(namespace: "shopify", key: "color-pattern") {
-         //        value
-         //        references(first: 1) {
-         //          edges {
-         //            node {
-         //              ... on Metaobject {
-         //                id
-         //                fields {
-         //                  key
-         //                  value
-         //                }
-         //              }
-         //            }
-         //          }
-         //        }
-         //      }
-         //    }
-         //  }
          const variables = { id: metaobjectId };
          try {
             const res = await fetch(SHOPIFY_ENDPOINT, {
@@ -81,14 +38,27 @@ export const ColorSwatch: React.FC<ColorSwatchProps> = ({ metaobjectId, fallback
             });
             const data = await res.json();
             console.log('Metaobject response:', data);
-            const field = data.data?.metaobject?.fields?.find((f: any) => f.key === 'color_code');
-            if (field && field.value) {
-               setColorCode(field.value);
+            if (!data.data) {
+               console.error('No data returned from metaobject query', data);
+               return;
+            }
+            const metaobjectData = data.data.metaobject;
+            if (!metaobjectData) {
+               console.error('No metaobject data found for ID:', metaobjectId);
+               return;
+            }
+            // Look for the "color" field instead of "color_code".
+            const colorField = metaobjectData.fields.find((f: any) => f.key === 'color');
+            if (colorField?.value) {
+               setColorCode(colorField.value);
+            } else {
+               console.error('color field not found in metaobject fields', metaobjectData.fields);
             }
          } catch (error) {
             console.error('Error fetching metaobject:', error);
          }
       }
+
       if (metaobjectId) {
          fetchMetaobject();
       }
@@ -98,9 +68,10 @@ export const ColorSwatch: React.FC<ColorSwatchProps> = ({ metaobjectId, fallback
       <div
          style={{
             backgroundColor: colorCode,
-            width: '100%',
-            height: '100%',
-            borderRadius: 'inherit'
+            width: '18px',
+            height: '18px',
+            borderRadius: '9999px',
+            border: '1px solid #ccc' // for visibility
          }}
          title={colorCode}
       />

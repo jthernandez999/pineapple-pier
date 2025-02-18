@@ -163,8 +163,8 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
                                  onClick={() => handleOptionSelect(optionNameLowerCase, value)}
                                  style={{
                                     backgroundColor: 'transparent',
-                                    width: '48px',
-                                    height: '48px',
+                                    width: '18px',
+                                    height: '18px',
                                     borderRadius: '9999px',
                                     padding: 0
                                  }}
@@ -190,8 +190,8 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
                                     <div
                                        style={{
                                           backgroundColor: value.toLowerCase(),
-                                          width: '48px',
-                                          height: '48px',
+                                          width: '18px',
+                                          height: '18px',
                                           borderRadius: '9999px'
                                        }}
                                     />
@@ -208,7 +208,7 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
                                  title={`${option.name} ${value}${!isAvailableForSale ? ' (Out of Stock)' : ''}`}
                                  onClick={() => handleOptionSelect(optionNameLowerCase, value)}
                                  className={clsx(
-                                    'flex min-w-[48px] items-center justify-center border px-2 py-1 text-sm dark:border-neutral-800 dark:bg-neutral-900',
+                                    'flex min-w-[18px] items-center justify-center border px-2 py-1 text-sm dark:border-neutral-800 dark:bg-neutral-900',
                                     {
                                        'cursor-default ring-2 ring-blue-600': isActive,
                                        'ring-1 ring-transparent transition duration-300 ease-in-out hover:ring-blue-600':
