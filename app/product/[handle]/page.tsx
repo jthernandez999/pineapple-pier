@@ -80,7 +80,7 @@ export default async function ProductPage(props: { params: Promise<{ handle: str
                __html: JSON.stringify(productJsonLd)
             }}
          />
-         <div className="mx-auto w-screen max-w-[2000px] px-0 md:px-4">
+         <div className="mx-auto w-screen max-w-[1800px] px-0 md:px-4">
             <div className="flex flex-col bg-white p-0 dark:border-neutral-800 dark:bg-black md:p-8 lg:flex-row lg:gap-8">
                {/* <div className="h-full w-full basis-full lg:basis-1/2"> */}
                <div className="w-full lg:basis-1/2">
