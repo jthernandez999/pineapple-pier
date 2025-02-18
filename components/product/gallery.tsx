@@ -111,7 +111,7 @@ export function Gallery({ images }: { images: { src: string; altText: string }[]
 
    return (
       <form>
-         <div className="relative mt-0 h-full w-full overflow-hidden pt-0">
+         <div className="relative mt-0 min-h-[70vh] w-full overflow-hidden pt-0">
             {effectiveImages.length === 0 ? (
                <div className="p-4 text-center">
                   <p>No images found for the selected color variant.</p>
@@ -119,7 +119,7 @@ export function Gallery({ images }: { images: { src: string; altText: string }[]
             ) : (
                <>
                   {/* Mobile Layout: Slider */}
-                  <div className="md:hidden">
+                  <div className="w-full md:hidden">
                      <Slider
                         key={selectedColor} // Force re-mount on color change
                         ref={sliderRef}
@@ -131,12 +131,12 @@ export function Gallery({ images }: { images: { src: string; altText: string }[]
                         adaptiveHeight={true}
                      >
                         {effectiveImages.map((img, idx) => (
-                           <div key={idx} className="relative h-[70vh] w-screen">
+                           <div key={idx} className="relative h-[70vh] w-full">
                               <Image
                                  src={img.src}
                                  alt={img.altText}
                                  fill
-                                 sizes="(max-width: 768px) 100vw, 50vw"
+                                 sizes="100vw"
                                  className="object-cover"
                                  unoptimized
                               />
@@ -146,7 +146,7 @@ export function Gallery({ images }: { images: { src: string; altText: string }[]
                   </div>
 
                   {/* Desktop Layout */}
-                  <div className="hidden w-[50vw] md:block">
+                  <div className="hidden h-full w-full md:block">
                      <div>
                         {/* Main Image */}
                         <div className="relative h-[100vh] w-full">
@@ -156,7 +156,7 @@ export function Gallery({ images }: { images: { src: string; altText: string }[]
                                  alt={effectiveImages[currentIndex]?.altText ?? 'Product Image'}
                                  fill
                                  sizes="100vw"
-                                 className="object-cover"
+                                 className="aspect-2/3 object-cover"
                                  priority={true}
                                  unoptimized
                               />
@@ -182,8 +182,12 @@ export function Gallery({ images }: { images: { src: string; altText: string }[]
                                           src={img.src}
                                           alt={img.altText}
                                           fill
-                                          sizes="50vw"
-                                          className="object-cover"
+                                          sizes="
+                                          (max-width: 768px) 50vw,
+                                          (max-width: 1024px) 25vw,
+                                          20vw
+                                          "
+                                          className="aspect-[2/3] object-cover"
                                           unoptimized
                                        />
                                     </figure>
