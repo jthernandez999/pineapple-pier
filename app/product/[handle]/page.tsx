@@ -1,15 +1,15 @@
+import type { Metadata } from 'next';
+import { notFound } from 'next/navigation';
+
 import { GridTileImage } from 'components/grid/tile';
 import Footer from 'components/layout/footer';
 import { Gallery } from 'components/product/gallery';
 import { ProductProvider } from 'components/product/product-context';
 import { ProductDescription } from 'components/product/product-description';
 import { HIDDEN_PRODUCT_TAG } from 'lib/constants';
-import { dynamicMetaobjectId } from 'lib/helpers/metafieldHelpers';
 import { getProduct, getProductRecommendations } from 'lib/shopify';
 import { Image } from 'lib/shopify/types';
-import type { Metadata } from 'next';
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
 
 export async function generateMetadata(props: {
@@ -17,9 +17,7 @@ export async function generateMetadata(props: {
 }): Promise<Metadata> {
    const params = await props.params;
    const product = await getProduct(params.handle);
-   console.log('PRODUCT_COLLECTIONS:', product?.collections?.nodes);
-   console.log('PRODUCT:', product);
-   console.log('PRODUCT MEDIA:', product?.media?.edges[2]?.node?.sources);
+
    if (!product) return notFound();
 
    const { url, width, height, altText: alt } = product.featuredImage || {};
@@ -54,7 +52,7 @@ export async function generateMetadata(props: {
 export default async function ProductPage(props: { params: Promise<{ handle: string }> }) {
    const params = await props.params;
    const product = await getProduct(params.handle);
-   // console.log('product', product);
+
    if (!product) return notFound();
 
    const productJsonLd = {
@@ -82,39 +80,28 @@ export default async function ProductPage(props: { params: Promise<{ handle: str
                __html: JSON.stringify(productJsonLd)
             }}
          />
-         <div className="mx-auto flex justify-center">
-            <main>
-               <div className="mx-auto flex max-w-full">
-                  <div className="md:pb-[32px] min-[770px]:max-[1024px]:pb-8 lg:mx-auto lg:w-[80vw] lg:items-center lg:justify-center 2xl:w-[80vw]">
-                     {/* <div className="flex min-[770px]:max-[1024px]:flex min-[770px]:max-[1024px]:w-full min-[770px]:max-[1024px]:flex-col lg:flex-row"> */}
-                     <div className="flex w-full flex-col lg:flex-row">
-                        {/* Left: Product Media */}
-                        <div className="px-auto mx-auto mt-0 w-screen basis-full pt-0 min-[770px]:max-[1024px]:basis-full lg:basis-4/6 lg:flex-row lg:pr-[2.2rem]">
-                           <Suspense
-                              fallback={
-                                 <div className="relative h-full max-h-[550px] w-full overflow-hidden" />
-                              }
-                           >
-                              <Gallery
-                                 images={product.images.map((image: Image) => ({
-                                    src: image.url,
-                                    altText: image.altText
-                                 }))}
-                              />
-                           </Suspense>
-                        </div>
-
-                        {/* Right: Product Details */}
-                        <div className="product_productDetail__hIV0I mx-auto flex basis-full flex-col lg:basis-1/2">
-                           <Suspense fallback={null}>
-                              <ProductDescription product={product} />
-                           </Suspense>
-                        </div>
-                     </div>
-                  </div>
+         <div className="mx-auto w-full max-w-[1850px] basis-full px-4">
+            <div className="flex flex-col bg-white p-8 dark:border-neutral-800 dark:bg-black md:p-12 lg:flex-row lg:gap-8">
+               {/* <div className="h-full w-full basis-full lg:basis-1/2"> */}
+               <div className="w-full lg:basis-1/2">
+                  <Suspense fallback={<div className="relative h-full w-full overflow-hidden" />}>
+                     <Gallery
+                        images={product.images.slice(0, 5).map((image: Image) => ({
+                           src: image.url,
+                           altText: image.altText
+                        }))}
+                     />
+                  </Suspense>
                </div>
-               <RelatedProducts id={product.id} />
-            </main>
+
+               {/* <div className="basis-full lg:basis-1/2"> */}
+               <div className="w-full lg:basis-1/2">
+                  <Suspense fallback={null}>
+                     <ProductDescription product={product} />
+                  </Suspense>
+               </div>
+            </div>
+            <RelatedProducts id={product.id} />
          </div>
          <Footer />
       </ProductProvider>
@@ -133,7 +120,7 @@ async function RelatedProducts({ id }: { id: string }) {
             {relatedProducts.map((product) => (
                <li
                   key={product.handle}
-                  className="aspect-square w-full flex-none min-[475px]:w-1/2 sm:w-1/3 md:w-1/4 lg:w-1/5"
+                  className="aspect-[2/3] w-full flex-none min-[475px]:w-1/2 sm:w-1/3 md:w-1/4 lg:w-1/5"
                >
                   <Link
                      className="relative h-full w-full"
@@ -150,10 +137,6 @@ async function RelatedProducts({ id }: { id: string }) {
                         src={product.featuredImage?.url}
                         fill
                         sizes="(min-width: 1024px) 20vw, (min-width: 768px) 25vw, (min-width: 640px) 33vw, (min-width: 475px) 50vw, 100vw"
-                        swatchMetaobjectId={dynamicMetaobjectId(product)}
-                        swatchFallbackColor={product.options
-                           ?.find((o) => o.name.toLowerCase() === 'color')
-                           ?.values[0]?.toLowerCase()}
                      />
                   </Link>
                </li>
