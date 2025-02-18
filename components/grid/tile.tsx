@@ -1,5 +1,4 @@
 'use client';
-
 import clsx from 'clsx';
 import Image from 'next/image';
 import React, { useState } from 'react';
@@ -29,7 +28,7 @@ export function GridTileImage({
 } & React.ComponentProps<typeof Image>) {
    // Local state to track hover.
    const [isHovered, setIsHovered] = useState(false);
-   // If hovered and secondarySrc exists, use it; otherwise, use the primary src.
+   // Use secondarySrc on hover if provided.
    const displayedSrc = isHovered && secondarySrc ? secondarySrc : props.src;
 
    // Build an enhanced label by merging swatch properties.
@@ -40,11 +39,9 @@ export function GridTileImage({
    return (
       <div
          className={clsx(
-            // 'group flex h-full w-full items-center justify-center overflow-hidden rounded-lg border bg-white hover:border-blue-600 dark:bg-black'
-            // modern product card on collection page
-            'group relative flex h-full w-full items-center justify-center overflow-hidden bg-white',
+            // Removed h-full so that on mobile the container doesn't force excessive height.
+            'group relative flex w-full flex-col overflow-hidden bg-white',
             {
-               relative: label,
                'border-2 border-blue-600': active,
                'border-neutral-200 dark:border-neutral-800': !active
             }
@@ -52,11 +49,11 @@ export function GridTileImage({
          onMouseEnter={() => setIsHovered(true)}
          onMouseLeave={() => setIsHovered(false)}
       >
-         {displayedSrc ? (
-            // The image is above the product label and swatch.
-            <div className="relative h-full w-full overflow-hidden transition duration-300 ease-in-out group-hover:scale-105">
+         {/* Image container with fixed 2/3 aspect ratio */}
+         {displayedSrc && (
+            <div className="relative aspect-[2/3] w-full overflow-hidden transition duration-300 ease-in-out group-hover:scale-105">
                <Image
-                  className={clsx('h-full w-full object-contain', {
+                  className={clsx('w-full object-contain', {
                      'transition duration-300 ease-in-out group-hover:scale-100': isInteractive
                   })}
                   {...props}
@@ -64,9 +61,10 @@ export function GridTileImage({
                   unoptimized
                />
             </div>
-         ) : null}
-         {enhancedLabel ? (
-            <div className="">
+         )}
+         {/* Label rendered below the image */}
+         {enhancedLabel && (
+            <div className="mt-2 w-full">
                <Label
                   title={enhancedLabel.title}
                   amount={enhancedLabel.amount}
@@ -77,7 +75,7 @@ export function GridTileImage({
                   fallbackColor={enhancedLabel.fallbackColor}
                />
             </div>
-         ) : null}
+         )}
       </div>
    );
 }
