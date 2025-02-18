@@ -53,7 +53,7 @@ export function GridTileImage({
          {displayedSrc && (
             <div className="relative aspect-[2/3] w-full overflow-hidden transition duration-300 ease-in-out group-hover:scale-105">
                <Image
-                  className={clsx('w-full object-contain', {
+                  className={clsx('w-full object-cover', {
                      'transition duration-300 ease-in-out group-hover:scale-100': isInteractive
                   })}
                   {...props}
