@@ -5,6 +5,7 @@ import { getSwatchMetaobjectId } from 'lib/helpers/metafieldHelpers';
 import { Product } from 'lib/shopify/types';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
+import Label from '../../components/label';
 import ProductGroupsDisplay from '../../components/product/ProductGroupsDisplay';
 
 interface ProductGridItemsProps {
@@ -61,7 +62,7 @@ function ProductGridItemsComponent({ products, groupHandle }: ProductGridItemsPr
          setMetaobjectResults(results.filter((r) => r.metaobject !== null));
       }
       fetchMetaobjects();
-   }, [products]); // Depend on products if groupsMap may change
+   }, [products]);
 
    return (
       <>
@@ -80,28 +81,44 @@ function ProductGridItemsComponent({ products, groupHandle }: ProductGridItemsPr
             })}
          <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3">
             {products.map((product) => (
-               <Grid.Item key={product.handle} className="aspect-[2/3] animate-fadeIn">
+               <Grid.Item key={product.handle} className="animate-fadeIn">
                   <Link
                      href={`/product/${product.handle}`}
                      prefetch={true}
-                     className="relative inline-block h-full w-full"
+                     className="flex h-full w-full flex-col"
                   >
-                     <GridTileImage
-                        alt={product.title}
-                        label={{
-                           title: product.title,
-                           amount: product.priceRange.maxVariantPrice.amount,
-                           currencyCode: product.priceRange.maxVariantPrice.currencyCode
-                        }}
-                        src={product.featuredImage?.url}
-                        secondarySrc={product.images[1]?.url}
-                        fill
-                        sizes="(min-width: 768px) 33vw, (min-width: 640px) 50vw, 100vw"
-                        swatchMetaobjectId={getSwatchMetaobjectId(product)}
-                        swatchFallbackColor={product.options
-                           ?.find((o) => o.name.toLowerCase() === 'color')
-                           ?.values[0]?.toLowerCase()}
-                     />
+                     {/* Image container with fixed aspect ratio */}
+                     <div className="relative aspect-[2/3] w-full">
+                        <GridTileImage
+                           alt={product.title}
+                           src={product.featuredImage?.url}
+                           secondarySrc={product.images[1]?.url}
+                           fill
+                           sizes="(min-width: 768px) 33vw, (min-width: 640px) 50vw, 100vw"
+                           swatchMetaobjectId={getSwatchMetaobjectId(product)}
+                           swatchFallbackColor={product.options
+                              ?.find((o) => o.name.toLowerCase() === 'color')
+                              ?.values[0]?.toLowerCase()}
+                        />
+                     </div>
+                     {/* Label rendered below the image */}
+                     <div className="mt-2">
+                        <Label
+                           title={product.title}
+                           amount={product.priceRange.maxVariantPrice.amount}
+                           currencyCode={product.priceRange.maxVariantPrice.currencyCode}
+                           // Optionally pass color details if needed:
+                           colorName={
+                              product.options?.find((o) => o.name.toLowerCase() === 'color')
+                                 ?.values[0]
+                           }
+                           metaobjectId={getSwatchMetaobjectId(product)}
+                           fallbackColor={product.options
+                              ?.find((o) => o.name.toLowerCase() === 'color')
+                              ?.values[0]?.toLowerCase()}
+                           position="bottom"
+                        />
+                     </div>
                   </Link>
                </Grid.Item>
             ))}

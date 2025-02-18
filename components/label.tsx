@@ -24,47 +24,39 @@ const Label: React.FC<LabelProps> = ({
 }) => {
    return (
       <div
-         // Ensures this container takes up the full width and doesn't shrink,
-         // so if the parent is using a flex row layout, it will break to a new line.
-         className={clsx('relative mt-2 w-full flex-none', {
+         className={clsx('mt-2 w-full', {
             'lg:px-20 lg:pb-[35%]': position === 'center'
          })}
-         style={{ display: 'block' }}
       >
-         <div className="absolute mb-72 rounded-md border bg-white/70 p-2 pb-72 text-xs font-semibold text-black backdrop-blur-md dark:border-neutral-800 dark:bg-black/70 dark:text-white">
-            {/* Product Title & Price */}
-            <div className="mb-2">
-               <div className="flex flex-col">
-                  <h3 className="line-clamp-2 leading-none tracking-tight">{title}</h3>
-                  <Price
-                     className="mt-1 rounded-sm p-2 text-black"
-                     amount={amount}
-                     currencyCode={currencyCode}
-                     currencyCodeClassName="hidden @[275px]/label:inline"
-                  />
-               </div>
+         <div className="rounded-md border bg-white/70 p-2 text-xs font-semibold text-black backdrop-blur-md dark:border-neutral-800 dark:bg-black/70 dark:text-white">
+            {/* Title and Price in one row */}
+            <div className="flex items-center justify-between">
+               <h3 className="leading-none tracking-tight">{title}</h3>
+               <Price
+                  className="rounded-sm p-2 text-black"
+                  amount={amount}
+                  currencyCode={currencyCode}
+                  currencyCodeClassName="hidden @[275px]/label:inline"
+               />
             </div>
-            {/* Color Info Section */}
-            <div className="flex flex-col space-y-1">
-               {colorName && <div className="text-sm">{colorName}</div>}
+            {/* Selected Color Name */}
+            {colorName && <div className="mt-1 text-sm">{colorName}</div>}
+            {/* Color Swatch */}
+            <div className="mt-1">
                {metaobjectId ? (
-                  <div>
-                     <ColorSwatch metaobjectId={metaobjectId} fallbackColor={fallbackColor} />
-                  </div>
+                  <ColorSwatch metaobjectId={metaobjectId} fallbackColor={fallbackColor} />
                ) : (
                   fallbackColor && (
-                     <div>
-                        <div
-                           style={{
-                              backgroundColor: fallbackColor,
-                              width: '24px',
-                              height: '24px',
-                              borderRadius: '50%',
-                              border: '1px solid #ccc'
-                           }}
-                           title={fallbackColor}
-                        />
-                     </div>
+                     <div
+                        style={{
+                           backgroundColor: fallbackColor,
+                           width: '24px',
+                           height: '24px',
+                           borderRadius: '50%',
+                           border: '1px solid #ccc'
+                        }}
+                        title={fallbackColor}
+                     />
                   )
                )}
             </div>
