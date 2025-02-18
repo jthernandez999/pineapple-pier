@@ -80,8 +80,8 @@ export default async function ProductPage(props: { params: Promise<{ handle: str
                __html: JSON.stringify(productJsonLd)
             }}
          />
-         <div className="mx-auto w-full max-w-[1850px] basis-full px-4">
-            <div className="flex flex-col bg-white p-8 dark:border-neutral-800 dark:bg-black md:p-12 lg:flex-row lg:gap-8">
+         <div className="mx-auto w-screen max-w-[2000px] px-0 md:px-4">
+            <div className="flex flex-col bg-white p-0 dark:border-neutral-800 dark:bg-black md:p-8 lg:flex-row lg:gap-8">
                {/* <div className="h-full w-full basis-full lg:basis-1/2"> */}
                <div className="w-full lg:basis-1/2">
                   <Suspense fallback={<div className="relative h-full w-full overflow-hidden" />}>
@@ -114,7 +114,7 @@ async function RelatedProducts({ id }: { id: string }) {
    if (!relatedProducts.length) return null;
 
    return (
-      <div className="py-8">
+      <div className="p-8 py-8">
          <h2 className="mb-4 text-2xl font-bold">Related Products</h2>
          <ul className="flex w-full gap-4 overflow-x-auto pt-1">
             {relatedProducts.map((product) => (
