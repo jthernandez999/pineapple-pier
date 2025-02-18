@@ -68,8 +68,8 @@ export const ColorSwatch: React.FC<ColorSwatchProps> = ({ metaobjectId, fallback
       <div
          style={{
             backgroundColor: colorCode,
-            width: '18px',
-            height: '18px',
+            width: '20px',
+            height: '20px',
             borderRadius: '9999px',
             border: '1px solid #ccc' // for visibility
          }}

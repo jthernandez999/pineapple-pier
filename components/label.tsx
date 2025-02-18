@@ -50,8 +50,8 @@ const Label: React.FC<LabelProps> = ({
                      <div
                         style={{
                            backgroundColor: fallbackColor,
-                           width: '24px',
-                           height: '24px',
+                           width: '20px',
+                           height: '20px',
                            borderRadius: '50%',
                            border: '1px solid #ccc'
                         }}
