@@ -110,7 +110,7 @@ export function Gallery({ images }: { images: { src: string; altText: string }[]
 
    return (
       <form>
-         <div className="relative mt-0 min-h-[70vh] w-full overflow-hidden pt-0">
+         <div className="relative mt-0 min-h-full w-full overflow-hidden pt-0">
             {effectiveImages.length === 0 ? (
                <div className="p-4 text-center">
                   <p>No images found for the selected color variant.</p>
@@ -131,7 +131,7 @@ export function Gallery({ images }: { images: { src: string; altText: string }[]
                         beforeChange={(oldIndex, newIndex) => setCurrentIndex(newIndex)}
                      >
                         {effectiveImages.map((img, idx) => (
-                           <div key={idx} className="relative h-[70vh] w-full">
+                           <div key={idx} className="relative h-screen w-full">
                               <Image
                                  src={img.src}
                                  alt={img.altText}
