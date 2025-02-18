@@ -158,26 +158,27 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
                            return (
                               <button
                                  type="button"
-                                 key={value}
                                  disabled={!isAvailableForSale}
                                  title={`${option.name} ${value}${!isAvailableForSale ? ' (Out of Stock)' : ''}`}
                                  onClick={() => handleOptionSelect(optionNameLowerCase, value)}
-                                 // Set explicit size, no padding, and full border-radius.
                                  style={{
-                                    backgroundColor: 'transparent', // actual color comes from ColorSwatch.
+                                    backgroundColor: 'transparent',
                                     width: '48px',
                                     height: '48px',
                                     borderRadius: '9999px',
-                                    padding: 0 // Remove extra padding.
+                                    padding: 0
                                  }}
                                  className={clsx(
-                                    'flex items-center justify-center border dark:border-neutral-800',
+                                    'relative flex items-center justify-center border dark:border-neutral-800',
                                     {
                                        'cursor-default ring-2 ring-blue-600': isActive,
                                        'ring-1 ring-transparent transition duration-300 ease-in-out hover:ring-blue-600':
                                           !isActive && isAvailableForSale,
-                                       'relative z-10 cursor-not-allowed': !isAvailableForSale
-                                    }
+                                       'cursor-not-allowed overflow-hidden text-neutral-500':
+                                          !isAvailableForSale
+                                    },
+                                    !isAvailableForSale &&
+                                       'before:absolute before:inset-x-0 before:top-1/2 before:-z-10 before:h-[2px] before:-translate-y-1/2 before:-rotate-45 before:bg-neutral-300 before:transition-transform before:content-[""] dark:before:bg-neutral-700'
                                  )}
                               >
                                  {metaobjectId ? (
@@ -207,12 +208,13 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
                                  title={`${option.name} ${value}${!isAvailableForSale ? ' (Out of Stock)' : ''}`}
                                  onClick={() => handleOptionSelect(optionNameLowerCase, value)}
                                  className={clsx(
-                                    'flex min-w-[48px] items-center justify-center border bg-neutral-100 px-2 py-1 text-sm dark:border-neutral-800 dark:bg-neutral-900',
+                                    'flex min-w-[48px] items-center justify-center border px-2 py-1 text-sm dark:border-neutral-800 dark:bg-neutral-900',
                                     {
                                        'cursor-default ring-2 ring-blue-600': isActive,
                                        'ring-1 ring-transparent transition duration-300 ease-in-out hover:ring-blue-600':
                                           !isActive && isAvailableForSale,
-                                       'relative z-10 cursor-not-allowed': !isAvailableForSale
+                                       'relative z-10 cursor-not-allowed overflow-hidden text-neutral-500 ring-1 ring-neutral-300 before:absolute before:inset-x-0 before:top-1/2 before:-z-10 before:h-[2px] before:-translate-y-1/2 before:-rotate-45 before:bg-neutral-300 before:transition-transform before:content-[""] dark:before:bg-neutral-700':
+                                          !isAvailableForSale
                                     }
                                  )}
                               >
