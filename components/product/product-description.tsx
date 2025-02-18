@@ -12,9 +12,9 @@ export function ProductDescription({ product }: { product: Product }) {
    return (
       <>
          <div className="mx-auto flex flex-col justify-start border-b pb-6 dark:border-neutral-700 2xl:mx-auto">
-            <div className="mx-8 mt-2 text-start text-sm text-black dark:text-white">
+            <div className="mx-8 mt-4 text-start text-sm text-black dark:text-white">
                <div className="flex flex-col items-start justify-start">
-                  <h1 className="mb-4 flex justify-start text-start font-serif text-xl 2xl:text-3xl">
+                  <h1 className="mb-4 flex justify-start text-start font-sans text-xl 2xl:text-3xl">
                      {product.title}
                   </h1>
                   <div className="mr-auto w-auto pb-3 text-start text-lg text-black">
