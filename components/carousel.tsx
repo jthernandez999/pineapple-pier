@@ -1,7 +1,13 @@
+'use client';
+
 import { dynamicMetaobjectId } from 'lib/helpers/metafieldHelpers';
 import Link from 'next/link';
+import Slider from 'react-slick';
+import 'slick-carousel/slick/slick-theme.css';
+import 'slick-carousel/slick/slick.css';
 import { Product } from '../lib/shopify/types';
 import { GridTileImage } from './grid/tile';
+
 export interface CarouselData {
    products: Product[];
    pageInfo: {
@@ -14,44 +20,134 @@ export interface CarouselProps {
    data: CarouselData;
 }
 
+const NextArrow = (props: any) => {
+   const { className, style, onClick } = props;
+   return (
+      <div
+         className={`${className} slick-arrow`}
+         style={{
+            ...style,
+            display: 'block',
+            right: '10px',
+            zIndex: 10
+         }}
+         onClick={onClick}
+         aria-label="Next Slide"
+      >
+         <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-8 w-8 text-gray-700"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+         >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+         </svg>
+      </div>
+   );
+};
+
+const PrevArrow = (props: any) => {
+   const { className, style, onClick } = props;
+   return (
+      <div
+         className={`${className} slick-arrow`}
+         style={{
+            ...style,
+            display: 'block',
+            left: '10px',
+            zIndex: 10
+         }}
+         onClick={onClick}
+         aria-label="Previous Slide"
+      >
+         <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-8 w-8 text-gray-700"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+         >
+            <path
+               strokeLinecap="round"
+               strokeLinejoin="round"
+               strokeWidth={2}
+               d="M15 19l-7-7 7-7"
+            />
+         </svg>
+      </div>
+   );
+};
+
 export function Carousel({ data }: CarouselProps) {
-   // Extract the products array from the data object.
    const { products } = data;
    if (!products || products.length === 0) return null;
 
-   // Duplicate products to make the carousel loop.
-   const carouselProducts = [...products, ...products, ...products];
+   const settings = {
+      infinite: true,
+      slidesToShow: 4.5, // 4 full products plus half of the next one
+      slidesToScroll: 1,
+      arrows: true,
+      swipe: true,
+      nextArrow: <NextArrow />,
+      prevArrow: <PrevArrow />,
+      responsive: [
+         {
+            breakpoint: 1024,
+            settings: {
+               slidesToShow: 4.5
+            }
+         },
+         {
+            breakpoint: 768,
+            settings: {
+               slidesToShow: 2.5
+            }
+         },
+         {
+            breakpoint: 480,
+            settings: {
+               slidesToShow: 1.5
+            }
+         }
+      ]
+   };
 
    return (
-      <div className="h-full w-full overflow-x-hidden">
-         <ul className="flex animate-carousel gap-4">
-            {carouselProducts.map((product, i) => (
-               <li
-                  key={`${product.handle}${i}`}
-                  className="relative aspect-[2/3] w-[66.67vw] flex-none sm:aspect-[2/3] sm:w-[20vw] md:w-[20vw] lg:w-[20vw] xl:w-[20vw] 2xl:w-[20vw]"
-               >
-                  <Link href={`/product/${product.handle}`} className="relative h-full w-full">
-                     <GridTileImage
-                        alt={product.title}
-                        label={{
-                           title: product.title,
-                           amount: product.priceRange.maxVariantPrice.amount,
-                           currencyCode: product.priceRange.maxVariantPrice.currencyCode
-                        }}
-                        src={product.featuredImage?.url}
-                        secondarySrc={product.images[1]?.url}
-                        fill
-                        sizes="100vw, (min-width: 768px) 20vw"
-                        className="object-cover"
-                        swatchMetaobjectId={dynamicMetaobjectId(product)}
-                        swatchFallbackColor={product.options
-                           ?.find((o) => o.name.toLowerCase() === 'color')
-                           ?.values[0]?.toLowerCase()}
-                     />
+      <div className="relative">
+         <Slider {...settings}>
+            {products.map((product, i) => (
+               <div key={`${product.handle}${i}`} className="px-2">
+                  <Link href={`/product/${product.handle}`} className="block">
+                     <div className="relative aspect-[2/3]">
+                        <GridTileImage
+                           alt={product.title}
+                           label={{
+                              title: product.title,
+                              amount: product.priceRange.maxVariantPrice.amount,
+                              currencyCode: product.priceRange.maxVariantPrice.currencyCode
+                           }}
+                           src={product.featuredImage?.url}
+                           secondarySrc={product.images[1]?.url}
+                           fill
+                           sizes="100vw, (min-width: 768px) 20vw"
+                           className="object-cover"
+                           swatchMetaobjectId={dynamicMetaobjectId(product)}
+                           swatchFallbackColor={product.options
+                              ?.find((o) => o.name.toLowerCase() === 'color')
+                              ?.values[0]?.toLowerCase()}
+                        />
+                     </div>
                   </Link>
-               </li>
+               </div>
             ))}
-         </ul>
+         </Slider>
+         <style>{`
+            .slick-prev:before,
+            .slick-next:before {
+               display: none !important;
+            }
+         `}</style>
       </div>
    );
 }
