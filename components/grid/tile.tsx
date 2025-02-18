@@ -40,7 +40,9 @@ export function GridTileImage({
    return (
       <div
          className={clsx(
-            'group flex h-full w-full items-center justify-center overflow-hidden rounded-lg border bg-white hover:border-blue-600 dark:bg-black',
+            // 'group flex h-full w-full items-center justify-center overflow-hidden rounded-lg border bg-white hover:border-blue-600 dark:bg-black'
+            // modern product card on collection page
+            'group relative flex h-full w-full items-center justify-center overflow-hidden bg-white',
             {
                relative: label,
                'border-2 border-blue-600': active,
@@ -51,25 +53,30 @@ export function GridTileImage({
          onMouseLeave={() => setIsHovered(false)}
       >
          {displayedSrc ? (
-            <Image
-               className={clsx('relative h-full w-full object-contain', {
-                  'transition duration-300 ease-in-out group-hover:scale-105': isInteractive
-               })}
-               {...props}
-               src={displayedSrc}
-               unoptimized
-            />
+            // The image is above the product label and swatch.
+            <div className="relative h-full w-full overflow-hidden transition duration-300 ease-in-out group-hover:scale-105">
+               <Image
+                  className={clsx('h-full w-full object-contain', {
+                     'transition duration-300 ease-in-out group-hover:scale-100': isInteractive
+                  })}
+                  {...props}
+                  src={displayedSrc}
+                  unoptimized
+               />
+            </div>
          ) : null}
          {enhancedLabel ? (
-            <Label
-               title={enhancedLabel.title}
-               amount={enhancedLabel.amount}
-               currencyCode={enhancedLabel.currencyCode}
-               position={enhancedLabel.position}
-               colorName={enhancedLabel.colorName}
-               metaobjectId={enhancedLabel.metaobjectId}
-               fallbackColor={enhancedLabel.fallbackColor}
-            />
+            <div className="">
+               <Label
+                  title={enhancedLabel.title}
+                  amount={enhancedLabel.amount}
+                  currencyCode={enhancedLabel.currencyCode}
+                  position={enhancedLabel.position}
+                  colorName={enhancedLabel.colorName}
+                  metaobjectId={enhancedLabel.metaobjectId}
+                  fallbackColor={enhancedLabel.fallbackColor}
+               />
+            </div>
          ) : null}
       </div>
    );
