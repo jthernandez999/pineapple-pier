@@ -1,14 +1,14 @@
 'use client';
-
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import Form from 'next/form';
 import { useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 export default function Search() {
    const searchParams = useSearchParams();
    const [isPopupOpen, setIsPopupOpen] = useState(false);
    const [popularSearches, setPopularSearches] = useState([]);
+   const popupInputRef = useRef(null);
 
    useEffect(() => {
       // Fetch legitimate popular searches from your website
@@ -23,6 +23,13 @@ export default function Search() {
       }
       fetchPopularSearches();
    }, []);
+
+   // Focus the input when the popup opens
+   useEffect(() => {
+      if (isPopupOpen && popupInputRef.current) {
+         popupInputRef.current.focus();
+      }
+   }, [isPopupOpen]);
 
    const togglePopup = () => setIsPopupOpen((prev) => !prev);
 
@@ -90,6 +97,7 @@ export default function Search() {
                   </div>
                   <Form action="/search" className="relative mt-4" onSubmit={handleSearchSubmit}>
                      <input
+                        ref={popupInputRef}
                         key={searchParams?.get('q')}
                         type="text"
                         name="q"
