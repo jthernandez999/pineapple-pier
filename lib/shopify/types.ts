@@ -41,7 +41,7 @@ export type Image = {
    altText: string;
    width: number;
    height: number;
-   edges?: any;
+   // edges?: any;
 };
 
 export type Cart = Omit<ShopifyCart, 'lines'> & {

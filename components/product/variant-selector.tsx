@@ -157,6 +157,7 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
                            }
                            return (
                               <button
+                                 key={value}
                                  type="button"
                                  disabled={!isAvailableForSale}
                                  title={`${option.name} ${value}${!isAvailableForSale ? ' (Out of Stock)' : ''}`}
