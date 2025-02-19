@@ -8,7 +8,7 @@ export default function Search() {
    const searchParams = useSearchParams();
    const [isPopupOpen, setIsPopupOpen] = useState(false);
    const [popularSearches, setPopularSearches] = useState([]);
-   const popupInputRef = useRef(null);
+   const popupInputRef = useRef<HTMLInputElement>(null);
 
    useEffect(() => {
       // Fetch legitimate popular searches from your website
