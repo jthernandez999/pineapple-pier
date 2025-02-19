@@ -12,6 +12,13 @@ import { Image } from 'lib/shopify/types';
 import Link from 'next/link';
 import { Suspense } from 'react';
 
+const fallbackImg = {
+   url: 'https://cdn.shopify.com/s/files/1/1024/2207/files/default_logo_dear_john_denim.jpg?v=1739228110',
+   width: 1000,
+   height: 2000,
+   altText: 'Default product image'
+};
+
 export async function generateMetadata(props: {
    params: Promise<{ handle: string }>;
 }): Promise<Metadata> {
@@ -20,7 +27,8 @@ export async function generateMetadata(props: {
 
    if (!product) return notFound();
 
-   const { url, width, height, altText: alt } = product.featuredImage || {};
+   const featuredImage = product.featuredImage || fallbackImg;
+   const { url, width, height, altText: alt } = featuredImage;
    const indexable = !product.tags.includes(HIDDEN_PRODUCT_TAG);
 
    return {
@@ -55,12 +63,15 @@ export default async function ProductPage(props: { params: Promise<{ handle: str
 
    if (!product) return notFound();
 
+   // If there's no featured image, use our fallback image.
+   const featuredImage = product.featuredImage || fallbackImg;
+
    const productJsonLd = {
       '@context': 'https://schema.org',
       '@type': 'Product',
       name: product.title,
       description: product.description,
-      image: product.featuredImage.url,
+      image: featuredImage.url,
       offers: {
          '@type': 'AggregateOffer',
          availability: product.availableForSale
@@ -82,19 +93,23 @@ export default async function ProductPage(props: { params: Promise<{ handle: str
          />
          <div className="mx-auto w-screen max-w-[1800px] px-0 md:px-4">
             <div className="flex flex-col bg-white p-0 dark:border-neutral-800 dark:bg-black md:p-8 lg:flex-row lg:gap-8">
-               {/* <div className="h-full w-full basis-full lg:basis-1/2"> */}
+               {/* Gallery / Main Image */}
                <div className="w-full lg:basis-1/2">
                   <Suspense fallback={<div className="relative h-full w-full overflow-hidden" />}>
                      <Gallery
-                        images={product.images.slice(0, 5).map((image: Image) => ({
-                           src: image.url,
-                           altText: image.altText
-                        }))}
+                        images={
+                           product.images && product.images.length
+                              ? product.images.slice(0, 5).map((image: Image) => ({
+                                   src: image.url,
+                                   altText: image.altText
+                                }))
+                              : [{ src: fallbackImg.url, altText: fallbackImg.altText }]
+                        }
                      />
                   </Suspense>
                </div>
 
-               {/* <div className="basis-full lg:basis-1/2"> */}
+               {/* Product Description */}
                <div className="w-full lg:basis-1/2">
                   <Suspense fallback={null}>
                      <ProductDescription product={product} />
@@ -134,7 +149,8 @@ async function RelatedProducts({ id }: { id: string }) {
                            amount: product.priceRange.maxVariantPrice.amount,
                            currencyCode: product.priceRange.maxVariantPrice.currencyCode
                         }}
-                        src={product.featuredImage?.url}
+                        // Use the product's featured image if available, else the fallback image.
+                        src={product.featuredImage?.url || fallbackImg.url}
                         fill
                         sizes="(min-width: 1024px) 20vw, (min-width: 768px) 25vw, (min-width: 640px) 33vw, (min-width: 475px) 50vw, 100vw"
                      />

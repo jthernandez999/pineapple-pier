@@ -4,6 +4,8 @@ import Image from 'next/image';
 import React, { useState } from 'react';
 import Label from '../label';
 
+const fallbackImg =
+   'https://cdn.shopify.com/s/files/1/1024/2207/files/default_logo_dear_john_denim.jpg?v=1739228110';
 export function GridTileImage({
    isInteractive = true,
    active,
@@ -35,7 +37,7 @@ export function GridTileImage({
    const enhancedLabel = label
       ? { ...label, metaobjectId: swatchMetaobjectId, fallbackColor: swatchFallbackColor }
       : undefined;
-
+   const srcToUse = displayedSrc || fallbackImg;
    return (
       <div
          className={clsx(
@@ -57,7 +59,7 @@ export function GridTileImage({
                      'transition duration-300 ease-in-out group-hover:scale-100': isInteractive
                   })}
                   {...props}
-                  src={displayedSrc}
+                  src={srcToUse}
                   unoptimized
                />
             </div>
