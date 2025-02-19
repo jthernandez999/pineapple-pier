@@ -4,7 +4,6 @@ import { Product } from 'lib/shopify/types';
 import { Suspense, useCallback, useState } from 'react';
 import { ProductGridItems } from '../components/layout/product-grid-items'; // Now a client component.
 import { getCollectionProductsQuery } from '../lib/shopify/queries/collection';
-
 interface InfiniteScrollProductGridProps {
    initialProducts: Product[];
    initialPageInfo: {
@@ -107,7 +106,15 @@ export default function InfiniteScrollProductGrid({
                   onFocus={(e) => e.currentTarget.blur()}
                   disabled={isLoading}
                >
-                  {isLoading ? 'Loading...' : 'Load More Products'}
+                  {isLoading ? (
+                     <p className="bg-white-500 pointer-events-none border-spacing-1 animate-pulse cursor-not-allowed px-4 py-2 text-center text-sm font-bold text-black">
+                        Loading...
+                     </p>
+                  ) : (
+                     <p className="bg-white-500 border-spacing-1 cursor-pointer px-4 py-2 text-center text-sm font-bold">
+                        Load More Products
+                     </p>
+                  )}
                </button>
             </div>
          )}
