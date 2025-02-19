@@ -28,6 +28,17 @@ export default function InfiniteScrollProductGrid({
    const [hasNextPage, setHasNextPage] = useState(initialPageInfo.hasNextPage);
    const [isLoading, setIsLoading] = useState(false);
 
+   function flattenImages(images: any): any[] {
+      if (!images) return [];
+      // If it's already an array, return as is.
+      if (Array.isArray(images)) return images;
+      // If it's an object with an `edges` array, map to nodes.
+      if (images.edges) {
+         return images.edges.map((edge: any) => edge.node);
+      }
+      return [];
+   }
+
    const loadMoreProducts = useCallback(async () => {
       if (!hasNextPage || isLoading) return;
       setIsLoading(true);
@@ -66,6 +77,7 @@ export default function InfiniteScrollProductGrid({
             setHasNextPage(false);
          } else {
             const newProducts = newEdges.map((edge: any) => edge.node);
+            console.log('NEW PRODUCTS!!!!!!!!!!!!', newProducts);
             setProducts((prev) => [...prev, ...newProducts]);
             const pageInfo = json.data.collection.products.pageInfo;
             setCursor(pageInfo.endCursor);

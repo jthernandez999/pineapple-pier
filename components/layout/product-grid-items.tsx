@@ -64,6 +64,17 @@ function ProductGridItemsComponent({ products, groupHandle }: ProductGridItemsPr
       fetchMetaobjects();
    }, [products]);
 
+   function flattenImages(images: any): any[] {
+      if (!images) return [];
+      // If already an array, return as is.
+      if (Array.isArray(images)) return images;
+      // If it's an object with an 'edges' array, map to nodes.
+      if (images.edges) {
+         return images.edges.map((edge: any) => edge.node);
+      }
+      return [];
+   }
+
    return (
       <>
          {metaobjectResults.length > 0 &&
@@ -71,6 +82,7 @@ function ProductGridItemsComponent({ products, groupHandle }: ProductGridItemsPr
                const nameField = metaobject.fields.find((f: any) => f.key === 'name');
                const groupTitleFromMeta = nameField ? nameField.value : groupKey;
                const groupProducts: Product[] = groupsMap[groupKey] || [];
+
                return (
                   <ProductGroupsDisplay
                      key={groupKey}
@@ -80,48 +92,50 @@ function ProductGridItemsComponent({ products, groupHandle }: ProductGridItemsPr
                );
             })}
          <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3">
-            {products.map((product) => (
-               <Grid.Item key={product.handle} className="animate-fadeIn">
-                  <Link
-                     href={`/product/${product.handle}`}
-                     prefetch={true}
-                     className="flex h-full w-full flex-col"
-                  >
-                     {/* Image container with fixed aspect ratio */}
-                     <div className="relative aspect-[2/3] w-full">
-                        <GridTileImage
-                           alt={product.title}
-                           src={product.featuredImage?.url}
-                           secondarySrc={product.images[1]?.url}
-                           fill
-                           sizes="(min-width: 768px) 33vw, (min-width: 640px) 50vw, 100vw"
-                           swatchMetaobjectId={getSwatchMetaobjectId(product)}
-                           swatchFallbackColor={product.options
-                              ?.find((o) => o.name.toLowerCase() === 'color')
-                              ?.values[0]?.toLowerCase()}
-                        />
-                     </div>
-                     {/* Label rendered below the image */}
-                     <div className="mt-2">
-                        <Label
-                           title={product.title}
-                           amount={product.priceRange.maxVariantPrice.amount}
-                           currencyCode={product.priceRange.maxVariantPrice.currencyCode}
-                           // Optionally pass color details if needed:
-                           colorName={
-                              product.options?.find((o) => o.name.toLowerCase() === 'color')
-                                 ?.values[0]
-                           }
-                           metaobjectId={getSwatchMetaobjectId(product)}
-                           fallbackColor={product.options
-                              ?.find((o) => o.name.toLowerCase() === 'color')
-                              ?.values[0]?.toLowerCase()}
-                           position="bottom"
-                        />
-                     </div>
-                  </Link>
-               </Grid.Item>
-            ))}
+            {products.map((product) => {
+               const flattenedImages = flattenImages(product.images);
+               return (
+                  <Grid.Item key={product.handle} className="animate-fadeIn">
+                     <Link
+                        href={`/product/${product.handle}`}
+                        prefetch={true}
+                        className="flex h-full w-full flex-col"
+                     >
+                        {/* Image container with fixed aspect ratio */}
+                        <div className="relative aspect-[2/3] w-full">
+                           <GridTileImage
+                              alt={product.title}
+                              src={product.featuredImage?.url}
+                              secondarySrc={flattenedImages[1]?.url || product.featuredImage?.url}
+                              fill
+                              sizes="(min-width: 768px) 33vw, (min-width: 640px) 50vw, 100vw"
+                              swatchMetaobjectId={getSwatchMetaobjectId(product)}
+                              swatchFallbackColor={product.options
+                                 ?.find((o) => o.name.toLowerCase() === 'color')
+                                 ?.values[0]?.toLowerCase()}
+                           />
+                        </div>
+                        {/* Label rendered below the image */}
+                        <div className="mt-2">
+                           <Label
+                              title={product.title}
+                              amount={product.priceRange.maxVariantPrice.amount}
+                              currencyCode={product.priceRange.maxVariantPrice.currencyCode}
+                              colorName={
+                                 product.options?.find((o) => o.name.toLowerCase() === 'color')
+                                    ?.values[0]
+                              }
+                              metaobjectId={getSwatchMetaobjectId(product)}
+                              fallbackColor={product.options
+                                 ?.find((o) => o.name.toLowerCase() === 'color')
+                                 ?.values[0]?.toLowerCase()}
+                              position="bottom"
+                           />
+                        </div>
+                     </Link>
+                  </Grid.Item>
+               );
+            })}
          </div>
       </>
    );
