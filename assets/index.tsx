@@ -3,7 +3,7 @@ export const banners = [
    {
       image: 'https://cdn.shopify.com/s/files/1/1024/2207/files/DSC_1702-2_2080.jpg?v=1739908611',
       mobileImage:
-         'https://cdn.shopify.com/s/files/1/1024/2207/files/DSC_1702-2_1080.jpg?v=1739908611',
+         'https://cdn.shopify.com/s/files/1/1024/2207/files/hero_mobile_banner.jpg?v=1739939932',
       title: 'Spring Refresh',
       description: 'SIMPLE, CHIC, EFFORTLESS',
       buttonText: 'Shop The Spring Collection',
