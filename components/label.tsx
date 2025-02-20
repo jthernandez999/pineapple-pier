@@ -22,6 +22,10 @@ const Label: React.FC<LabelProps> = ({
    fallbackColor = '#ccc',
    position = 'bottom'
 }) => {
+   const filteredTitle = colorName
+      ? title.replace(new RegExp(`\\b${colorName}\\b`, 'i'), '').trim()
+      : title;
+
    return (
       <div
          className={clsx('mt-2 w-full', {
@@ -31,7 +35,7 @@ const Label: React.FC<LabelProps> = ({
          <div className="rounded-md border bg-white/70 p-2 text-xs font-semibold text-black backdrop-blur-md dark:border-neutral-800 dark:bg-black/70 dark:text-white">
             {/* Title and Price in one row */}
             <div className="flex items-center justify-between">
-               <h3 className="leading-none tracking-tight">{title}</h3>
+               <h3 className="leading-none tracking-tight">{filteredTitle}</h3>
                <Price
                   className="rounded-sm p-2 text-black"
                   amount={amount}

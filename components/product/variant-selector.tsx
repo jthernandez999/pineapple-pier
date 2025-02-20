@@ -71,11 +71,11 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
 
    // Function to handle when an option is selected.
    const handleOptionSelect = (optionNameLowerCase: string, value: string) => {
-      console.log('Option selected:', optionNameLowerCase, value);
+      // console.log('Option selected:', optionNameLowerCase, value);
       startTransition(() => {
          let updates: Partial<ProductState> = { [optionNameLowerCase]: value };
          if (optionNameLowerCase === 'color') {
-            console.log('Color selected; resetting image to index 0');
+            // console.log('Color selected; resetting image to index 0');
             updates.image = '0'; // Reset image index when color changes.
          }
          const mergedState = updateProductState(updates);
