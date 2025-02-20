@@ -28,25 +28,25 @@ const Label: React.FC<LabelProps> = ({
 
    return (
       <div
-         className={clsx('mt-2 w-full', {
+         className={clsx('mt-0 w-full', {
             'lg:px-20 lg:pb-[35%]': position === 'center'
          })}
       >
-         <div className="rounded-md border bg-white/70 p-2 text-xs font-semibold text-black backdrop-blur-md dark:border-neutral-800 dark:bg-black/70 dark:text-white">
+         <div className="text-md mt-0 rounded-sm border bg-white/70 p-2 pt-0 font-semibold text-black backdrop-blur-md dark:border-neutral-800 dark:bg-black/70 dark:text-white">
             {/* Title and Price in one row */}
-            <div className="flex items-center justify-between">
-               <h3 className="leading-none tracking-tight">{filteredTitle}</h3>
+            <div className="mb-0 mt-0 flex items-center justify-between pb-0 pt-0 font-normal">
+               <h3 className="text-sm leading-none tracking-tight">{filteredTitle}</h3>
                <Price
-                  className="rounded-sm p-2 text-black"
+                  className="rounded-sm p-0 text-black"
                   amount={amount}
                   currencyCode={currencyCode}
                   currencyCodeClassName="hidden @[275px]/label:inline"
                />
             </div>
             {/* Selected Color Name */}
-            {colorName && <div className="mt-1 text-sm">{colorName}</div>}
+            {colorName && <div className="mb-2 mt-0 pt-0 text-xs font-normal">{colorName}</div>}
             {/* Color Swatch */}
-            <div className="mt-1">
+            <div className="mt-0">
                {metaobjectId ? (
                   <ColorSwatch metaobjectId={metaobjectId} fallbackColor={fallbackColor} />
                ) : (

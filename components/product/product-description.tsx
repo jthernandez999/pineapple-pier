@@ -7,7 +7,11 @@ import { ProductSpec } from './ProductSpec';
 import { VariantSelector } from './variant-selector';
 
 export function ProductDescription({ product }: { product: Product }) {
+   console.log('PRODUCT::::::::::::::::', product);
    const productSpec = product.options.filter((option) => option.name === 'Spec');
+   const filteredTitle = product.title
+      ? product.title.replace(new RegExp(`\\b${product.options[1]?.values[0]}\\b`, 'i'), '').trim()
+      : product.title;
 
    return (
       <>
@@ -15,7 +19,7 @@ export function ProductDescription({ product }: { product: Product }) {
             <div className="mx-8 mt-4 text-start text-sm text-black dark:text-white">
                <div className="flex flex-col items-start justify-start">
                   <h1 className="mb-4 flex justify-start text-start font-sans text-xl 2xl:text-3xl">
-                     {product.title}
+                     {filteredTitle}
                   </h1>
                   <div className="mr-auto w-auto pb-3 text-start text-lg text-black">
                      <Price
