@@ -7,7 +7,6 @@ import { ProductSpec } from './ProductSpec';
 import { VariantSelector } from './variant-selector';
 
 export function ProductDescription({ product }: { product: Product }) {
-   console.log('PRODUCT::::::::::::::::', product);
    const productSpec = product.options.filter((option) => option.name === 'Spec');
    const filteredTitle = product.title
       ? product.title.replace(new RegExp(`\\b${product.options[1]?.values[0]}\\b`, 'i'), '').trim()
