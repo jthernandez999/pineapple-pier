@@ -30,10 +30,8 @@ export async function doLogin(prevState: any) {
       loginUrl.searchParams.set('client_id', clientId);
       loginUrl.searchParams.append('response_type', 'code');
       loginUrl.searchParams.append('redirect_uri', `${origin}/authorize`);
-      loginUrl.searchParams.set(
-         'scope',
-         'openid email https://api.customers.com/auth/customer.graphql'
-      );
+      loginUrl.searchParams.set('scope', 'openid email customer-account-api:full');
+
       const verifier = await generateCodeVerifier();
       //const newVerifier = verifier.replace("+", '_').replace("-",'_').replace("/",'_').trim()
       const challenge = await generateCodeChallenge(verifier);
