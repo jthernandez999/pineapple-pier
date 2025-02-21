@@ -8,7 +8,7 @@ export default async function Login() {
    let isLoggedIn;
    //obviously just checking for the cookies without verifying the cookie itself is not ideal. However, the cookie is validated on the
    //account page, so a "fake" cookie does nothing, except show the UI and then it would be deleted when clicking on account
-   //so for now, just checking the cookie for the UI is sufficient. Alternatively, we can do a query here, or a custom JWT
+   //so for now, just checking the cookie for the UI is sufficient. Alternatively, we can do a query here, or a custom JWT.
    if (!customerToken && !refreshToken) {
       isLoggedIn = false;
    } else {
