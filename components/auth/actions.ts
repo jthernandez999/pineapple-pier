@@ -22,7 +22,7 @@ export async function doLogin(prevState: any) {
    const customerAccountApiUrl = SHOPIFY_CUSTOMER_ACCOUNT_API_URL;
    const clientId = SHOPIFY_CLIENT_ID;
    const origin = SHOPIFY_ORIGIN;
-   const loginUrl = new URL(`${customerAccountApiUrl}/auth/oauth/authorize`);
+   const loginUrl = new URL(`${customerAccountApiUrl}/oauth/authorize`);
    //console.log ("previous", prevState)
 
    try {
