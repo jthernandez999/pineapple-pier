@@ -174,7 +174,16 @@ export async function authorizeFn(request: NextRequest, origin: string) {
    if (!dataInitialToken.success) {
       console.error('Error: Access Denied. Check logs', dataInitialToken.message);
       newHeaders.set('x-shop-access', 'denied');
-      return NextResponse.next({ request: { headers: newHeaders } });
+      const response = NextResponse.next({ request: { headers: newHeaders } });
+      // Set the shop_access cookie to "denied" on error.
+      response.cookies.set('shop_access', 'denied', {
+         httpOnly: true,
+         sameSite: 'lax',
+         secure: true,
+         path: '/',
+         maxAge: 7200
+      });
+      return response;
    }
    const { access_token, expires_in, id_token, refresh_token } = dataInitialToken.data;
 
@@ -187,14 +196,29 @@ export async function authorizeFn(request: NextRequest, origin: string) {
    if (!customerAccessToken.success) {
       console.error('Error: Customer Access Token');
       newHeaders.set('x-shop-access', 'denied');
-      return NextResponse.next({ request: { headers: newHeaders } });
+      const response = NextResponse.next({ request: { headers: newHeaders } });
+      response.cookies.set('shop_access', 'denied', {
+         httpOnly: true,
+         sameSite: 'lax',
+         secure: true,
+         path: '/',
+         maxAge: 7200
+      });
+      return response;
    }
 
    newHeaders.set('x-shop-access', 'allowed');
    const accountUrl = new URL(`${origin}/account`);
    const authResponse = NextResponse.redirect(`${accountUrl}`);
+   // Set the shop_access cookie to "allowed" so that the client knows they're authorized.
+   authResponse.cookies.set('shop_access', 'allowed', {
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: true,
+      path: '/',
+      maxAge: 7200
+   });
    const expiresAt = new Date(new Date().getTime() + (expires_in! - 120) * 1000).getTime() + '';
-
    return await createAllCookies({
       response: authResponse,
       customerAccessToken: customerAccessToken.data.access_token,
