@@ -9,7 +9,7 @@ import { redirect } from 'next/navigation';
 export const runtime = 'edge';
 export default async function AccountPage() {
    const headersList = headers();
-   const access = headersList.get('x-shop-customer-token');
+   const access = (await headersList).get('x-shop-customer-token');
    if (!access) {
       console.log('ERROR: No access header account');
       //I'm not sure what's better here. Throw error or just log out??
