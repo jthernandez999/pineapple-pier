@@ -230,7 +230,7 @@ export async function authorizeFn(request: NextRequest, origin: string) {
       id_token
    });
 
-   // Ensure shop_access cookie is set in the final response.
+   // Explicitly set shop_access cookie on the final response:
    finalResponse.cookies.set('shop_access', 'allowed', {
       httpOnly: true,
       sameSite: 'lax',
@@ -238,7 +238,6 @@ export async function authorizeFn(request: NextRequest, origin: string) {
       path: '/',
       maxAge: 7200
    });
-
    return finalResponse;
 }
 
