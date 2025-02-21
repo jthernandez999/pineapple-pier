@@ -219,7 +219,9 @@ export async function authorizeFn(request: NextRequest, origin: string) {
       maxAge: 7200
    });
    const expiresAt = new Date(new Date().getTime() + (expires_in! - 120) * 1000).getTime() + '';
-   return await createAllCookies({
+
+   // Call createAllCookies to set your other cookies.
+   const finalResponse = await createAllCookies({
       response: authResponse,
       customerAccessToken: customerAccessToken.data.access_token,
       expires_in,
@@ -227,6 +229,17 @@ export async function authorizeFn(request: NextRequest, origin: string) {
       expiresAt,
       id_token
    });
+
+   // Ensure shop_access cookie is set in the final response.
+   finalResponse.cookies.set('shop_access', 'allowed', {
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: true,
+      path: '/',
+      maxAge: 7200
+   });
+
+   return finalResponse;
 }
 
 /**
