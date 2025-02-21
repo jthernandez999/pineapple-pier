@@ -1,3 +1,4 @@
+import Login from 'components/auth/login';
 import CartModal from 'components/cart/modal';
 import { getMenu } from 'lib/shopify';
 import { Menu, MenuItem } from 'lib/shopify/types';
@@ -7,7 +8,6 @@ import { Suspense } from 'react';
 import AnimatedLogo from '../../../components/animated-logo';
 import MobileMenu from './mobile-menu';
 import Search, { SearchSkeleton } from './search';
-
 const { SITE_NAME } = process.env;
 
 interface NavbarProps {
@@ -44,6 +44,9 @@ export async function Navbar() {
                   </Suspense>
                </div>
                <CartModalArea />
+               <Suspense fallback={<p>Login</p>}>
+                  <Login />
+               </Suspense>
             </div>
          </div>
       </nav>
