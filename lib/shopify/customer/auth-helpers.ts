@@ -200,7 +200,7 @@ export async function checkExpires({
       console.log('Isexpired is true, we are running refresh token!');
       const refresh = await refreshToken({ request, origin });
       console.log('refresh', refresh);
-      //this will return success: true or success: false - depending on result of refresh
+      //this will return success: true or success: false - depending on result of refresh.
       return { ranRefresh: isExpired, refresh };
    }
    console.log('is expired is false - just sending back success', isExpired);
