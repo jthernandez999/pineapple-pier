@@ -1,15 +1,21 @@
 import { getNonce } from 'lib/shopify/customer/auth-utils';
 import { cookies } from 'next/headers';
 import type { NextRequest, NextResponse as NextResponseType } from 'next/server';
-import { SHOPIFY_CUSTOMER_ACCOUNT_API_URL } from '../customer/constants';
-import { SHOPIFY_CLIENT_ID, SHOPIFY_USER_AGENT } from './constants';
+import {
+   SHOPIFY_CLIENT_ID,
+   SHOPIFY_CUSTOMER_ACCOUNT_API_URL,
+   SHOPIFY_USER_AGENT
+} from './constants';
+
 const customerAccountApiUrl = SHOPIFY_CUSTOMER_ACCOUNT_API_URL;
+
 export async function initialAccessToken(
    request: NextRequest,
    newOrigin: string,
    customerAccountApiUrl: string,
    clientId: string
 ) {
+   // Retrieve code and state from URL
    const code = request.nextUrl.searchParams.get('code');
    const state = request.nextUrl.searchParams.get('state');
 
@@ -22,6 +28,7 @@ export async function initialAccessToken(
       return { success: false, message: `No State` };
    }
 
+   // Validate state with cookie value
    const shopStateValue = request.cookies.get('shop_state')?.value;
    if (!shopStateValue) {
       console.log('Error: No Shop State Value');
@@ -32,13 +39,14 @@ export async function initialAccessToken(
       return { success: false, message: `No Shop State Mismatch` };
    }
 
+   // Get code verifier from cookies
    const codeVerifierValue = request.cookies.get('shop_verifier')?.value;
    if (!codeVerifierValue) {
       console.log('No Code Verifier');
       return { success: false, message: `No Code Verifier` };
    }
 
-   // Build the URL-encoded body for token exchange.
+   // Build URLSearchParams for token exchange
    const body = new URLSearchParams();
    body.append('grant_type', 'authorization_code');
    body.append('client_id', clientId);
@@ -46,17 +54,17 @@ export async function initialAccessToken(
    body.append('code', code);
    body.append('code_verifier', codeVerifierValue);
 
-   // For a public client, you wouldn't include an Authorization header.
-   // If you need one for a confidential client, update the value accordingly.
-   const headers = {
+   // For public clients, an Authorization header is not needed.
+   // Uncomment and update the following for confidential clients if required:
+   // headers: { 'Authorization': 'Basic <credentials>', ... }
+   const headersObj = {
       'content-type': 'application/x-www-form-urlencoded'
-      // 'Authorization': 'Basic <credentials>' // Uncomment if needed.
    };
 
    const tokenRequestUrl = `${customerAccountApiUrl}/oauth/token`;
    const response = await fetch(tokenRequestUrl, {
       method: 'POST',
-      headers,
+      headers: headersObj,
       body
    });
 
@@ -73,7 +81,7 @@ export async function initialAccessToken(
       return { success: false, message: `${errorMessage}` };
    }
 
-   // Validate nonce from the id_token.
+   // Validate nonce from the id_token against the shop_nonce cookie
    const nonce = await getNonce(data?.id_token || '');
    const shopNonceValue = request.cookies.get('shop_nonce')?.value;
    console.log('sent nonce', nonce);
@@ -91,7 +99,6 @@ export async function exchangeAccessToken(
    customerAccountApiUrl: string,
    origin: string
 ) {
-   // Use the clientId as passed (or adjust if needed)
    const customerApiClientId = SHOPIFY_CLIENT_ID;
    const body = new URLSearchParams();
    body.append('grant_type', 'urn:ietf:params:oauth:grant-type:token-exchange');
@@ -240,7 +247,7 @@ export async function createAllCookies({
       sameSite: 'lax',
       secure: true,
       path: '/',
-      maxAge: 604800
+      maxAge: 604800 // one week
    });
    response.cookies.set('shop_expires_at', expiresAt, {
       httpOnly: true,
