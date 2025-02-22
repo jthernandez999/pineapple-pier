@@ -57,7 +57,7 @@ export async function initialAccessToken(
    headersNew.append('Content-Type', 'application/x-www-form-urlencoded');
    headersNew.append('User-Agent', userAgent);
    headersNew.append('Origin', newOrigin || '');
-   const tokenRequestUrl = `${customerAccountApiUrl}/auth/oauth/token`;
+   const tokenRequestUrl = `${customerAccountApiUrl}/oauth/token`;
    const response = await fetch(tokenRequestUrl, {
       method: 'POST',
       headers: headersNew,
