@@ -95,7 +95,7 @@ export async function exchangeAccessToken(
 ) {
    const clientId = customerAccountId;
    //this is a constant - see the docs. https://shopify.dev/docs/api/customer#useaccesstoken-propertydetail-audience
-   const customerApiClientId = '30243aa5-17c1-465a-8493-944bcc4e88aa';
+   const customerApiClientId = SHOPIFY_CLIENT_ID;
    const accessToken = token;
    const body = new URLSearchParams();
    body.append('grant_type', 'urn:ietf:params:oauth:grant-type:token-exchange');
