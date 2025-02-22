@@ -236,8 +236,8 @@ export async function authorizeFn(request: NextRequest, origin: string) {
       sameSite: 'lax',
       secure: true,
       path: '/',
-      maxAge: 7200,
-      domain: '.dearjohndenim.co'
+      maxAge: 7200
+      //   domain: '.dearjohndenim.co'
    });
    return finalResponse;
 }
