@@ -175,13 +175,13 @@ export async function authorizeFn(request: NextRequest, origin: string) {
       console.error('Error: Access Denied. Check logs', dataInitialToken.message);
       newHeaders.set('x-shop-access', 'denied');
       const response = NextResponse.next({ request: { headers: newHeaders } });
-      // Set the shop_access cookie to "denied" on error.
       response.cookies.set('shop_access', 'denied', {
          httpOnly: true,
          sameSite: 'lax',
          secure: true,
          path: '/',
-         maxAge: 7200
+         maxAge: 7200,
+         domain: '.dearjohndenim.co'
       });
       return response;
    }
@@ -202,7 +202,8 @@ export async function authorizeFn(request: NextRequest, origin: string) {
          sameSite: 'lax',
          secure: true,
          path: '/',
-         maxAge: 7200
+         maxAge: 7200,
+         domain: '.dearjohndenim.co'
       });
       return response;
    }
@@ -210,17 +211,16 @@ export async function authorizeFn(request: NextRequest, origin: string) {
    newHeaders.set('x-shop-access', 'allowed');
    const accountUrl = new URL(`${origin}/account`);
    const authResponse = NextResponse.redirect(`${accountUrl}`);
-   // Set the shop_access cookie to "allowed" so that the client knows they're authorized.
    authResponse.cookies.set('shop_access', 'allowed', {
       httpOnly: true,
       sameSite: 'lax',
       secure: true,
       path: '/',
-      maxAge: 7200
+      maxAge: 7200,
+      domain: '.dearjohndenim.co'
    });
    const expiresAt = new Date(new Date().getTime() + (expires_in! - 120) * 1000).getTime() + '';
 
-   // Call createAllCookies to set your other cookies.
    const finalResponse = await createAllCookies({
       response: authResponse,
       customerAccessToken: customerAccessToken.data.access_token,
@@ -230,13 +230,14 @@ export async function authorizeFn(request: NextRequest, origin: string) {
       id_token
    });
 
-   // Explicitly set shop_access cookie on the final response:
+   // Re-set shop_access cookie explicitly on the final response.
    finalResponse.cookies.set('shop_access', 'allowed', {
       httpOnly: true,
       sameSite: 'lax',
       secure: true,
       path: '/',
-      maxAge: 7200
+      maxAge: 7200,
+      domain: '.dearjohndenim.co'
    });
    return finalResponse;
 }
