@@ -7,15 +7,14 @@ import {
    SHOPIFY_USER_AGENT
 } from './constants';
 
-const customerAccountApiUrl = SHOPIFY_CUSTOMER_ACCOUNT_API_URL;
-
 export async function initialAccessToken(
    request: NextRequest,
    newOrigin: string,
-   customerAccountApiUrl: string,
+   //    customerAccountApiUrl: string,
    clientId: string
 ) {
    // Retrieve code and state from URL
+   const customerAccountApiUrl = SHOPIFY_CUSTOMER_ACCOUNT_API_URL;
    const code = request.nextUrl.searchParams.get('code');
    const state = request.nextUrl.searchParams.get('state');
 
@@ -133,6 +132,7 @@ export async function refreshToken({ request, origin }: { request: NextRequest; 
       console.log('Error: No Refresh Token');
       return { success: false, message: `no_refresh_token` };
    }
+   const customerAccountApiUrl = SHOPIFY_CUSTOMER_ACCOUNT_API_URL;
    const clientId = SHOPIFY_CLIENT_ID;
    const userAgent = SHOPIFY_USER_AGENT;
    newBody.append('grant_type', 'refresh_token');
