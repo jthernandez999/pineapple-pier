@@ -16,9 +16,7 @@ export async function initialAccessToken(
 ) {
    const code = request.nextUrl.searchParams.get('code');
    const state = request.nextUrl.searchParams.get('state');
-   /*
-  STEP 1: Check for all necessary cookies and other information
-  */
+
    if (!code) {
       console.log('Error: No Code Auth');
       return { success: false, message: `No Code` };
@@ -27,8 +25,8 @@ export async function initialAccessToken(
       console.log('Error: No State Auth');
       return { success: false, message: `No State` };
    }
-   const shopState = request.cookies.get('shop_state');
-   const shopStateValue = shopState?.value;
+
+   const shopStateValue = request.cookies.get('shop_state')?.value;
    if (!shopStateValue) {
       console.log('Error: No Shop State Value');
       return { success: false, message: `No Shop State` };
@@ -37,26 +35,26 @@ export async function initialAccessToken(
       console.log('Error: Shop state mismatch');
       return { success: false, message: `No Shop State Mismatch` };
    }
-   const codeVerifier = request.cookies.get('shop_verifier');
-   const codeVerifierValue = codeVerifier?.value;
+
+   const codeVerifierValue = request.cookies.get('shop_verifier')?.value;
    if (!codeVerifierValue) {
       console.log('No Code Verifier');
       return { success: false, message: `No Code Verifier` };
    }
-   /*
-  STEP 2: GET ACCESS TOKEN
-  */
+
    const body = new URLSearchParams();
    body.append('grant_type', 'authorization_code');
    body.append('client_id', clientId);
    body.append('redirect_uri', `${newOrigin}/authorize`);
    body.append('code', code);
-   body.append('code_verifier', codeVerifier?.value);
+   body.append('code_verifier', codeVerifierValue);
+
    const userAgent = '*';
    const headersNew = new Headers();
    headersNew.append('Content-Type', 'application/x-www-form-urlencoded');
    headersNew.append('User-Agent', userAgent);
    headersNew.append('Origin', newOrigin || '');
+
    const tokenRequestUrl = `${customerAccountApiUrl}/oauth/token`;
    const response = await fetch(tokenRequestUrl, {
       method: 'POST',
@@ -74,18 +72,96 @@ export async function initialAccessToken(
       const errorMessage = data?.errors?.[0]?.message ?? 'Unknown error auth';
       return { success: false, message: `${errorMessage}` };
    }
+
    const nonce = await getNonce(data?.id_token || '');
-   const shopNonce = request.cookies.get('shop_nonce');
-   const shopNonceValue = shopNonce?.value;
+   const shopNonceValue = request.cookies.get('shop_nonce')?.value;
    console.log('sent nonce', nonce);
    console.log('original nonce', shopNonceValue);
    if (nonce !== shopNonceValue) {
-      //make equal === to force error for testing
-      console.log('Error nonce match');
+      console.log('Error: Nonce mismatch');
       return { success: false, message: `Error: Nonce mismatch` };
    }
    return { success: true, data };
 }
+
+// export async function initialAccessToken(
+//    request: NextRequest,
+//    newOrigin: string,
+//    customerAccountApiUrl: string,
+//    clientId: string
+// ) {
+//    const code = request.nextUrl.searchParams.get('code');
+//    const state = request.nextUrl.searchParams.get('state');
+//    /*
+//   STEP 1: Check for all necessary cookies and other information
+//   */
+//    if (!code) {
+//       console.log('Error: No Code Auth');
+//       return { success: false, message: `No Code` };
+//    }
+//    if (!state) {
+//       console.log('Error: No State Auth');
+//       return { success: false, message: `No State` };
+//    }
+//    const shopState = request.cookies.get('shop_state');
+//    const shopStateValue = shopState?.value;
+//    if (!shopStateValue) {
+//       console.log('Error: No Shop State Value');
+//       return { success: false, message: `No Shop State` };
+//    }
+//    if (state !== shopStateValue) {
+//       console.log('Error: Shop state mismatch');
+//       return { success: false, message: `No Shop State Mismatch` };
+//    }
+//    const codeVerifier = request.cookies.get('shop_verifier');
+//    const codeVerifierValue = codeVerifier?.value;
+//    if (!codeVerifierValue) {
+//       console.log('No Code Verifier');
+//       return { success: false, message: `No Code Verifier` };
+//    }
+//    /*
+//   STEP 2: GET ACCESS TOKEN
+//   */
+//    const body = new URLSearchParams();
+//    body.append('grant_type', 'authorization_code');
+//    body.append('client_id', clientId);
+//    body.append('redirect_uri', `${newOrigin}/authorize`);
+//    body.append('code', code);
+//    body.append('code_verifier', codeVerifier?.value);
+//    const userAgent = '*';
+//    const headersNew = new Headers();
+//    headersNew.append('Content-Type', 'application/x-www-form-urlencoded');
+//    headersNew.append('User-Agent', userAgent);
+//    headersNew.append('Origin', newOrigin || '');
+//    const tokenRequestUrl = `${customerAccountApiUrl}/oauth/token`;
+//    const response = await fetch(tokenRequestUrl, {
+//       method: 'POST',
+//       headers: headersNew,
+//       body
+//    });
+//    const data = await response.json();
+//    console.log('data initial access token', data);
+//    if (!response.ok) {
+//       console.log('data response error auth', data.error);
+//       console.log('response auth', response.status);
+//       return { success: false, message: `Response error auth` };
+//    }
+//    if (data?.errors) {
+//       const errorMessage = data?.errors?.[0]?.message ?? 'Unknown error auth';
+//       return { success: false, message: `${errorMessage}` };
+//    }
+//    const nonce = await getNonce(data?.id_token || '');
+//    const shopNonce = request.cookies.get('shop_nonce');
+//    const shopNonceValue = shopNonce?.value;
+//    console.log('sent nonce', nonce);
+//    console.log('original nonce', shopNonceValue);
+//    if (nonce !== shopNonceValue) {
+//       //make equal === to force error for testing
+//       console.log('Error nonce match');
+//       return { success: false, message: `Error: Nonce mismatch` };
+//    }
+//    return { success: true, data };
+// }
 
 export async function exchangeAccessToken(
    token: string,
