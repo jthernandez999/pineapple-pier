@@ -194,7 +194,7 @@ export async function authorizeFn(request: NextRequest, origin: string) {
    const clientId = SHOPIFY_CLIENT_ID;
    const newHeaders = new Headers(request.headers);
 
-   // Step 1: Get tokens using the initial access token flow.
+   // Step 1: Get tokens using the initial access token flow..
    const dataInitialToken = await initialAccessToken(
       request,
       origin,
