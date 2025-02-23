@@ -166,7 +166,7 @@ export async function exchangeAccessToken(
    origin: string
 ) {
    const clientId = customerAccountId;
-   //this is a constant - see the docs. https://shopify.dev/docs/api/customer#useaccesstoken-propertydetail-audience
+   // this constant should match the expected audience for the Customer Account API
    const customerApiClientId = '30243aa5-17c1-465a-8493-944bcc4e88aa';
    const accessToken = token;
    const body = new URLSearchParams();
@@ -184,7 +184,6 @@ export async function exchangeAccessToken(
    headers.append('User-Agent', userAgent);
    headers.append('Origin', origin);
 
-   // Token Endpoint goes here
    const response = await fetch(`${customerAccountApiUrl}/oauth/token`, {
       method: 'POST',
       headers,
@@ -197,6 +196,45 @@ export async function exchangeAccessToken(
    }
    return { success: true, data };
 }
+
+// export async function exchangeAccessToken(
+//    token: string,
+//    customerAccountId: string,
+//    customerAccountApiUrl: string,
+//    origin: string
+// ) {
+//    const clientId = customerAccountId;
+//    //this is a constant - see the docs. https://shopify.dev/docs/api/customer#useaccesstoken-propertydetail-audience
+//    const customerApiClientId = '30243aa5-17c1-465a-8493-944bcc4e88aa';
+//    const accessToken = token;
+//    const body = new URLSearchParams();
+//    body.append('grant_type', 'urn:ietf:params:oauth:grant-type:token-exchange');
+//    body.append('client_id', clientId);
+//    body.append('audience', customerApiClientId);
+//    body.append('subject_token', accessToken);
+//    body.append('subject_token_type', 'urn:ietf:params:oauth:token-type:access_token');
+//    body.append('scopes', 'https://api.customers.com/auth/customer.graphql');
+
+//    const userAgent = '*';
+
+//    const headers = new Headers();
+//    headers.append('Content-Type', 'application/x-www-form-urlencoded');
+//    headers.append('User-Agent', userAgent);
+//    headers.append('Origin', origin);
+
+//    // Token Endpoint goes here
+//    const response = await fetch(`${customerAccountApiUrl}/oauth/token`, {
+//       method: 'POST',
+//       headers,
+//       body
+//    });
+
+//    const data = await response.json();
+//    if (data.error) {
+//       return { success: false, data: data?.error_description };
+//    }
+//    return { success: true, data };
+// }
 
 export async function refreshToken({ request, origin }: { request: NextRequest; origin: string }) {
    // Retrieve the refresh token from cookies.
