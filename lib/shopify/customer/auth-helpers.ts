@@ -1,4 +1,4 @@
-//you need to remain this as type so as not to confuse with the actual function
+//you need to remain this as type so as not to confuse with the actual function.
 import { getNonce } from 'lib/shopify/customer/auth-utils';
 import { cookies } from 'next/headers';
 import type { NextRequest, NextResponse as NextResponseType } from 'next/server';
