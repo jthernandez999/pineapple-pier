@@ -12,7 +12,7 @@ export const runtime = 'edge';
 export default async function AccountPage() {
    // Retrieve headers from the request
    const headersList = headers();
-   const access = headersList.get('x-shop-customer-token');
+   const access = (await headersList).get('x-shop-customer-token');
 
    if (!access) {
       console.error('ERROR: No access header on Account page');
