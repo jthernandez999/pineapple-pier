@@ -1,16 +1,26 @@
 import { AccountOrdersHistory } from 'components/account/account-orders-history';
 import { AccountProfile } from 'components/account/account-profile';
-import { TAGS } from 'lib/shopify/customer/constants';
+import {
+   SHOPIFY_CUSTOMER_API_VERSION,
+   SHOPIFY_USER_AGENT,
+   TAGS
+} from 'lib/shopify/customer/constants';
 import { shopifyCustomerFetch } from 'lib/shopify/customer/index';
 import { CUSTOMER_DETAILS_QUERY } from 'lib/shopify/customer/queries/customer';
 import { CustomerDetailsData } from 'lib/shopify/customer/types';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
-
 export const runtime = 'edge';
 
 export default async function AccountPage() {
    // Retrieve headers from the request
+
+   // Use your shop id directly (not via the authentication URL)
+   const shopId = '10242207'; // Replace with your actual shop id
+   const apiVersion = SHOPIFY_CUSTOMER_API_VERSION;
+   const userAgent = SHOPIFY_USER_AGENT;
+   // Build the endpoint as per documentation:
+   const customerEndpoint = `https://shopify.com/${shopId}/account/customer/api/${apiVersion}/graphql`;
    const headersList = headers();
    const access = (await headersList).get('x-shop-customer-token');
 
