@@ -167,7 +167,8 @@ export async function exchangeAccessToken(
 ) {
    const clientId = customerAccountId;
    // this constant should match the expected audience for the Customer Account API
-   const customerApiClientId = SHOPIFY_CLIENT_ID;
+   const customerApiClientId = '30243aa5-17c1-465a-8493-944bcc4e88aa';
+   // const customerApiClientId = SHOPIFY_CLIENT_ID;
    const accessToken = token;
    const body = new URLSearchParams();
    body.append('grant_type', 'urn:ietf:params:oauth:grant-type:token-exchange');
@@ -255,8 +256,10 @@ export async function refreshToken({ request, origin }: { request: NextRequest; 
    // For public clients, the Authorization header is not needed.
    // If you're a confidential client, uncomment and update the following:
    // headers['Authorization'] = 'Basic <credentials>';
+
    const headers = {
       'content-type': 'application/x-www-form-urlencoded'
+      // 'Authorization': 'Basic <credentials>'
    };
 
    const tokenRequestUrl = `${SHOPIFY_CUSTOMER_ACCOUNT_API_URL}/oauth/token`;
