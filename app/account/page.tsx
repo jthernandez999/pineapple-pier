@@ -1,6 +1,6 @@
 import { AccountOrdersHistory } from 'components/account/account-orders-history';
 import { AccountProfile } from 'components/account/account-profile';
-import { TAGS } from 'lib/shopify/customer/constants';
+import { SHOPIFY_CUSTOMER_API_VERSION, TAGS } from 'lib/shopify/customer/constants';
 import { shopifyCustomerFetch } from 'lib/shopify/customer/index';
 import { CUSTOMER_DETAILS_QUERY } from 'lib/shopify/customer/queries/customer';
 import { CustomerDetailsData } from 'lib/shopify/customer/types';
@@ -9,17 +9,22 @@ import { redirect } from 'next/navigation';
 
 export const runtime = 'edge';
 
+// Use your shop's actual domain for the GraphQL endpoint.
+const SHOP_DOMAIN = 'dearjohndenim.myshopify.com';
+const apiVersion = SHOPIFY_CUSTOMER_API_VERSION;
+const customerEndpoint = `https://${SHOP_DOMAIN}/account/customer/api/${apiVersion}/graphql`;
+
 export default async function AccountPage() {
-   // Retrieve the token from request headers.
+   // Retrieve headers from the incoming request.
    const headersList = headers();
-   const access = (await headersList).get('x-shop-customer-token');
+   const access = headersList.get('x-shop-customer-token');
 
    if (!access || access === 'denied') {
       console.error('ERROR: No valid access header on Account page');
       redirect('/logout');
    }
 
-   // Prepend "Bearer " for the Authorization header.
+   // Prepend "Bearer " so that the Authorization header is correct.
    const customerAccessToken = `Bearer ${access}`;
 
    let customerData;
@@ -28,7 +33,7 @@ export default async function AccountPage() {
    let errorMessage: string | undefined;
 
    try {
-      // Call the Shopify Customer GraphQL API using our new shopifyCustomerFetch function.
+      // Call the Shopify Customer GraphQL API using shopifyCustomerFetch.
       const responseCustomerDetails = await shopifyCustomerFetch<CustomerDetailsData>({
          customerToken: customerAccessToken,
          cache: 'no-store',
