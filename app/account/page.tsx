@@ -17,7 +17,7 @@ const customerEndpoint = `https://${SHOP_DOMAIN}/account/customer/api/${apiVersi
 export default async function AccountPage() {
    // Retrieve headers from the incoming request.
    const headersList = headers();
-   const access = headersList.get('x-shop-customer-token');
+   const access = (await headersList).get('x-shop-customer-token');
 
    if (!access || access === 'denied') {
       console.error('ERROR: No valid access header on Account page');
