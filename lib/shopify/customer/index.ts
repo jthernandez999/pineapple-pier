@@ -161,22 +161,28 @@ export function getOrigin(request: NextRequest) {
 /**
  * Authorizes a customer by exchanging tokens and setting cookies.
  */
+import { serialize } from 'cookie';
+
 export async function authorizeFn(request: NextRequest, origin: string) {
+   const clientId = SHOPIFY_CLIENT_ID;
    const newHeaders = new Headers(request.headers);
 
-   const dataInitialToken = await initialAccessToken(request, origin, customerAccountApiUrl);
+   const dataInitialToken = await initialAccessToken(
+      request,
+      origin,
+      SHOPIFY_CUSTOMER_ACCOUNT_API_URL,
+      clientId
+   );
    if (!dataInitialToken.success) {
       console.error('Error: Access Denied. Check logs', dataInitialToken.message);
       newHeaders.set('x-shop-access', 'denied');
       const response = NextResponse.next({ request: { headers: newHeaders } });
-      // Set the shop_access cookie to "denied" on error.
       response.cookies.set('shop_access', 'denied', {
          httpOnly: true,
          sameSite: 'lax',
          secure: true,
          path: '/',
          maxAge: 7200
-         // Removed domain option for testing
       });
       return response;
    }
@@ -185,7 +191,7 @@ export async function authorizeFn(request: NextRequest, origin: string) {
    const customerAccessToken = await exchangeAccessToken(
       access_token,
       clientId,
-      customerAccountApiUrl,
+      SHOPIFY_CUSTOMER_ACCOUNT_API_URL,
       origin || ''
    );
    if (!customerAccessToken.success) {
@@ -204,8 +210,15 @@ export async function authorizeFn(request: NextRequest, origin: string) {
 
    newHeaders.set('x-shop-access', 'allowed');
    const accountUrl = new URL(`${origin}/account`);
-   const authResponse = NextResponse.redirect(accountUrl);
-   // Set the shop_access cookie to "allowed" so the browser receives it.
+   // Instead of NextResponse.redirect, create a new response manually:
+   const authResponse = new NextResponse(null, {
+      status: 302,
+      headers: {
+         Location: accountUrl.toString()
+      }
+   });
+
+   // Use the NextResponse cookie API...
    authResponse.cookies.set('shop_access', 'allowed', {
       httpOnly: true,
       sameSite: 'lax',
@@ -213,6 +226,7 @@ export async function authorizeFn(request: NextRequest, origin: string) {
       path: '/',
       maxAge: 7200
    });
+
    const expiresAt = new Date(Date.now() + (expires_in! - 120) * 1000).getTime() + '';
 
    const finalResponse = await createAllCookies({
@@ -223,7 +237,7 @@ export async function authorizeFn(request: NextRequest, origin: string) {
       expiresAt,
       id_token
    });
-   // Re-set shop_access cookie on the final response.
+   // Re-set shop_access cookie via API
    finalResponse.cookies.set('shop_access', 'allowed', {
       httpOnly: true,
       sameSite: 'lax',
@@ -232,8 +246,19 @@ export async function authorizeFn(request: NextRequest, origin: string) {
       maxAge: 7200
    });
 
-   // Log the headers before returning
+   // Manually append a Set-Cookie header:
+   const cookieHeader = serialize('shop_access', 'allowed', {
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: true,
+      path: '/',
+      maxAge: 7200
+   });
+   finalResponse.headers.append('Set-Cookie', cookieHeader);
+
+   // Log headers for debugging
    console.log('Final response headers:', [...finalResponse.headers.entries()]);
+
    return finalResponse;
 }
 
