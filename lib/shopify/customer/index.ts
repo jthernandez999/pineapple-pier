@@ -231,6 +231,9 @@ export async function authorizeFn(request: NextRequest, origin: string) {
       path: '/',
       maxAge: 7200
    });
+
+   // Log the headers before returning
+   console.log('Final response headers:', [...finalResponse.headers.entries()]);
    return finalResponse;
 }
 
