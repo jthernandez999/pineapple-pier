@@ -9,7 +9,7 @@ import { redirect } from 'next/navigation';
 
 export const runtime = 'edge';
 
-// Use your shop's actual domain for the GraphQL endpoint.
+// Use your shop's actual domain for the GraphQL endpoint..
 const SHOP_DOMAIN = 'dearjohndenim.myshopify.com';
 const apiVersion = SHOPIFY_CUSTOMER_API_VERSION;
 const customerEndpoint = `https://${SHOP_DOMAIN}/account/customer/api/${apiVersion}/graphql`;
