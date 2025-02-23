@@ -6,7 +6,6 @@ import { isShopifyError } from 'lib/type-guards';
 import {
    checkExpires,
    createAllCookies,
-   exchangeAccessToken,
    initialAccessToken,
    removeAllCookies
 } from './auth-helpers';
@@ -194,75 +193,135 @@ export function getOrigin(request: NextRequest) {
 export async function authorizeFn(request: NextRequest, origin: string) {
    const clientId = SHOPIFY_CLIENT_ID;
    const newHeaders = new Headers(request.headers);
-   /***
-  STEP 1: Get the initial access token or deny access
-  ****/
+
+   // Step 1: Get tokens using the initial access token flow.
    const dataInitialToken = await initialAccessToken(
       request,
       origin,
-      customerAccountApiUrl,
+      SHOPIFY_CUSTOMER_ACCOUNT_API_URL,
       clientId
    );
    if (!dataInitialToken.success) {
-      console.log('Error: Access Denied. Check logs', dataInitialToken.message);
+      console.error('Error: Access Denied. Check logs', dataInitialToken.message);
       newHeaders.set('x-shop-access', 'denied');
       return NextResponse.next({
-         request: {
-            // New request headers
-            headers: newHeaders
-         }
+         request: { headers: newHeaders }
       });
    }
+   // Use tokens directly from the initial token response.
    const { access_token, expires_in, id_token, refresh_token } = dataInitialToken.data;
-   /***
-  STEP 2: Get a Customer Access Token
-  ****/
-   const customerAccessToken = await exchangeAccessToken(
-      access_token,
-      clientId,
-      customerAccountApiUrl,
-      origin || ''
-   );
-   if (!customerAccessToken.success) {
-      console.log('Error: Customer Access Token');
-      newHeaders.set('x-shop-access', 'denied');
-      return NextResponse.next({
-         request: {
-            // New request headers
-            headers: newHeaders
-         }
-      });
-   }
-   //console.log("customer access Token", customerAccessToken.data.access_token)
-   /**STEP 3: Set Customer Access Token cookies 
-  We are setting the cookies here b/c if we set it on the request, and then redirect
-  it doesn't see to set sometimes
-  **/
+
+   // Mark access as allowed.
    newHeaders.set('x-shop-access', 'allowed');
-   /*
-  const authResponse = NextResponse.next({
-    request: {
-      // New request headers
-      headers: newHeaders,
-    },
-  })
-  */
    const accountUrl = new URL(`${origin}/account`);
-   const authResponse = NextResponse.redirect(`${accountUrl}`);
+   const authResponse = NextResponse.redirect(accountUrl);
 
-   //sets an expires time 2 minutes before expiration which we can use in refresh strategy
-   //const test_expires_in = 180 //to test to see if it expires in 60 seconds!
-   const expiresAt = new Date(new Date().getTime() + (expires_in! - 120) * 1000).getTime() + '';
+   // Set the shop_access cookie to "allowed".
+   authResponse.cookies.set('shop_access', 'allowed', {
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: true,
+      path: '/',
+      maxAge: 7200
+   });
 
-   return await createAllCookies({
+   // Compute an expiresAt value (2 minutes before token expiry)
+   const expiresAt = new Date(Date.now() + (expires_in! - 120) * 1000).getTime() + '';
+
+   // Set remaining session cookies.
+   const finalResponse = await createAllCookies({
       response: authResponse,
-      customerAccessToken: customerAccessToken?.data?.access_token,
+      customerAccessToken: access_token,
       expires_in,
       refresh_token,
       expiresAt,
       id_token
    });
+
+   // Ensure shop_access cookie is present on the final response.
+   finalResponse.cookies.set('shop_access', 'allowed', {
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: true,
+      path: '/',
+      maxAge: 7200
+   });
+
+   return finalResponse;
 }
+
+// export async function authorizeFn(request: NextRequest, origin: string) {
+//    const clientId = SHOPIFY_CLIENT_ID;
+//    const newHeaders = new Headers(request.headers);
+//    /***
+//   STEP 1: Get the initial access token or deny access
+//   ****/
+//    const dataInitialToken = await initialAccessToken(
+//       request,
+//       origin,
+//       customerAccountApiUrl,
+//       clientId
+//    );
+//    if (!dataInitialToken.success) {
+//       console.log('Error: Access Denied. Check logs', dataInitialToken.message);
+//       newHeaders.set('x-shop-access', 'denied');
+//       return NextResponse.next({
+//          request: {
+//             // New request headers
+//             headers: newHeaders
+//          }
+//       });
+//    }
+//    const { access_token, expires_in, id_token, refresh_token } = dataInitialToken.data;
+//    /***
+//   STEP 2: Get a Customer Access Token
+//   ****/
+//    const customerAccessToken = await exchangeAccessToken(
+//       access_token,
+//       clientId,
+//       customerAccountApiUrl,
+//       origin || ''
+//    );
+//    if (!customerAccessToken.success) {
+//       console.log('Error: Customer Access Token');
+//       newHeaders.set('x-shop-access', 'denied');
+//       return NextResponse.next({
+//          request: {
+//             // New request headers
+//             headers: newHeaders
+//          }
+//       });
+//    }
+//    //console.log("customer access Token", customerAccessToken.data.access_token)
+//    /**STEP 3: Set Customer Access Token cookies
+//   We are setting the cookies here b/c if we set it on the request, and then redirect
+//   it doesn't see to set sometimes
+//   **/
+//    newHeaders.set('x-shop-access', 'allowed');
+//    /*
+//   const authResponse = NextResponse.next({
+//     request: {
+//       // New request headers
+//       headers: newHeaders,
+//     },
+//   })
+//   */
+//    const accountUrl = new URL(`${origin}/account`);
+//    const authResponse = NextResponse.redirect(`${accountUrl}`);
+
+//    //sets an expires time 2 minutes before expiration which we can use in refresh strategy
+//    //const test_expires_in = 180 //to test to see if it expires in 60 seconds!
+//    const expiresAt = new Date(new Date().getTime() + (expires_in! - 120) * 1000).getTime() + '';
+
+//    return await createAllCookies({
+//       response: authResponse,
+//       customerAccessToken: customerAccessToken?.data?.access_token,
+//       expires_in,
+//       refresh_token,
+//       expiresAt,
+//       id_token
+//    });
+// }
 
 export async function logoutFn(request: NextRequest, origin: string) {
    //console.log("New Origin", newOrigin)
