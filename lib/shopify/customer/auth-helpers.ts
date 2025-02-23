@@ -57,7 +57,7 @@ export async function initialAccessToken(
    headersNew.append('Content-Type', 'application/x-www-form-urlencoded');
    headersNew.append('User-Agent', userAgent);
    headersNew.append('Origin', newOrigin || '');
-   const tokenRequestUrl = `${customerAccountApiUrl}/auth/oauth/token`;
+   const tokenRequestUrl = `${customerAccountApiUrl}/oauth/token`;
    const response = await fetch(tokenRequestUrl, {
       method: 'POST',
       headers: headersNew,
@@ -113,7 +113,7 @@ export async function exchangeAccessToken(
    headers.append('Origin', origin);
 
    // Token Endpoint goes here
-   const response = await fetch(`${customerAccountApiUrl}/auth/oauth/token`, {
+   const response = await fetch(`${customerAccountApiUrl}/oauth/token`, {
       method: 'POST',
       headers,
       body
@@ -145,7 +145,7 @@ export async function refreshToken({ request, origin }: { request: NextRequest; 
       'User-Agent': userAgent,
       Origin: origin
    };
-   const tokenRequestUrl = `${customerAccountApiUrl}/auth/oauth/token`;
+   const tokenRequestUrl = `${customerAccountApiUrl}/oauth/token`;
    const response = await fetch(tokenRequestUrl, {
       method: 'POST',
       headers,
