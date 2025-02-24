@@ -8,7 +8,7 @@ import { doLogout } from './actions';
 function SubmitButton(props: any) {
    const { pending } = useFormStatus();
    const buttonClasses =
-      'relative flex w-full items-center justify-center rounded-full bg-blue-600 p-4 tracking-wide text-white';
+      'relative flex w-full items-center justify-center  p-4 tracking-wide text-black';
    return (
       <>
          <button

@@ -370,7 +370,7 @@ export async function checkExpires({
    let isExpired = false;
    if (parseInt(expiresAt, 10) - 1000 < new Date().getTime()) {
       isExpired = true;
-      console.log('Isexpired is true, we are running refresh token!');
+      console.log('Is expired is true, we are running refresh token!');
       const refresh = await refreshToken({ request, origin });
       console.log('refresh', refresh);
       //this will return success: true or success: false - depending on result of refresh
