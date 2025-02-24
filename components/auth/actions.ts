@@ -12,12 +12,12 @@ import {
    generateCodeVerifier,
    generateRandomString
 } from 'lib/shopify/customer/auth-utils';
-import { SHOPIFY_CLIENT_ID, SHOPIFY_ORIGIN } from 'lib/shopify/customer/constants';
+import { SHOPIFY_CLIENT_ID } from 'lib/shopify/customer/constants';
 
 export async function doLogin(prevState: any) {
    const customerAccountApiUrl = process.env.NEXT_PUBLIC_SHOPIFY_CUSTOMER_ACCOUNT_API_URL;
    const clientId = SHOPIFY_CLIENT_ID;
-   const origin = SHOPIFY_ORIGIN;
+   const origin = process.env.NEXT_PUBLIC_SHOPIFY_ORIGIN_URL;
 
    // Log the base URL for debugging
 
