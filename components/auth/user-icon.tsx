@@ -18,7 +18,7 @@ function UserButton(props: any) {
             {/*Purposesly a href here and NOT Link component b/c of router caching*/}
             <a href="/account">
                <User2Icon className="mr-2 h-4 w-4" />
-               <span>Profile</span>
+               {/* <span>Profile</span> */}
             </a>
          </button>
       </>
