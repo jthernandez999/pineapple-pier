@@ -28,17 +28,18 @@ type OrderEdge = {
    node: Order;
 };
 
-type OrdersData = OrderEdge[];
-
 type AccountOrdersHistoryProps = {
-   orders: OrdersData | null;
+   // Accept any orders object, then cast it internally
+   orders: any;
 };
 
 export function AccountOrdersHistory({ orders }: AccountOrdersHistoryProps) {
+   // Cast the orders to our expected OrderEdge array
+   const typedOrders = orders as OrderEdge[];
    return (
       <section className="container mx-auto mt-8 px-4">
          <h2 className="mb-6 text-2xl font-bold">Order History</h2>
-         {orders && orders.length > 0 ? <Orders orders={orders} /> : <EmptyOrders />}
+         {typedOrders && typedOrders.length > 0 ? <Orders orders={typedOrders} /> : <EmptyOrders />}
       </section>
    );
 }
@@ -55,7 +56,7 @@ function EmptyOrders() {
 }
 
 type OrdersProps = {
-   orders: OrdersData;
+   orders: OrderEdge[];
 };
 
 function Orders({ orders }: OrdersProps) {
