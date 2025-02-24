@@ -24,11 +24,11 @@ type Order = {
    };
 };
 
-type OrdersData = {
-   edges: Array<{
-      node: Order;
-   }>;
+type OrderEdge = {
+   node: Order;
 };
+
+type OrdersData = OrderEdge[];
 
 type AccountOrdersHistoryProps = {
    orders: OrdersData | null;
@@ -38,11 +38,7 @@ export function AccountOrdersHistory({ orders }: AccountOrdersHistoryProps) {
    return (
       <section className="container mx-auto mt-8 px-4">
          <h2 className="mb-6 text-2xl font-bold">Order History</h2>
-         {orders && orders.edges && orders.edges.length > 0 ? (
-            <Orders orders={orders} />
-         ) : (
-            <EmptyOrders />
-         )}
+         {orders && orders.length > 0 ? <Orders orders={orders} /> : <EmptyOrders />}
       </section>
    );
 }
@@ -65,7 +61,7 @@ type OrdersProps = {
 function Orders({ orders }: OrdersProps) {
    return (
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-         {orders.edges.map((orderEdge) => (
+         {orders.map((orderEdge) => (
             <OrderCard key={orderEdge.node.id} order={orderEdge.node} />
          ))}
       </div>
