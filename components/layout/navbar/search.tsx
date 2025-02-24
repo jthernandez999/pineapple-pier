@@ -9,9 +9,9 @@ export default function Search() {
    const [isPopupOpen, setIsPopupOpen] = useState(false);
    const [popularSearches, setPopularSearches] = useState([]);
    const popupInputRef = useRef<HTMLInputElement>(null);
+   const popupRef = useRef<HTMLDivElement>(null);
 
    useEffect(() => {
-      // Fetch legitimate popular searches from your website
       async function fetchPopularSearches() {
          try {
             const response = await fetch('/api/popular-searches');
@@ -31,6 +31,17 @@ export default function Search() {
       }
    }, [isPopupOpen]);
 
+   // Close the popup when clicking outside of it
+   useEffect(() => {
+      function handleClickOutside(event: MouseEvent) {
+         if (isPopupOpen && popupRef.current && !popupRef.current.contains(event.target as Node)) {
+            setIsPopupOpen(false);
+         }
+      }
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+   }, [isPopupOpen]);
+
    const togglePopup = () => setIsPopupOpen((prev) => !prev);
 
    // When search is submitted, close the popup
@@ -43,7 +54,7 @@ export default function Search() {
          {/* Desktop: Magnifying glass next to the cart */}
          <div className="ml-auto hidden items-center lg:flex">
             <button onClick={togglePopup} className="p-2">
-               <MagnifyingGlassIcon className="h-6 w-6" />
+               <MagnifyingGlassIcon className="h-5 w-5" />
             </button>
          </div>
 
@@ -70,7 +81,7 @@ export default function Search() {
 
          {/* Desktop Full-Width Pop-up */}
          {isPopupOpen && (
-            <div className="fixed left-0 top-16 z-50 w-full bg-white shadow-lg">
+            <div ref={popupRef} className="fixed left-0 top-16 z-50 w-full bg-white shadow-lg">
                <div className="mx-auto max-w-screen-xl px-4 py-6">
                   <div className="mb-4 flex items-center justify-between">
                      <h2 className="text-xl font-semibold text-black">What are you looking for?</h2>
@@ -110,7 +121,7 @@ export default function Search() {
                         type="submit"
                         className="absolute right-0 top-0 mr-3 flex h-full items-center"
                      >
-                        <MagnifyingGlassIcon className="h-4" />
+                        <MagnifyingGlassIcon className="m-0 h-4 p-0" />
                      </button>
                   </Form>
                </div>
