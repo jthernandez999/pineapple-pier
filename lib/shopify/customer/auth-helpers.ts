@@ -162,7 +162,7 @@ export async function initialAccessToken(
 export async function exchangeAccessToken(
    token: string,
    customerAccountId: string,
-   customerAccountApiUrl: string,
+   customerAccountApiUrl: string = '',
    origin: string
 ) {
    const clientId = customerAccountId;
@@ -236,7 +236,6 @@ export async function exchangeAccessToken(
 //    }
 //    return { success: true, data };
 // }
-
 export async function refreshToken({ request, origin }: { request: NextRequest; origin: string }) {
    // Retrieve the refresh token from cookies.
    const refreshTokenCookie = request.cookies.get('shop_refresh_token');
@@ -250,15 +249,14 @@ export async function refreshToken({ request, origin }: { request: NextRequest; 
    // Build the request body per docs.
    const body = new URLSearchParams();
    body.append('grant_type', 'refresh_token');
-   body.append('client_id', clientId);
+   // Use non-null assertion if you're sure clientId is defined.
+   body.append('client_id', clientId!);
    body.append('refresh_token', refreshTokenValue);
 
    // For public clients, the Authorization header is not needed.
-   // If you're a confidential client, uncomment and update the following:
-   // headers['Authorization'] = 'Basic <credentials>';
-
    const headers = {
       'content-type': 'application/x-www-form-urlencoded'
+      // For confidential clients, include the Authorization header if needed:
       // 'Authorization': 'Basic <credentials>'
    };
 
@@ -274,16 +272,15 @@ export async function refreshToken({ request, origin }: { request: NextRequest; 
       console.log('response error in refresh token', text);
       return { success: false, message: 'no_refresh_token' };
    }
-
    const data = await response.json();
    console.log('data response from refresh', data);
    const { access_token, expires_in, refresh_token } = data;
 
-   // Optionally, if your flow requires converting the access token into a customer access token,
-   // call exchangeAccessToken. If not needed, you can simply return the tokens.
+   // Optionally, if your flow requires converting the access token into a customer-scoped token,
+   // call exchangeAccessToken. If not, simply return the tokens.
    const customerAccessToken = await exchangeAccessToken(
       access_token,
-      clientId,
+      clientId!,
       SHOPIFY_CUSTOMER_ACCOUNT_API_URL,
       origin
    );
@@ -291,6 +288,7 @@ export async function refreshToken({ request, origin }: { request: NextRequest; 
       return { success: false, message: 'no_refresh_token' };
    }
 
+   console.log('isExpired is false - just sending back success', false);
    return {
       success: true,
       data: {
