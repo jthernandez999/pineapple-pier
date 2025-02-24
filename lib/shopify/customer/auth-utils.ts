@@ -11,6 +11,7 @@ import {
  */
 export async function buildShopifyAuthUrl(): Promise<string> {
    try {
+      console.log('SHOPIFY_CUSTOMER_ACCOUNT_API_URL:', SHOPIFY_CUSTOMER_ACCOUNT_API_URL);
       const authUrl = new URL(`${SHOPIFY_CUSTOMER_ACCOUNT_API_URL}/oauth/authorize`);
       authUrl.searchParams.append('client_id', SHOPIFY_CLIENT_ID);
       authUrl.searchParams.append('response_type', 'code');

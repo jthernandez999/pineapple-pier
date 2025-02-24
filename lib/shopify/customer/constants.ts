@@ -3,7 +3,10 @@ export const TAGS = {
 };
 
 //ENVs
-export const SHOPIFY_CUSTOMER_ACCOUNT_API_URL = process.env.SHOPIFY_CUSTOMER_ACCOUNT_API_URL || '';
+// export const SHOPIFY_CUSTOMER_ACCOUNT_API_URL = process.env.SHOPIFY_CUSTOMER_ACCOUNT_API_URL || '';
+export const SHOPIFY_CUSTOMER_ACCOUNT_API_URL =
+   'https://dear-john-denim-headquarters.myshopify.com/authentication/10242207';
+
 export const SHOPIFY_CLIENT_ID = process.env.SHOPIFY_CUSTOMER_ACCOUNT_API_CLIENT_ID || '';
 export const SHOPIFY_CUSTOMER_API_VERSION = process.env.SHOPIFY_CUSTOMER_API_VERSION || '';
 export const SHOPIFY_USER_AGENT = '*';

@@ -24,6 +24,7 @@ export async function doLogin(prevState: any) {
    const origin = SHOPIFY_ORIGIN;
 
    // Log the base URL for debugging
+
    console.log('customerAccountApiUrl:', customerAccountApiUrl);
    console.log('origin:', origin);
 
