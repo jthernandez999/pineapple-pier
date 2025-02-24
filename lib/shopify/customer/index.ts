@@ -21,7 +21,8 @@ type ExtractVariables<T> = T extends { variables: object } ? T['variables'] : ne
 const customerAccountApiUrl = SHOPIFY_CUSTOMER_ACCOUNT_API_URL;
 const apiVersion = SHOPIFY_CUSTOMER_API_VERSION;
 const userAgent = SHOPIFY_USER_AGENT;
-const customerEndpoint = `${customerAccountApiUrl}/account/customer/api/${apiVersion}/graphql`;
+// const customerEndpoint = `${customerAccountApiUrl}/account/customer/api/${apiVersion}/graphql`;
+const customerEndpoint = 'https://shopify.com/10242207/account/customer/api/2025-01/graphql';
 
 //NEVER CACHE THIS! Doesn't see to be cached anyway b/c
 //https://nextjs.org/docs/app/building-your-application/data-fetching/fetching-caching-and-revalidating#opting-out-of-data-caching
