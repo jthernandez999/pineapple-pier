@@ -39,7 +39,7 @@ export const SHOPIFY_CUSTOMER_API_VERSION = '2025-01';
 // New variable for the Customer Account API GraphQL endpoint:
 export const SHOPIFY_CUSTOMER_GRAPHQL_ENDPOINT =
    process.env.SHOPIFY_CUSTOMER_GRAPHQL_ENDPOINT ||
-   'https://dearjohndenim.co/account/customer/api/2025-01/graphql';
+   'https://shopify.com/10242207/account/customer/api/2025-01/graphql';
 
 export const SHOPIFY_GRAPHQL_ENDPOINT =
    'https://dear-john-denim-headquarters.myshopify.com/api/2024-04/graphql.json'; // For Admin GraphQL if needed..
