@@ -1,6 +1,7 @@
 'use client';
 import clsx from 'clsx';
 import { useFormState, useFormStatus } from 'react-dom';
+import { UserIcon } from '../../components/auth/user-icon';
 import { doLogin } from './actions';
 
 function SubmitButton(props: any) {
@@ -29,7 +30,7 @@ function SubmitButton(props: any) {
                </>
             ) : (
                <>
-                  <span>Log-In</span>
+                  <UserIcon />
                </>
             )}
          </button>
