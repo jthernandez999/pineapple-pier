@@ -2,9 +2,6 @@ export const TAGS = {
    customer: 'customer'
 };
 
-//ENVs
-// export const SHOPIFY_CUSTOMER_ACCOUNT_API_URL = process.env.SHOPIFY_CUSTOMER_ACCOUNT_API_URL || '';
-
 // lib/shopify/customer/constants.ts
 export const SHOPIFY_ORIGIN_URL = process.env.NEXT_PUBLIC_SHOPIFY_ORIGIN_URL;
 export const SHOPIFY_CUSTOMER_ACCOUNT_API_URL =

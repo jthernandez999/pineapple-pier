@@ -47,7 +47,7 @@ export async function shopifyCustomerFetch<T>({
          headers: {
             'Content-Type': 'application/json',
             'User-Agent': userAgent,
-            Origin: customerOrigin,
+            Origin: customerOrigin!,
             Authorization: customerToken
          },
          body: JSON.stringify({
@@ -183,7 +183,7 @@ export function getOrigin(request: NextRequest) {
    //when running localhost, we want to use fake origin otherwise we use the real origin
    let newOrigin = nextOrigin;
    if (nextOrigin === 'https://localhost:3000' || nextOrigin === 'http://localhost:3000') {
-      newOrigin = SHOPIFY_ORIGIN;
+      newOrigin = SHOPIFY_ORIGIN!;
    } else {
       newOrigin = nextOrigin;
    }
