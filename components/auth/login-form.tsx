@@ -1,8 +1,8 @@
 'use client';
 
 import clsx from 'clsx';
-import { buildShopifyAuthUrl } from 'lib/shopify/customer/auth-utils';
 import { useState } from 'react';
+import { buildShopifyAuthUrl } from '../../lib/shopify/customer/auth-utils';
 
 export function LoginShopify() {
    const [loading, setLoading] = useState(false);
