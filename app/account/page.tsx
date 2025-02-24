@@ -24,8 +24,7 @@ export default async function AccountPage() {
       redirect('/logout');
    }
 
-   // Prepend "Bearer " so that the Authorization header is correct.
-   const customerAccessToken = `Bearer ${access}`;
+   const customerAccessToken = access;
 
    let customerData;
    let orders;
