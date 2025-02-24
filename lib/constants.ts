@@ -38,7 +38,7 @@ export const SHOPIFY_ORIGIN = process.env.SHOPIFY_ORIGIN_URL;
 export const SHOPIFY_CUSTOMER_API_VERSION = '2025-01';
 // New variable for the Customer Account API GraphQL endpoint:
 export const SHOPIFY_CUSTOMER_GRAPHQL_ENDPOINT =
-   process.env.SHOPIFY_CUSTOMER_GRAPHQL_ENDPOINT ||
+   process.env.NEXT_PUBLIC_SHOPIFY_CUSTOMER_GRAPHQL_ENDPOINT ||
    'https://shopify.com/10242207/account/customer/api/2025-01/graphql';
 
 export const SHOPIFY_GRAPHQL_ENDPOINT =
