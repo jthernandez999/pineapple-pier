@@ -33,7 +33,7 @@ export async function doLogin(prevState: any) {
 
    try {
       //await addToCart(cartId, [{ merchandiseId: selectedVariantId, quantity: 1 }]);
-      loginUrl.searchParams.set('client_id', clientId);
+      loginUrl.searchParams.set('client_id', clientId || '');
       loginUrl.searchParams.append('response_type', 'code');
       loginUrl.searchParams.append('redirect_uri', `${origin}/authorize`);
       loginUrl.searchParams.set('scope', 'openid email customer-account-api:full');
