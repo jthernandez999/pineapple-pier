@@ -42,4 +42,4 @@ export const SHOPIFY_CUSTOMER_GRAPHQL_ENDPOINT =
    'https://dearjohndenim.co/account/customer/api/2025-01/graphql';
 
 export const SHOPIFY_GRAPHQL_ENDPOINT =
-   'https://dear-john-denim-headquarters.myshopify.com/api/2024-04/graphql.json'; // For Admin GraphQL if needed
+   'https://dear-john-denim-headquarters.myshopify.com/api/2024-04/graphql.json'; // For Admin GraphQL if needed.
