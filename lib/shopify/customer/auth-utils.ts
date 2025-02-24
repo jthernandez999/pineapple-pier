@@ -46,3 +46,44 @@ function decodeJwt(token: string) {
       signature
    };
 }
+
+import {
+   SHOPIFY_CLIENT_ID,
+   SHOPIFY_CUSTOMER_ACCOUNT_API_URL,
+   SHOPIFY_ORIGIN_URL
+} from 'lib/shopify/customer/constants';
+import {
+   generateCodeChallenge,
+   generateCodeVerifier,
+   generateNonce,
+   generateState
+} from './pkce-utils';
+
+export async function buildShopifyAuthUrl(): Promise<string> {
+   // Construct the base URL from your authentication endpoint.
+   const authUrl = new URL(`${SHOPIFY_CUSTOMER_ACCOUNT_API_URL}/oauth/authorize`);
+
+   // Append required parameters.
+   authUrl.searchParams.append('client_id', SHOPIFY_CLIENT_ID);
+   authUrl.searchParams.append('response_type', 'code');
+   authUrl.searchParams.append('redirect_uri', `${SHOPIFY_ORIGIN_URL}/authorize`);
+   authUrl.searchParams.append('scope', 'openid email customer-account-api:full');
+
+   // Generate security parameters.
+   const state = await generateState();
+   const nonce = await generateNonce(32);
+   authUrl.searchParams.append('state', state);
+   authUrl.searchParams.append('nonce', nonce);
+
+   // PKCE: Generate the code verifier and challenge.
+   const codeVerifier = await generateCodeVerifier();
+   const codeChallenge = await generateCodeChallenge(codeVerifier);
+
+   // Store the code verifier securely (e.g., in an HTTP-only cookie).
+   // For example: setCookie('shop_verifier', codeVerifier);
+
+   authUrl.searchParams.append('code_challenge', codeChallenge);
+   authUrl.searchParams.append('code_challenge_method', 'S256');
+
+   return authUrl.toString();
+}
