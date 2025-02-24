@@ -2,7 +2,8 @@
 // Import your constants
 import {
    SHOPIFY_CLIENT_ID,
-   SHOPIFY_CUSTOMER_ACCOUNT_API_URL
+   SHOPIFY_CUSTOMER_ACCOUNT_API_URL,
+   SHOPIFY_ORIGIN_URL
 } from 'lib/shopify/customer/constants';
 
 /**
