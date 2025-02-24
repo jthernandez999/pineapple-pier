@@ -1,69 +1,115 @@
 'use client';
-type OrderCardsProps = {
-   orders: any;
+
+type Order = {
+   id: string;
+   number: number;
+   processedAt: string;
+   financialStatus: string;
+   totalPrice: {
+      amount: string;
+      currencyCode: string;
+   };
+   lineItems: {
+      edges: Array<{
+         node: {
+            title: string;
+            image: {
+               url: string;
+               altText: string;
+               width: number;
+               height: number;
+            };
+         };
+      }>;
+   };
 };
 
-export function AccountOrdersHistory({ orders }: { orders: any }) {
+type OrdersData = {
+   edges: Array<{
+      node: Order;
+   }>;
+};
+
+type AccountOrdersHistoryProps = {
+   orders: OrdersData | null;
+};
+
+export function AccountOrdersHistory({ orders }: AccountOrdersHistoryProps) {
    return (
-      <div className="mt-6">
-         <div className="grid w-full gap-4 p-4 py-6 md:gap-8 md:p-8 lg:p-12">
-            <h2 className="text-lead font-bold">Order History</h2>
-            {orders?.length ? <Orders orders={orders} /> : <EmptyOrders />}
-         </div>
-      </div>
+      <section className="container mx-auto mt-8 px-4">
+         <h2 className="mb-6 text-2xl font-bold">Order History</h2>
+         {orders && orders.edges && orders.edges.length > 0 ? (
+            <Orders orders={orders} />
+         ) : (
+            <EmptyOrders />
+         )}
+      </section>
    );
 }
 
 function EmptyOrders() {
    return (
-      <div>
-         <div className="mb-1">You haven&apos;t placed any orders yet.</div>
-         <div className="w-48">
-            <button
-               className="mt-2 w-full text-sm"
-               //variant="secondary"
-            >
-               Start Shopping
-            </button>
-         </div>
+      <div className="py-10 text-center">
+         <p className="mb-4 text-gray-500">You haven’t placed any orders yet.</p>
+         <button className="rounded bg-blue-600 px-4 py-2 text-white transition hover:bg-blue-700">
+            Start Shopping
+         </button>
       </div>
    );
 }
 
-function Orders({ orders }: OrderCardsProps) {
+type OrdersProps = {
+   orders: OrdersData;
+};
+
+function Orders({ orders }: OrdersProps) {
    return (
-      <ul className="false grid grid-flow-row grid-cols-1 gap-2 gap-y-6 sm:grid-cols-3 md:gap-4 lg:gap-6">
-         {orders.map((order: any) => (
-            <li key={order.node.id}>
-               {order.node.number}
-               <OrderCard order={order} />
-            </li>
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+         {orders.edges.map((orderEdge) => (
+            <OrderCard key={orderEdge.node.id} order={orderEdge.node} />
          ))}
-      </ul>
+      </div>
    );
 }
 
-function OrderCard({ order }: { order: any }) {
+type OrderCardProps = {
+   order: Order;
+};
+
+function OrderCard({ order }: OrderCardProps) {
+   const formattedDate = new Date(order.processedAt).toLocaleDateString();
+
    return (
-      <div>
-         <div className="flex justify-between">
+      <div className="rounded-lg bg-white p-6 shadow-lg transition-shadow hover:shadow-xl">
+         <div className="mb-4 flex items-center justify-between">
             <div>
-               <div className="text-sm font-bold">Order Number</div>
-               <div className="text-sm">{order.node.number}</div>
+               <h3 className="text-lg font-semibold">Order #{order.number}</h3>
+               <p className="text-sm text-gray-500">{formattedDate}</p>
             </div>
-            <div>
-               <div className="text-sm font-bold">Order Date</div>
-               <div className="text-sm">{order.node.created}</div>
+            <div className="text-right">
+               <p className="text-sm font-medium capitalize">{order.financialStatus}</p>
+               <p className="text-lg font-bold">
+                  {order.totalPrice.currencyCode} {parseFloat(order.totalPrice.amount).toFixed(2)}
+               </p>
             </div>
          </div>
          <div>
-            <div className="text-sm font-bold">Items</div>
-            <div className="text-sm">{order.node.items.length}</div>
-         </div>
-         <div>
-            <div className="text-sm font-bold">Total</div>
-            <div className="text-sm">{order.node.total}</div>
+            <h4 className="mb-2 text-sm font-semibold">Items</h4>
+            <ul className="flex space-x-4 overflow-auto">
+               {order.lineItems.edges.map(({ node }) => (
+                  <li key={node.title} className="flex-shrink-0">
+                     <img
+                        src={node.image.url}
+                        alt={node.image.altText}
+                        className="h-16 w-16 rounded object-cover"
+                     />
+                     <p className="mt-1 text-center text-xs">{node.title}</p>
+                  </li>
+               ))}
+            </ul>
          </div>
       </div>
    );
 }
+
+export default AccountOrdersHistory;
