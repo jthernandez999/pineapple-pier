@@ -44,6 +44,7 @@ export default async function AccountPage() {
          throw new Error('Error getting actual user data on Account page.');
       }
       customerData = userDetails.data?.customer;
+      console.log('Customer Data:', customerData);
       orders = customerData?.orders?.edges;
    } catch (e: any) {
       errorMessage = e?.error?.toString() ?? 'Unknown Error';
