@@ -198,8 +198,8 @@ export async function authorizeFn(request: NextRequest, origin: string) {
    const dataInitialToken = await initialAccessToken(
       request,
       origin,
-      SHOPIFY_CUSTOMER_ACCOUNT_API_URL,
-      clientId
+      SHOPIFY_CUSTOMER_ACCOUNT_API_URL!,
+      clientId!
    );
    if (!dataInitialToken.success) {
       console.error('Error: Access Denied. Check logs', dataInitialToken.message);
