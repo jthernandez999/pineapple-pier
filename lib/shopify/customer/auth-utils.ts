@@ -1,46 +1,9 @@
 // @ts-nocheck
-// Import your constants
-import {
-   SHOPIFY_CLIENT_ID,
-   SHOPIFY_CUSTOMER_ACCOUNT_API_URL,
-   SHOPIFY_ORIGIN_URL
-} from 'lib/shopify/customer/constants';
-import {
-   generateCodeChallenge,
-   generateCodeVerifier,
-   generateNonce,
-   generateState
-} from './pkce-utils';
-
-export async function buildShopifyAuthUrl(): Promise<string> {
-   const authUrl = new URL(`${SHOPIFY_CUSTOMER_ACCOUNT_API_URL}/oauth/authorize`);
-   authUrl.searchParams.append('client_id', SHOPIFY_CLIENT_ID || '');
-   authUrl.searchParams.append('response_type', 'code');
-   authUrl.searchParams.append('redirect_uri', `${SHOPIFY_ORIGIN_URL}/authorize`);
-   authUrl.searchParams.append('scope', 'openid email customer-account-api:full');
-
-   const state = await generateState();
-   authUrl.searchParams.append('state', state);
-
-   const nonce = await generateNonce(32);
-   authUrl.searchParams.append('nonce', nonce);
-
-   const codeVerifier = await generateCodeVerifier();
-   const codeChallenge = await generateCodeChallenge(codeVerifier);
-   // Remember to store codeVerifier securely (e.g., in an HTTP-only cookie).
-   authUrl.searchParams.append('code_challenge', codeChallenge);
-   authUrl.searchParams.append('code_challenge_method', 'S256');
-
-   return authUrl.toString();
-}
-
-// PKCE Utility Functions
-export async function generateCodeVerifier(): Promise<string> {
+export async function generateCodeVerifier() {
    const randomCode = generateRandomCode();
    return base64UrlEncode(randomCode);
 }
-
-export async function generateCodeChallenge(codeVerifier: string): Promise<string> {
+export async function generateCodeChallenge(codeVerifier: string) {
    const digestOp = await crypto.subtle.digest(
       { name: 'SHA-256' },
       new TextEncoder().encode(codeVerifier)
@@ -48,48 +11,31 @@ export async function generateCodeChallenge(codeVerifier: string): Promise<strin
    const hash = convertBufferToString(digestOp);
    return base64UrlEncode(hash);
 }
-
-function generateRandomCode(): string {
+function generateRandomCode() {
    const array = new Uint8Array(32);
    crypto.getRandomValues(array);
-   return String.fromCharCode(...array);
+   return String.fromCharCode.apply(null, Array.from(array));
 }
-
-function base64UrlEncode(str: string): string {
+function base64UrlEncode(str: string) {
    const base64 = btoa(str);
-   // Replace characters to make the result URL-safe.
+   // This is to ensure that the encoding does not have +, /, or = characters in it.
    return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
 }
-
-function convertBufferToString(hash: ArrayBuffer): string {
+function convertBufferToString(hash: ArrayBuffer) {
    const uintArray = new Uint8Array(hash);
-   return String.fromCharCode(...uintArray);
+   const numberArray = Array.from(uintArray);
+   return String.fromCharCode(...numberArray);
 }
 
-export async function generateRandomString(): Promise<string> {
+export async function generateRandomString() {
    const timestamp = Date.now().toString();
    const randomString = Math.random().toString(36).substring(2);
    return timestamp + randomString;
 }
 
-export async function generateState(): Promise<string> {
-   return generateRandomString();
-}
-
-export async function generateNonce(length: number): Promise<string> {
-   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-   let nonce = '';
-   for (let i = 0; i < length; i++) {
-      const randomIndex = Math.floor(Math.random() * characters.length);
-      nonce += characters.charAt(randomIndex);
-   }
-   return nonce;
-}
-
-export async function getNonce(token: string): Promise<string> {
+export async function getNonce(token: string) {
    return decodeJwt(token).payload.nonce;
 }
-
 function decodeJwt(token: string) {
    const [header, payload, signature] = token.split('.');
    const decodedHeader = JSON.parse(atob(header || ''));
