@@ -1,4 +1,5 @@
 'use client';
+import Link from 'next/link';
 import { useState } from 'react';
 
 type Order = {
@@ -138,6 +139,13 @@ type OrderModalProps = {
 function OrderModal({ order, onClose }: OrderModalProps) {
    const formattedDate = new Date(order.processedAt).toLocaleDateString();
 
+   // Helper to create a slug from the product title.
+   const createSlug = (title: string) =>
+      title
+         .toLowerCase()
+         .replace(/[^a-z0-9]+/g, '-')
+         .replace(/^-+|-+$/g, '');
+
    return (
       <div className="fixed inset-0 z-50 flex items-center justify-center px-4" onClick={onClose}>
          {/* Modal backdrop */}
@@ -168,12 +176,18 @@ function OrderModal({ order, onClose }: OrderModalProps) {
                <ul className="max-h-60 space-y-4 overflow-auto">
                   {order.lineItems.edges.map(({ node }) => (
                      <li key={node.title} className="flex items-center space-x-4">
-                        <img
-                           src={node.image.url}
-                           alt={node.image.altText}
-                           className="h-16 w-16 rounded object-cover"
-                        />
-                        <span className="text-sm">{node.title}</span>
+                        <Link href={`/product/${createSlug(node.title)}`}>
+                           <img
+                              src={node.image.url}
+                              alt={node.image.altText}
+                              className="h-16 w-16 cursor-pointer rounded object-cover"
+                           />
+                        </Link>
+                        <Link href={`/product/${createSlug(node.title)}`}>
+                           <span className="cursor-pointer text-sm hover:underline">
+                              {node.title}
+                           </span>
+                        </Link>
                      </li>
                   ))}
                </ul>
