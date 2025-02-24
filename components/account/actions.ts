@@ -27,7 +27,7 @@ export async function doLogout(prevState: any) {
          logoutUrl = new URL(`${origin}/login`);
       } else {
          logoutUrl = new URL(
-            `${customerAccountApiUrl}/auth/logout?id_token_hint=${idTokenValue}&post_logout_redirect_uri=${origin}`
+            `${customerAccountApiUrl}/logout?id_token_hint=${idTokenValue}&post_logout_redirect_uri=${origin}`
          );
       }
       await removeAllCookiesServerAction();
