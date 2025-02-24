@@ -1,9 +1,12 @@
 // @ts-nocheck
-export async function generateCodeVerifier() {
+
+// PKCE Utility Functions
+export async function generateCodeVerifier(): Promise<string> {
    const randomCode = generateRandomCode();
    return base64UrlEncode(randomCode);
 }
-export async function generateCodeChallenge(codeVerifier: string) {
+
+export async function generateCodeChallenge(codeVerifier: string): Promise<string> {
    const digestOp = await crypto.subtle.digest(
       { name: 'SHA-256' },
       new TextEncoder().encode(codeVerifier)
@@ -11,31 +14,48 @@ export async function generateCodeChallenge(codeVerifier: string) {
    const hash = convertBufferToString(digestOp);
    return base64UrlEncode(hash);
 }
-function generateRandomCode() {
+
+function generateRandomCode(): string {
    const array = new Uint8Array(32);
    crypto.getRandomValues(array);
-   return String.fromCharCode.apply(null, Array.from(array));
-}
-function base64UrlEncode(str: string) {
-   const base64 = btoa(str);
-   // This is to ensure that the encoding does not have +, /, or = characters in it.
-   return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
-}
-function convertBufferToString(hash: ArrayBuffer) {
-   const uintArray = new Uint8Array(hash);
-   const numberArray = Array.from(uintArray);
-   return String.fromCharCode(...numberArray);
+   return String.fromCharCode(...array);
 }
 
-export async function generateRandomString() {
+function base64UrlEncode(str: string): string {
+   const base64 = btoa(str);
+   // Replace characters to make the result URL-safe.
+   return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+}
+
+function convertBufferToString(hash: ArrayBuffer): string {
+   const uintArray = new Uint8Array(hash);
+   return String.fromCharCode(...uintArray);
+}
+
+export async function generateRandomString(): Promise<string> {
    const timestamp = Date.now().toString();
    const randomString = Math.random().toString(36).substring(2);
    return timestamp + randomString;
 }
 
-export async function getNonce(token: string) {
+export async function generateState(): Promise<string> {
+   return generateRandomString();
+}
+
+export async function generateNonce(length: number): Promise<string> {
+   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+   let nonce = '';
+   for (let i = 0; i < length; i++) {
+      const randomIndex = Math.floor(Math.random() * characters.length);
+      nonce += characters.charAt(randomIndex);
+   }
+   return nonce;
+}
+
+export async function getNonce(token: string): Promise<string> {
    return decodeJwt(token).payload.nonce;
 }
+
 function decodeJwt(token: string) {
    const [header, payload, signature] = token.split('.');
    const decodedHeader = JSON.parse(atob(header || ''));
@@ -47,20 +67,19 @@ function decodeJwt(token: string) {
    };
 }
 
+// Import your constants
 import {
    SHOPIFY_CLIENT_ID,
    SHOPIFY_CUSTOMER_ACCOUNT_API_URL,
    SHOPIFY_ORIGIN_URL
 } from 'lib/shopify/customer/constants';
-import {
-   generateCodeChallenge,
-   generateCodeVerifier,
-   generateNonce,
-   generateState
-} from './pkce-utils';
 
+/**
+ * buildShopifyAuthUrl constructs the Shopify OAuth authorization URL
+ * following the documentation for public clients using PKCE.
+ */
 export async function buildShopifyAuthUrl(): Promise<string> {
-   // Construct the base URL from your authentication endpoint.
+   // Construct the base URL for the authorization endpoint.
    const authUrl = new URL(`${SHOPIFY_CUSTOMER_ACCOUNT_API_URL}/oauth/authorize`);
 
    // Append required parameters.
@@ -69,19 +88,18 @@ export async function buildShopifyAuthUrl(): Promise<string> {
    authUrl.searchParams.append('redirect_uri', `${SHOPIFY_ORIGIN_URL}/authorize`);
    authUrl.searchParams.append('scope', 'openid email customer-account-api:full');
 
-   // Generate security parameters.
+   // Generate state and nonce for security.
    const state = await generateState();
    const nonce = await generateNonce(32);
    authUrl.searchParams.append('state', state);
    authUrl.searchParams.append('nonce', nonce);
 
-   // PKCE: Generate the code verifier and challenge.
+   // Generate PKCE parameters.
    const codeVerifier = await generateCodeVerifier();
    const codeChallenge = await generateCodeChallenge(codeVerifier);
 
-   // Store the code verifier securely (e.g., in an HTTP-only cookie).
-   // For example: setCookie('shop_verifier', codeVerifier);
-
+   // IMPORTANT: Store the codeVerifier securely (for example, in an HTTP-only cookie)
+   // so you can use it later during the token exchange step.
    authUrl.searchParams.append('code_challenge', codeChallenge);
    authUrl.searchParams.append('code_challenge_method', 'S256');
 
