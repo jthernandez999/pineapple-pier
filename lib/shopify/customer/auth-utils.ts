@@ -2,8 +2,7 @@
 // Import your constants
 import {
    SHOPIFY_CLIENT_ID,
-   SHOPIFY_CUSTOMER_ACCOUNT_API_URL,
-   SHOPIFY_ORIGIN
+   SHOPIFY_CUSTOMER_ACCOUNT_API_URL
 } from 'lib/shopify/customer/constants';
 
 /**
@@ -11,31 +10,31 @@ import {
  * following the documentation for public clients using PKCE.
  */
 export async function buildShopifyAuthUrl(): Promise<string> {
-   // Construct the base URL for the authorization endpoint.
-   const authUrl = new URL(`${SHOPIFY_CUSTOMER_ACCOUNT_API_URL}/oauth/authorize`);
+   try {
+      const authUrl = new URL(`${SHOPIFY_CUSTOMER_ACCOUNT_API_URL}/oauth/authorize`);
+      authUrl.searchParams.append('client_id', SHOPIFY_CLIENT_ID);
+      authUrl.searchParams.append('response_type', 'code');
+      authUrl.searchParams.append('redirect_uri', `${SHOPIFY_ORIGIN_URL}/authorize`);
+      authUrl.searchParams.append('scope', 'openid email customer-account-api:full');
 
-   // Append required parameters.
-   authUrl.searchParams.append('client_id', SHOPIFY_CLIENT_ID);
-   authUrl.searchParams.append('response_type', 'code');
-   authUrl.searchParams.append('redirect_uri', `${SHOPIFY_ORIGIN}/authorize`);
-   authUrl.searchParams.append('scope', 'openid email customer-account-api:full');
+      const state = await generateState();
+      authUrl.searchParams.append('state', state);
 
-   // Generate state and nonce for security.
-   const state = await generateState();
-   const nonce = await generateNonce(32);
-   authUrl.searchParams.append('state', state);
-   authUrl.searchParams.append('nonce', nonce);
+      const nonce = await generateNonce(32);
+      authUrl.searchParams.append('nonce', nonce);
 
-   // Generate PKCE parameters.
-   const codeVerifier = await generateCodeVerifier();
-   const codeChallenge = await generateCodeChallenge(codeVerifier);
+      const codeVerifier = await generateCodeVerifier();
+      const codeChallenge = await generateCodeChallenge(codeVerifier);
 
-   // IMPORTANT: Store the codeVerifier securely (for example, in an HTTP-only cookie)
-   // so you can use it later during the token exchange step.
-   authUrl.searchParams.append('code_challenge', codeChallenge);
-   authUrl.searchParams.append('code_challenge_method', 'S256');
+      // You must store the codeVerifier securely for later use (e.g., in a cookie).
+      authUrl.searchParams.append('code_challenge', codeChallenge);
+      authUrl.searchParams.append('code_challenge_method', 'S256');
 
-   return authUrl.toString();
+      return authUrl.toString();
+   } catch (error) {
+      console.error('buildShopifyAuthUrl failed:', error);
+      throw error;
+   }
 }
 
 // PKCE Utility Functions
