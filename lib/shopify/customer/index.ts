@@ -340,7 +340,7 @@ export async function logoutFn(request: NextRequest, origin: string) {
 
    //console.log ("id toke value", idTokenValue)
    const logoutUrl = new URL(
-      `${customerAccountApiUrl}/auth/logout?id_token_hint=${idTokenValue}&post_logout_redirect_uri=${origin}`
+      `${customerAccountApiUrl}/logout?id_token_hint=${idTokenValue}&post_logout_redirect_uri=${origin}`
    );
    //console.log ("logout url", logoutUrl)
    const logoutResponse = NextResponse.redirect(logoutUrl);
