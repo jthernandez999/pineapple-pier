@@ -9,6 +9,7 @@ import { ensureStartsWith } from 'lib/utils';
 import { cookies } from 'next/headers';
 import { ReactNode } from 'react';
 import { Toaster } from 'sonner';
+import JudgeMeIntegration from '../components/judgeme/JudgeMeIntegration';
 import { Navbar } from '../components/layout/navbar';
 import './globals.css';
 
@@ -53,6 +54,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
                   {children}
                   <Toaster closeButton />
                   <WelcomeToast />
+                  <JudgeMeIntegration />
                </main>
             </CartProvider>
             <SpeedInsights />
