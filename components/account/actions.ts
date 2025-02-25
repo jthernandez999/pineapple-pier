@@ -25,10 +25,10 @@ mutation customerUpdate($input: CustomerUpdateInput!) {
        firstName
        lastName
        emailAddress{
-         CustomerEmailAddress
+         emailAddress
        }
        phoneNumber{
-         CustomerPhoneNumber
+         phoneNumber
        }
      }
    }
