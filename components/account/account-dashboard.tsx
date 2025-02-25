@@ -24,8 +24,8 @@ export default function AccountDashboard({
       switch (activeMenu) {
          case 'purchase':
             return orders ? <AccountOrdersHistory orders={orders} /> : <p>No orders found.</p>;
-         case 'manage':
-            return <AccountProfile />;
+         // case 'manage':
+         //    return <AccountProfile />;
          case 'personal':
             return (
                <AccountPersonalInfo
@@ -69,6 +69,7 @@ export default function AccountDashboard({
                   ))}
                </ul>
             </nav>
+            <AccountProfile />;
          </aside>
          {/* Main Content */}
          <main className="w-full md:w-3/4 md:border-l md:border-neutral-200 md:pl-8 dark:md:border-neutral-800">
