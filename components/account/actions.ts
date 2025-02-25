@@ -12,40 +12,30 @@ import { revalidateTag } from 'next/cache';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
+// Updated mutation per your provided sample.
 const CUSTOMER_UPDATE_MUTATION = `
   mutation customerUpdate($input: CustomerUpdateInput!) {
     customerUpdate(input: $input) {
+      userErrors {
+        field
+        message
+      }
       customer {
-        id
         firstName
         lastName
-        email
-        phone
-        metafields(namespace: "custom", first: 1) {
-          edges {
-            node {
-              key
-              value
-            }
-          }
-        }
-      }
-      customerUserErrors {
-        code
-        message
       }
     }
   }
 `;
 
 /* ------------------ Update Functions ------------------ */
-// Ensure the customerAccessToken you pass is valid and current.
-// We cast variables as any to bypass type errors.
+
+// Each update function calls shopifyCustomerFetch with the CUSTOMER_UPDATE_MUTATION.
+// Adjust the input object as needed if you want to update fields beyond firstName and lastName.
+
 export async function updateFirstName(newFirstName: string, customerAccessToken: string) {
    const variables = { input: { firstName: newFirstName } };
    try {
-      // Debug: log token if needed (only in dev)
-      // console.log("Token in updateFirstName:", customerAccessToken);
       const response = await shopifyCustomerFetch({
          customerToken: customerAccessToken,
          cache: 'no-store',
@@ -64,8 +54,6 @@ export async function updateFirstName(newFirstName: string, customerAccessToken:
    }
 }
 
-// Similar changes for updateLastName, updateEmail, updatePhone, and updateBirthday...
-
 export async function updateLastName(newLastName: string, customerAccessToken: string) {
    const variables = { input: { lastName: newLastName } };
    try {
@@ -74,7 +62,10 @@ export async function updateLastName(newLastName: string, customerAccessToken: s
          cache: 'no-store',
          query: CUSTOMER_UPDATE_MUTATION,
          variables: variables as any,
-         tags: [TAGS.customer]
+         tags: [TAGS.customer],
+         headers: {
+            'X-Shopify-Customer-Access-Token': customerAccessToken
+         }
       });
       revalidateTag(TAGS.customer);
       return response;
@@ -84,6 +75,8 @@ export async function updateLastName(newLastName: string, customerAccessToken: s
    }
 }
 
+// You can similarly add updateEmail, updatePhone, updateBirthday functions if the mutation is updated to support those fields.
+// For example, if you extend the mutation to support email updates, you could do:
 export async function updateEmail(newEmail: string, customerAccessToken: string) {
    const variables = { input: { email: newEmail } };
    try {
@@ -92,61 +85,16 @@ export async function updateEmail(newEmail: string, customerAccessToken: string)
          cache: 'no-store',
          query: CUSTOMER_UPDATE_MUTATION,
          variables: variables as any,
-         tags: [TAGS.customer]
+         tags: [TAGS.customer],
+         headers: {
+            'X-Shopify-Customer-Access-Token': customerAccessToken
+         }
       });
       revalidateTag(TAGS.customer);
       return response;
    } catch (error) {
       console.error('Error updating email', error);
       throw new Error('Error updating email');
-   }
-}
-
-export async function updatePhone(newPhone: string, customerAccessToken: string) {
-   const variables = { input: { phone: newPhone } };
-   try {
-      const response = await shopifyCustomerFetch({
-         customerToken: customerAccessToken,
-         cache: 'no-store',
-         query: CUSTOMER_UPDATE_MUTATION,
-         variables: variables as any,
-         tags: [TAGS.customer]
-      });
-      revalidateTag(TAGS.customer);
-      return response;
-   } catch (error) {
-      console.error('Error updating phone number', error);
-      throw new Error('Error updating phone number');
-   }
-}
-
-// If birthday is stored as a metafield, ensure your Shopify setup allows this update.
-export async function updateBirthday(newBirthday: string, customerAccessToken: string) {
-   const variables = {
-      input: {
-         metafields: [
-            {
-               key: 'birthday',
-               namespace: 'custom',
-               value: newBirthday,
-               type: 'single_line_text_field'
-            }
-         ]
-      }
-   };
-   try {
-      const response = await shopifyCustomerFetch({
-         customerToken: customerAccessToken,
-         cache: 'no-store',
-         query: CUSTOMER_UPDATE_MUTATION,
-         variables: variables as any,
-         tags: [TAGS.customer]
-      });
-      revalidateTag(TAGS.customer);
-      return response;
-   } catch (error) {
-      console.error('Error updating birthday', error);
-      throw new Error('Error updating birthday');
    }
 }
 

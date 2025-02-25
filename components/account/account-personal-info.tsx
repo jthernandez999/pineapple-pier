@@ -3,11 +3,10 @@
 
 import { useState } from 'react';
 import {
-   updateBirthday,
+   //    updateBirthday,
    updateEmail,
    updateFirstName,
-   updateLastName,
-   updatePhone
+   updateLastName
 } from './actions';
 
 type PersonalInfoProps = {
