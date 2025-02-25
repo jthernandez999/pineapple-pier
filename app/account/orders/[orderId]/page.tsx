@@ -4,11 +4,9 @@ import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 
 export default async function OrderPage({
-   params,
-   searchParams
+   params
 }: {
    params: { orderId: string };
-   searchParams: { [key: string]: string | string[] };
 }): Promise<React.ReactElement> {
    const { orderId } = params;
    const headersList = headers();
