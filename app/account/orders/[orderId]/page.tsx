@@ -1,9 +1,7 @@
-'use client';
 // app/account/orders/[orderId]/page.tsx
 import OrderDetails from 'components/account/OrderDetails';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
-import React from 'react';
 
 export default async function OrderPage({
    params,
