@@ -129,7 +129,7 @@ export function AccountAddressInfo({ addressData, customerAccessToken }: Address
             </div>
          </div>
          <button
-            className="bg-black-500 hover:bg-black-600 w-full rounded-md py-2 text-white transition-colors duration-200"
+            className="hover:bg-black-opacity-80 w-full rounded-md bg-black py-2 text-white transition-colors duration-200"
             onClick={handleSaveAddress}
             disabled={loading}
          >
