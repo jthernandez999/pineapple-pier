@@ -47,15 +47,18 @@ export function ProductDescription({ product }: { product: Product }) {
                   product={product}
                />
                <AddToCart product={product} />
-               {product.descriptionHtml ? (
-                  <>
-                     {console.log('Product Description:', product.descriptionHtml)}
-                     <Prose
-                        className="my-6 text-justify text-sm leading-tight dark:text-white/[60%]"
-                        html={product.descriptionHtml}
-                     />
-                  </>
-               ) : null}
+
+               {product.descriptionHtml
+                  ? (console.log('Product Description:', product.descriptionHtml),
+                    (
+                       <Prose
+                          className="my-6 text-justify text-sm leading-tight dark:text-white/[60%]"
+                          html={product.descriptionHtml}
+                       />
+                    ))
+                  : null}
+               {/* Insert the new spec display component */}
+               {/* <p>Spec:{productSpec.map((option) => option.values.map((value) => value)).join(', ')} </p> */}
                <ProductSpec product={product} />
             </div>
          </div>
