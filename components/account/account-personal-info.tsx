@@ -13,21 +13,19 @@ export function AccountPersonalInfo({ customerData, customerAccessToken }: Perso
    // Set initial values from customerData
    const [firstName, setFirstName] = useState(customerData?.firstName || '');
    const [lastName, setLastName] = useState(customerData?.lastName || '');
-   const [email, setEmail] = useState(customerData?.emailAddress?.emailAddress || '');
+   const email = customerData?.emailAddress?.emailAddress || 'N/A';
    const [phone, setPhone] = useState(customerData?.phoneNumber?.phoneNumber || '');
-
    const [message, setMessage] = useState('');
 
-   // Loading states for each field
+   // Loading state for each field
    const [loadingField, setLoadingField] = useState<string | null>(null);
 
-   // Track edit state per field
+   // Track edit state for each editable field
    const [editingFirstName, setEditingFirstName] = useState(false);
    const [editingLastName, setEditingLastName] = useState(false);
-   const [editingEmail, setEditingEmail] = useState(false);
    const [editingPhone, setEditingPhone] = useState(false);
 
-   // Handlers for saving changes that trigger update actions to Shopify
+   // Handler for saving changes that triggers update actions to Shopify
    const handleSave = async (
       updateFunc: (value: string, token: string) => Promise<any>,
       value: string,
@@ -112,6 +110,15 @@ export function AccountPersonalInfo({ customerData, customerAccessToken }: Perso
             ) : (
                <p>{lastName || 'N/A'}</p>
             )}
+         </div>
+
+         {/* Email Address - Read-only */}
+         <div className="space-y-2">
+            <div className="flex items-center justify-between">
+               <span className="font-medium">Email Address</span>
+               <span className="text-sm text-gray-500">Read-only</span>
+            </div>
+            <p>{email}</p>
          </div>
 
          {/* Mobile Number */}

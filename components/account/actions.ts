@@ -39,7 +39,6 @@ const CUSTOMER_UPDATE_MUTATION = `
   }
 `;
 
-// Define the AddressUpdate mutation along with the fragment for CustomerAddress.
 const ADDRESS_UPDATE_MUTATION = `
   mutation AddressUpdate($addressInput: CustomerAddressInput!, $id: ID!, $defaultAddress: Boolean) {
     customerAddressUpdate(
@@ -115,8 +114,7 @@ export async function updateAddress(
    }
 }
 
-/* ------------------ Existing Update Functions ------------------ */
-// (Your existing functions for updateFirstName, updateLastName, updatePhone, etc.)
+/* ------------------ Customer Update Functions ------------------ */
 
 export async function updateFirstName(newFirstName: string, customerAccessToken: string) {
    const variables = { input: { firstName: newFirstName } };
@@ -124,24 +122,7 @@ export async function updateFirstName(newFirstName: string, customerAccessToken:
       const response = await shopifyCustomerFetch({
          customerToken: customerAccessToken,
          cache: 'no-store',
-         query: CUSTOMER_UPDATE_MUTATION, // Your CustomerUpdate mutation for names
-         variables: variables as any,
-         tags: [TAGS.customer]
-      });
-      revalidateTag(TAGS.customer);
-      return response;
-   } catch (error) {
-      console.error('Error updating first name', error);
-      throw new Error('Error updating first name');
-   }
-}
-export async function updateLastName(newLastName: string, customerAccessToken: string) {
-   const variables = { input: { lastName: newLastName } };
-   try {
-      const response = await shopifyCustomerFetch({
-         customerToken: customerAccessToken,
-         cache: 'no-store',
-         query: CUSTOMER_UPDATE_MUTATION, // Your CustomerUpdate mutation for names
+         query: CUSTOMER_UPDATE_MUTATION,
          variables: variables as any,
          tags: [TAGS.customer]
       });
@@ -153,7 +134,43 @@ export async function updateLastName(newLastName: string, customerAccessToken: s
    }
 }
 
-// ... etc. for updateLastName and updatePhone
+export async function updateLastName(newLastName: string, customerAccessToken: string) {
+   const variables = { input: { lastName: newLastName } };
+   try {
+      const response = await shopifyCustomerFetch({
+         customerToken: customerAccessToken,
+         cache: 'no-store',
+         query: CUSTOMER_UPDATE_MUTATION,
+         variables: variables as any,
+         tags: [TAGS.customer]
+      });
+      revalidateTag(TAGS.customer);
+      return response;
+   } catch (error) {
+      console.error('Error updating last name', error);
+      throw new Error('Error updating last name');
+   }
+}
+
+export async function updatePhone(newPhone: string, customerAccessToken: string) {
+   // Use the correct input key if Shopify expects "phone" or "phoneNumber".
+   // In this example, we'll try "phone". Adjust if necessary.
+   const variables = { input: { phone: newPhone } };
+   try {
+      const response = await shopifyCustomerFetch({
+         customerToken: customerAccessToken,
+         cache: 'no-store',
+         query: CUSTOMER_UPDATE_MUTATION,
+         variables: variables as any,
+         tags: [TAGS.customer]
+      });
+      revalidateTag(TAGS.customer);
+      return response;
+   } catch (error) {
+      console.error('Error updating phone number', error);
+      throw new Error('Error updating phone number');
+   }
+}
 
 /* ------------------ Logout Function ------------------ */
 
