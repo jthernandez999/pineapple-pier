@@ -1,8 +1,12 @@
+// account/account-orders-history.tsx
 'use client';
+
+import Image from 'next/image';
 import Link from 'next/link';
-import { useState } from 'react';
+import { ReactNode, useState } from 'react';
 
 type Order = {
+   orderNumber: ReactNode;
    id: string;
    number: number;
    processedAt: string;
@@ -31,7 +35,6 @@ type OrderEdge = {
 };
 
 type AccountOrdersHistoryProps = {
-   // Accept orders as any and cast internally
    orders: any;
 };
 
@@ -59,9 +62,11 @@ function EmptyOrders() {
    return (
       <div className="py-10 text-center">
          <p className="mb-4 text-gray-500">You haven’t placed any orders yet.</p>
-         <button className="rounded bg-blue-600 px-4 py-2 text-white transition hover:bg-blue-700">
-            Start Shopping
-         </button>
+         <Link href="/">
+            <button className="rounded bg-blue-600 px-4 py-2 text-white transition hover:bg-blue-700">
+               Start Shopping
+            </button>
+         </Link>
       </div>
    );
 }
@@ -90,44 +95,49 @@ type OrderCardProps = {
    onClick: () => void;
 };
 
-function OrderCard({ order, onClick }: OrderCardProps) {
+export function OrderCard({ order }: OrderCardProps) {
    const formattedDate = new Date(order.processedAt).toLocaleDateString();
 
    return (
-      <div
-         onClick={onClick}
-         className="cursor-pointer rounded-lg bg-white p-6 shadow-lg transition-shadow hover:shadow-xl"
-      >
-         <div className="mb-4 flex items-center justify-between">
-            <div>
-               <h3 className="text-lg font-semibold text-blue-600 underline">
-                  Order #{order.number}
-               </h3>
-               <p className="text-sm text-gray-500">{formattedDate}</p>
+      <Link href={`/account/orders/${order.id}`}>
+         <a className="cursor-pointer">
+            <div className="rounded-lg bg-white p-6 shadow-lg transition-shadow hover:shadow-xl">
+               <div className="flex items-center justify-between">
+                  <div>
+                     <h3 className="text-lg font-semibold text-blue-600 underline">
+                        Order #{order.orderNumber}
+                     </h3>
+                     <p className="text-sm text-gray-500">Confirmed {formattedDate}</p>
+                  </div>
+                  <div className="text-right">
+                     <p className="text-sm font-medium capitalize">{order.financialStatus}</p>
+                     <p className="text-lg font-bold">
+                        {order.totalPrice.currencyCode}{' '}
+                        {parseFloat(order.totalPrice.amount).toFixed(2)}
+                     </p>
+                  </div>
+               </div>
+               <div className="mt-4">
+                  <h4 className="mb-2 text-sm font-semibold">Items</h4>
+                  <ul className="flex space-x-4 overflow-x-auto">
+                     {order.lineItems.edges.map(({ node }, index) => (
+                        <li key={index} className="flex-shrink-0">
+                           <Image
+                              src={node.image.url}
+                              alt={node.image.altText || node.title}
+                              width={60}
+                              height={60}
+                              className="rounded object-cover"
+                              unoptimized
+                           />
+                           <p className="mt-1 text-center text-xs">{node.title}</p>
+                        </li>
+                     ))}
+                  </ul>
+               </div>
             </div>
-            <div className="text-right">
-               <p className="text-sm font-medium capitalize">{order.financialStatus}</p>
-               <p className="text-lg font-bold">
-                  {order.totalPrice.currencyCode} {parseFloat(order.totalPrice.amount).toFixed(2)}
-               </p>
-            </div>
-         </div>
-         <div>
-            <h4 className="mb-2 text-sm font-semibold">Items</h4>
-            <ul className="flex space-x-4 overflow-auto">
-               {order.lineItems.edges.map(({ node }) => (
-                  <li key={node.title} className="flex-shrink-0">
-                     <img
-                        src={node.image.url}
-                        alt={node.image.altText}
-                        className="h-16 w-16 rounded object-cover"
-                     />
-                     <p className="mt-1 text-center text-xs">{node.title}</p>
-                  </li>
-               ))}
-            </ul>
-         </div>
-      </div>
+         </a>
+      </Link>
    );
 }
 
@@ -139,20 +149,13 @@ type OrderModalProps = {
 function OrderModal({ order, onClose }: OrderModalProps) {
    const formattedDate = new Date(order.processedAt).toLocaleDateString();
 
-   // Helper to create a slug from the product title.
-   const createSlug = (title: string) =>
-      title
-         .toLowerCase()
-         .replace(/[^a-z0-9]+/g, '-')
-         .replace(/^-+|-+$/g, '');
-
    return (
       <div className="fixed inset-0 z-50 flex items-center justify-center px-4" onClick={onClose}>
          {/* Modal backdrop */}
          <div className="fixed inset-0 bg-black opacity-50" aria-hidden="true" />
          {/* Modal content */}
          <div
-            className="relative z-10 mx-auto w-full max-w-md rounded-lg bg-white p-6 shadow-xl"
+            className="relative z-10 mx-auto w-full max-w-3xl rounded-lg bg-white p-6 shadow-xl dark:bg-gray-800"
             onClick={(e) => e.stopPropagation()}
          >
             <div className="mb-4 flex items-center justify-between">
@@ -165,33 +168,14 @@ function OrderModal({ order, onClose }: OrderModalProps) {
                </button>
             </div>
             <p className="mb-2 text-sm text-gray-500">{formattedDate}</p>
-            <div className="mb-4">
-               <p className="text-sm font-medium capitalize">Status: {order.financialStatus}</p>
-               <p className="text-lg font-bold">
+            {/* Add additional order detail sections here */}
+            <div className="mt-4">
+               <h4 className="text-lg font-bold">Order Summary</h4>
+               <p className="mt-1">
                   {order.totalPrice.currencyCode} {parseFloat(order.totalPrice.amount).toFixed(2)}
                </p>
             </div>
-            <div>
-               <h4 className="mb-2 text-sm font-semibold">Items</h4>
-               <ul className="max-h-60 space-y-4 overflow-auto">
-                  {order.lineItems.edges.map(({ node }) => (
-                     <li key={node.title} className="flex items-center space-x-4">
-                        <Link href={`/product/${createSlug(node.title)}`}>
-                           <img
-                              src={node.image.url}
-                              alt={node.image.altText}
-                              className="h-16 w-16 cursor-pointer rounded object-cover"
-                           />
-                        </Link>
-                        <Link href={`/product/${createSlug(node.title)}`}>
-                           <span className="cursor-pointer text-sm hover:underline">
-                              {node.title}
-                           </span>
-                        </Link>
-                     </li>
-                  ))}
-               </ul>
-            </div>
+            {/* You can expand this modal to include shipping, billing, items, etc. */}
          </div>
       </div>
    );

@@ -189,7 +189,7 @@ export function AccountAddressInfo({ addressData, customerAccessToken }: Address
                </div>
                <div className="flex gap-4">
                   <button
-                     className="w-full rounded-md bg-blue-500 py-2 text-white transition-colors duration-200 hover:bg-blue-600"
+                     className="hover:bg-black-opacity-80 w-full rounded-md bg-black py-2 text-white transition-colors duration-200"
                      onClick={handleSaveAddress}
                      disabled={loading}
                   >
