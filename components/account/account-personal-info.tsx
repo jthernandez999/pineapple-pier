@@ -10,13 +10,14 @@ import {
    updatePhone
 } from './actions';
 
-// Ensure you pass the customerAccessToken from a higher-level component or context.
 type PersonalInfoProps = {
    customerData: any;
 };
 
 export function AccountPersonalInfo({ customerData }: PersonalInfoProps) {
-   // Assume customerData contains the necessary fields; adjust keys as needed.
+   const customerAccessToken = customerData?.accessToken || '';
+
+   // Set initial values from customerData
    const [firstName, setFirstName] = useState(customerData?.firstName || '');
    const [lastName, setLastName] = useState(customerData?.lastName || '');
    const [email, setEmail] = useState(customerData?.emailAddress?.emailAddress || '');
@@ -24,19 +25,32 @@ export function AccountPersonalInfo({ customerData }: PersonalInfoProps) {
    const [birthday, setBirthday] = useState(customerData?.birthday || '');
    const [message, setMessage] = useState('');
 
-   // For demonstration, we assume you have the customerAccessToken stored in customerData
-   const customerAccessToken = customerData?.accessToken || '';
+   // Loading states for each field
+   const [loadingField, setLoadingField] = useState<string | null>(null);
 
-   const handleUpdate = async (
+   // Track edit state per field
+   const [editingFirstName, setEditingFirstName] = useState(false);
+   const [editingLastName, setEditingLastName] = useState(false);
+   const [editingEmail, setEditingEmail] = useState(false);
+   const [editingPhone, setEditingPhone] = useState(false);
+   const [editingBirthday, setEditingBirthday] = useState(false);
+
+   // Handlers for saving changes that trigger update actions to Shopify
+   const handleSave = async (
       updateFunc: (value: string, token: string) => Promise<any>,
       value: string,
-      field: string
+      field: string,
+      setEditing: (flag: boolean) => void
    ) => {
+      setLoadingField(field);
       try {
-         const res = await updateFunc(value, customerAccessToken);
+         await updateFunc(value, customerAccessToken);
          setMessage(`${field} updated successfully.`);
+         setEditing(false);
       } catch (error: any) {
          setMessage(`Error updating ${field}: ${error.message}`);
+      } finally {
+         setLoadingField(null);
       }
    };
 
@@ -48,95 +62,160 @@ export function AccountPersonalInfo({ customerData }: PersonalInfoProps) {
          <div className="space-y-2">
             <div className="flex items-center justify-between">
                <span className="font-medium">First Name</span>
-               <button
-                  className="text-blue-500"
-                  onClick={() => handleUpdate(updateFirstName, firstName, 'First Name')}
-               >
-                  Edit
-               </button>
+               {editingFirstName ? (
+                  <button
+                     className="text-blue-500"
+                     onClick={() =>
+                        handleSave(updateFirstName, firstName, 'First Name', setEditingFirstName)
+                     }
+                     disabled={loadingField === 'First Name'}
+                  >
+                     {loadingField === 'First Name' ? 'Saving...' : 'Save'}
+                  </button>
+               ) : (
+                  <button className="text-blue-500" onClick={() => setEditingFirstName(true)}>
+                     Edit
+                  </button>
+               )}
             </div>
-            <input
-               type="text"
-               className="w-full border p-2"
-               value={firstName}
-               onChange={(e) => setFirstName(e.target.value)}
-            />
+            {editingFirstName ? (
+               <input
+                  type="text"
+                  className="w-full border p-2"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+               />
+            ) : (
+               <p>{firstName || 'N/A'}</p>
+            )}
          </div>
 
          {/* Last Name */}
          <div className="space-y-2">
             <div className="flex items-center justify-between">
                <span className="font-medium">Last Name</span>
-               <button
-                  className="text-blue-500"
-                  onClick={() => handleUpdate(updateLastName, lastName, 'Last Name')}
-               >
-                  Edit
-               </button>
+               {editingLastName ? (
+                  <button
+                     className="text-blue-500"
+                     onClick={() =>
+                        handleSave(updateLastName, lastName, 'Last Name', setEditingLastName)
+                     }
+                     disabled={loadingField === 'Last Name'}
+                  >
+                     {loadingField === 'Last Name' ? 'Saving...' : 'Save'}
+                  </button>
+               ) : (
+                  <button className="text-blue-500" onClick={() => setEditingLastName(true)}>
+                     Edit
+                  </button>
+               )}
             </div>
-            <input
-               type="text"
-               className="w-full border p-2"
-               value={lastName}
-               onChange={(e) => setLastName(e.target.value)}
-            />
+            {editingLastName ? (
+               <input
+                  type="text"
+                  className="w-full border p-2"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+               />
+            ) : (
+               <p>{lastName || 'N/A'}</p>
+            )}
          </div>
 
          {/* Email Address */}
          <div className="space-y-2">
             <div className="flex items-center justify-between">
                <span className="font-medium">Email Address</span>
-               <button
-                  className="text-blue-500"
-                  onClick={() => handleUpdate(updateEmail, email, 'Email Address')}
-               >
-                  Edit
-               </button>
+               {editingEmail ? (
+                  <button
+                     className="text-blue-500"
+                     onClick={() =>
+                        handleSave(updateEmail, email, 'Email Address', setEditingEmail)
+                     }
+                     disabled={loadingField === 'Email Address'}
+                  >
+                     {loadingField === 'Email Address' ? 'Saving...' : 'Save'}
+                  </button>
+               ) : (
+                  <button className="text-blue-500" onClick={() => setEditingEmail(true)}>
+                     Edit
+                  </button>
+               )}
             </div>
-            <input
-               type="email"
-               className="w-full border p-2"
-               value={email}
-               onChange={(e) => setEmail(e.target.value)}
-            />
+            {editingEmail ? (
+               <input
+                  type="email"
+                  className="w-full border p-2"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+               />
+            ) : (
+               <p>{email || 'N/A'}</p>
+            )}
          </div>
 
          {/* Mobile Number */}
          <div className="space-y-2">
             <div className="flex items-center justify-between">
                <span className="font-medium">Mobile Number</span>
-               <button
-                  className="text-blue-500"
-                  onClick={() => handleUpdate(updatePhone, phone, 'Mobile Number')}
-               >
-                  Edit
-               </button>
+               {editingPhone ? (
+                  <button
+                     className="text-blue-500"
+                     onClick={() =>
+                        handleSave(updatePhone, phone, 'Mobile Number', setEditingPhone)
+                     }
+                     disabled={loadingField === 'Mobile Number'}
+                  >
+                     {loadingField === 'Mobile Number' ? 'Saving...' : 'Save'}
+                  </button>
+               ) : (
+                  <button className="text-blue-500" onClick={() => setEditingPhone(true)}>
+                     Edit
+                  </button>
+               )}
             </div>
-            <input
-               type="text"
-               className="w-full border p-2"
-               value={phone}
-               onChange={(e) => setPhone(e.target.value)}
-            />
+            {editingPhone ? (
+               <input
+                  type="text"
+                  className="w-full border p-2"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+               />
+            ) : (
+               <p>{phone || 'N/A'}</p>
+            )}
          </div>
 
          {/* Birthday */}
          <div className="space-y-2">
             <div className="flex items-center justify-between">
                <span className="font-medium">Birthday (MM/DD)</span>
-               <button
-                  className="text-blue-500"
-                  onClick={() => handleUpdate(updateBirthday, birthday, 'Birthday')}
-               >
-                  Edit
-               </button>
+               {editingBirthday ? (
+                  <button
+                     className="text-blue-500"
+                     onClick={() =>
+                        handleSave(updateBirthday, birthday, 'Birthday', setEditingBirthday)
+                     }
+                     disabled={loadingField === 'Birthday'}
+                  >
+                     {loadingField === 'Birthday' ? 'Saving...' : 'Save'}
+                  </button>
+               ) : (
+                  <button className="text-blue-500" onClick={() => setEditingBirthday(true)}>
+                     Edit
+                  </button>
+               )}
             </div>
-            <input
-               type="text"
-               className="w-full border p-2"
-               value={birthday}
-               onChange={(e) => setBirthday(e.target.value)}
-            />
+            {editingBirthday ? (
+               <input
+                  type="text"
+                  className="w-full border p-2"
+                  value={birthday}
+                  onChange={(e) => setBirthday(e.target.value)}
+               />
+            ) : (
+               <p>{birthday || 'N/A'}</p>
+            )}
          </div>
 
          {message && <p className="text-sm text-green-600">{message}</p>}
