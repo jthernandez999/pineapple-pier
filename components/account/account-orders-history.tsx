@@ -97,9 +97,9 @@ type OrderCardProps = {
 
 export function OrderCard({ order }: OrderCardProps) {
    const formattedDate = new Date(order.processedAt).toLocaleDateString();
-
    return (
-      <Link href={`/account/orders/${order.id}`}>
+      // NEED TO UPDATED THE URL PATH
+      <Link href={`https://shopify.com/10242207/account/orders/${order.id}`}>
          <a className="cursor-pointer">
             <div className="rounded-lg bg-white p-6 shadow-lg transition-shadow hover:shadow-xl">
                <div className="flex items-center justify-between">
