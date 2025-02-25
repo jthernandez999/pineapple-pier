@@ -12,27 +12,111 @@ import { revalidateTag } from 'next/cache';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
-// Updated mutation: do not include email in the selection if it is not updatable.
 const CUSTOMER_UPDATE_MUTATION = `
-  mutation customerUpdate($input: CustomerUpdateInput!) {
+  mutation CustomerUpdate($input: CustomerUpdateInput!) {
     customerUpdate(input: $input) {
-      userErrors {
-        field
-        message
-      }
       customer {
         id
         firstName
         lastName
+        emailAddress {
+          emailAddress
+          __typename
+        }
         phoneNumber {
           phoneNumber
+          __typename
         }
+        __typename
       }
+      userErrors {
+        field
+        message
+        __typename
+      }
+      __typename
     }
   }
 `;
 
-/* ------------------ Update Functions ------------------ */
+// Define the AddressUpdate mutation along with the fragment for CustomerAddress.
+const ADDRESS_UPDATE_MUTATION = `
+  mutation AddressUpdate($addressInput: CustomerAddressInput!, $id: ID!, $defaultAddress: Boolean) {
+    customerAddressUpdate(
+      address: $addressInput,
+      addressId: $id,
+      defaultAddress: $defaultAddress
+    ) {
+      customerAddress {
+        id
+        address1
+        address2
+        firstName
+        lastName
+        provinceCode: zoneCode
+        city
+        zip
+        country: territoryCode
+        company
+        phone: phoneNumber
+        __typename
+      }
+      userErrors {
+        field
+        message
+        __typename
+      }
+      __typename
+    }
+  }
+  fragment CustomerAddress on CustomerAddress {
+    id
+    address1
+    address2
+    firstName
+    lastName
+    provinceCode: zoneCode
+    city
+    zip
+    country: territoryCode
+    company
+    phone: phoneNumber
+    __typename
+  }
+`;
+
+/**
+ * Update a customer's address.
+ * @param addressInput - An object with the address fields to update.
+ * @param id - The ID of the customer address (e.g. "gid://shopify/CustomerAddress/6694002491481").
+ * @param defaultAddress - Whether this address should become the default address.
+ * @param customerAccessToken - The token to authorize the request.
+ */
+export async function updateAddress(
+   addressInput: Record<string, any>,
+   id: string,
+   defaultAddress: boolean,
+   customerAccessToken: string
+) {
+   const variables = { addressInput, id, defaultAddress };
+   try {
+      const response = await shopifyCustomerFetch({
+         customerToken: customerAccessToken,
+         cache: 'no-store',
+         query: ADDRESS_UPDATE_MUTATION,
+         variables: variables as any,
+         tags: [TAGS.customer]
+      });
+      revalidateTag(TAGS.customer);
+      return response;
+   } catch (error) {
+      console.error('Error updating address', error);
+      throw new Error('Error updating address');
+   }
+}
+
+/* ------------------ Existing Update Functions ------------------ */
+// (Your existing functions for updateFirstName, updateLastName, updatePhone, etc.)
 
 export async function updateFirstName(newFirstName: string, customerAccessToken: string) {
    const variables = { input: { firstName: newFirstName } };
@@ -40,7 +124,7 @@ export async function updateFirstName(newFirstName: string, customerAccessToken:
       const response = await shopifyCustomerFetch({
          customerToken: customerAccessToken,
          cache: 'no-store',
-         query: CUSTOMER_UPDATE_MUTATION,
+         query: CUSTOMER_UPDATE_MUTATION, // Your CustomerUpdate mutation for names
          variables: variables as any,
          tags: [TAGS.customer]
       });
@@ -52,41 +136,7 @@ export async function updateFirstName(newFirstName: string, customerAccessToken:
    }
 }
 
-export async function updateLastName(newLastName: string, customerAccessToken: string) {
-   const variables = { input: { lastName: newLastName } };
-   try {
-      const response = await shopifyCustomerFetch({
-         customerToken: customerAccessToken,
-         cache: 'no-store',
-         query: CUSTOMER_UPDATE_MUTATION,
-         variables: variables as any,
-         tags: [TAGS.customer]
-      });
-      revalidateTag(TAGS.customer);
-      return response;
-   } catch (error) {
-      console.error('Error updating last name', error);
-      throw new Error('Error updating last name');
-   }
-}
-
-export async function updatePhone(newPhone: string, customerAccessToken: string) {
-   const variables = { input: { phone: newPhone } };
-   try {
-      const response = await shopifyCustomerFetch({
-         customerToken: customerAccessToken,
-         cache: 'no-store',
-         query: CUSTOMER_UPDATE_MUTATION,
-         variables: variables as any,
-         tags: [TAGS.customer]
-      });
-      revalidateTag(TAGS.customer);
-      return response;
-   } catch (error) {
-      console.error('Error updating phone number', error);
-      throw new Error('Error updating phone number');
-   }
-}
+// ... etc. for updateLastName and updatePhone
 
 /* ------------------ Logout Function ------------------ */
 
