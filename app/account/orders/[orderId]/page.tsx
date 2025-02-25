@@ -1,22 +1,28 @@
 // app/account/orders/[orderId]/page.tsx
 import OrderDetails from 'components/account/OrderDetails';
+import { shopifyCustomerFetch } from 'lib/shopify/customer';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import React from 'react';
 
-export default async function OrderPage(props: any): Promise<React.ReactElement> {
-   // Destructure params and searchParams from props.
-   const { params, searchParams } = props;
+export default async function OrderPage({
+   params,
+   searchParams
+}: {
+   params: { orderId: string };
+   searchParams: { [key: string]: string | string[] };
+}): Promise<React.ReactElement> {
    const { orderId } = params;
 
-   const token = (await headers()).get('x-shop-customer-token');
+   // Ensure token is a string (defaulting to empty string if missing)
+   const token = (await headers()).get('x-shop-customer-token') ?? '';
    if (!token || token === 'denied') {
       console.error('ERROR: No valid access header on Account page');
       redirect('/logout');
    }
    const customerAccessToken = token;
 
-   // Define the GraphQL query for order details.
+   // GraphQL query to fetch order details.
    const query = `
     query OrderDetails($orderId: ID!) {
       order(id: $orderId) {
@@ -59,18 +65,18 @@ export default async function OrderPage(props: any): Promise<React.ReactElement>
   `;
    const variables = { orderId };
 
-   const res = await fetch('https://shopify.com/10242207/account/customer/api/unstable/graphql', {
-      method: 'POST',
-      headers: {
-         'Content-Type': 'application/json',
-         Authorization: customerAccessToken
-      },
-      body: JSON.stringify({ query, variables }),
-      cache: 'no-store'
+   // Use your custom fetch function
+   const res = await shopifyCustomerFetch({
+      customerToken: customerAccessToken,
+      cache: 'no-store',
+      query,
+      variables: variables as any
    });
 
-   const json = await res.json();
-   if (!res.ok || json.errors) {
+   // Since shopifyCustomerFetch returns { status, body },
+   // we use res.status and res.body directly.
+   const json = res.body as { data: any; errors?: any };
+   if (res.status !== 200 || json.errors) {
       console.error('Error fetching order details:', json.errors);
       return <p>Error fetching order details.</p>;
    }
