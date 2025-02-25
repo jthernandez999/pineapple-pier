@@ -4,20 +4,19 @@ import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import React from 'react';
 
-export default async function OrderPage({
-   params,
-   searchParams
-}: {
-   params: { orderId: string };
-   searchParams: { [key: string]: string | string[] };
-}): Promise<React.ReactElement> {
+export default async function OrderPage(props: any): Promise<React.ReactElement> {
+   // Destructure params and searchParams from props.
+   const { params, searchParams } = props;
    const { orderId } = params;
+
    const token = (await headers()).get('x-shop-customer-token');
    if (!token || token === 'denied') {
+      console.error('ERROR: No valid access header on Account page');
       redirect('/logout');
    }
    const customerAccessToken = token;
 
+   // Define the GraphQL query for order details.
    const query = `
     query OrderDetails($orderId: ID!) {
       order(id: $orderId) {
@@ -58,8 +57,7 @@ export default async function OrderPage({
       }
     }
   `;
-   // Cast variables to any to satisfy the expected type
-   const variables = { orderId } as any;
+   const variables = { orderId };
 
    const res = await fetch('https://shopify.com/10242207/account/customer/api/unstable/graphql', {
       method: 'POST',
@@ -71,9 +69,7 @@ export default async function OrderPage({
       cache: 'no-store'
    });
 
-   // Explicitly cast json result to the expected shape
-   const json = (await res.json()) as { data: any; errors?: any };
-
+   const json = await res.json();
    if (!res.ok || json.errors) {
       console.error('Error fetching order details:', json.errors);
       return <p>Error fetching order details.</p>;
