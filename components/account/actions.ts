@@ -135,6 +135,23 @@ export async function updateFirstName(newFirstName: string, customerAccessToken:
       throw new Error('Error updating first name');
    }
 }
+export async function updateLastName(newLastName: string, customerAccessToken: string) {
+   const variables = { input: { lastName: newLastName } };
+   try {
+      const response = await shopifyCustomerFetch({
+         customerToken: customerAccessToken,
+         cache: 'no-store',
+         query: CUSTOMER_UPDATE_MUTATION, // Your CustomerUpdate mutation for names
+         variables: variables as any,
+         tags: [TAGS.customer]
+      });
+      revalidateTag(TAGS.customer);
+      return response;
+   } catch (error) {
+      console.error('Error updating first name', error);
+      throw new Error('Error updating first name');
+   }
+}
 
 // ... etc. for updateLastName and updatePhone
 
