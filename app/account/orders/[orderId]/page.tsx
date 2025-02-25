@@ -1,6 +1,6 @@
 import OrderDetails from 'components/account/OrderDetails';
 import { shopifyCustomerFetch } from 'lib/shopify/customer';
-import { headers } from 'next/headers';
+import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import React from 'react';
 
@@ -8,10 +8,9 @@ export default async function OrderPage(props: any): Promise<React.ReactElement>
    const { params, searchParams } = props;
    const { orderId } = params;
 
-   // headers() is synchronous
-   const token = (await headers()).get('x-shop-customer-token') ?? '';
+   const token = (await cookies()).get('shop_customer_token')?.value ?? '';
    if (!token || token === 'denied') {
-      console.error('ERROR: No valid access header on Account page');
+      console.error('ERROR: No valid customer token found');
       redirect('/logout');
    }
    const customerAccessToken = token;
