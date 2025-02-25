@@ -12,9 +12,7 @@ import { revalidateTag } from 'next/cache';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
-// Updated mutation:
-// - For email, we query the nested emailAddress { emailAddress }
-// - For phone, we query phoneNumber instead of phone.
+// Updated mutation: add a selection for phoneNumber, e.g. { phoneNumber }
 const CUSTOMER_UPDATE_MUTATION = `
   mutation customerUpdate($input: CustomerUpdateInput!) {
     customerUpdate(input: $input) {
@@ -28,7 +26,9 @@ const CUSTOMER_UPDATE_MUTATION = `
         emailAddress {
           emailAddress
         }
-        phoneNumber
+        phoneNumber {
+          phoneNumber
+        }
       }
     }
   }
