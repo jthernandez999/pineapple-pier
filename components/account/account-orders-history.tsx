@@ -105,7 +105,7 @@ export function OrderCard({ order }: OrderCardProps) {
    const extractedId = extractOrderId(order.id);
 
    return (
-      <Link href={`/account/orders/${extractedId}`}>
+      <Link href={`https://shopify.com/10242207/account/orders/${extractedId}`}>
          <a className="cursor-pointer">
             <div className="rounded-lg bg-white p-6 shadow-lg transition-shadow hover:shadow-xl">
                <div className="flex items-center justify-between">
