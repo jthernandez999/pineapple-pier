@@ -82,7 +82,7 @@ export default function AccountDashboard({
                      <li key={menu} className="w-1/2 md:w-full">
                         <button
                            className={`mb-1 block w-full rounded-md px-4 py-2 text-black transition-opacity duration-200 hover:opacity-80 ${
-                              activeMenu === menu ? 'opacity-80' : 'opacity-100'
+                              activeMenu === menu ? 'opacity-80' : 'underline opacity-100'
                            }`}
                            onClick={() => setActiveMenu(menu)}
                         >
