@@ -13,11 +13,14 @@ export default async function OrderPage({
    searchParams: { [key: string]: string | string[] };
 }): Promise<React.ReactElement> {
    const { orderId } = params;
-   const customerToken = (await headers()).get('x-shop-customer-token');
-   if (!customerToken || customerToken === 'denied') {
+   const headersList = headers();
+   const access = (await headersList).get('x-shop-customer-token');
+   if (!access || access === 'denied') {
+      console.error('ERROR: No valid access header on Account page');
       redirect('/logout');
    }
 
+   const customerAccessToken = access;
    // Define your GraphQL query for order details.
    const query = `
     query OrderDetails($orderId: ID!) {
@@ -65,7 +68,7 @@ export default async function OrderPage({
       method: 'POST',
       headers: {
          'Content-Type': 'application/json',
-         Authorization: customerToken
+         Authorization: customerAccessToken
       },
       body: JSON.stringify({ query, variables }),
       cache: 'no-store'
