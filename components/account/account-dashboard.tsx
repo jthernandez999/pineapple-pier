@@ -2,6 +2,7 @@
 'use client';
 
 import { useState } from 'react';
+import { AccountAddressInfo } from './account-address-info';
 import { AccountOrdersHistory } from './account-orders-history';
 import { AccountPersonalInfo } from './account-personal-info';
 import { AccountProfile } from './account-profile';
@@ -29,6 +30,13 @@ export default function AccountDashboard({
             return (
                <AccountPersonalInfo
                   customerData={customerData}
+                  customerAccessToken={customerAccessToken}
+               />
+            );
+         case 'address':
+            return (
+               <AccountAddressInfo
+                  addressData={customerData?.defaultAddress}
                   customerAccessToken={customerAccessToken}
                />
             );
