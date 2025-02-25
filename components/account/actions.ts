@@ -41,14 +41,18 @@ const CUSTOMER_UPDATE_MUTATION = `
 
 /* ------------------ Update Functions ------------------ */
 
+// Ensure the customerAccessToken you pass is valid and current.
+// We cast variables as any to bypass type errors.
 export async function updateFirstName(newFirstName: string, customerAccessToken: string) {
    const variables = { input: { firstName: newFirstName } };
    try {
+      // Debug: log token if needed (only in dev)
+      // console.log("Token in updateFirstName:", customerAccessToken);
       const response = await shopifyCustomerFetch({
          customerToken: customerAccessToken,
          cache: 'no-store',
          query: CUSTOMER_UPDATE_MUTATION,
-         variables: variables as any, // Casting variables to any to satisfy the type
+         variables: variables as any,
          tags: [TAGS.customer]
       });
       revalidateTag(TAGS.customer);
@@ -113,7 +117,7 @@ export async function updatePhone(newPhone: string, customerAccessToken: string)
    }
 }
 
-// Assuming birthday is stored as a metafield; adjust as necessary.
+// If birthday is stored as a metafield, ensure your Shopify setup allows this update.
 export async function updateBirthday(newBirthday: string, customerAccessToken: string) {
    const variables = {
       input: {
