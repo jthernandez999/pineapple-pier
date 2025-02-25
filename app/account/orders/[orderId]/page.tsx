@@ -19,7 +19,7 @@ export default async function OrderPage(props: any): Promise<React.ReactElement>
     query OrderDetails($orderId: ID!) {
       order(id: $orderId) {
         id
-        orderNumber
+        number
         createdAt
         fulfillmentStatus
         totalPrice

@@ -7,7 +7,7 @@ import { useState } from 'react';
 
 type Order = {
    id: string; // e.g. "gid:/shopify/Order/3989279342681"
-   orderNumber: number;
+   number: number;
    processedAt: string;
    financialStatus: string;
    totalPrice: {
@@ -111,7 +111,7 @@ export function OrderCard({ order }: OrderCardProps) {
                <div className="flex items-center justify-between">
                   <div>
                      <h3 className="text-lg font-semibold text-blue-600 underline">
-                        Order #{order.orderNumber}
+                        Order #{order.number}
                      </h3>
                      <p className="text-sm text-gray-500">Confirmed {formattedDate}</p>
                   </div>
@@ -164,7 +164,7 @@ function OrderModal({ order, onClose }: OrderModalProps) {
             onClick={(e) => e.stopPropagation()}
          >
             <div className="mb-4 flex items-center justify-between">
-               <h3 className="text-xl font-semibold">Order #{order.orderNumber}</h3>
+               <h3 className="text-xl font-semibold">Order #{order.number}</h3>
                <button
                   onClick={onClose}
                   className="text-2xl font-bold text-gray-500 hover:text-gray-700"
