@@ -74,7 +74,8 @@ export async function updateLastName(newLastName: string, customerAccessToken: s
 }
 
 export async function updateEmail(newEmail: string, customerAccessToken: string) {
-   const variables = { input: { email: newEmail } };
+   // Use "emailAddress" (instead of "email") in the input
+   const variables = { input: { emailAddress: newEmail } };
    try {
       const response = await shopifyCustomerFetch({
          customerToken: customerAccessToken,
