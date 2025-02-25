@@ -3,12 +3,11 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { ReactNode, useState } from 'react';
+import { useState } from 'react';
 
 type Order = {
-   orderNumber: ReactNode;
-   id: string;
-   number: number;
+   id: string; // e.g. "gid:/shopify/Order/3989279342681"
+   orderNumber: number;
    processedAt: string;
    financialStatus: string;
    totalPrice: {
@@ -21,7 +20,7 @@ type Order = {
             title: string;
             image: {
                url: string;
-               altText: string;
+               altText?: string;
                width: number;
                height: number;
             };
@@ -92,14 +91,21 @@ function Orders({ orders, onSelectOrder }: OrdersProps) {
 
 type OrderCardProps = {
    order: Order;
-   onClick: () => void;
+   onClick?: () => void;
 };
+
+function extractOrderId(fullId: string | undefined): string {
+   if (!fullId) return '';
+   const parts = fullId.split('/');
+   return parts[parts.length - 1] || '';
+}
 
 export function OrderCard({ order }: OrderCardProps) {
    const formattedDate = new Date(order.processedAt).toLocaleDateString();
+   const extractedId = extractOrderId(order.id);
+
    return (
-      // NEED TO UPDATED THE URL PATH
-      <Link href={`https://shopify.com/10242207/account/orders/${order.id}`}>
+      <Link href={`/account/orders/${extractedId}`}>
          <a className="cursor-pointer">
             <div className="rounded-lg bg-white p-6 shadow-lg transition-shadow hover:shadow-xl">
                <div className="flex items-center justify-between">
@@ -128,7 +134,6 @@ export function OrderCard({ order }: OrderCardProps) {
                               width={60}
                               height={60}
                               className="rounded object-cover"
-                              unoptimized
                            />
                            <p className="mt-1 text-center text-xs">{node.title}</p>
                         </li>
@@ -159,7 +164,7 @@ function OrderModal({ order, onClose }: OrderModalProps) {
             onClick={(e) => e.stopPropagation()}
          >
             <div className="mb-4 flex items-center justify-between">
-               <h3 className="text-xl font-semibold">Order #{order.number}</h3>
+               <h3 className="text-xl font-semibold">Order #{order.orderNumber}</h3>
                <button
                   onClick={onClose}
                   className="text-2xl font-bold text-gray-500 hover:text-gray-700"
