@@ -21,7 +21,7 @@ const menuItems: MenuItem[] = [
    { id: 'personal', label: 'Personal Info' },
    { id: 'shipping', label: 'Shipping Addresses' },
    { id: 'password', label: 'Change Password' },
-   { id: 'security', label: 'Account Security' },
+   //    { id: 'security', label: 'Account Security' },
    { id: 'communication', label: 'Communication Preferences' },
    { id: 'customer', label: 'Customer Service' }
 ];
