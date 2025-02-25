@@ -1,4 +1,4 @@
-// components/account/account-dashboard.tsx
+// account/account-dashboard.tsx
 'use client';
 
 import { useState } from 'react';
@@ -28,7 +28,6 @@ const menuItems: MenuItem[] = [
 ];
 
 export default function AccountDashboard({ customerData, orders }: AccountDashboardProps) {
-   // Default view is Purchase History.
    const [activeMenu, setActiveMenu] = useState<string>('purchase');
 
    const renderContent = () => {
