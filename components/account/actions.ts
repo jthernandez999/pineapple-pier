@@ -24,8 +24,12 @@ mutation customerUpdate($input: CustomerUpdateInput!) {
       id
        firstName
        lastName
-       email
-       phone
+       emailAddress{
+         CustomerEmailAddress
+       }
+       phoneNumber{
+         CustomerPhoneNumber
+       }
      }
    }
  }
