@@ -32,7 +32,7 @@ const CUSTOMER_UPDATE_MUTATION = `
 
 /* ------------------ Update Functions ------------------ */
 
-// Note: Ensure your customerAccessToken includes the proper scopes (customer_write_customers)
+// Ensure your customerAccessToken includes the proper scopes (customer_write_customers)
 
 export async function updateFirstName(newFirstName: string, customerAccessToken: string) {
    const variables = { input: { firstName: newFirstName } };
@@ -42,9 +42,7 @@ export async function updateFirstName(newFirstName: string, customerAccessToken:
          cache: 'no-store',
          query: CUSTOMER_UPDATE_MUTATION,
          variables: variables as any,
-         tags: [TAGS.customer],
-         // For this example, we’re also sending a custom header.
-         headers: { 'X-Shopify-Customer-Access-Token': customerAccessToken }
+         tags: [TAGS.customer]
       });
       revalidateTag(TAGS.customer);
       return response;
@@ -62,8 +60,7 @@ export async function updateLastName(newLastName: string, customerAccessToken: s
          cache: 'no-store',
          query: CUSTOMER_UPDATE_MUTATION,
          variables: variables as any,
-         tags: [TAGS.customer],
-         headers: { 'X-Shopify-Customer-Access-Token': customerAccessToken }
+         tags: [TAGS.customer]
       });
       revalidateTag(TAGS.customer);
       return response;
@@ -81,8 +78,7 @@ export async function updateEmail(newEmail: string, customerAccessToken: string)
          cache: 'no-store',
          query: CUSTOMER_UPDATE_MUTATION,
          variables: variables as any,
-         tags: [TAGS.customer],
-         headers: { 'X-Shopify-Customer-Access-Token': customerAccessToken }
+         tags: [TAGS.customer]
       });
       revalidateTag(TAGS.customer);
       return response;
@@ -100,14 +96,42 @@ export async function updatePhone(newPhone: string, customerAccessToken: string)
          cache: 'no-store',
          query: CUSTOMER_UPDATE_MUTATION,
          variables: variables as any,
-         tags: [TAGS.customer],
-         headers: { 'X-Shopify-Customer-Access-Token': customerAccessToken }
+         tags: [TAGS.customer]
       });
       revalidateTag(TAGS.customer);
       return response;
    } catch (error) {
       console.error('Error updating phone number', error);
       throw new Error('Error updating phone number');
+   }
+}
+
+export async function updateBirthday(newBirthday: string, customerAccessToken: string) {
+   const variables = {
+      input: {
+         metafields: [
+            {
+               key: 'birthday',
+               namespace: 'custom',
+               value: newBirthday,
+               type: 'single_line_text_field'
+            }
+         ]
+      }
+   };
+   try {
+      const response = await shopifyCustomerFetch({
+         customerToken: customerAccessToken,
+         cache: 'no-store',
+         query: CUSTOMER_UPDATE_MUTATION,
+         variables: variables as any,
+         tags: [TAGS.customer]
+      });
+      revalidateTag(TAGS.customer);
+      return response;
+   } catch (error) {
+      console.error('Error updating birthday', error);
+      throw new Error('Error updating birthday');
    }
 }
 
