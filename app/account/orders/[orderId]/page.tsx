@@ -1,3 +1,4 @@
+'use client';
 // app/account/orders/[orderId]/page.tsx
 import OrderDetails from 'components/account/OrderDetails';
 import { headers } from 'next/headers';
@@ -5,9 +6,11 @@ import { redirect } from 'next/navigation';
 import React from 'react';
 
 export default async function OrderPage({
-   params
+   params,
+   searchParams
 }: {
    params: { orderId: string };
+   searchParams: { [key: string]: string | string[] };
 }): Promise<React.ReactElement> {
    const { orderId } = params;
    const customerToken = (await headers()).get('x-shop-customer-token');
@@ -15,6 +18,7 @@ export default async function OrderPage({
       redirect('/logout');
    }
 
+   // Define your GraphQL query for order details.
    const query = `
     query OrderDetails($orderId: ID!) {
       order(id: $orderId) {
@@ -55,7 +59,6 @@ export default async function OrderPage({
       }
     }
   `;
-
    const variables = { orderId };
 
    const res = await fetch('https://shopify.com/10242207/account/customer/api/unstable/graphql', {
@@ -75,6 +78,5 @@ export default async function OrderPage({
    }
 
    const order = json.data.order;
-
    return <OrderDetails order={order} />;
 }
