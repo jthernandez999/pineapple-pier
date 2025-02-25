@@ -19,7 +19,6 @@ const menuItems: MenuItem[] = [
    { id: 'purchase', label: 'Purchase History' },
    { id: 'manage', label: 'Manage Account' },
    { id: 'personal', label: 'Personal Info' },
-   { id: 'cards', label: 'Saved Cards' },
    { id: 'shipping', label: 'Shipping Addresses' },
    { id: 'password', label: 'Change Password' },
    { id: 'security', label: 'Account Security' },
