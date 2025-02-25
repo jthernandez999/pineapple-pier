@@ -98,7 +98,7 @@ export default function AccountDashboard({
                </div>
                <button
                   onClick={() => setIsSidebarOpen(false)}
-                  className="rounded-md bg-gray-800 px-3 py-1 text-sm text-white transition-opacity duration-200 hover:opacity-80 md:hidden"
+                  className="rounded-md text-sm text-black transition-opacity duration-200 hover:opacity-80 md:hidden"
                   aria-label="Close Menu"
                >
                   &times;
