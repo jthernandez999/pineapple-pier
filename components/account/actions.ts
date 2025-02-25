@@ -14,24 +14,20 @@ import { redirect } from 'next/navigation';
 
 // Updated mutation: add a selection for phoneNumber, e.g. { phoneNumber }
 const CUSTOMER_UPDATE_MUTATION = `
-  mutation customerUpdate($input: CustomerUpdateInput!) {
-    customerUpdate(input: $input) {
-      userErrors {
-        field
-        message
-      }
-      customer {
-        firstName
-        lastName
-        emailAddress {
-          emailAddress
-        }
-        phoneNumber {
-          phoneNumber
-        }
-      }
-    }
-  }
+mutation customerUpdate($input: CustomerUpdateInput!) {
+   customerUpdate(input: $input) {
+     userErrors {
+       field
+       message
+     }
+     customer {
+       firstName
+       lastName
+       email
+       phone
+     }
+   }
+ }
 `;
 
 /* ------------------ Update Functions ------------------ */
