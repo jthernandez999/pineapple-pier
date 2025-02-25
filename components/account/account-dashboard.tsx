@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import { AccountOrdersHistory } from './account-orders-history';
-import { AccountPersonalInfo } from './account-personal-info';
+import { AccountAddressInfo } from './account-personal-info';
 import { AccountProfile } from './account-profile';
 
 type AccountDashboardProps = {
@@ -27,8 +27,8 @@ export default function AccountDashboard({
             return <AccountProfile />;
          case 'personal':
             return (
-               <AccountPersonalInfo
-                  customerData={customerData}
+               <AccountAddressInfo
+                  addressData={customerData}
                   customerAccessToken={customerAccessToken}
                />
             );
