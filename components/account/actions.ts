@@ -12,7 +12,6 @@ import { revalidateTag } from 'next/cache';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
-// Hypothetical mutation – adjust this according to your Shopify API schema.
 const CUSTOMER_UPDATE_MUTATION = `
   mutation customerUpdate($input: CustomerUpdateInput!) {
     customerUpdate(input: $input) {
@@ -40,7 +39,6 @@ const CUSTOMER_UPDATE_MUTATION = `
 `;
 
 /* ------------------ Update Functions ------------------ */
-
 // Ensure the customerAccessToken you pass is valid and current.
 // We cast variables as any to bypass type errors.
 export async function updateFirstName(newFirstName: string, customerAccessToken: string) {
@@ -53,7 +51,10 @@ export async function updateFirstName(newFirstName: string, customerAccessToken:
          cache: 'no-store',
          query: CUSTOMER_UPDATE_MUTATION,
          variables: variables as any,
-         tags: [TAGS.customer]
+         tags: [TAGS.customer],
+         headers: {
+            'X-Shopify-Customer-Access-Token': customerAccessToken
+         }
       });
       revalidateTag(TAGS.customer);
       return response;
@@ -62,6 +63,8 @@ export async function updateFirstName(newFirstName: string, customerAccessToken:
       throw new Error('Error updating first name');
    }
 }
+
+// Similar changes for updateLastName, updateEmail, updatePhone, and updateBirthday...
 
 export async function updateLastName(newLastName: string, customerAccessToken: string) {
    const variables = { input: { lastName: newLastName } };

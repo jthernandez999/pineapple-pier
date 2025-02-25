@@ -1,8 +1,6 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 //import { revalidateTag } from 'next/cache';
-import { parseJSON } from 'lib/shopify/customer/utils/parse-json';
-import { isShopifyError } from 'lib/type-guards';
 import {
    checkExpires,
    createAllCookies,
@@ -21,7 +19,6 @@ type ExtractVariables<T> = T extends { variables: object } ? T['variables'] : ne
 const customerAccountApiUrl = SHOPIFY_CUSTOMER_ACCOUNT_API_URL;
 const apiVersion = SHOPIFY_CUSTOMER_API_VERSION;
 const userAgent = SHOPIFY_USER_AGENT;
-// const customerEndpoint = `${customerAccountApiUrl}/account/customer/api/${apiVersion}/graphql`;
 const customerEndpoint = 'https://shopify.com/10242207/account/customer/api/2025-01/graphql';
 
 //NEVER CACHE THIS! Doesn't see to be cached anyway b/c
@@ -33,29 +30,37 @@ export async function shopifyCustomerFetch<T>({
    customerToken,
    query,
    tags,
-   variables
+   variables,
+   headers: customHeaders // New optional parameter for additional headers
 }: {
    cache?: RequestCache;
    customerToken: string;
    query: string;
    tags?: string[];
    variables?: ExtractVariables<T>;
+   headers?: Record<string, string>;
 }): Promise<{ status: number; body: T } | never> {
    try {
       const customerOrigin = SHOPIFY_ORIGIN;
+      // Default headers
+      const defaultHeaders: Record<string, string> = {
+         'Content-Type': 'application/json',
+         'User-Agent': userAgent,
+         Origin: customerOrigin!,
+         // No "Bearer" is prepended; we simply send the token directly.
+         Authorization: customerToken
+      };
+      // Merge default headers with any custom headers provided
+      const finalHeaders = { ...defaultHeaders, ...customHeaders };
+
       const result = await fetch(customerEndpoint, {
          method: 'POST',
-         headers: {
-            'Content-Type': 'application/json',
-            'User-Agent': userAgent,
-            Origin: customerOrigin!,
-            Authorization: customerToken
-         },
+         headers: finalHeaders,
          body: JSON.stringify({
             ...(query && { query }),
             ...(variables && { variables })
          }),
-         cache: 'no-store', //NEVER CACHE THE CUSTOMER REQUEST!!!
+         cache: 'no-store', // NEVER CACHE THE CUSTOMER REQUEST!!!
          ...(tags && { next: { tags } })
       });
 
@@ -67,22 +72,19 @@ export async function shopifyCustomerFetch<T>({
          //401 means the token is bad
          console.log('Error in Customer Fetch Status', body.errors);
          if (result.status === 401) {
-            // clear session because current access token is invalid
             const errorMessage = 'unauthorized';
-            throw errorMessage; //this should throw in the catch below in the non-shopify catch
+            throw errorMessage;
          }
          let errors;
          try {
-            errors = parseJSON(body);
+            errors = JSON.parse(body);
          } catch (_e) {
             errors = [{ message: body }];
          }
          throw errors;
       }
 
-      //this just throws an error and the error boundary is called
       if (body.errors) {
-         //throw 'Error'
          console.log('Error in Customer Fetch', body.errors[0]);
          throw body.errors[0];
       }
@@ -92,15 +94,6 @@ export async function shopifyCustomerFetch<T>({
          body
       };
    } catch (e) {
-      if (isShopifyError(e)) {
-         throw {
-            cause: e.cause?.toString() || 'unknown',
-            status: e.status || 500,
-            message: e.message,
-            query
-         };
-      }
-
       throw {
          error: e,
          query
