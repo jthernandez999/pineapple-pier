@@ -22,7 +22,7 @@ export default function AccountDashboard({
 
    const renderContent = () => {
       switch (activeMenu) {
-         case 'purchase':
+         case 'orders':
             return orders ? <AccountOrdersHistory orders={orders} /> : <p>No orders found.</p>;
          case 'manage':
             return <AccountProfile />;
@@ -55,7 +55,7 @@ export default function AccountDashboard({
             </div>
             <nav>
                <ul className="flex flex-wrap md:block">
-                  {['purchase', 'manage', 'personal', 'address'].map((menu) => (
+                  {['orders', 'manage', 'personal', 'address'].map((menu) => (
                      <li key={menu} className="w-1/2 md:w-full">
                         <button
                            className={`mb-1 block w-full rounded-md px-4 py-2 text-left hover:bg-gray-200 dark:hover:bg-gray-700 ${
