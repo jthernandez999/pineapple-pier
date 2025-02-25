@@ -1,4 +1,3 @@
-// account/account-dashboard.tsx
 'use client';
 
 import { useState } from 'react';
@@ -18,7 +17,8 @@ export default function AccountDashboard({
    orders,
    customerAccessToken
 }: AccountDashboardProps) {
-   const [activeMenu, setActiveMenu] = useState<string>('purchase');
+   // Set the default active menu to "welcome" so that a welcome message is shown by default.
+   const [activeMenu, setActiveMenu] = useState<string>('welcome');
 
    const renderContent = () => {
       switch (activeMenu) {
@@ -40,8 +40,19 @@ export default function AccountDashboard({
                   customerAccessToken={customerAccessToken}
                />
             );
+         case 'welcome':
          default:
-            return <p>Content for "{activeMenu}" coming soon.</p>;
+            return (
+               <div>
+                  <h3 className="mb-4 text-2xl font-bold">
+                     Welcome, {customerData?.firstName || 'Customer'}!
+                  </h3>
+                  <p className="text-gray-600">
+                     Select an option from the menu to view your orders, manage your account, or
+                     update your address.
+                  </p>
+               </div>
+            );
       }
    };
 
@@ -55,7 +66,7 @@ export default function AccountDashboard({
             </div>
             <nav>
                <ul className="flex flex-wrap md:block">
-                  {['orders', 'manage', 'personal', 'address'].map((menu) => (
+                  {['welcome', 'orders', 'manage', 'personal', 'address'].map((menu) => (
                      <li key={menu} className="w-1/2 md:w-full">
                         <button
                            className={`mb-1 block w-full rounded-md px-4 py-2 text-left hover:bg-gray-200 dark:hover:bg-gray-700 ${
@@ -69,6 +80,18 @@ export default function AccountDashboard({
                   ))}
                </ul>
             </nav>
+            {/* Log Out Button */}
+            <div className="mt-8">
+               <button
+                  onClick={() => {
+                     // Redirect to logout or invoke a logout action.
+                     window.location.href = '/logout';
+                  }}
+                  className="w-full rounded-md bg-red-500 py-2 text-white transition-colors duration-200 hover:bg-red-600"
+               >
+                  Log Out
+               </button>
+            </div>
          </aside>
          {/* Main Content */}
          <main className="w-full md:w-3/4 md:border-l md:border-neutral-200 md:pl-8 dark:md:border-neutral-800">
