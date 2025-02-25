@@ -28,6 +28,7 @@ export function ProductDescription({ product }: { product: Product }) {
                   <h1 className="mb-4 flex justify-start text-start font-sans text-xl 2xl:text-3xl">
                      {filteredTitle}
                   </h1>
+                  {/* <div className="jdgm-widget jdgm-preview-badge" data-id={product.id}></div> */}
                   {/* Judge.me Preview Badge */}
                   <JudgeMePreviewBadge
                      externalId={numericExternalId}
