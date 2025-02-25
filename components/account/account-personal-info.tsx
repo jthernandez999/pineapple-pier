@@ -6,17 +6,15 @@ import { updateEmail, updateFirstName, updateLastName, updatePhone } from './act
 
 type PersonalInfoProps = {
    customerData: any;
+   customerAccessToken: string;
 };
 
-export function AccountPersonalInfo({ customerData }: PersonalInfoProps) {
-   const customerAccessToken = customerData?.accessToken || '';
-
+export function AccountPersonalInfo({ customerData, customerAccessToken }: PersonalInfoProps) {
    // Set initial values from customerData
    const [firstName, setFirstName] = useState(customerData?.firstName || '');
    const [lastName, setLastName] = useState(customerData?.lastName || '');
-   const [email, setEmail] = useState(customerData?.emailAddress?.emailAddress || '');
+   const [email, setEmail] = useState(customerData?.email || '');
    const [phone, setPhone] = useState(customerData?.phone || '');
-
    const [message, setMessage] = useState('');
 
    // Loading states for each field

@@ -52,5 +52,11 @@ export default async function AccountPage() {
       redirect('/logout');
    }
 
-   return <AccountDashboard customerData={customerData} orders={orders} />;
+   return (
+      <AccountDashboard
+         customerData={customerData}
+         orders={orders}
+         customerAccessToken={customerAccessToken}
+      />
+   );
 }

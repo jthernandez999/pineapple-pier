@@ -2,7 +2,7 @@
 import { shopifyCustomerFetch } from 'lib/shopify/customer';
 import { SHOPIFY_CUSTOMER_API_VERSION, TAGS } from 'lib/shopify/customer/constants';
 import { CUSTOMER_DETAILS_QUERY } from 'lib/shopify/customer/queries/customer';
-import { headers } from 'next/headers';
+import { cookies, headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import AccountDashboard from './account-dashboard';
 
@@ -15,15 +15,19 @@ const customerEndpoint = `https://${SHOP_DOMAIN}/account/customer/api/${apiVersi
 export default async function AccountPage() {
    const headersList = headers();
    const access = (await headersList).get('x-shop-customer-token');
-
+   const shopCustomerToken = (await cookies()).get('shop_customer_token')?.value;
+   // Use either the header value or the cookie value if available
+   const customerAccessToken = access || shopCustomerToken;
+   if (!customerAccessToken || customerAccessToken === 'denied') {
+      redirect('/logout');
+   }
    if (!access || access === 'denied') {
       console.error('ERROR: No valid access header on Account page');
       redirect('/logout');
    }
 
-   const customerAccessToken = access;
-   let customerData;
-   let orders;
+   let customerData: any;
+   let orders: any;
    let success = true;
    let errorMessage: string | undefined;
 
@@ -53,5 +57,11 @@ export default async function AccountPage() {
       redirect('/logout');
    }
 
-   return <AccountDashboard customerData={customerData} orders={orders} />;
+   return (
+      <AccountDashboard
+         customerData={customerData}
+         orders={orders}
+         customerAccessToken={customerAccessToken}
+      />
+   );
 }
