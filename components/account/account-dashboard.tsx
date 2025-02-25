@@ -43,7 +43,7 @@ export default function AccountDashboard({
          <aside className="mb-8 w-full md:mb-0 md:w-1/4 md:pr-8">
             <div className="mb-4">
                <h2 className="text-xl font-bold">Account / Home</h2>
-               <p className="mt-2">Hi, {customerData?.email || 'Guest'}</p>
+               <p className="mt-2">Hi, {customerData?.emailAddress?.emailAddress || 'Guest'}</p>
             </div>
             <nav>
                <ul className="flex flex-wrap md:block">
