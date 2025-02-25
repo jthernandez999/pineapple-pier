@@ -1,21 +1,20 @@
 // app/account/orders/[orderId]/page.tsx
-
 import OrderDetails from 'components/account/OrderDetails';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
+import React from 'react';
 
-type OrderPageProps = {
+export default async function OrderPage({
+   params
+}: {
    params: { orderId: string };
-};
-
-export default async function OrderPage({ params }: OrderPageProps) {
+}): Promise<React.ReactElement> {
    const { orderId } = params;
    const customerToken = (await headers()).get('x-shop-customer-token');
    if (!customerToken || customerToken === 'denied') {
       redirect('/logout');
    }
-   // Your order-fetching logic here
-   // For example:
+
    const query = `
     query OrderDetails($orderId: ID!) {
       order(id: $orderId) {
@@ -56,7 +55,9 @@ export default async function OrderPage({ params }: OrderPageProps) {
       }
     }
   `;
+
    const variables = { orderId };
+
    const res = await fetch('https://shopify.com/10242207/account/customer/api/unstable/graphql', {
       method: 'POST',
       headers: {
@@ -66,11 +67,14 @@ export default async function OrderPage({ params }: OrderPageProps) {
       body: JSON.stringify({ query, variables }),
       cache: 'no-store'
    });
+
    const json = await res.json();
    if (!res.ok || json.errors) {
       console.error('Error fetching order details:', json.errors);
       return <p>Error fetching order details.</p>;
    }
+
    const order = json.data.order;
+
    return <OrderDetails order={order} />;
 }
