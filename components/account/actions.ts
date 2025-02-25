@@ -12,27 +12,24 @@ import { revalidateTag } from 'next/cache';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
-// Updated mutation: add a selection for phoneNumber, e.g. { phoneNumber }
+// Updated mutation: do not include email in the selection if it is not updatable.
 const CUSTOMER_UPDATE_MUTATION = `
-mutation customerUpdate($input: CustomerUpdateInput!) {
-   customerUpdate(input: $input) {
-     userErrors {
-       field
-       message
-     }
-     customer {
-      id
-       firstName
-       lastName
-       emailAddress{
-         emailAddress
-       }
-       phoneNumber{
-         phoneNumber
-       }
-     }
-   }
- }
+  mutation customerUpdate($input: CustomerUpdateInput!) {
+    customerUpdate(input: $input) {
+      userErrors {
+        field
+        message
+      }
+      customer {
+        id
+        firstName
+        lastName
+        phoneNumber {
+          phoneNumber
+        }
+      }
+    }
+  }
 `;
 
 /* ------------------ Update Functions ------------------ */
@@ -70,25 +67,6 @@ export async function updateLastName(newLastName: string, customerAccessToken: s
    } catch (error) {
       console.error('Error updating last name', error);
       throw new Error('Error updating last name');
-   }
-}
-
-export async function updateEmail(newEmail: string, customerAccessToken: string) {
-   // Use "emailAddress" (instead of "email") in the input
-   const variables = { input: { emailAddress: newEmail } };
-   try {
-      const response = await shopifyCustomerFetch({
-         customerToken: customerAccessToken,
-         cache: 'no-store',
-         query: CUSTOMER_UPDATE_MUTATION,
-         variables: variables as any,
-         tags: [TAGS.customer]
-      });
-      revalidateTag(TAGS.customer);
-      return response;
-   } catch (error) {
-      console.error('Error updating email', error);
-      throw new Error('Error updating email');
    }
 }
 

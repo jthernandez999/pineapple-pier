@@ -42,6 +42,7 @@ export default async function AccountPage() {
       if (!userDetails) {
          throw new Error('Error getting actual user data on Account page.');
       }
+      console.log(userDetails);
       customerData = userDetails.data?.customer;
       orders = customerData?.orders?.edges;
    } catch (e: any) {
