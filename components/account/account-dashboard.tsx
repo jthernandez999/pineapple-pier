@@ -17,7 +17,7 @@ export default function AccountDashboard({
    orders,
    customerAccessToken
 }: AccountDashboardProps) {
-   // Set the default active menu to "welcome" so that a welcome message is shown by default.
+   // Set the default active menu to "welcome" so a welcome message is shown by default.
    const [activeMenu, setActiveMenu] = useState<string>('welcome');
 
    const renderContent = () => {
@@ -60,17 +60,29 @@ export default function AccountDashboard({
       <div className="mx-auto flex max-w-screen-2xl flex-col px-4 py-8 md:flex-row">
          {/* Sidebar Menu */}
          <aside className="mb-8 w-full md:mb-0 md:w-1/4 md:pr-8">
-            <div className="mb-4">
-               <h2 className="text-xl font-bold">Account / Home</h2>
-               <p className="mt-2">Hi, {customerData?.emailAddress?.emailAddress || 'Guest'}</p>
+            <div className="mb-4 flex items-center justify-between">
+               <div>
+                  <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">
+                     Account / Home
+                  </h2>
+                  <p className="mt-1 text-gray-600">
+                     Hi, {customerData?.emailAddress?.emailAddress || 'Guest'}
+                  </p>
+               </div>
+               <button
+                  onClick={() => (window.location.href = '/logout')}
+                  className="rounded-md bg-gray-800 px-3 py-1 text-sm text-white transition-opacity duration-200 hover:opacity-80"
+               >
+                  Log Out
+               </button>
             </div>
             <nav>
                <ul className="flex flex-wrap md:block">
                   {['welcome', 'orders', 'manage', 'personal', 'address'].map((menu) => (
                      <li key={menu} className="w-1/2 md:w-full">
                         <button
-                           className={`mb-1 block w-full rounded-md px-4 py-2 text-left hover:bg-gray-200 dark:hover:bg-gray-700 ${
-                              activeMenu === menu ? 'bg-gray-300 dark:bg-gray-600' : ''
+                           className={`mb-1 block w-full rounded-md bg-black px-4 py-2 text-white transition-opacity duration-200 hover:opacity-80 ${
+                              activeMenu === menu ? 'opacity-80' : 'opacity-100'
                            }`}
                            onClick={() => setActiveMenu(menu)}
                         >
@@ -80,18 +92,6 @@ export default function AccountDashboard({
                   ))}
                </ul>
             </nav>
-            {/* Log Out Button */}
-            <div className="mt-8">
-               <button
-                  onClick={() => {
-                     // Redirect to logout or invoke a logout action.
-                     window.location.href = '/logout';
-                  }}
-                  className="w-full rounded-md bg-red-500 py-2 text-white transition-colors duration-200 hover:bg-red-600"
-               >
-                  Log Out
-               </button>
-            </div>
          </aside>
          {/* Main Content */}
          <main className="w-full md:w-3/4 md:border-l md:border-neutral-200 md:pl-8 dark:md:border-neutral-800">
