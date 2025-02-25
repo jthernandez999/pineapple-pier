@@ -37,9 +37,8 @@ export function AccountAddressInfo({ addressData, customerAccessToken }: Address
             address2,
             city,
             zip,
-            // Use the key expected by Shopify for updating the phone in an address.
-            // In our mutation, the fragment maps "phone" to "phoneNumber".
-            phone: phone
+            // Use "phoneNumber" as the key instead of "phone"
+            phoneNumber: phone
          };
          // Set defaultAddress to true if you want this address to be default
          const defaultAddress = true;
