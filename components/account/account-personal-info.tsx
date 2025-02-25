@@ -2,7 +2,7 @@
 'use client';
 
 import { useState } from 'react';
-import { updateEmail, updateFirstName, updateLastName, updatePhone } from './actions';
+import { updateFirstName, updateLastName, updatePhone } from './actions';
 
 type PersonalInfoProps = {
    customerData: any;
@@ -110,38 +110,6 @@ export function AccountPersonalInfo({ customerData, customerAccessToken }: Perso
                />
             ) : (
                <p>{lastName || 'N/A'}</p>
-            )}
-         </div>
-
-         {/* Email Address */}
-         <div className="space-y-2">
-            <div className="flex items-center justify-between">
-               <span className="font-medium">Email Address</span>
-               {editingEmail ? (
-                  <button
-                     className="text-blue-500"
-                     onClick={() =>
-                        handleSave(updateEmail, email, 'Email Address', setEditingEmail)
-                     }
-                     disabled={loadingField === 'Email Address'}
-                  >
-                     {loadingField === 'Email Address' ? 'Saving...' : 'Save'}
-                  </button>
-               ) : (
-                  <button className="text-blue-500" onClick={() => setEditingEmail(true)}>
-                     Edit
-                  </button>
-               )}
-            </div>
-            {editingEmail ? (
-               <input
-                  type="email"
-                  className="w-full border p-2"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-               />
-            ) : (
-               <p>{email || 'N/A'}</p>
             )}
          </div>
 
