@@ -27,7 +27,10 @@ type Order = {
    orderNumber: number;
    createdAt: string;
    fulfillmentStatus: string;
-   totalPrice: string;
+   totalPrice: {
+      amount: string;
+      currencyCode: string;
+   };
    shippingAddress: Address;
    billingAddress: Address;
    orderItems: OrderItem[];
@@ -44,10 +47,10 @@ export default function OrderDetails({ order }: OrderDetailsProps) {
 
    return (
       <div className="mx-auto max-w-4xl p-4">
-         {/* Header */}
+         {/* Header Section */}
          <header className="mb-6 flex flex-col items-center justify-between md:flex-row">
             <div className="flex items-center">
-               {/* Replace with your actual logo */}
+               {/* Replace with your logo */}
                <Image
                   src="/logo.png"
                   alt="DEAR JOHN DENIM"
@@ -67,7 +70,7 @@ export default function OrderDetails({ order }: OrderDetailsProps) {
             </div>
          </header>
 
-         {/* Order Summary */}
+         {/* Order Summary Section */}
          <section className="mb-6 border-b pb-4">
             <h2 className="mb-2 text-xl font-bold">Order Details</h2>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -86,7 +89,7 @@ export default function OrderDetails({ order }: OrderDetailsProps) {
             </div>
          </section>
 
-         {/* Shipping Address */}
+         {/* Shipping Address Section */}
          <section className="mb-6 border-b pb-4">
             <h2 className="mb-2 text-xl font-bold">Shipping Address</h2>
             <p>
@@ -101,7 +104,7 @@ export default function OrderDetails({ order }: OrderDetailsProps) {
             <p>{order.shippingAddress.phone}</p>
          </section>
 
-         {/* Billing Address */}
+         {/* Billing Address Section */}
          <section className="mb-6 border-b pb-4">
             <h2 className="mb-2 text-xl font-bold">Billing Address</h2>
             <p>
@@ -116,7 +119,7 @@ export default function OrderDetails({ order }: OrderDetailsProps) {
             <p>{order.billingAddress.phone}</p>
          </section>
 
-         {/* Order Items */}
+         {/* Order Items Section */}
          <section className="mb-6 border-b pb-4">
             <h2 className="mb-2 text-xl font-bold">Order Items</h2>
             <div className="space-y-4">
@@ -141,28 +144,30 @@ export default function OrderDetails({ order }: OrderDetailsProps) {
             </div>
          </section>
 
-         {/* Order Totals */}
+         {/* Order Totals Section */}
          <section className="mb-6">
             <h2 className="mb-2 text-xl font-bold">Order Summary</h2>
             <div className="grid grid-cols-2 gap-4">
                <div>
                   <p className="font-medium">Subtotal</p>
-                  {/* Replace with actual subtotal if available */}
+                  {/* Replace with actual value */}
                   <p>$XX.XX</p>
                </div>
                <div>
                   <p className="font-medium">Shipping</p>
-                  {/* Replace with actual shipping value if available */}
                   <p>$XX.XX</p>
                </div>
                <div className="col-span-2">
                   <p className="font-medium">Total</p>
-                  <p className="text-2xl font-bold">${order.totalPrice}</p>
+                  <p className="text-2xl font-bold">
+                     {order.totalPrice.currencyCode}{' '}
+                     {parseFloat(order.totalPrice.amount).toFixed(2)}
+                  </p>
                </div>
             </div>
          </section>
 
-         {/* Refund / Payment Status */}
+         {/* Refund / Payment Status Section */}
          <section>
             <h2 className="mb-2 text-xl font-bold">Refund / Payment Status</h2>
             <p>{order.paymentStatus}</p>
