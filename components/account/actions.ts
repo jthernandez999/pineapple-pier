@@ -23,6 +23,7 @@ const CUSTOMER_UPDATE_MUTATION = `
       customer {
         firstName
         lastName
+        phoneNumber
       }
     }
   }
@@ -98,6 +99,26 @@ export async function updateEmail(newEmail: string, customerAccessToken: string)
    }
 }
 
+export async function updatePhone(newPhone: string, customerAccessToken: string) {
+   const variables = { input: { phoneNumber: newPhone } };
+   try {
+      const response = await shopifyCustomerFetch({
+         customerToken: customerAccessToken,
+         cache: 'no-store',
+         query: CUSTOMER_UPDATE_MUTATION,
+         variables: variables as any,
+         tags: [TAGS.customer],
+         headers: {
+            'X-Shopify-Customer-Access-Token': customerAccessToken
+         }
+      });
+      revalidateTag(TAGS.customer);
+      return response;
+   } catch (error) {
+      console.error('Error updating email', error);
+      throw new Error('Error updating email');
+   }
+}
 /* ------------------ Logout Function ------------------ */
 
 export async function doLogout(prevState: any) {

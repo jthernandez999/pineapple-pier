@@ -2,12 +2,7 @@
 'use client';
 
 import { useState } from 'react';
-import {
-   //    updateBirthday,
-   updateEmail,
-   updateFirstName,
-   updateLastName
-} from './actions';
+import { updateEmail, updateFirstName, updateLastName, updatePhone } from './actions';
 
 type PersonalInfoProps = {
    customerData: any;
@@ -21,7 +16,7 @@ export function AccountPersonalInfo({ customerData }: PersonalInfoProps) {
    const [lastName, setLastName] = useState(customerData?.lastName || '');
    const [email, setEmail] = useState(customerData?.emailAddress?.emailAddress || '');
    const [phone, setPhone] = useState(customerData?.phone || '');
-   const [birthday, setBirthday] = useState(customerData?.birthday || '');
+
    const [message, setMessage] = useState('');
 
    // Loading states for each field
@@ -32,7 +27,6 @@ export function AccountPersonalInfo({ customerData }: PersonalInfoProps) {
    const [editingLastName, setEditingLastName] = useState(false);
    const [editingEmail, setEditingEmail] = useState(false);
    const [editingPhone, setEditingPhone] = useState(false);
-   const [editingBirthday, setEditingBirthday] = useState(false);
 
    // Handlers for saving changes that trigger update actions to Shopify
    const handleSave = async (
@@ -182,38 +176,6 @@ export function AccountPersonalInfo({ customerData }: PersonalInfoProps) {
                />
             ) : (
                <p>{phone || 'N/A'}</p>
-            )}
-         </div>
-
-         {/* Birthday */}
-         <div className="space-y-2">
-            <div className="flex items-center justify-between">
-               <span className="font-medium">Birthday (MM/DD)</span>
-               {editingBirthday ? (
-                  <button
-                     className="text-blue-500"
-                     onClick={() =>
-                        handleSave(updateBirthday, birthday, 'Birthday', setEditingBirthday)
-                     }
-                     disabled={loadingField === 'Birthday'}
-                  >
-                     {loadingField === 'Birthday' ? 'Saving...' : 'Save'}
-                  </button>
-               ) : (
-                  <button className="text-blue-500" onClick={() => setEditingBirthday(true)}>
-                     Edit
-                  </button>
-               )}
-            </div>
-            {editingBirthday ? (
-               <input
-                  type="text"
-                  className="w-full border p-2"
-                  value={birthday}
-                  onChange={(e) => setBirthday(e.target.value)}
-               />
-            ) : (
-               <p>{birthday || 'N/A'}</p>
             )}
          </div>
 
