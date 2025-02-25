@@ -1,3 +1,4 @@
+// account/actions.ts
 'use server';
 
 import { shopifyCustomerFetch } from 'lib/shopify/customer';
@@ -11,8 +12,33 @@ import { revalidateTag } from 'next/cache';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
-// Mutation for updating a customer address.
-// Note: The fragment maps "phone" to "phoneNumber" for display.
+const CUSTOMER_UPDATE_MUTATION = `
+  mutation CustomerUpdate($input: CustomerUpdateInput!) {
+    customerUpdate(input: $input) {
+      customer {
+        id
+        firstName
+        lastName
+        emailAddress {
+          emailAddress
+          __typename
+        }
+        phoneNumber {
+          phoneNumber
+          __typename
+        }
+        __typename
+      }
+      userErrors {
+        field
+        message
+        __typename
+      }
+      __typename
+    }
+  }
+`;
+
 const ADDRESS_UPDATE_MUTATION = `
   mutation AddressUpdate($addressInput: CustomerAddressInput!, $id: ID!, $defaultAddress: Boolean) {
     customerAddressUpdate(
@@ -21,17 +47,7 @@ const ADDRESS_UPDATE_MUTATION = `
       defaultAddress: $defaultAddress
     ) {
       customerAddress {
-        id
-        address1
-        address2
-        firstName
-        lastName
-        provinceCode: zoneCode
-        city
-        zip
-        country: territoryCode
-        company
-        phone: phoneNumber
+        ...CustomerAddress
         __typename
       }
       userErrors {
@@ -60,12 +76,10 @@ const ADDRESS_UPDATE_MUTATION = `
 
 /**
  * Updates a customer's address.
- *
- * @param addressInput - An object containing the address fields to update.
- *        For example: { firstName, lastName, address1, address2, city, zip, phoneNumber }
- * @param id - The ID of the customer address (e.g. "gid://shopify/CustomerAddress/6694002491481").
- * @param defaultAddress - Whether this address should be set as the default address.
- * @param customerAccessToken - The access token to authorize the request.
+ * @param addressInput - An object containing the address fields.
+ * @param id - The customer address ID (e.g., "gid://shopify/CustomerAddress/6694002491481").
+ * @param defaultAddress - Whether this address should be set as the default.
+ * @param customerAccessToken - The customer access token.
  */
 export async function updateAddress(
    addressInput: Record<string, any>,
@@ -90,7 +104,64 @@ export async function updateAddress(
    }
 }
 
-/* ------------------ Existing Functions (e.g. logout) ------------------ */
+/* ------------------ Customer Update Functions ------------------ */
+
+export async function updateFirstName(newFirstName: string, customerAccessToken: string) {
+   const variables = { input: { firstName: newFirstName } };
+   try {
+      const response = await shopifyCustomerFetch({
+         customerToken: customerAccessToken,
+         cache: 'no-store',
+         query: CUSTOMER_UPDATE_MUTATION,
+         variables: variables as any,
+         tags: [TAGS.customer]
+      });
+      revalidateTag(TAGS.customer);
+      return response;
+   } catch (error) {
+      console.error('Error updating first name', error);
+      throw new Error('Error updating first name');
+   }
+}
+
+export async function updateLastName(newLastName: string, customerAccessToken: string) {
+   const variables = { input: { lastName: newLastName } };
+   try {
+      const response = await shopifyCustomerFetch({
+         customerToken: customerAccessToken,
+         cache: 'no-store',
+         query: CUSTOMER_UPDATE_MUTATION,
+         variables: variables as any,
+         tags: [TAGS.customer]
+      });
+      revalidateTag(TAGS.customer);
+      return response;
+   } catch (error) {
+      console.error('Error updating last name', error);
+      throw new Error('Error updating last name');
+   }
+}
+
+export async function updatePhone(newPhone: string, customerAccessToken: string) {
+   // Adjust the input key if necessary. Here we're using "phone" as per your code.
+   const variables = { input: { phone: newPhone } };
+   try {
+      const response = await shopifyCustomerFetch({
+         customerToken: customerAccessToken,
+         cache: 'no-store',
+         query: CUSTOMER_UPDATE_MUTATION,
+         variables: variables as any,
+         tags: [TAGS.customer]
+      });
+      revalidateTag(TAGS.customer);
+      return response;
+   } catch (error) {
+      console.error('Error updating phone number', error);
+      throw new Error('Error updating phone number');
+   }
+}
+
+/* ------------------ Logout Function ------------------ */
 
 export async function doLogout(prevState: any) {
    const origin = SHOPIFY_ORIGIN;
