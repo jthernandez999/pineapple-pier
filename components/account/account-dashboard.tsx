@@ -3,6 +3,7 @@
 
 import { useState } from 'react';
 import { AccountOrdersHistory } from './account-orders-history';
+import { AccountPersonalInfo } from './account-personal-info';
 import { AccountProfile } from './account-profile';
 
 type AccountDashboardProps = {
@@ -35,6 +36,8 @@ export default function AccountDashboard({ customerData, orders }: AccountDashbo
             return orders ? <AccountOrdersHistory orders={orders} /> : <p>No orders found.</p>;
          case 'manage':
             return <AccountProfile />;
+         case 'personal':
+            return <AccountPersonalInfo customerData={customerData} />;
          default:
             return (
                <div>

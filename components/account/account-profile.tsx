@@ -2,9 +2,9 @@
 import { ArrowRightIcon as LogOutIcon } from '@heroicons/react/24/outline';
 import clsx from 'clsx';
 import LoadingDots from 'components/loading-dots';
-import { useFormState, useFormStatus } from 'react-dom';
+import { useState } from 'react';
+import { useFormStatus } from 'react-dom';
 import { doLogout } from './actions';
-
 function SubmitButton(props: any) {
    const { pending } = useFormStatus();
    const buttonClasses =
@@ -37,14 +37,27 @@ function SubmitButton(props: any) {
 }
 
 export function AccountProfile() {
-   const [message, formAction] = useFormState(doLogout, null);
+   const [message, setMessage] = useState('');
+
+   const handleLogout = async () => {
+      try {
+         // Calling the logout server action.
+         await doLogout(null);
+      } catch (error: any) {
+         setMessage('Error logging out. Please try again.');
+      }
+   };
 
    return (
-      <form action={formAction}>
-         <SubmitButton message={message} />
-         <p aria-live="polite" className="sr-only" role="status">
-            {message}
-         </p>
-      </form>
+      <div>
+         <h3 className="mb-4 text-2xl font-bold">Manage Account</h3>
+         <button
+            onClick={handleLogout}
+            className="rounded-md bg-black px-4 py-2 text-white hover:opacity-90"
+         >
+            Log Out
+         </button>
+         {message && <p className="mt-2 text-red-600">{message}</p>}
+      </div>
    );
 }

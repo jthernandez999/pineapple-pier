@@ -1,4 +1,4 @@
-// app/account/page.tsx
+// account/page.tsx
 import { shopifyCustomerFetch } from 'lib/shopify/customer';
 import { SHOPIFY_CUSTOMER_API_VERSION, TAGS } from 'lib/shopify/customer/constants';
 import { CUSTOMER_DETAILS_QUERY } from 'lib/shopify/customer/queries/customer';

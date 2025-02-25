@@ -1,5 +1,7 @@
+// account/actions.ts
 'use server';
 
+import { shopifyCustomerFetch } from 'lib/shopify/customer';
 import { removeAllCookiesServerAction } from 'lib/shopify/customer/auth-helpers';
 import {
    SHOPIFY_CUSTOMER_ACCOUNT_API_URL,
@@ -9,10 +11,141 @@ import {
 import { revalidateTag } from 'next/cache';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-//import {generateCodeVerifier,generateCodeChallenge,generateRandomString} from 'lib/shopify/customer/auth-utils'
+
+// Hypothetical mutation – adjust this according to your Shopify API schema.
+const CUSTOMER_UPDATE_MUTATION = `
+  mutation customerUpdate($input: CustomerUpdateInput!) {
+    customerUpdate(input: $input) {
+      customer {
+        id
+        firstName
+        lastName
+        email
+        phone
+        metafields(namespace: "custom", first: 1) {
+          edges {
+            node {
+              key
+              value
+            }
+          }
+        }
+      }
+      customerUserErrors {
+        code
+        message
+      }
+    }
+  }
+`;
+
+/* ------------------ Update Functions ------------------ */
+
+export async function updateFirstName(newFirstName: string, customerAccessToken: string) {
+   const variables = { input: { firstName: newFirstName } };
+   try {
+      const response = await shopifyCustomerFetch({
+         customerToken: customerAccessToken,
+         cache: 'no-store',
+         query: CUSTOMER_UPDATE_MUTATION,
+         variables: variables as any, // Casting variables to any to satisfy the type
+         tags: [TAGS.customer]
+      });
+      revalidateTag(TAGS.customer);
+      return response;
+   } catch (error) {
+      console.error('Error updating first name', error);
+      throw new Error('Error updating first name');
+   }
+}
+
+export async function updateLastName(newLastName: string, customerAccessToken: string) {
+   const variables = { input: { lastName: newLastName } };
+   try {
+      const response = await shopifyCustomerFetch({
+         customerToken: customerAccessToken,
+         cache: 'no-store',
+         query: CUSTOMER_UPDATE_MUTATION,
+         variables: variables as any,
+         tags: [TAGS.customer]
+      });
+      revalidateTag(TAGS.customer);
+      return response;
+   } catch (error) {
+      console.error('Error updating last name', error);
+      throw new Error('Error updating last name');
+   }
+}
+
+export async function updateEmail(newEmail: string, customerAccessToken: string) {
+   const variables = { input: { email: newEmail } };
+   try {
+      const response = await shopifyCustomerFetch({
+         customerToken: customerAccessToken,
+         cache: 'no-store',
+         query: CUSTOMER_UPDATE_MUTATION,
+         variables: variables as any,
+         tags: [TAGS.customer]
+      });
+      revalidateTag(TAGS.customer);
+      return response;
+   } catch (error) {
+      console.error('Error updating email', error);
+      throw new Error('Error updating email');
+   }
+}
+
+export async function updatePhone(newPhone: string, customerAccessToken: string) {
+   const variables = { input: { phone: newPhone } };
+   try {
+      const response = await shopifyCustomerFetch({
+         customerToken: customerAccessToken,
+         cache: 'no-store',
+         query: CUSTOMER_UPDATE_MUTATION,
+         variables: variables as any,
+         tags: [TAGS.customer]
+      });
+      revalidateTag(TAGS.customer);
+      return response;
+   } catch (error) {
+      console.error('Error updating phone number', error);
+      throw new Error('Error updating phone number');
+   }
+}
+
+// Assuming birthday is stored as a metafield; adjust as necessary.
+export async function updateBirthday(newBirthday: string, customerAccessToken: string) {
+   const variables = {
+      input: {
+         metafields: [
+            {
+               key: 'birthday',
+               namespace: 'custom',
+               value: newBirthday,
+               type: 'single_line_text_field'
+            }
+         ]
+      }
+   };
+   try {
+      const response = await shopifyCustomerFetch({
+         customerToken: customerAccessToken,
+         cache: 'no-store',
+         query: CUSTOMER_UPDATE_MUTATION,
+         variables: variables as any,
+         tags: [TAGS.customer]
+      });
+      revalidateTag(TAGS.customer);
+      return response;
+   } catch (error) {
+      console.error('Error updating birthday', error);
+      throw new Error('Error updating birthday');
+   }
+}
+
+/* ------------------ Logout Function ------------------ */
 
 export async function doLogout(prevState: any) {
-   //let logoutUrl = '/logout'
    const origin = SHOPIFY_ORIGIN;
    const customerAccountApiUrl = SHOPIFY_CUSTOMER_ACCOUNT_API_URL;
    let logoutUrl;
@@ -20,10 +153,6 @@ export async function doLogout(prevState: any) {
       const idToken = (await cookies()).get('shop_id_token');
       const idTokenValue = idToken?.value;
       if (!idTokenValue) {
-         //you can also throw an error here with page and middleware
-         //throw new Error ("Error No Id Token")
-         //if there is no idToken, then sending to logout url will redirect shopify, so just
-         //redirect to login here and delete cookies (presumably they don't even exist)
          logoutUrl = new URL(`${origin}/login`);
       } else {
          logoutUrl = new URL(
@@ -34,10 +163,7 @@ export async function doLogout(prevState: any) {
       revalidateTag(TAGS.customer);
    } catch (e) {
       console.log('Error', e);
-      //you can throw error here or return - return goes back to form b/c of state, throw will throw the error boundary
-      //throw new Error ("Error")
       return 'Error logging out. Please try again';
    }
-
-   redirect(`${logoutUrl}`); // Navigate to the new post page
+   redirect(`${logoutUrl}`);
 }
