@@ -113,7 +113,7 @@ export default function AccountDashboard({
                               setActiveMenu(menu);
                               setIsSidebarOpen(false);
                            }}
-                           className={`w-full rounded-md bg-black px-4 py-2 text-white transition-opacity duration-200 hover:opacity-80 ${
+                           className={`w-full rounded-md px-4 py-2 text-black transition-opacity duration-200 hover:opacity-80 ${
                               activeMenu === menu ? 'underline opacity-80' : 'opacity-100'
                            }`}
                         >
