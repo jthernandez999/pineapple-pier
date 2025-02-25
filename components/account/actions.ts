@@ -12,8 +12,9 @@ import { revalidateTag } from 'next/cache';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
-// Updated mutation to use the correct field for email.
-// Note: "emailAddress" is queried as an object with an inner field "emailAddress".
+// Updated mutation:
+// - For email, we query the nested emailAddress { emailAddress }
+// - For phone, we query phoneNumber instead of phone.
 const CUSTOMER_UPDATE_MUTATION = `
   mutation customerUpdate($input: CustomerUpdateInput!) {
     customerUpdate(input: $input) {
@@ -27,7 +28,7 @@ const CUSTOMER_UPDATE_MUTATION = `
         emailAddress {
           emailAddress
         }
-        phone
+        phoneNumber
       }
     }
   }
@@ -102,8 +103,8 @@ export async function updatePhone(newPhone: string, customerAccessToken: string)
       revalidateTag(TAGS.customer);
       return response;
    } catch (error) {
-      console.error('Error updating phone', error);
-      throw new Error('Error updating phone');
+      console.error('Error updating phone number', error);
+      throw new Error('Error updating phone number');
    }
 }
 
