@@ -1,20 +1,14 @@
-// app/account/orders/[orderId]/page.tsx
 import OrderDetails from 'components/account/OrderDetails';
 import { shopifyCustomerFetch } from 'lib/shopify/customer';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import React from 'react';
 
-export default async function OrderPage({
-   params,
-   searchParams
-}: {
-   params: { orderId: string };
-   searchParams: { [key: string]: string | string[] };
-}): Promise<React.ReactElement> {
+export default async function OrderPage(props: any): Promise<React.ReactElement> {
+   const { params, searchParams } = props;
    const { orderId } = params;
 
-   // Ensure token is a string (defaulting to empty string if missing)
+   // headers() is synchronous
    const token = (await headers()).get('x-shop-customer-token') ?? '';
    if (!token || token === 'denied') {
       console.error('ERROR: No valid access header on Account page');
@@ -22,7 +16,6 @@ export default async function OrderPage({
    }
    const customerAccessToken = token;
 
-   // GraphQL query to fetch order details.
    const query = `
     query OrderDetails($orderId: ID!) {
       order(id: $orderId) {
@@ -65,7 +58,6 @@ export default async function OrderPage({
   `;
    const variables = { orderId };
 
-   // Use your custom fetch function
    const res = await shopifyCustomerFetch({
       customerToken: customerAccessToken,
       cache: 'no-store',
@@ -73,8 +65,7 @@ export default async function OrderPage({
       variables: variables as any
    });
 
-   // Since shopifyCustomerFetch returns { status, body },
-   // we use res.status and res.body directly.
+   // Our shopifyCustomerFetch returns an object with status and body.
    const json = res.body as { data: any; errors?: any };
    if (res.status !== 200 || json.errors) {
       console.error('Error fetching order details:', json.errors);
