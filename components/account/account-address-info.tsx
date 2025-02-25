@@ -10,10 +10,10 @@ type AddressInfoProps = {
 };
 
 export function AccountAddressInfo({ addressData, customerAccessToken }: AddressInfoProps) {
-   // Ensure that we have an address ID
+   // Ensure that we have a valid address ID
    const addressId = addressData?.id;
    if (!addressId) {
-      return <p>Error: No valid address ID available.</p>;
+      return <p className="text-center text-red-500">Error: No valid address ID available.</p>;
    }
 
    // Initialize state from addressData
@@ -37,10 +37,10 @@ export function AccountAddressInfo({ addressData, customerAccessToken }: Address
             address2,
             city,
             zip,
-            // Use "phoneNumber" as the key instead of "phone"
+            // Use "phoneNumber" as the key per API requirements
             phoneNumber: phone
          };
-         // Set defaultAddress to true if you want this address to be default
+         // For this example, we're setting the updated address as default.
          const defaultAddress = true;
          await updateAddress(addressInput, addressId, defaultAddress, customerAccessToken);
          setMessage('Address updated successfully.');
@@ -52,95 +52,90 @@ export function AccountAddressInfo({ addressData, customerAccessToken }: Address
    };
 
    return (
-      <div className="space-y-6">
-         <h3 className="text-2xl font-bold">Address Information</h3>
-
-         {/* First Name */}
-         <div className="space-y-2">
-            <label className="font-medium">First Name</label>
-            <input
-               type="text"
-               className="w-full border p-2"
-               value={firstName}
-               onChange={(e) => setFirstName(e.target.value)}
-            />
+      <div className="mx-auto max-w-3xl space-y-6 rounded-lg bg-white p-6 shadow-lg dark:bg-gray-800">
+         <h3 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
+            Address Information
+         </h3>
+         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            {/* First Name */}
+            <div className="flex flex-col">
+               <label className="font-medium text-gray-700 dark:text-gray-300">First Name</label>
+               <input
+                  type="text"
+                  className="mt-1 rounded-md border border-gray-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+               />
+            </div>
+            {/* Last Name */}
+            <div className="flex flex-col">
+               <label className="font-medium text-gray-700 dark:text-gray-300">Last Name</label>
+               <input
+                  type="text"
+                  className="mt-1 rounded-md border border-gray-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+               />
+            </div>
+            {/* Address Line 1 */}
+            <div className="flex flex-col md:col-span-2">
+               <label className="font-medium text-gray-700 dark:text-gray-300">Address 1</label>
+               <input
+                  type="text"
+                  className="mt-1 rounded-md border border-gray-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700"
+                  value={address1}
+                  onChange={(e) => setAddress1(e.target.value)}
+               />
+            </div>
+            {/* Address Line 2 */}
+            <div className="flex flex-col md:col-span-2">
+               <label className="font-medium text-gray-700 dark:text-gray-300">Address 2</label>
+               <input
+                  type="text"
+                  className="mt-1 rounded-md border border-gray-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700"
+                  value={address2}
+                  onChange={(e) => setAddress2(e.target.value)}
+               />
+            </div>
+            {/* City */}
+            <div className="flex flex-col">
+               <label className="font-medium text-gray-700 dark:text-gray-300">City</label>
+               <input
+                  type="text"
+                  className="mt-1 rounded-md border border-gray-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700"
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+               />
+            </div>
+            {/* ZIP */}
+            <div className="flex flex-col">
+               <label className="font-medium text-gray-700 dark:text-gray-300">ZIP</label>
+               <input
+                  type="text"
+                  className="mt-1 rounded-md border border-gray-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700"
+                  value={zip}
+                  onChange={(e) => setZip(e.target.value)}
+               />
+            </div>
+            {/* Mobile Number */}
+            <div className="flex flex-col md:col-span-2">
+               <label className="font-medium text-gray-700 dark:text-gray-300">Mobile Number</label>
+               <input
+                  type="text"
+                  className="mt-1 rounded-md border border-gray-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+               />
+            </div>
          </div>
-
-         {/* Last Name */}
-         <div className="space-y-2">
-            <label className="font-medium">Last Name</label>
-            <input
-               type="text"
-               className="w-full border p-2"
-               value={lastName}
-               onChange={(e) => setLastName(e.target.value)}
-            />
-         </div>
-
-         {/* Address Line 1 */}
-         <div className="space-y-2">
-            <label className="font-medium">Address 1</label>
-            <input
-               type="text"
-               className="w-full border p-2"
-               value={address1}
-               onChange={(e) => setAddress1(e.target.value)}
-            />
-         </div>
-
-         {/* Address Line 2 */}
-         <div className="space-y-2">
-            <label className="font-medium">Address 2</label>
-            <input
-               type="text"
-               className="w-full border p-2"
-               value={address2}
-               onChange={(e) => setAddress2(e.target.value)}
-            />
-         </div>
-
-         {/* City */}
-         <div className="space-y-2">
-            <label className="font-medium">City</label>
-            <input
-               type="text"
-               className="w-full border p-2"
-               value={city}
-               onChange={(e) => setCity(e.target.value)}
-            />
-         </div>
-
-         {/* ZIP */}
-         <div className="space-y-2">
-            <label className="font-medium">ZIP</label>
-            <input
-               type="text"
-               className="w-full border p-2"
-               value={zip}
-               onChange={(e) => setZip(e.target.value)}
-            />
-         </div>
-
-         {/* Mobile Number */}
-         <div className="space-y-2">
-            <label className="font-medium">Mobile Number</label>
-            <input
-               type="text"
-               className="w-full border p-2"
-               value={phone}
-               onChange={(e) => setPhone(e.target.value)}
-            />
-         </div>
-
          <button
-            className="rounded bg-blue-500 px-4 py-2 text-white"
+            className="w-full rounded-md bg-blue-500 py-2 text-white transition-colors duration-200 hover:bg-blue-600"
             onClick={handleSaveAddress}
             disabled={loading}
          >
             {loading ? 'Saving...' : 'Save Address'}
          </button>
-
-         {message && <p className="text-sm text-green-600">{message}</p>}
+         {message && <p className="text-center text-sm text-green-600">{message}</p>}
       </div>
    );
 }
