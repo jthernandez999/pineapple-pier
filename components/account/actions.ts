@@ -12,7 +12,7 @@ import { revalidateTag } from 'next/cache';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
-// Updated mutation per your provided sample.
+// Mutation per your sample
 const CUSTOMER_UPDATE_MUTATION = `
   mutation customerUpdate($input: CustomerUpdateInput!) {
     customerUpdate(input: $input) {
@@ -23,6 +23,7 @@ const CUSTOMER_UPDATE_MUTATION = `
       customer {
         firstName
         lastName
+        email
         phoneNumber
       }
     }
@@ -31,8 +32,7 @@ const CUSTOMER_UPDATE_MUTATION = `
 
 /* ------------------ Update Functions ------------------ */
 
-// Each update function calls shopifyCustomerFetch with the CUSTOMER_UPDATE_MUTATION.
-// Adjust the input object as needed if you want to update fields beyond firstName and lastName.
+// Note: Ensure your customerAccessToken includes the proper scopes (customer_write_customers)
 
 export async function updateFirstName(newFirstName: string, customerAccessToken: string) {
    const variables = { input: { firstName: newFirstName } };
@@ -43,9 +43,8 @@ export async function updateFirstName(newFirstName: string, customerAccessToken:
          query: CUSTOMER_UPDATE_MUTATION,
          variables: variables as any,
          tags: [TAGS.customer],
-         headers: {
-            'X-Shopify-Customer-Access-Token': customerAccessToken
-         }
+         // For this example, we’re also sending a custom header.
+         headers: { 'X-Shopify-Customer-Access-Token': customerAccessToken }
       });
       revalidateTag(TAGS.customer);
       return response;
@@ -64,9 +63,7 @@ export async function updateLastName(newLastName: string, customerAccessToken: s
          query: CUSTOMER_UPDATE_MUTATION,
          variables: variables as any,
          tags: [TAGS.customer],
-         headers: {
-            'X-Shopify-Customer-Access-Token': customerAccessToken
-         }
+         headers: { 'X-Shopify-Customer-Access-Token': customerAccessToken }
       });
       revalidateTag(TAGS.customer);
       return response;
@@ -76,8 +73,6 @@ export async function updateLastName(newLastName: string, customerAccessToken: s
    }
 }
 
-// You can similarly add updateEmail, updatePhone, updateBirthday functions if the mutation is updated to support those fields.
-// For example, if you extend the mutation to support email updates, you could do:
 export async function updateEmail(newEmail: string, customerAccessToken: string) {
    const variables = { input: { email: newEmail } };
    try {
@@ -87,9 +82,7 @@ export async function updateEmail(newEmail: string, customerAccessToken: string)
          query: CUSTOMER_UPDATE_MUTATION,
          variables: variables as any,
          tags: [TAGS.customer],
-         headers: {
-            'X-Shopify-Customer-Access-Token': customerAccessToken
-         }
+         headers: { 'X-Shopify-Customer-Access-Token': customerAccessToken }
       });
       revalidateTag(TAGS.customer);
       return response;
@@ -100,7 +93,7 @@ export async function updateEmail(newEmail: string, customerAccessToken: string)
 }
 
 export async function updatePhone(newPhone: string, customerAccessToken: string) {
-   const variables = { input: { phoneNumber: newPhone } };
+   const variables = { input: { phone: newPhone } };
    try {
       const response = await shopifyCustomerFetch({
          customerToken: customerAccessToken,
@@ -108,17 +101,16 @@ export async function updatePhone(newPhone: string, customerAccessToken: string)
          query: CUSTOMER_UPDATE_MUTATION,
          variables: variables as any,
          tags: [TAGS.customer],
-         headers: {
-            'X-Shopify-Customer-Access-Token': customerAccessToken
-         }
+         headers: { 'X-Shopify-Customer-Access-Token': customerAccessToken }
       });
       revalidateTag(TAGS.customer);
       return response;
    } catch (error) {
-      console.error('Error updating email', error);
-      throw new Error('Error updating email');
+      console.error('Error updating phone number', error);
+      throw new Error('Error updating phone number');
    }
 }
+
 /* ------------------ Logout Function ------------------ */
 
 export async function doLogout(prevState: any) {
