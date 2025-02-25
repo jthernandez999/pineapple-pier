@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useState } from 'react';
 import { AccountAddressInfo } from './account-address-info';
 import { AccountOrdersHistory } from './account-orders-history';
@@ -19,6 +20,8 @@ export default function AccountDashboard({
 }: AccountDashboardProps) {
    // Set the default active menu to "welcome" so a welcome message is shown by default.
    const [activeMenu, setActiveMenu] = useState<string>('welcome');
+   // Control sidebar visibility on mobile.
+   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
 
    const renderContent = () => {
       switch (activeMenu) {
@@ -57,10 +60,34 @@ export default function AccountDashboard({
    };
 
    return (
-      <div className="mx-auto flex max-w-screen-2xl flex-col px-4 py-8 md:flex-row">
+      <div className="relative mx-auto flex max-w-screen-2xl flex-col px-4 py-8 md:flex-row">
+         {/* Mobile Header with Hamburger */}
+         <div className="mb-4 flex items-center justify-between md:hidden">
+            <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">Account / Home</h2>
+            <button
+               onClick={() => setIsSidebarOpen(true)}
+               className="rounded-md bg-black px-3 py-1 text-white transition-opacity duration-200 hover:opacity-80"
+               aria-label="Open Menu"
+            >
+               {/* Simple hamburger icon */}
+               <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                     strokeLinecap="round"
+                     strokeLinejoin="round"
+                     strokeWidth="2"
+                     d="M4 8h16M4 16h16"
+                  />
+               </svg>
+            </button>
+         </div>
+
          {/* Sidebar Menu */}
-         <aside className="mb-8 w-full md:mb-0 md:w-1/4 md:pr-8">
-            <div className="mb-4 flex items-center justify-between">
+         <aside
+            className={`fixed inset-y-0 left-0 z-50 w-64 transform bg-white p-4 transition-transform dark:bg-gray-800 md:relative md:w-1/4 md:translate-x-0 md:pr-8 ${
+               isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+            }`}
+         >
+            <div className="flex items-center justify-between">
                <div>
                   <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">
                      Account / Home
@@ -70,21 +97,25 @@ export default function AccountDashboard({
                   </p>
                </div>
                <button
-                  onClick={() => (window.location.href = '/logout')}
-                  className="rounded-md bg-gray-800 px-3 py-1 text-sm text-white transition-opacity duration-200 hover:opacity-80"
+                  onClick={() => setIsSidebarOpen(false)}
+                  className="rounded-md bg-gray-800 px-3 py-1 text-sm text-white transition-opacity duration-200 hover:opacity-80 md:hidden"
+                  aria-label="Close Menu"
                >
-                  Log Out
+                  &times;
                </button>
             </div>
-            <nav>
-               <ul className="flex flex-wrap md:block">
+            <nav className="mt-4">
+               <ul>
                   {['welcome', 'orders', 'manage', 'personal', 'address'].map((menu) => (
-                     <li key={menu} className="w-1/2 md:w-full">
+                     <li key={menu} className="mb-1">
                         <button
-                           className={`mb-1 block w-full rounded-md px-4 py-2 text-black transition-opacity duration-200 hover:opacity-80 ${
+                           onClick={() => {
+                              setActiveMenu(menu);
+                              setIsSidebarOpen(false);
+                           }}
+                           className={`w-full rounded-md bg-black px-4 py-2 text-white transition-opacity duration-200 hover:opacity-80 ${
                               activeMenu === menu ? 'underline opacity-80' : 'opacity-100'
                            }`}
-                           onClick={() => setActiveMenu(menu)}
                         >
                            {menu.charAt(0).toUpperCase() + menu.slice(1)}
                         </button>
@@ -92,7 +123,24 @@ export default function AccountDashboard({
                   ))}
                </ul>
             </nav>
+            {/* Log Out Button */}
+            <div className="mt-8">
+               <Link href="/logout">
+                  <a className="block w-full rounded-md bg-gray-700 px-4 py-2 text-center text-sm text-white transition-opacity duration-200 hover:opacity-80">
+                     Log Out
+                  </a>
+               </Link>
+            </div>
          </aside>
+
+         {/* Mobile Overlay */}
+         {isSidebarOpen && (
+            <div
+               className="fixed inset-0 z-40 bg-black opacity-50 md:hidden"
+               onClick={() => setIsSidebarOpen(false)}
+            ></div>
+         )}
+
          {/* Main Content */}
          <main className="w-full md:w-3/4 md:border-l md:border-neutral-200 md:pl-8 dark:md:border-neutral-800">
             {renderContent()}
