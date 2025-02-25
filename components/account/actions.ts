@@ -12,7 +12,8 @@ import { revalidateTag } from 'next/cache';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
-// Mutation per your sample
+// Updated mutation to use the correct field for email.
+// Note: "emailAddress" is queried as an object with an inner field "emailAddress".
 const CUSTOMER_UPDATE_MUTATION = `
   mutation customerUpdate($input: CustomerUpdateInput!) {
     customerUpdate(input: $input) {
@@ -23,16 +24,16 @@ const CUSTOMER_UPDATE_MUTATION = `
       customer {
         firstName
         lastName
-        email
-        phoneNumber
+        emailAddress {
+          emailAddress
+        }
+        phone
       }
     }
   }
 `;
 
 /* ------------------ Update Functions ------------------ */
-
-// Ensure your customerAccessToken includes the proper scopes (customer_write_customers)
 
 export async function updateFirstName(newFirstName: string, customerAccessToken: string) {
    const variables = { input: { firstName: newFirstName } };
@@ -101,37 +102,8 @@ export async function updatePhone(newPhone: string, customerAccessToken: string)
       revalidateTag(TAGS.customer);
       return response;
    } catch (error) {
-      console.error('Error updating phone number', error);
-      throw new Error('Error updating phone number');
-   }
-}
-
-export async function updateBirthday(newBirthday: string, customerAccessToken: string) {
-   const variables = {
-      input: {
-         metafields: [
-            {
-               key: 'birthday',
-               namespace: 'custom',
-               value: newBirthday,
-               type: 'single_line_text_field'
-            }
-         ]
-      }
-   };
-   try {
-      const response = await shopifyCustomerFetch({
-         customerToken: customerAccessToken,
-         cache: 'no-store',
-         query: CUSTOMER_UPDATE_MUTATION,
-         variables: variables as any,
-         tags: [TAGS.customer]
-      });
-      revalidateTag(TAGS.customer);
-      return response;
-   } catch (error) {
-      console.error('Error updating birthday', error);
-      throw new Error('Error updating birthday');
+      console.error('Error updating phone', error);
+      throw new Error('Error updating phone');
    }
 }
 
