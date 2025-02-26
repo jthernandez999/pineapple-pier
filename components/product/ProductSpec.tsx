@@ -31,7 +31,9 @@ export function ProductSpec({ product }: { product: Product }) {
    }, [state, product]);
 
    // Use "Body Length" as a marker to separate Materials & Care from Specifications
-   const specMarker = 'Body Length';
+   // if "Body Length" is not available use "Front Rise"
+   const specMarker = currentSpec.includes('Body Length') ? 'Body Length' : 'Front Rise';
+
    const markerIndex = currentSpec.indexOf(specMarker);
    const materialsCarePart =
       markerIndex !== -1 ? currentSpec.slice(0, markerIndex).trim() : currentSpec;
