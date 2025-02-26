@@ -41,7 +41,7 @@ const NextArrow = (props: any) => {
             viewBox="0 0 24 24"
             stroke="currentColor"
          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 5l7 7-7 7" />
          </svg>
       </div>
    );
@@ -71,7 +71,7 @@ const PrevArrow = (props: any) => {
             <path
                strokeLinecap="round"
                strokeLinejoin="round"
-               strokeWidth={2}
+               strokeWidth={1}
                d="M15 19l-7-7 7-7"
             />
          </svg>

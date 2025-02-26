@@ -90,7 +90,7 @@ export function ProductSpec({ product }: { product: Product }) {
                         x2="19"
                         y2="12"
                         stroke="currentColor"
-                        strokeWidth="1"
+                        strokeWidth=".75"
                         strokeLinecap="round"
                      />
                   </svg>
@@ -103,7 +103,7 @@ export function ProductSpec({ product }: { product: Product }) {
                         x2="12"
                         y2="19"
                         stroke="currentColor"
-                        strokeWidth="1"
+                        strokeWidth=".75"
                         strokeLinecap="round"
                      />
                      <line
@@ -112,7 +112,7 @@ export function ProductSpec({ product }: { product: Product }) {
                         x2="19"
                         y2="12"
                         stroke="currentColor"
-                        strokeWidth="1"
+                        strokeWidth=".75"
                         strokeLinecap="round"
                      />
                   </svg>
@@ -150,7 +150,7 @@ export function ProductSpec({ product }: { product: Product }) {
                         x2="19"
                         y2="12"
                         stroke="currentColor"
-                        strokeWidth="1"
+                        strokeWidth=".75"
                         strokeLinecap="round"
                      />
                   </svg>
@@ -163,7 +163,7 @@ export function ProductSpec({ product }: { product: Product }) {
                         x2="12"
                         y2="19"
                         stroke="currentColor"
-                        strokeWidth="1"
+                        strokeWidth=".75"
                         strokeLinecap="round"
                      />
                      <line
@@ -172,7 +172,7 @@ export function ProductSpec({ product }: { product: Product }) {
                         x2="19"
                         y2="12"
                         stroke="currentColor"
-                        strokeWidth="1"
+                        strokeWidth=".75"
                         strokeLinecap="round"
                      />
                   </svg>

@@ -56,7 +56,7 @@ export function ProductDescription({ product }: { product: Product }) {
                   <div className="my-6 mb-4 border-b pb-2">
                      <button
                         onClick={() => setIsDescriptionOpen(!isDescriptionOpen)}
-                        className="flex w-full items-center justify-between text-left text-lg font-normal text-black transition-opacity duration-200 hover:opacity-80 dark:text-white"
+                        className="text-md flex w-full items-center justify-between text-left font-normal text-black transition-opacity duration-200 hover:opacity-80 dark:text-white"
                      >
                         <span>Description</span>
                         {isDescriptionOpen ? (
@@ -68,7 +68,7 @@ export function ProductDescription({ product }: { product: Product }) {
                                  x2="19"
                                  y2="12"
                                  stroke="currentColor"
-                                 strokeWidth="1"
+                                 strokeWidth=".75"
                                  strokeLinecap="round"
                               />
                            </svg>
@@ -81,7 +81,7 @@ export function ProductDescription({ product }: { product: Product }) {
                                  x2="12"
                                  y2="19"
                                  stroke="currentColor"
-                                 strokeWidth="1"
+                                 strokeWidth=".75"
                                  strokeLinecap="round"
                               />
                               <line
@@ -90,7 +90,7 @@ export function ProductDescription({ product }: { product: Product }) {
                                  x2="19"
                                  y2="12"
                                  stroke="currentColor"
-                                 strokeWidth="1"
+                                 strokeWidth=".75"
                                  strokeLinecap="round"
                               />
                            </svg>
@@ -99,7 +99,7 @@ export function ProductDescription({ product }: { product: Product }) {
                      {isDescriptionOpen && (
                         <div className="mt-4">
                            <Prose
-                              className="text-justify text-sm leading-tight dark:text-white/[60%]"
+                              className="text-justify text-sm font-light leading-tight dark:text-white/[60%]"
                               html={product.descriptionHtml}
                            />
                         </div>
