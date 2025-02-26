@@ -56,7 +56,7 @@ export function ProductDescription({ product }: { product: Product }) {
                   <div className="my-6 mb-4 border-b pb-2">
                      <button
                         onClick={() => setIsDescriptionOpen(!isDescriptionOpen)}
-                        className="text-md flex w-full items-center justify-between text-left font-normal text-black transition-opacity duration-200 hover:opacity-80 dark:text-white"
+                        className="flex w-full items-center justify-between text-left text-lg font-normal text-black transition-opacity duration-200 hover:opacity-80 dark:text-white"
                      >
                         <span>Description</span>
                         {isDescriptionOpen ? (
