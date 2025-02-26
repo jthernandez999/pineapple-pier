@@ -4,73 +4,107 @@ import { Product } from 'lib/shopify/types';
 import { useEffect, useState } from 'react';
 import { useProduct, useUpdateSpec } from '../../components/product/product-context';
 
+// Custom parser to split on commas not inside parentheses.
+function splitSpecs(specs: string): string[] {
+   const result: string[] = [];
+   let current = '';
+   let level = 0;
+   for (let i = 0; i < specs.length; i++) {
+      const char = specs[i];
+      if (char === '(') {
+         level++;
+      } else if (char === ')') {
+         level--;
+      }
+      if (char === ',' && level === 0) {
+         result.push(current.trim());
+         current = '';
+      } else {
+         current += char;
+      }
+   }
+   if (current.trim() !== '') {
+      result.push(current.trim());
+   }
+   return result;
+}
+
 export function ProductSpec({ product }: { product: Product }) {
    const { state } = useProduct();
    const updateSpec = useUpdateSpec();
-   const [currentSpec, setCurrentSpec] = useState<string>('');
+   // Initialize currentSpec with a default of "n/a"
+   const [currentSpec, setCurrentSpec] = useState<string>('n/a');
 
    // Dropdown states for Materials & Care and Specifications
    const [materialsOpen, setMaterialsOpen] = useState<boolean>(false);
    const [specsOpen, setSpecsOpen] = useState<boolean>(false);
 
    useEffect(() => {
-      console.log('Product context state:', state);
-      console.log('Product data:', product);
-   }, [state, product]);
-
-   useEffect(() => {
       if (state && typeof state.spec === 'string' && state.spec.trim() !== '') {
          setCurrentSpec(state.spec);
       } else {
          console.warn('No "spec" found in state, using fallback from product options.');
-         const option = product?.options?.find((opt) => opt.name.toLowerCase() === 'spec');
-         if (option && Array.isArray(option.values)) {
-            setCurrentSpec(option.values[0] || '');
-         }
+         // Ensure we always have a string by defaulting to "n/a"
+         const fallbackSpec: string =
+            product?.options?.find((opt) => opt.name.toLowerCase() === 'spec')?.values?.[0] ??
+            'n/a';
+         setCurrentSpec(fallbackSpec);
       }
    }, [state, product]);
 
-   // Determine spec marker: use "Body Length" if available; otherwise, "Front Rise"
-   const specMarker = currentSpec.includes('Body Length') ? 'Body Length' : 'Front Rise';
-   const markerIndex = currentSpec.indexOf(specMarker);
-   const materialsCarePart =
-      markerIndex !== -1 ? currentSpec.slice(0, markerIndex).trim() : currentSpec;
-   const specificationsPart = markerIndex !== -1 ? currentSpec.slice(markerIndex).trim() : '';
+   // Always work with a defined string by defaulting to "n/a"
+   let safeSpec = (currentSpec ?? 'n/a').trim();
+   const materialPrefix = 'Material:';
+   if (safeSpec.startsWith(materialPrefix)) {
+      safeSpec = safeSpec.slice(materialPrefix.length).trim();
+   }
+   // Remove any trailing comma.
+   safeSpec = safeSpec.replace(/,\s*$/, '');
 
-   // Process Materials & Care section
-   // Remove a leading "Material:" if present.
-   let rawMaterials = materialsCarePart.replace(/^Material:\s*/i, '').trim();
+   // Use our custom parser to split the safeSpec into tokens.
+   const tokens = splitSpecs(safeSpec);
+   // For debugging:
+   // console.log('Tokens:', tokens);
 
    let materialText = '';
    let careText = '';
+   let specTokens: string[] = [];
 
-   // If the string contains "Care:" explicitly, split on that.
-   if (/care:/i.test(rawMaterials)) {
-      const parts = rawMaterials.split(/care:/i);
-      materialText = parts[0]?.trim() || '';
-      careText = parts[1]?.trim() || '';
-   } else {
-      // Otherwise, split by commas.
-      const tokens = rawMaterials.split(',').map((s) => s.trim());
-      // Separate tokens that seem to be material composition (containing '%' or starting with a digit)
-      const materialTokens = tokens.filter((token) => /[%\d]/.test(token.charAt(0)));
-      const nonMaterialTokens = tokens.filter((token) => !/%/.test(token) && !/^\d/.test(token));
-      // If materialTokens exist, use them as material; otherwise, assume the whole string is care.
-      if (materialTokens.length > 0) {
-         materialText = materialTokens.join(', ');
-         careText = nonMaterialTokens.join(', ');
-      } else {
-         careText = rawMaterials;
+   if (tokens.length > 0) {
+      // The first token is always the material.
+      materialText = tokens[0] || 'n/a';
+      // Then, iterate over the remaining tokens:
+      // - As long as we haven't seen a token containing a colon, consider them part of the care instructions.
+      // - Once a token includes a colon, treat that and all subsequent tokens as specification pairs.
+      const careTokens: string[] = [];
+      let specsStarted = false;
+      for (let i = 1; i < tokens.length; i++) {
+         const token = tokens[i] ?? '';
+         if (!specsStarted && token.includes(':')) {
+            specsStarted = true;
+            specTokens.push(token);
+         } else if (!specsStarted && !token.includes(':')) {
+            careTokens.push(token);
+         } else {
+            specTokens.push(token);
+         }
       }
+      careText = careTokens.join(', ') || 'n/a';
+   } else {
+      materialText = 'n/a';
+      careText = 'n/a';
    }
 
-   // Process Specifications section: split into comma-separated key-value pairs
-   const specPairs = specificationsPart
-      ? specificationsPart
-           .split(',')
-           .map((s) => s.trim())
-           .filter(Boolean)
-      : [];
+   // Map specTokens into key–value pairs.
+   const specPairs = specTokens
+      .map((token) => {
+         const parts = token.split(':');
+         // Use defaults in case parts[0] or the rest is undefined.
+         const key: string = (parts[0] ?? 'n/a').trim();
+         const value: string = (parts.slice(1).join(':') || 'n/a').trim();
+         return { key, value };
+      })
+      .filter(({ key, value }) => key !== '' && value !== '');
 
    return (
       <div className="mb-6">
@@ -82,7 +116,6 @@ export function ProductSpec({ product }: { product: Product }) {
             >
                <span>Materials &amp; Care</span>
                {materialsOpen ? (
-                  // Minus icon for open state
                   <svg className="h-6 w-6" viewBox="0 0 24 24">
                      <line
                         x1="5"
@@ -95,7 +128,6 @@ export function ProductSpec({ product }: { product: Product }) {
                      />
                   </svg>
                ) : (
-                  // Plus icon for closed state
                   <svg className="h-6 w-6" viewBox="0 0 24 24">
                      <line
                         x1="12"
@@ -142,7 +174,6 @@ export function ProductSpec({ product }: { product: Product }) {
             >
                <span>Specifications</span>
                {specsOpen ? (
-                  // Minus icon for open state
                   <svg className="h-6 w-6" viewBox="0 0 24 24">
                      <line
                         x1="5"
@@ -155,7 +186,6 @@ export function ProductSpec({ product }: { product: Product }) {
                      />
                   </svg>
                ) : (
-                  // Plus icon for closed state
                   <svg className="h-6 w-6" viewBox="0 0 24 24">
                      <line
                         x1="12"
@@ -181,14 +211,11 @@ export function ProductSpec({ product }: { product: Product }) {
             {specsOpen && (
                <div className="mt-2 pl-4 text-gray-700">
                   {specPairs.length > 0 ? (
-                     specPairs.map((pair, index) => {
-                        const [key, value] = pair.split(':').map((s) => s.trim());
-                        return (
-                           <p key={index}>
-                              <strong>{key}:</strong> {value}
-                           </p>
-                        );
-                     })
+                     specPairs.map((pair, index) => (
+                        <p key={index}>
+                           <strong>{pair.key}:</strong> {pair.value}
+                        </p>
+                     ))
                   ) : (
                      <p>No specifications available.</p>
                   )}
