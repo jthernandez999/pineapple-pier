@@ -48,3 +48,22 @@ export const highlightCollectionImages = [
       buttonLink: '/collections/valentines-edit'
    }
 ];
+
+// assets/index.tsx
+export const announcements = [
+   {
+      message: 'Free Shipping On Orders $150+',
+      linkText: 'Shop Now',
+      linkUrl: '/collections/shop-all-clothing'
+   },
+   {
+      message: 'Free Shipping On Orders $150+',
+      linkText: 'Shop Now',
+      linkUrl: '/collections/shop-all-clothing'
+   }
+   // {
+   //    message: 'Free shipping on orders over $50',
+   //    linkText: 'Shop Now',
+   //    linkUrl: '/shipping-info'
+   // }
+];

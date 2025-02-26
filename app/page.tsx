@@ -1,3 +1,37 @@
+import { banners, collectionImages, highlightCollectionImages } from 'assets/index';
+import { Carousel } from 'components/carousel';
+import HeroBanner from 'components/hero';
+import HighlightCollection from 'components/highlightCollection';
+import Footer from 'components/layout/footer';
+import ThreeImageCollections from 'components/three-collections';
+import { getCollectionProducts } from '../lib/shopify';
+
+export const metadata = {
+   description: 'Dear John Denim, a premium denim brand that offers a wide range of denim',
+   openGraph: {
+      type: 'website'
+   }
+};
+
+// const data = await getCollectionProducts({ collection, sortKey, reverse });
+
+export default async function HomePage() {
+   const collection = 'whats-hot'; // or whichever collection you want to fetch
+   const sortKey = 'CREATED'; // or "TITLE", etc.
+   const reverse = false;
+   const data = await getCollectionProducts({ collection, sortKey, reverse });
+   return (
+      <>
+         <HeroBanner banners={banners} interval={1100} />
+         <ThreeImageCollections collectionImages={collectionImages} />
+         <Carousel data={data} />
+         <HighlightCollection highlightCollectionImages={highlightCollectionImages} />
+         {/* <ThreeItemGrid /> */}
+         <Footer />
+      </>
+   );
+}
+
 // // app/page.tsx
 // import { banners, collectionImages, highlightCollectionImages } from 'assets/index';
 // import { ThreeItemGrid } from 'components/grid/three-items';
@@ -140,37 +174,3 @@
 //       </>
 //    );
 // }
-
-import { banners, collectionImages, highlightCollectionImages } from 'assets/index';
-import { Carousel } from 'components/carousel';
-import HeroBanner from 'components/hero';
-import HighlightCollection from 'components/highlightCollection';
-import Footer from 'components/layout/footer';
-import ThreeImageCollections from 'components/three-collections';
-import { getCollectionProducts } from '../lib/shopify';
-
-export const metadata = {
-   description: 'Dear John Denim, a premium denim brand that offers a wide range of denim',
-   openGraph: {
-      type: 'website'
-   }
-};
-
-// const data = await getCollectionProducts({ collection, sortKey, reverse });
-
-export default async function HomePage() {
-   const collection = 'whats-hot'; // or whichever collection you want to fetch
-   const sortKey = 'CREATED'; // or "TITLE", etc.
-   const reverse = false;
-   const data = await getCollectionProducts({ collection, sortKey, reverse });
-   return (
-      <>
-         <HeroBanner banners={banners} interval={1100} />
-         <ThreeImageCollections collectionImages={collectionImages} />
-         <Carousel data={data} />
-         <HighlightCollection highlightCollectionImages={highlightCollectionImages} />
-         {/* <ThreeItemGrid /> */}
-         <Footer />
-      </>
-   );
-}
