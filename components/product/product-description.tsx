@@ -17,18 +17,17 @@ export function ProductDescription({ product }: { product: Product }) {
       ? product.title.replace(new RegExp(`\\b${product.options[1]?.values[0]}\\b`, 'i'), '').trim()
       : product.title;
 
-   const stretchTag =
-      product.tags && product.tags.length > 0
-         ? (() => {
-              if (product.tags.some((tag) => tag.toLowerCase() === 'stretch')) {
-                 return 'Stretch';
-              } else if (product.tags.some((tag) => tag.toLowerCase() === 'rigid')) {
-                 return 'Rigid';
-              } else {
-                 return 'N/A';
-              }
-           })()
-         : null;
+   const stretchTag: string = product.tags
+      ? ((() => {
+           if (product.tags.some((tag) => tag.toLowerCase() === 'stretch')) {
+              return 'Stretch';
+           } else if (product.tags.some((tag) => tag.toLowerCase() === 'rigid')) {
+              return 'Rigid';
+           } else {
+              return 'N/A';
+           }
+        })() ?? 'N/A')
+      : 'N/A';
 
    // Extract the numeric portion from the Shopify product id.
    const numericExternalId = parseInt(product.id.split('/').pop() || '', 10);
