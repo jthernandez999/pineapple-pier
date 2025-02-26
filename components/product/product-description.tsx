@@ -8,6 +8,7 @@ import { Product } from 'lib/shopify/types';
 import { useState } from 'react';
 import JudgeMePreviewBadge from '../../components/judgeme/JudgeMeProductReview';
 import { ProductSpec } from './ProductSpec';
+import StretchabilitySection from './StretchabilitySection';
 import { VariantSelector } from './variant-selector';
 
 export function ProductDescription({ product }: { product: Product }) {
@@ -16,6 +17,19 @@ export function ProductDescription({ product }: { product: Product }) {
       ? product.title.replace(new RegExp(`\\b${product.options[1]?.values[0]}\\b`, 'i'), '').trim()
       : product.title;
 
+   const stretchTag =
+      product.tags && product.tags.length > 0
+         ? (() => {
+              if (product.tags.some((tag) => tag.toLowerCase() === 'stretch')) {
+                 return 'Stretch';
+              } else if (product.tags.some((tag) => tag.toLowerCase() === 'rigid')) {
+                 return 'Rigid';
+              } else {
+                 return 'N/A';
+              }
+           })()
+         : null;
+
    // Extract the numeric portion from the Shopify product id.
    const numericExternalId = parseInt(product.id.split('/').pop() || '', 10);
    // Default judgeMeId if not provided.
@@ -23,7 +37,7 @@ export function ProductDescription({ product }: { product: Product }) {
 
    // State for the description dropdown (open by default)
    const [isDescriptionOpen, setIsDescriptionOpen] = useState(true);
-
+   console.log('product', product.tags);
    return (
       <>
          <div className="mx-auto flex flex-col justify-start border-b pb-6 dark:border-neutral-700 2xl:mx-auto">
@@ -109,6 +123,7 @@ export function ProductDescription({ product }: { product: Product }) {
 
                {/* Display the product spec */}
                <ProductSpec product={product} />
+               <StretchabilitySection stretchTag={stretchTag} />
             </div>
          </div>
       </>
