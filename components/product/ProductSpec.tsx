@@ -9,57 +9,143 @@ export function ProductSpec({ product }: { product: Product }) {
    const updateSpec = useUpdateSpec();
    const [currentSpec, setCurrentSpec] = useState<string>('');
 
-   // Debug: log the product context state and product data
+   // Dropdown state for Materials & Care and Specifications
+   const [materialsOpen, setMaterialsOpen] = useState<boolean>(false);
+   const [specsOpen, setSpecsOpen] = useState<boolean>(false);
+
    useEffect(() => {
       console.log('Product context state:', state);
       console.log('Product data:', product);
    }, [state, product]);
 
-   // Assume that the spec is stored in the context state under "spec"
-   // Adjust the key if necessary.
    useEffect(() => {
-      if (state && typeof state.spec === 'string') {
+      if (state && typeof state.spec === 'string' && state.spec.trim() !== '') {
          setCurrentSpec(state.spec);
       } else {
          console.warn('No "spec" found in state, using fallback from product options.');
-         // Fallback: try to derive spec from product options
          const option = product.options.find((opt) => opt.name.toLowerCase() === 'spec');
          if (option && Array.isArray(option.values)) {
-            // Use the first value as a fallback
             setCurrentSpec(option.values[0] || '');
          }
       }
    }, [state, product]);
 
-   // Optionally, provide a way to update the spec:
-   const handleUpdateSpec = () => {
-      // Example spec object: { spec: 'Color: Red, Size: Medium' }
-      // This would update each key in the spec object via updateOption.
-      // Here, we simply call updateSpec with an object that has our new spec.
-      const newSpec = { spec: 'Color: Blue, Size: Large' };
-      updateSpec(newSpec);
-      console.log('Called updateSpec with:', newSpec);
-   };
+   // Use "Body Length" as a marker to separate Materials & Care from Specifications
+   const specMarker = 'Body Length';
+   const markerIndex = currentSpec.indexOf(specMarker);
+   const materialsCarePart =
+      markerIndex !== -1 ? currentSpec.slice(0, markerIndex).trim() : currentSpec;
+   const specificationsPart = markerIndex !== -1 ? currentSpec.slice(markerIndex).trim() : '';
+
+   // Parse Materials & Care
+   const tokens = materialsCarePart.split(',').map((s) => s.trim());
+   // Remove the first token if it starts with "Material:" and contains extraneous info.
+   let filteredTokens = tokens;
+   if (tokens[0] && tokens[0].toLowerCase().startsWith('material:')) {
+      // For example, tokens[0] might be "Material: LUREX"
+      // We drop it so that we start from token[1]
+      filteredTokens = tokens.slice(1);
+   }
+   // Expected order:
+   // Index 0-4: material details (5 tokens)
+   // Index 5+: care details
+   const materialTokens = filteredTokens.slice(0, 5);
+   const careTokens = filteredTokens.slice(5);
+
+   const materialText = materialTokens.join(', ');
+   const careText = careTokens.join(', ');
+
+   // Parse Specifications (assume comma-separated key: value pairs)
+   const specPairs = specificationsPart
+      ? specificationsPart
+           .split(',')
+           .map((s) => s.trim())
+           .filter(Boolean)
+      : [];
 
    return (
       <div className="mb-6">
-         <h2 className="text-lg font-semibold">Specifications</h2>
-         {currentSpec ? (
-            currentSpec.split(',').map((entry, entryIndex) => {
-               const parts = entry.split(':');
-               if (parts.length < 2) {
-                  return <p key={entryIndex}>{entry}</p>;
-               }
-               const [key, value] = parts.map((s) => s.trim());
-               return (
-                  <p key={entryIndex}>
-                     <strong>{key}:</strong> {value}
-                  </p>
-               );
-            })
-         ) : (
-            <p>No specifications available for this variant.</p>
-         )}
+         <h2 className="mb-4 text-xl font-medium">Product Details</h2>
+
+         {/* Materials & Care Dropdown */}
+         <div className="mb-4 border-b pb-2">
+            <button
+               onClick={() => setMaterialsOpen(!materialsOpen)}
+               className="flex w-full items-center justify-between text-left text-lg font-normal text-gray-800 hover:opacity-80"
+            >
+               <span>Materials &amp; Care</span>
+               <svg
+                  className={`h-6 w-6 transform transition-transform duration-200 ${
+                     materialsOpen ? 'rotate-180' : 'rotate-0'
+                  }`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+               >
+                  <path
+                     strokeLinecap="round"
+                     strokeLinejoin="round"
+                     strokeWidth="2"
+                     d="M19 9l-7 7-7-7"
+                  />
+               </svg>
+            </button>
+            {materialsOpen && (
+               <div className="mt-2 pl-4 text-gray-700">
+                  {materialText && (
+                     <p>
+                        <strong>Material:</strong> {materialText}
+                     </p>
+                  )}
+                  {careText && (
+                     <p>
+                        <strong>Care:</strong> {careText}
+                     </p>
+                  )}
+               </div>
+            )}
+         </div>
+
+         {/* Specifications Dropdown */}
+         <div className="mb-4 border-b pb-2">
+            <button
+               onClick={() => setSpecsOpen(!specsOpen)}
+               className="flex w-full items-center justify-between text-left text-lg font-normal text-gray-800 hover:opacity-80"
+            >
+               <span>Specifications</span>
+               <svg
+                  className={`h-6 w-6 transform transition-transform duration-200 ${
+                     specsOpen ? 'rotate-180' : 'rotate-0'
+                  }`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+               >
+                  <path
+                     strokeLinecap="round"
+                     strokeLinejoin="round"
+                     strokeWidth="2"
+                     d="M19 9l-7 7-7-7"
+                  />
+               </svg>
+            </button>
+            {specsOpen && (
+               <div className="mt-2 pl-4 text-gray-700">
+                  {specPairs.length > 0 ? (
+                     specPairs.map((pair, index) => {
+                        const [key, value] = pair.split(':').map((s) => s.trim());
+                        return (
+                           <p key={index}>
+                              <strong>{key}:</strong> {value}
+                           </p>
+                        );
+                     })
+                  ) : (
+                     <p>No specifications available.</p>
+                  )}
+               </div>
+            )}
+         </div>
       </div>
    );
 }
