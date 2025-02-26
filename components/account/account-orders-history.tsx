@@ -107,38 +107,39 @@ export function OrderCard({ order }: OrderCardProps) {
    return (
       <Link href={`https://shopify.com/10242207/account/orders/${extractedId}`}>
          <a className="cursor-pointer">
-            <div className="rounded-lg bg-white p-6 shadow-lg transition-shadow hover:shadow-xl">
-               <div className="flex items-center justify-between">
-                  <div>
+            <div className="aspect-w-2 aspect-h-3 rounded-lg bg-white p-6 shadow-lg transition-shadow hover:shadow-xl">
+               <div className="flex h-full flex-col">
+                  {/* Left Column: Order Details */}
+                  <div className="flex-grow">
                      <h3 className="text-lg font-semibold text-blue-600 underline">
                         Order #{order.number}
                      </h3>
                      <p className="text-sm text-gray-500">Confirmed {formattedDate}</p>
-                  </div>
-                  <div className="text-right">
-                     <p className="text-sm font-medium capitalize">{order.financialStatus}</p>
+                     <p className="mt-2 text-sm font-medium capitalize">{order.financialStatus}</p>
                      <p className="text-lg font-bold">
                         {order.totalPrice.currencyCode}{' '}
                         {parseFloat(order.totalPrice.amount).toFixed(2)}
                      </p>
                   </div>
-               </div>
-               <div className="mt-4">
-                  <h4 className="mb-2 text-sm font-semibold">Items</h4>
-                  <ul className="flex space-x-4 overflow-x-auto">
-                     {order.lineItems.edges.map(({ node }, index) => (
-                        <li key={index} className="flex-shrink-0">
-                           <Image
-                              src={node.image.url}
-                              alt={node.image.altText || node.title}
-                              width={60}
-                              height={60}
-                              className="rounded object-cover"
-                           />
-                           <p className="mt-1 text-center text-xs">{node.title}</p>
-                        </li>
-                     ))}
-                  </ul>
+                  {/* Right Column: Order Items */}
+                  <div className="mt-4">
+                     <h4 className="mb-2 text-sm font-semibold">Items</h4>
+                     <ul className="grid grid-cols-3 gap-2">
+                        {order.lineItems.edges.map(({ node }, index) => (
+                           <li key={index} className="flex flex-col items-center">
+                              <Image
+                                 src={node.image.url}
+                                 alt={node.image.altText || node.title}
+                                 width={60}
+                                 height={60}
+                                 className="rounded object-cover"
+                                 unoptimized
+                              />
+                              <p className="mt-1 text-center text-xs">{node.title}</p>
+                           </li>
+                        ))}
+                     </ul>
+                  </div>
                </div>
             </div>
          </a>
