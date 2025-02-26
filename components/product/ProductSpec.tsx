@@ -74,8 +74,6 @@ export function ProductSpec({ product }: { product: Product }) {
 
    return (
       <div className="mb-6">
-         <h2 className="mb-4 text-xl font-semibold">Product Details</h2>
-
          {/* Materials & Care Dropdown */}
          <div className="mb-4 border-b pb-2">
             <button

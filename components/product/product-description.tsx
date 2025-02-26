@@ -53,7 +53,7 @@ export function ProductDescription({ product }: { product: Product }) {
 
                {/* Description Dropdown */}
                {product.descriptionHtml && (
-                  <div className="my-6">
+                  <div className="my-6 mb-4 border-b pb-2">
                      <button
                         onClick={() => setIsDescriptionOpen(!isDescriptionOpen)}
                         className="flex w-full items-center justify-between text-left text-lg font-normal text-black transition-opacity duration-200 hover:opacity-80 dark:text-white"
