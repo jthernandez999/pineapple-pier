@@ -9,7 +9,7 @@ export function ProductSpec({ product }: { product: Product }) {
    const updateSpec = useUpdateSpec();
    const [currentSpec, setCurrentSpec] = useState<string>('');
 
-   // Dropdown state for Materials & Care and Specifications
+   // Dropdown states for Materials & Care and Specifications
    const [materialsOpen, setMaterialsOpen] = useState<boolean>(false);
    const [specsOpen, setSpecsOpen] = useState<boolean>(false);
 
@@ -23,41 +23,48 @@ export function ProductSpec({ product }: { product: Product }) {
          setCurrentSpec(state.spec);
       } else {
          console.warn('No "spec" found in state, using fallback from product options.');
-         const option = product.options.find((opt) => opt.name.toLowerCase() === 'spec');
+         const option = product?.options?.find((opt) => opt.name.toLowerCase() === 'spec');
          if (option && Array.isArray(option.values)) {
             setCurrentSpec(option.values[0] || '');
          }
       }
    }, [state, product]);
 
-   // Use "Body Length" as a marker to separate Materials & Care from Specifications
-   // if "Body Length" is not available use "Front Rise"
+   // Determine spec marker: use "Body Length" if available; otherwise, "Front Rise"
    const specMarker = currentSpec.includes('Body Length') ? 'Body Length' : 'Front Rise';
-
    const markerIndex = currentSpec.indexOf(specMarker);
    const materialsCarePart =
       markerIndex !== -1 ? currentSpec.slice(0, markerIndex).trim() : currentSpec;
    const specificationsPart = markerIndex !== -1 ? currentSpec.slice(markerIndex).trim() : '';
 
-   // Parse Materials & Care
-   const tokens = materialsCarePart.split(',').map((s) => s.trim());
-   // Remove the first token if it starts with "Material:" and contains extraneous info.
-   let filteredTokens = tokens;
-   if (tokens[0] && tokens[0].toLowerCase().startsWith('material:')) {
-      // For example, tokens[0] might be "Material: LUREX"
-      // We drop it so that we start from token[1]
-      filteredTokens = tokens.slice(1);
+   // Process Materials & Care section
+   // Remove a leading "Material:" if present.
+   let rawMaterials = materialsCarePart.replace(/^Material:\s*/i, '').trim();
+
+   let materialText = '';
+   let careText = '';
+
+   // If the string contains "Care:" explicitly, split on that.
+   if (/care:/i.test(rawMaterials)) {
+      const parts = rawMaterials.split(/care:/i);
+      materialText = parts[0]?.trim() || '';
+      careText = parts[1]?.trim() || '';
+   } else {
+      // Otherwise, split by commas.
+      const tokens = rawMaterials.split(',').map((s) => s.trim());
+      // Separate tokens that seem to be material composition (containing '%' or starting with a digit)
+      const materialTokens = tokens.filter((token) => /[%\d]/.test(token.charAt(0)));
+      const nonMaterialTokens = tokens.filter((token) => !/%/.test(token) && !/^\d/.test(token));
+      // If materialTokens exist, use them as material; otherwise, assume the whole string is care.
+      if (materialTokens.length > 0) {
+         materialText = materialTokens.join(', ');
+         careText = nonMaterialTokens.join(', ');
+      } else {
+         careText = rawMaterials;
+      }
    }
-   // Expected order:
-   // Index 0-4: material details (5 tokens)
-   // Index 5+: care details
-   const materialTokens = filteredTokens.slice(0, 5);
-   const careTokens = filteredTokens.slice(5);
 
-   const materialText = materialTokens.join(', ');
-   const careText = careTokens.join(', ');
-
-   // Parse Specifications (assume comma-separated key: value pairs)
+   // Process Specifications section: split into comma-separated key-value pairs
    const specPairs = specificationsPart
       ? specificationsPart
            .split(',')
@@ -67,7 +74,7 @@ export function ProductSpec({ product }: { product: Product }) {
 
    return (
       <div className="mb-6">
-         {/* <h2 className="mb-4 text-xl font-medium">Product Details</h2> */}
+         <h2 className="mb-4 text-xl font-semibold">Product Details</h2>
 
          {/* Materials & Care Dropdown */}
          <div className="mb-4 border-b pb-2">
