@@ -59,21 +59,42 @@ export function ProductDescription({ product }: { product: Product }) {
                         className="flex w-full items-center justify-between text-left text-lg font-normal text-black transition-opacity duration-200 hover:opacity-80 dark:text-white"
                      >
                         <span>Description</span>
-                        <svg
-                           className={`h-6 w-6 transform transition-transform duration-200 ${
-                              isDescriptionOpen ? 'rotate-180' : 'rotate-0'
-                           }`}
-                           fill="none"
-                           stroke="currentColor"
-                           viewBox="0 0 24 24"
-                        >
-                           <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="M19 9l-7 7-7-7"
-                           />
-                        </svg>
+                        {isDescriptionOpen ? (
+                           // Minus icon when open
+                           <svg className="h-6 w-6" viewBox="0 0 24 24">
+                              <line
+                                 x1="5"
+                                 y1="12"
+                                 x2="19"
+                                 y2="12"
+                                 stroke="currentColor"
+                                 strokeWidth="1"
+                                 strokeLinecap="round"
+                              />
+                           </svg>
+                        ) : (
+                           // Plus icon when closed
+                           <svg className="h-6 w-6" viewBox="0 0 24 24">
+                              <line
+                                 x1="12"
+                                 y1="5"
+                                 x2="12"
+                                 y2="19"
+                                 stroke="currentColor"
+                                 strokeWidth="1"
+                                 strokeLinecap="round"
+                              />
+                              <line
+                                 x1="5"
+                                 y1="12"
+                                 x2="19"
+                                 y2="12"
+                                 stroke="currentColor"
+                                 strokeWidth="1"
+                                 strokeLinecap="round"
+                              />
+                           </svg>
+                        )}
                      </button>
                      {isDescriptionOpen && (
                         <div className="mt-4">

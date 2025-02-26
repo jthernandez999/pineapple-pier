@@ -81,21 +81,42 @@ export function ProductSpec({ product }: { product: Product }) {
                className="flex w-full items-center justify-between text-left text-lg font-normal text-gray-800 hover:opacity-80"
             >
                <span>Materials &amp; Care</span>
-               <svg
-                  className={`h-6 w-6 transform transition-transform duration-200 ${
-                     materialsOpen ? 'rotate-180' : 'rotate-0'
-                  }`}
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-               >
-                  <path
-                     strokeLinecap="round"
-                     strokeLinejoin="round"
-                     strokeWidth="2"
-                     d="M19 9l-7 7-7-7"
-                  />
-               </svg>
+               {materialsOpen ? (
+                  // Minus icon for open state
+                  <svg className="h-6 w-6" viewBox="0 0 24 24">
+                     <line
+                        x1="5"
+                        y1="12"
+                        x2="19"
+                        y2="12"
+                        stroke="currentColor"
+                        strokeWidth="1"
+                        strokeLinecap="round"
+                     />
+                  </svg>
+               ) : (
+                  // Plus icon for closed state
+                  <svg className="h-6 w-6" viewBox="0 0 24 24">
+                     <line
+                        x1="12"
+                        y1="5"
+                        x2="12"
+                        y2="19"
+                        stroke="currentColor"
+                        strokeWidth="1"
+                        strokeLinecap="round"
+                     />
+                     <line
+                        x1="5"
+                        y1="12"
+                        x2="19"
+                        y2="12"
+                        stroke="currentColor"
+                        strokeWidth="1"
+                        strokeLinecap="round"
+                     />
+                  </svg>
+               )}
             </button>
             {materialsOpen && (
                <div className="mt-2 pl-4 text-gray-700">
@@ -120,21 +141,42 @@ export function ProductSpec({ product }: { product: Product }) {
                className="flex w-full items-center justify-between text-left text-lg font-normal text-gray-800 hover:opacity-80"
             >
                <span>Specifications</span>
-               <svg
-                  className={`h-6 w-6 transform transition-transform duration-200 ${
-                     specsOpen ? 'rotate-180' : 'rotate-0'
-                  }`}
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-               >
-                  <path
-                     strokeLinecap="round"
-                     strokeLinejoin="round"
-                     strokeWidth="2"
-                     d="M19 9l-7 7-7-7"
-                  />
-               </svg>
+               {specsOpen ? (
+                  // Minus icon for open state
+                  <svg className="h-6 w-6" viewBox="0 0 24 24">
+                     <line
+                        x1="5"
+                        y1="12"
+                        x2="19"
+                        y2="12"
+                        stroke="currentColor"
+                        strokeWidth="1"
+                        strokeLinecap="round"
+                     />
+                  </svg>
+               ) : (
+                  // Plus icon for closed state
+                  <svg className="h-6 w-6" viewBox="0 0 24 24">
+                     <line
+                        x1="12"
+                        y1="5"
+                        x2="12"
+                        y2="19"
+                        stroke="currentColor"
+                        strokeWidth="1"
+                        strokeLinecap="round"
+                     />
+                     <line
+                        x1="5"
+                        y1="12"
+                        x2="19"
+                        y2="12"
+                        stroke="currentColor"
+                        strokeWidth="1"
+                        strokeLinecap="round"
+                     />
+                  </svg>
+               )}
             </button>
             {specsOpen && (
                <div className="mt-2 pl-4 text-gray-700">
