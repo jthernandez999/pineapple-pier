@@ -47,7 +47,7 @@ export default function AnimatedLogo() {
    return (
       <Link
          href="/"
-         className={`absolute z-[999] ${containerClasses} ${scaleClasses} ${transitionClasses}`}
+         className={`absolute z-[45] ${containerClasses} ${scaleClasses} ${transitionClasses}`}
       >
          <div className="relative h-64 w-64 md:h-80 md:w-80">
             <Image
