@@ -116,7 +116,7 @@ export async function initialAccessToken(
 //       return { success: false, message: `No Code Verifier` };
 //    }
 //    /*
-//   STEP 2: GET ACCESS TOKEN!
+//   STEP 2: GET ACCESS TOKEN
 //   */
 //    const body = new URLSearchParams();
 //    body.append('grant_type', 'authorization_code');
