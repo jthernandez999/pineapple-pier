@@ -19,7 +19,7 @@ export async function Navbar() {
    const menu: Menu[] = await getMenu('main-menu');
 
    return (
-      <nav className="shadow- sticky top-0 z-30 w-full border-gray-200 bg-white dark:border-gray-600 dark:bg-gray-900">
+      <nav className="sticky top-0 z-30 w-full border-gray-200 bg-white shadow-2xl dark:border-gray-600 dark:bg-gray-900">
          <div className="mx-auto flex w-full items-center justify-between p-4">
             {/* Left Section: Logo (and mobile menu icon) */}
             <div className="flex items-center">
@@ -92,7 +92,7 @@ interface MegaMenuComponentProps {
 const MegaMenuComponent: React.FC<MegaMenuComponentProps> = ({ item }) => {
    const hasSubmenu = item.items && item.items.length > 0;
    return (
-      <li className="group relative flex-grow">
+      <li className="group relative">
          <Link
             href={item.url}
             className="inline-flex w-full justify-center py-2.5 text-center text-base font-medium text-black hover:text-gray-900"
@@ -100,7 +100,7 @@ const MegaMenuComponent: React.FC<MegaMenuComponentProps> = ({ item }) => {
             {item.title}
          </Link>
          {hasSubmenu && (
-            <div className="invisible fixed left-0 top-0 z-50 min-h-[25vh] w-full translate-y-[21%] transform bg-white opacity-0 shadow-md transition-all duration-300 group-hover:visible group-hover:opacity-100">
+            <div className="invisible fixed left-0 top-0 z-50 min-h-[25vh] w-full translate-y-[30%] transform bg-white opacity-0 shadow-md transition-all duration-300 group-hover:visible group-hover:opacity-100 md:translate-y-[29%]">
                <div className="flex w-full justify-around px-8 py-4">
                   <ul className="flex justify-around space-x-8">
                      {item.items?.map((subItem) => (
