@@ -1,3 +1,6 @@
+// app/components/layout/navbar/index.tsx
+export const dynamic = 'force-dynamic';
+
 import AnimatedLogo from 'components/animated-logo';
 import LoginModalTrigger from 'components/auth/ProfileAuthModal';
 import CartModal from 'components/cart/modal';
@@ -16,7 +19,7 @@ interface NavbarProps {
    siteName: string;
 }
 
-// A simple component for logged-in users.
+// Simple component for logged-in users.
 function ProfileLink() {
    return (
       <Link href="/account" className="flex items-center">
@@ -31,7 +34,7 @@ function LogoArea() {
       <div className="flex items-center">
          <Link href="/" className="flex items-center gap-2">
             <AnimatedLogo />
-            {/* Optionally display the site name */}
+            {/* Optionally display site name */}
             {/* <span className="ml-2 hidden text-sm font-medium uppercase md:block">{SITE_NAME}</span> */}
          </Link>
       </div>
@@ -58,7 +61,7 @@ function CartModalArea() {
    );
 }
 
-// MegaMenuComponent remains largely unchanged.
+// MegaMenuComponent remains unchanged.
 interface MegaMenuComponentProps {
    item: MenuItem;
 }
@@ -116,12 +119,10 @@ const MegaMenuComponent: React.FC<MegaMenuComponentProps> = ({ item }) => {
    );
 };
 
-// Mark Navbar as async so we can await cookies() and getMenu.
 export async function Navbar() {
-   // Fetch the menu.
    const menu: Menu[] = await getMenu('main-menu');
 
-   // Await the cookies() call.
+   // Await cookies() and read token
    const cookieStore = await cookies();
    const token = cookieStore.get('shop_customer_token');
    const isLoggedIn = !!token?.value;
@@ -129,7 +130,7 @@ export async function Navbar() {
    return (
       <nav className="sticky top-0 z-30 w-full border-gray-200 bg-white shadow-md dark:border-gray-600 dark:bg-gray-900">
          <div className="mx-auto flex w-full items-center justify-between p-4">
-            {/* Left Section: Logo (and mobile menu icon) */}
+            {/* Left Section: Logo and mobile menu icon */}
             <div className="flex items-center">
                <div className="block md:hidden">
                   <MobileMenu menu={menu} />
