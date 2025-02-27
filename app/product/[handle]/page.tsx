@@ -91,7 +91,7 @@ export default async function ProductPage(props: { params: Promise<{ handle: str
                __html: JSON.stringify(productJsonLd)
             }}
          />
-         <div className="mx-auto w-screen max-w-[1900px] px-0 md:px-4">
+         <div className="mx-auto w-screen max-w-[1950px] px-0 md:px-4">
             <div className="flex flex-col bg-white p-0 dark:border-neutral-800 dark:bg-black md:p-8 lg:flex-row lg:gap-8">
                {/* Gallery / Main Image */}
                <div className="w-full lg:basis-1/2">
