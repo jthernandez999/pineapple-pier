@@ -93,7 +93,7 @@ export function AccountAddressInfo({ addressData, customerAccessToken }: Address
                   <p>{displayPhone}</p>
                </div>
                <button
-                  className="w-full rounded-md bg-blue-500 py-2 text-white transition-colors duration-200 hover:bg-blue-600"
+                  className="hover:bg-black-opacity-80 w-full bg-black py-2 text-white transition-colors duration-200"
                   onClick={() => {
                      setEditing(true);
                      setMessage('');

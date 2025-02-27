@@ -51,10 +51,7 @@ export function AccountProfile() {
    return (
       <div>
          <h3 className="mb-4 text-2xl font-bold">Manage Account</h3>
-         <button
-            onClick={handleLogout}
-            className="rounded-md bg-black px-4 py-2 text-white hover:opacity-90"
-         >
+         <button onClick={handleLogout} className="bg-black px-4 py-2 text-white hover:opacity-90">
             Log Out
          </button>
          {message && <p className="mt-2 text-red-600">{message}</p>}
