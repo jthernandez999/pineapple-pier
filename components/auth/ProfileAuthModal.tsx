@@ -3,7 +3,15 @@ import clsx from 'clsx';
 import RegisterForm from 'components/auth/RegisterForm';
 import { UserIcon } from 'components/auth/user-icon';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+
+// Dummy hook for authentication status. Replace with your real auth hook.
+const useAuth = () => {
+   // For demonstration, change this to a user object to simulate a logged-in user.
+   const [user] = useState(null);
+   return { user };
+};
 
 //
 // Custom sign in form using a standard HTML form submission.
@@ -51,8 +59,7 @@ const CustomSignInForm = () => {
 };
 
 //
-// Shopify sign in form: a simple form with no extra fields that submits to the same API route.
-// This causes a full page navigation so that the OAuth redirect is handled correctly.
+// Shopify sign in form.
 //
 const ShopifySignInForm = () => {
    return (
@@ -68,7 +75,8 @@ const ShopifySignInForm = () => {
 };
 
 export default function ProfileAuthModal() {
-   // Modes: 'custom' for custom sign in, 'shopify' for Shopify sign in, 'signup' for registration.
+   const { user } = useAuth();
+   const router = useRouter();
    const [mode, setMode] = useState<'custom' | 'shopify' | 'signup'>('custom');
    const [isOpen, setIsOpen] = useState(false);
 
@@ -79,16 +87,21 @@ export default function ProfileAuthModal() {
 
    const closeModal = () => setIsOpen(false);
 
+   const handleIconClick = (e: React.MouseEvent<HTMLDivElement>) => {
+      e.preventDefault();
+      if (user) {
+         // If already logged in, redirect to the account page.
+         router.push('/account');
+      } else {
+         // Otherwise, open the login modal.
+         openModal();
+      }
+   };
+
    return (
       <>
          {/* Profile icon trigger */}
-         <div
-            onClick={(e) => {
-               e.preventDefault();
-               openModal();
-            }}
-            className="cursor-pointer"
-         >
+         <div onClick={handleIconClick} className="cursor-pointer">
             <UserIcon />
          </div>
 
