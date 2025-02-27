@@ -1,8 +1,6 @@
 'use client';
 
-import { MinusIcon, PlusIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { AccountAddressInfo } from './account-address-info';
 import { AccountOrdersHistory } from './account-orders-history';
@@ -20,13 +18,13 @@ export default function AccountDashboard({
    orders,
    customerAccessToken
 }: AccountDashboardProps) {
-   // The activeMenu state holds the currently open menu.
-   // Only one section is open at a time.
+   // Set the default active menu to "welcome" so a welcome message is shown by default.
    const [activeMenu, setActiveMenu] = useState<string>('welcome');
+   // Control sidebar visibility on mobile.
+   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
 
-   // Helper to render content for a given section.
-   const renderContentFor = (menu: string) => {
-      switch (menu) {
+   const renderContent = () => {
+      switch (activeMenu) {
          case 'orders':
             return orders ? <AccountOrdersHistory orders={orders} /> : <p>No orders found.</p>;
          case 'manage':
@@ -61,95 +59,92 @@ export default function AccountDashboard({
       }
    };
 
-   // Define the available menu options.
-   const menus = ['welcome', 'orders', 'manage', 'personal', 'address'];
-
-   const router = useRouter();
-
-   // Desktop Sidebar (remains unchanged)
-   const DesktopSidebar = () => {
-      return (
-         <div className="hidden md:block md:w-1/4">
-            <div className="mb-4">
-               <h3 className="text-xl font-bold text-gray-800">Menu</h3>
-               <nav className="mt-4">
-                  <ul>
-                     {menus.map((menu) => (
-                        <li key={menu} className="mb-1">
-                           <button
-                              onClick={() => setActiveMenu(menu)}
-                              className={`w-full rounded-md px-4 py-2 text-left text-base font-medium text-black transition-opacity duration-200 hover:opacity-80 ${
-                                 activeMenu === menu ? 'underline opacity-80' : 'opacity-100'
-                              }`}
-                           >
-                              {menu.charAt(0).toUpperCase() + menu.slice(1)}
-                           </button>
-                        </li>
-                     ))}
-                  </ul>
-               </nav>
-               {/* Logout Button */}
-               <div className="mt-8">
-                  <Link href="/logout">
-                     <p className="block w-full bg-gray-700 px-4 py-2 text-center text-sm text-white transition-opacity duration-200 hover:opacity-80">
-                        Log Out
-                     </p>
-                  </Link>
-               </div>
-            </div>
-         </div>
-      );
-   };
-
-   // Mobile Accordion Navigation at the bottom.
-   const MobileAccordion = () => {
-      return (
-         <div className="block md:hidden">
-            <div className="mt-8 border-t border-gray-300">
-               {menus.map((menu) => (
-                  <div key={menu} className="border-b border-gray-300">
-                     <button
-                        onClick={() => setActiveMenu((prev) => (prev === menu ? '' : menu))}
-                        className="flex w-full items-center justify-between px-4 py-3 text-base font-medium text-black"
-                     >
-                        <span>{menu.charAt(0).toUpperCase() + menu.slice(1)}</span>
-                        {activeMenu === menu ? (
-                           <MinusIcon className="h-5 w-5" />
-                        ) : (
-                           <PlusIcon className="h-5 w-5" />
-                        )}
-                     </button>
-                     {activeMenu === menu && (
-                        <div className="px-4 py-2">{renderContentFor(menu)}</div>
-                     )}
-                  </div>
-               ))}
-               {/* Logout button remains outside accordion content */}
-               <div className="border-t border-gray-300">
-                  <button
-                     onClick={() => router.push('/logout')}
-                     className="w-full px-4 py-3 text-base font-medium text-black"
-                  >
-                     Log Out
-                  </button>
-               </div>
-            </div>
-         </div>
-      );
-   };
-
    return (
-      <div className="mx-auto flex max-w-screen-2xl flex-col px-4 py-8 md:flex-row">
-         {/* Desktop Sidebar */}
-         <DesktopSidebar />
+      <div className="relative mx-auto flex max-w-screen-2xl flex-col px-4 py-8 md:flex-row">
+         {/* Mobile Header with Hamburger */}
+         <div className="mb-4 flex items-center justify-between md:hidden">
+            <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">Account / Home</h2>
+            <button
+               onClick={() => setIsSidebarOpen(true)}
+               className="rounded-md bg-black px-3 py-1 text-white transition-opacity duration-200 hover:opacity-80"
+               aria-label="Open Menu"
+            >
+               {/* Simple hamburger icon */}
+               <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                     strokeLinecap="round"
+                     strokeLinejoin="round"
+                     strokeWidth="2"
+                     d="M4 8h16M4 16h16"
+                  />
+               </svg>
+            </button>
+         </div>
 
-         {/* Main Content - visible on desktop; hidden on mobile */}
-         <main className="hidden w-full md:block md:w-3/4 md:border-l md:border-neutral-200 md:pl-8 dark:md:border-neutral-800">
-            {renderContentFor(activeMenu)}
+         {/* Sidebar Menu */}
+         <aside
+            className={`fixed inset-y-0 left-0 z-50 w-64 transform bg-white p-4 transition-transform dark:bg-gray-800 md:relative md:w-1/4 md:translate-x-0 md:pr-8 ${
+               isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+            }`}
+         >
+            <div className="flex items-center justify-between">
+               <div>
+                  <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">
+                     Account / Home
+                  </h2>
+                  <p className="mt-1 text-gray-600">
+                     Hi, {customerData?.emailAddress?.emailAddress || 'Guest'}
+                  </p>
+               </div>
+               <button
+                  onClick={() => setIsSidebarOpen(false)}
+                  className="rounded-md text-sm text-black transition-opacity duration-200 hover:opacity-80 md:hidden"
+                  aria-label="Close Menu"
+               >
+                  &times;
+               </button>
+            </div>
+            <nav className="mt-4">
+               <ul>
+                  {['welcome', 'orders', 'manage', 'personal', 'address'].map((menu) => (
+                     <li key={menu} className="mb-1">
+                        <button
+                           onClick={() => {
+                              setActiveMenu(menu);
+                              setIsSidebarOpen(false);
+                           }}
+                           className={`w-full rounded-md px-4 py-2 text-black transition-opacity duration-200 hover:opacity-80 ${
+                              activeMenu === menu ? 'underline opacity-80' : 'opacity-100'
+                           }`}
+                        >
+                           {menu.charAt(0).toUpperCase() + menu.slice(1)}
+                        </button>
+                     </li>
+                  ))}
+               </ul>
+            </nav>
+            {/* Log Out Button */}
+            <div className="mt-8">
+               <Link href="/logout">
+                  <a className="block w-full rounded-md bg-gray-700 px-4 py-2 text-center text-sm text-white transition-opacity duration-200 hover:opacity-80">
+                     Log Out
+                  </a>
+               </Link>
+            </div>
+         </aside>
+
+         {/* Mobile Overlay */}
+         {isSidebarOpen && (
+            <div
+               className="fixed inset-0 z-40 bg-black opacity-50 md:hidden"
+               onClick={() => setIsSidebarOpen(false)}
+            ></div>
+         )}
+
+         {/* Main Content */}
+         <main className="w-full md:w-3/4 md:border-l md:border-neutral-200 md:pl-8 dark:md:border-neutral-800">
+            {renderContent()}
          </main>
-
-         {/* Mobile Accordion Navigation */}
-         <MobileAccordion />
       </div>
    );
 }

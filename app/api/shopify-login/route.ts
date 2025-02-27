@@ -11,59 +11,61 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(req: NextRequest) {
    try {
-      // Use formData() since the form is submitted as URL-encoded data.
+      // Parse form data from a traditional form submission
       const formData = await req.formData();
       const email = formData.get('email') as string;
       const password = formData.get('password') as string;
+      // Checkbox value will be "on" if checked, otherwise null.
       const rememberMe = formData.get('rememberMe') === 'on';
+
       const customerAccountApiUrl = process.env.NEXT_PUBLIC_SHOPIFY_CUSTOMER_ACCOUNT_API_URL;
-      const clientId = SHOPIFY_CLIENT_ID;
       const origin = process.env.NEXT_PUBLIC_SHOPIFY_ORIGIN_URL;
-
-      // Log the base URL for debugging
-
-      console.log('customerAccountApiUrl:', customerAccountApiUrl);
-      console.log('origin:', origin);
-
-      const loginUrl = new URL(`${customerAccountApiUrl}/oauth/authorize`);
 
       if (!customerAccountApiUrl || !SHOPIFY_CLIENT_ID || !origin) {
          throw new Error('Required environment variables are not defined.');
       }
 
-      loginUrl.searchParams.set('client_id', clientId || '');
+      // Build the OAuth URL for Shopify
+      const loginUrl = new URL(`${customerAccountApiUrl}/oauth/authorize`);
+      loginUrl.searchParams.set('client_id', SHOPIFY_CLIENT_ID);
       loginUrl.searchParams.append('response_type', 'code');
       loginUrl.searchParams.append('redirect_uri', `${origin}/authorize`);
       loginUrl.searchParams.set('scope', 'openid email customer-account-api:full');
 
       // Generate PKCE parameters
       const verifier = await generateCodeVerifier();
-
       const challenge = await generateCodeChallenge(verifier);
-      (await cookies()).set('shop_verifier', verifier as string, {
-         // @ts-ignore
-         //expires: auth?.expires, //not necessary here
+
+      // Set cookies for verifier, state, and nonce
+      const cookieStore = await cookies();
+      cookieStore.set('shop_verifier', verifier, {
+         httpOnly: true,
+         secure: process.env.NODE_ENV === 'production'
       });
       const state = await generateRandomString();
       const nonce = await generateRandomString();
-      (await cookies()).set('shop_state', state as string, {
-         // @ts-ignore
-         //expires: auth?.expires, //not necessary here
+      cookieStore.set('shop_state', state, {
+         httpOnly: true,
+         secure: process.env.NODE_ENV === 'production'
       });
-      (await cookies()).set('shop_nonce', nonce as string, {
-         // @ts-ignore
-         //expires: auth?.expires, //not necessary here
+      cookieStore.set('shop_nonce', nonce, {
+         httpOnly: true,
+         secure: process.env.NODE_ENV === 'production'
       });
+
+      // Append additional OAuth parameters
       loginUrl.searchParams.append('state', state);
       loginUrl.searchParams.append('nonce', nonce);
       loginUrl.searchParams.append('code_challenge', challenge);
       loginUrl.searchParams.append('code_challenge_method', 'S256');
 
-      // Revalidate cached customer data if needed.
+      // Revalidate cached customer data if needed
       revalidateTag(TAGS.customer);
-      redirect(`${loginUrl}`);
+
+      // Redirect the user's browser to Shopify's OAuth login page.
+      return redirect(loginUrl.toString());
    } catch (error: any) {
-      // If the error is NEXT_REDIRECT, rethrow it so Next.js handles it.
+      // Let NEXT_REDIRECT errors propagate
       if (error?.digest?.startsWith('NEXT_REDIRECT')) {
          throw error;
       }

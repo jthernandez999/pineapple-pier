@@ -1,30 +1,56 @@
-// app/components/layout/navbar/index.tsx
-export const dynamic = 'force-dynamic';
-
-import AnimatedLogo from 'components/animated-logo';
-import LoginModalTrigger from 'components/auth/ProfileAuthModal';
 import CartModal from 'components/cart/modal';
 import { getMenu } from 'lib/shopify';
 import { Menu, MenuItem } from 'lib/shopify/types';
-import { cookies } from 'next/headers';
-import NextImage from 'next/image';
+import NextImage from 'next/image'; // Renamed import
 import Link from 'next/link';
 import { Suspense } from 'react';
+import AnimatedLogo from '../../../components/animated-logo';
+import LoginModalTrigger from '../../../components/auth/ProfileAuthModal';
 import MobileMenu from './mobile-menu';
 import Search, { SearchSkeleton } from './search';
-
 const { SITE_NAME } = process.env;
 
 interface NavbarProps {
    siteName: string;
 }
 
-// Simple component for logged-in users.
-function ProfileLink() {
+export async function Navbar() {
+   // This component is SSR because it fetches data on the server.
+   const menu: Menu[] = await getMenu('main-menu');
+
    return (
-      <Link href="/account" className="flex items-center">
-         <span className="text-sm font-medium text-gray-700">My Account</span>
-      </Link>
+      <nav className="sticky top-0 z-30 w-full border-gray-200 bg-white shadow-md dark:border-gray-600 dark:bg-gray-900">
+         <div className="mx-auto flex w-full items-center justify-between p-4">
+            {/* Left Section: Logo (and mobile menu icon) */}
+            <div className="flex items-center">
+               {/* Mobile Menu icon only shows on mobile */}
+               <div className="block md:hidden">
+                  <MobileMenu menu={menu} />
+               </div>
+               {/* Logo area */}
+               <LogoArea />
+            </div>
+
+            {/* Center Section: Desktop Menu Items */}
+            <div className="hidden md:block">
+               <DesktopMenu menu={menu} />
+            </div>
+
+            {/* Right Section: Search and Cart */}
+            <div className="flex items-center gap-4">
+               <div className="hidden md:block">
+                  <Suspense fallback={<SearchSkeleton />}>
+                     <Search />
+                  </Suspense>
+               </div>
+               <CartModalArea />
+               <Suspense fallback={<p>Login</p>}>
+                  {/* <Login /> */}
+                  <LoginModalTrigger />
+               </Suspense>
+            </div>
+         </div>
+      </nav>
    );
 }
 
@@ -34,8 +60,7 @@ function LogoArea() {
       <div className="flex items-center">
          <Link href="/" className="flex items-center gap-2">
             <AnimatedLogo />
-            {/* Optionally display site name */}
-            {/* <span className="ml-2 hidden text-sm font-medium uppercase md:block">{SITE_NAME}</span> */}
+            {/* <div className="ml-2 hidden text-sm font-medium uppercase md:block">{SITE_NAME}</div> */}
          </Link>
       </div>
    );
@@ -61,7 +86,7 @@ function CartModalArea() {
    );
 }
 
-// MegaMenuComponent remains unchanged.
+// MegaMenuComponent remains largely unchanged.
 interface MegaMenuComponentProps {
    item: MenuItem;
 }
@@ -118,50 +143,5 @@ const MegaMenuComponent: React.FC<MegaMenuComponentProps> = ({ item }) => {
       </li>
    );
 };
-
-export async function Navbar() {
-   const menu: Menu[] = await getMenu('main-menu');
-
-   // Await cookies() and read token
-   const cookieStore = await cookies();
-   const token = cookieStore.get('shop_customer_token');
-   const isLoggedIn = !!token?.value;
-
-   return (
-      <nav className="sticky top-0 z-30 w-full border-gray-200 bg-white shadow-md dark:border-gray-600 dark:bg-gray-900">
-         <div className="mx-auto flex w-full items-center justify-between p-4">
-            {/* Left Section: Logo and mobile menu icon */}
-            <div className="flex items-center">
-               <div className="block md:hidden">
-                  <MobileMenu menu={menu} />
-               </div>
-               <LogoArea />
-            </div>
-
-            {/* Center Section: Desktop Menu Items */}
-            <div className="hidden md:block">
-               <DesktopMenu menu={menu} />
-            </div>
-
-            {/* Right Section: Search, Cart, and Authentication */}
-            <div className="flex items-center gap-4">
-               <div className="hidden md:block">
-                  <Suspense fallback={<SearchSkeleton />}>
-                     <Search />
-                  </Suspense>
-               </div>
-               <CartModalArea />
-               {isLoggedIn ? (
-                  <ProfileLink />
-               ) : (
-                  <Suspense fallback={<p>Login</p>}>
-                     <LoginModalTrigger />
-                  </Suspense>
-               )}
-            </div>
-         </div>
-      </nav>
-   );
-}
 
 export default Navbar;
