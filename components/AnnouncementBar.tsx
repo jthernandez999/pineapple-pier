@@ -20,18 +20,18 @@ const AnnouncementBar: React.FC = () => {
 
    return (
       <div className="flex w-full justify-center bg-gray-100 p-2 text-center">
-         <p className="flex text-sm text-gray-800">
+         <div className="flex text-sm text-gray-800">
             {message}
 
-            <u>
+            <ul>
                <Link href={linkUrl ?? '#'}>
                   <p className="pl-[.2rem] transition-opacity duration-200 hover:opacity-80">
                      {' '}
                      {linkText}
                   </p>
                </Link>
-            </u>
-         </p>
+            </ul>
+         </div>
       </div>
    );
 };

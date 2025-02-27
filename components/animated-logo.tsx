@@ -1,7 +1,6 @@
 'use client';
 
 import Image from 'next/image';
-import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
@@ -45,8 +44,8 @@ export default function AnimatedLogo() {
    const transitionClasses = 'transition-all duration-[1600ms] ease-in-out';
 
    return (
-      <Link
-         href="/"
+      <div
+         // href="/"
          className={`absolute ${containerClasses} ${scaleClasses} ${transitionClasses}`}
       >
          <div className="relative z-[40] h-64 w-64 md:h-80 md:w-80">
@@ -58,6 +57,6 @@ export default function AnimatedLogo() {
                unoptimized
             />
          </div>
-      </Link>
+      </div>
    );
 }

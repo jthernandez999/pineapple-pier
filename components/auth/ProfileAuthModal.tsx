@@ -10,6 +10,11 @@ export default function ProfileAuthModal() {
    // Modes: 'custom' for custom sign in, 'shopify' for Shopify sign in, 'signup' for registration.
    const [mode, setMode] = useState<'custom' | 'shopify' | 'signup'>('custom');
    const [isOpen, setIsOpen] = useState(false);
+   const [email, setEmail] = useState('');
+   const [password, setPassword] = useState('');
+   const [rememberMe, setRememberMe] = useState(false);
+   const [error, setError] = useState<string | null>(null);
+   const [loading, setLoading] = useState(false);
 
    const openModal = () => {
       setMode('custom'); // default to custom sign in when opening
@@ -24,10 +29,29 @@ export default function ProfileAuthModal() {
       const [password, setPassword] = useState('');
       const [rememberMe, setRememberMe] = useState(false);
 
-      const handleSubmit = (e: React.FormEvent) => {
+      const handleSubmit = async (e: React.FormEvent) => {
          e.preventDefault();
-         // Implement your custom sign in logic here
-         console.log('Custom sign in with:', { email, password, rememberMe });
+         setLoading(true);
+         setError(null);
+         // Implement your custom sign in logic here.
+         try {
+            const res = await fetch('/api/shopify-login', {
+               method: 'POST',
+               headers: { 'Content-Type': 'application/json' },
+               body: JSON.stringify({ email, password, rememberMe })
+            });
+            if (!res.ok) {
+               throw new Error('Login failed');
+            }
+            const data = await res.json();
+            console.log('Custom sign in success:', data);
+            // After successful login, you might set cookies, update context, or redirect the user.
+         } catch (error) {
+            console.error('Custom sign in error:', error);
+            setError('Login failed. Please check your credentials and try again.');
+         } finally {
+            setLoading(false);
+         }
       };
 
       return (
