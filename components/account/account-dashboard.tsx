@@ -126,9 +126,9 @@ export default function AccountDashboard({
             {/* Log Out Button */}
             <div className="mt-8">
                <Link href="/logout">
-                  <a className="block w-full rounded-md bg-gray-700 px-4 py-2 text-center text-sm text-white transition-opacity duration-200 hover:opacity-80">
+                  <p className="block w-full rounded-md bg-gray-700 px-4 py-2 text-center text-sm text-white transition-opacity duration-200 hover:opacity-80">
                      Log Out
-                  </a>
+                  </p>
                </Link>
             </div>
          </aside>

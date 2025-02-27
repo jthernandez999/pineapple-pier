@@ -3,11 +3,18 @@ import clsx from 'clsx';
 import RegisterForm from 'components/auth/RegisterForm';
 import { UserIcon } from 'components/auth/user-icon';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
-//
+// Helper function to get a cookie value from document.cookie.
+function getCookieValue(name: string): string | null {
+   const value = `; ${document.cookie}`;
+   const parts = value.split(`; ${name}=`);
+   if (parts.length === 2) return parts.pop()?.split(';').shift() || null;
+   return null;
+}
+
 // Custom sign in form using a standard HTML form submission.
-//
 const CustomSignInForm = () => {
    return (
       <form action="/api/shopify-login" method="POST" className="space-y-4">
@@ -50,10 +57,7 @@ const CustomSignInForm = () => {
    );
 };
 
-//
-// Shopify sign in form: a simple form with no extra fields that submits to the same API route.
-// This causes a full page navigation so that the OAuth redirect is handled correctly.
-//
+// Shopify sign in form: a simple form that submits to the API route.
 const ShopifySignInForm = () => {
    return (
       <form action="/api/shopify-login" method="POST" className="space-y-4">
@@ -68,9 +72,17 @@ const ShopifySignInForm = () => {
 };
 
 export default function ProfileAuthModal() {
+   const router = useRouter();
    // Modes: 'custom' for custom sign in, 'shopify' for Shopify sign in, 'signup' for registration.
    const [mode, setMode] = useState<'custom' | 'shopify' | 'signup'>('custom');
    const [isOpen, setIsOpen] = useState(false);
+   const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+   // Check for a login token on mount using document.cookie.
+   useEffect(() => {
+      const token = getCookieValue('shop_customer_token');
+      setIsLoggedIn(!!token);
+   }, []);
 
    const openModal = () => {
       setMode('custom'); // default to custom sign in when opening
@@ -79,21 +91,25 @@ export default function ProfileAuthModal() {
 
    const closeModal = () => setIsOpen(false);
 
+   // When the profile icon is clicked, if logged in navigate directly; otherwise, open modal.
+   const handleProfileIconClick = (e: React.MouseEvent) => {
+      e.preventDefault();
+      if (isLoggedIn) {
+         router.push('/account');
+      } else {
+         openModal();
+      }
+   };
+
    return (
       <>
          {/* Profile icon trigger */}
-         <div
-            onClick={(e) => {
-               e.preventDefault();
-               openModal();
-            }}
-            className="cursor-pointer"
-         >
+         <div onClick={handleProfileIconClick} className="cursor-pointer">
             <UserIcon />
          </div>
 
-         {/* Modal overlay */}
-         {isOpen && (
+         {/* Show modal only when not logged in and modal is open */}
+         {!isLoggedIn && isOpen && (
             <div
                className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
                onClick={closeModal}
