@@ -149,14 +149,14 @@ export function Gallery({ images }: { images: { src: string; altText: string }[]
                   <div className="hidden h-full w-full md:block">
                      <div>
                         {/* Main Image */}
-                        <div className="relative h-[100vh] w-full">
-                           <figure className="relative h-full w-full">
+                        <div className="relative h-full w-full">
+                           <figure className="relative h-[100vh] w-full">
                               <Image
                                  src={effectiveImages[currentIndex]?.src ?? ''}
                                  alt={effectiveImages[currentIndex]?.altText ?? 'Product Image'}
                                  fill
                                  sizes="100vw"
-                                 className="aspect-2/3 object-cover"
+                                 className="aspect-2/3 object-cover object-top md:object-cover"
                                  priority={true}
                                  unoptimized
                               />
