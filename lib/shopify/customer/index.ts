@@ -23,10 +23,7 @@ const apiVersion = SHOPIFY_CUSTOMER_API_VERSION;
 const userAgent = SHOPIFY_USER_AGENT;
 // const customerEndpoint = `${customerAccountApiUrl}/account/customer/api/${apiVersion}/graphql`;
 const customerEndpoint = 'https://shopify.com/10242207/account/customer/api/2025-01/graphql';
-export function getOrigin(request: NextRequest): string {
-   // Your logic here, e.g., determine origin from request headers or environment
-   return request.headers.get('origin') || '';
-}
+
 //NEVER CACHE THIS! Doesn't see to be cached anyway b/c
 //https://nextjs.org/docs/app/building-your-application/data-fetching/fetching-caching-and-revalidating#opting-out-of-data-caching
 //The fetch request comes after the usage of headers or cookies.
@@ -195,6 +192,20 @@ export async function isLoggedIn(request: NextRequest, origin: string) {
          headers: newHeaders
       }
    });
+}
+
+//when we are running on the production website we just get the origin from the request.nextUrl
+export function getOrigin(request: NextRequest) {
+   const nextOrigin = request.nextUrl.origin;
+   //console.log("Current Origin", nextOrigin)
+   //when running localhost, we want to use fake origin otherwise we use the real origin
+   let newOrigin = nextOrigin;
+   if (nextOrigin === 'https://localhost:3000' || nextOrigin === 'http://localhost:3000') {
+      newOrigin = SHOPIFY_ORIGIN!;
+   } else {
+      newOrigin = nextOrigin;
+   }
+   return newOrigin;
 }
 
 export async function authorizeFn(request: NextRequest, origin: string) {
