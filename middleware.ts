@@ -1,4 +1,4 @@
-import { authorizeFn, getOrigin, isLoggedIn, logoutFn } from 'lib/shopify/customer';
+import { authorizeFn, isLoggedIn, logoutFn } from 'lib/shopify/customer';
 import { NextRequest, NextResponse } from 'next/server';
 
 // Helper function to extract account number from the customer token.
@@ -28,10 +28,14 @@ async function getCustomerAccountNumber(request: NextRequest): Promise<string | 
 }
 
 export async function middleware(request: NextRequest) {
-   const url = request.nextUrl.clone();
-   const origin = getOrigin(request) as string;
-   console.log('DEBUG: URL pathname:', url.pathname);
-   console.log('DEBUG: Origin:', origin);
+   const canonicalHost = 'www.dearjohndenim.co';
+   const currentHost = request.nextUrl.hostname;
+   if (currentHost !== canonicalHost) {
+      const url = request.nextUrl.clone();
+      url.hostname = canonicalHost;
+      console.log(`Redirecting from ${currentHost} to canonical host ${canonicalHost}`);
+      return NextResponse.redirect(url);
+   }
 
    // --- Homepage Redirect Logic (only for exactly "/") ---
    if (url.pathname === '/') {
