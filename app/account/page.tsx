@@ -8,25 +8,24 @@ import AccountDashboard from '../../components/account/account-dashboard';
 
 export const runtime = 'edge';
 
+// cSpell:ignore dearjohndenim myshopify
 const SHOP_DOMAIN = 'dearjohndenim.myshopify.com';
 const apiVersion = SHOPIFY_CUSTOMER_API_VERSION;
 const customerEndpoint = `https://${SHOP_DOMAIN}/account/customer/api/${apiVersion}/graphql`;
 
-// Make sure your environment has JWT_SECRET set.
 const JWT_SECRET = process.env.JWT_SECRET;
 
 export default async function AccountPage() {
    const headersList = await headers();
    const access = headersList.get('x-shop-customer-token');
    const shopCustomerToken = (await cookies()).get('shop_customer_token')?.value;
-   // Rely on either the header or the cookie.
+   // Use the header if present, otherwise the cookie.
    const customerAccessToken = access || shopCustomerToken;
 
    if (!customerAccessToken || customerAccessToken === 'denied') {
       redirect('/logout');
    }
 
-   // Verify the JWT to ensure the token is valid and not expired.
    if (JWT_SECRET) {
       try {
          jwt.verify(customerAccessToken, JWT_SECRET);
