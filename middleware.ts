@@ -18,7 +18,7 @@ async function getCustomerAccountNumber(request: NextRequest): Promise<string | 
       // Adjust 'accountNumber' to match your actual token payload property.
       return payload.accountNumber || null;
    } catch (error) {
-      console.error('Failed to extract account number:', error);
+      console.error('Failed to extract account number::::', error);
       return null;
    }
 }
