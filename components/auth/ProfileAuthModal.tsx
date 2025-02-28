@@ -93,7 +93,14 @@ export default function ProfileAuthModal() {
       <>
          {/* Profile icon trigger */}
          <div onClick={handleIconClick} className="cursor-pointer">
-            <UserIcon />
+            {user ? (
+               <div className="flex items-center gap-2">
+                  <UserIcon />
+                  <span>Account Profile</span>
+               </div>
+            ) : (
+               <UserIcon />
+            )}
          </div>
 
          {/* Modal overlay */}
