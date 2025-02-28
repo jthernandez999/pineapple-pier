@@ -10,12 +10,12 @@ const fetcher = async (url: string) => {
 export function useAuth() {
    const { data, error } = useSWR('/api/auth-status', fetcher, {
       revalidateOnFocus: true,
-      refreshInterval: 10000 // Adjust interval as needed.
+      refreshInterval: 10000 // Revalidate every 10 seconds (adjust as needed)
    });
 
    return {
       user: data?.loggedIn ? data.user : null,
-      isLoading: !data && !error,
+      isLoading: !error && !data,
       error
    };
 }

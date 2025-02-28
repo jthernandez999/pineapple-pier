@@ -1,21 +1,24 @@
-// /app/api/auth-status/route.ts
+import jwt from 'jsonwebtoken';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 
-export function GET() {
-   // cookies() returns a CookieStore synchronously
-   const cookieStore = cookies();
-   const token = cookieStore.get('shop_customer_token');
+const JWT_SECRET = process.env.JWT_SECRET; // Ensure this is defined in your environment
 
-   // Optionally, you could decode the token and check its expiration here
-   // so that you don't return loggedIn: true for an expired token.
-   if (token) {
-      return NextResponse.json({
-         loggedIn: true,
-         user: {
-            // You might include decoded info if desired.
-         }
-      });
+export async function GET() {
+   const cookieStore = await cookies();
+   const token = cookieStore.get('shop_customer_token')?.value;
+
+   if (token && JWT_SECRET) {
+      try {
+         const decoded = jwt.verify(token, JWT_SECRET);
+         return NextResponse.json({
+            loggedIn: true,
+            user: decoded
+         });
+      } catch (error) {
+         console.error('JWT validation error:', error);
+         return NextResponse.json({ loggedIn: false });
+      }
    }
    return NextResponse.json({ loggedIn: false });
 }

@@ -1,3 +1,4 @@
+import jwt from 'jsonwebtoken';
 import { shopifyCustomerFetch } from 'lib/shopify/customer';
 import { SHOPIFY_CUSTOMER_API_VERSION, TAGS } from 'lib/shopify/customer/constants';
 import { CUSTOMER_DETAILS_QUERY } from 'lib/shopify/customer/queries/customer';
@@ -11,14 +12,30 @@ const SHOP_DOMAIN = 'dearjohndenim.myshopify.com';
 const apiVersion = SHOPIFY_CUSTOMER_API_VERSION;
 const customerEndpoint = `https://${SHOP_DOMAIN}/account/customer/api/${apiVersion}/graphql`;
 
+// Make sure your environment has JWT_SECRET set.
+const JWT_SECRET = process.env.JWT_SECRET;
+
 export default async function AccountPage() {
    const headersList = await headers();
    const access = headersList.get('x-shop-customer-token');
    const shopCustomerToken = (await cookies()).get('shop_customer_token')?.value;
    // Rely on either the header or the cookie.
    const customerAccessToken = access || shopCustomerToken;
+
    if (!customerAccessToken || customerAccessToken === 'denied') {
       redirect('/logout');
+   }
+
+   // Verify the JWT to ensure the token is valid and not expired.
+   if (JWT_SECRET) {
+      try {
+         jwt.verify(customerAccessToken, JWT_SECRET);
+      } catch (error) {
+         console.error('Token verification failed:', error);
+         redirect('/logout');
+      }
+   } else {
+      console.warn('JWT_SECRET not defined. Skipping token verification.');
    }
 
    let customerData;
