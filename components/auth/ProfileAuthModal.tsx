@@ -90,7 +90,7 @@ export default function ProfileAuthModal() {
          {/* Profile icon trigger */}
          <div onClick={handleIconClick} className="cursor-pointer">
             {user ? (
-               <div className="flex items-center gap-2">
+               <div className="gap flex items-center text-xs md:text-sm">
                   {/* <UserIcon /> */}
                   <span>Account</span>
                </div>
