@@ -397,17 +397,35 @@ export async function checkExpires({
    expiresAt: string;
    origin: string;
 }) {
+   const tokenExpires = parseInt(expiresAt, 10);
+   const now = Date.now();
+   console.log(`DEBUG: Token expires at: ${tokenExpires} (ms)`);
+   console.log(`DEBUG: Current time: ${now} (ms)`);
+   console.log(`DEBUG: Time difference: ${tokenExpires - now} ms`);
+
    let isExpired = false;
-   if (parseInt(expiresAt, 10) - 1000 < new Date().getTime()) {
+   // Use a larger buffer if needed (e.g., 120 seconds)
+   const bufferMs = 120 * 1000;
+   if (tokenExpires - bufferMs < now) {
       isExpired = true;
-      console.log('Is expired is true, we are running refresh token!');
+      console.log('DEBUG: Token is expired or about to expire. Initiating refresh.');
       const refresh = await refreshToken({ request, origin });
-      console.log('refresh', refresh);
-      //this will return success: true or success: false - depending on result of refresh
+      console.log('DEBUG: Refresh result:', refresh);
       return { ranRefresh: isExpired, refresh };
    }
-   console.log('is expired is false - just sending back success', isExpired);
+   console.log('DEBUG: Token is still valid. No refresh needed.');
    return { ranRefresh: isExpired, success: true };
+   // let isExpired = false;
+   // if (parseInt(expiresAt, 10) - 120 * 1000 < Date.now()) {
+   //    isExpired = true;
+   //    console.log('Is expired is true, we are running refresh token!');
+   //    const refresh = await refreshToken({ request, origin });
+   //    console.log('refresh', refresh);
+   //    //this will return success: true or success: false - depending on result of refresh
+   //    return { ranRefresh: isExpired, refresh };
+   // }
+   // console.log('is expired is false - just sending back success', isExpired);
+   // return { ranRefresh: isExpired, success: true };
 }
 
 export function removeAllCookies(response: NextResponseType) {
