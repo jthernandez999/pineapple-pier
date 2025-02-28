@@ -53,7 +53,7 @@ const ShopifySignInForm = () => (
    <form action="/api/shopify-login" method="POST" className="space-y-4">
       <button
          type="submit"
-         className="w-full border border-black bg-black py-2 text-white transition hover:bg-black"
+         className="w-full bg-purple-600 py-2 text-white transition hover:bg-purple-500"
       >
          Sign In with Shopify
       </button>
@@ -67,7 +67,7 @@ export default function ProfileAuthModal() {
    const [isOpen, setIsOpen] = useState(false);
 
    const openModal = () => {
-      setMode('custom');
+      setMode('shopify');
       setIsOpen(true);
    };
 
@@ -91,7 +91,7 @@ export default function ProfileAuthModal() {
          <div onClick={handleIconClick} className="cursor-pointer">
             {user ? (
                <div className="flex items-center gap-2">
-                  <UserIcon />
+                  {/* <UserIcon /> */}
                   <span>Account Profile</span>
                </div>
             ) : (
