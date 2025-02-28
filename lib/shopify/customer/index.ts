@@ -217,10 +217,9 @@ export async function authorizeFn(request: NextRequest, origin: string) {
    }
    // Use tokens directly from the initial token response.
    const { access_token, expires_in, id_token, refresh_token } = dataInitialToken.data;
-
    // Mark access as allowed.
    newHeaders.set('x-shop-access', 'allowed');
-   const accountUrl = new URL(`https://shopify.com/10242207/account`);
+   const accountUrl = new URL(`${origin}/account`);
    const authResponse = NextResponse.redirect(accountUrl);
 
    // Set the shop_access cookie to "allowed".
