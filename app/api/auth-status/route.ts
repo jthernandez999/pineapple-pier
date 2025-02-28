@@ -1,24 +1,20 @@
-import jwt from 'jsonwebtoken';
+// pages/api/auth-status.ts (or app/api/auth-status/route.ts for Next.js 13+)
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 
 export async function GET() {
-   // Await cookies() if it returns a promise in your version
    const cookieStore = await cookies();
    const token = cookieStore.get('shop_customer_token')?.value;
-   const secret = process.env.JWT_SECRET;
 
-   if (token && secret) {
-      try {
-         const decoded = jwt.verify(token, secret);
-         return NextResponse.json({
-            loggedIn: true,
-            user: decoded
-         });
-      } catch (error) {
-         console.error('JWT verification error:', error);
-         return NextResponse.json({ loggedIn: false });
-      }
-   }
-   return NextResponse.json({ loggedIn: false });
+   // Optionally verify the token or decode it here if needed.
+   const loggedIn = Boolean(token);
+
+   return NextResponse.json({
+      loggedIn,
+      user: loggedIn
+         ? {
+              /* decode token or fetch user info here */
+           }
+         : null
+   });
 }
