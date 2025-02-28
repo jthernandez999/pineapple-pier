@@ -6,7 +6,7 @@ import { cookies, headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import AccountDashboard from '../../components/account/account-dashboard';
 
-export const runtime = 'edge';
+// export const runtime = 'edge';
 
 // cSpell:ignore dearjohndenim myshopify
 const SHOP_DOMAIN = 'dearjohndenim.myshopify.com';
