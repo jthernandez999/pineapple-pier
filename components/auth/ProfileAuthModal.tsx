@@ -92,7 +92,7 @@ export default function ProfileAuthModal() {
             {user ? (
                <div className="flex items-center gap-2">
                   {/* <UserIcon /> */}
-                  <span>Account Profile</span>
+                  <span>Account</span>
                </div>
             ) : (
                <UserIcon />
