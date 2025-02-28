@@ -14,7 +14,8 @@ async function getCustomerAccountNumber(request: NextRequest): Promise<string | 
          return null;
       }
       const payloadBase64 = parts[1]!;
-      const payloadJson = atob(payloadBase64);
+      // In Node.js (Edge runtime), you might want to use Buffer instead of atob:
+      const payloadJson = Buffer.from(payloadBase64, 'base64').toString('utf-8');
       console.log('DEBUG: Decoded payload JSON:', payloadJson);
       const payload = JSON.parse(payloadJson);
       console.log('DEBUG: Parsed payload:', payload);
@@ -54,7 +55,7 @@ export async function middleware(request: NextRequest) {
 
    // --- Logout Middleware ---
    if (url.pathname.startsWith('/logout')) {
-      console.log('DEBUG: Running Logout middleware');
+      console.log('DEBUG: Running Logout Middleware');
       const logoutResponse = await logoutFn(request, origin);
       console.log('DEBUG: logoutFn response:', logoutResponse);
       return logoutResponse;
@@ -62,7 +63,7 @@ export async function middleware(request: NextRequest) {
 
    // --- Account Middleware ---
    if (url.pathname.startsWith('/account')) {
-      console.log('DEBUG: Running Account middleware');
+      console.log('DEBUG: Running Account Middleware');
       const loggedInResponse = await isLoggedIn(request, origin);
       console.log('DEBUG: isLoggedIn response:', loggedInResponse);
       return loggedInResponse;

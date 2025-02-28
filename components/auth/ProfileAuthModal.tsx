@@ -1,3 +1,4 @@
+// components/auth/ProfileAuthModal.tsx
 'use client';
 
 import clsx from 'clsx';
@@ -6,13 +7,12 @@ import { UserIcon } from 'components/auth/user-icon';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { useAuth } from '../hooks/useAuth'; // updated hook
+import { useAuth } from '../hooks/useAuth';
 
-// Custom sign in form using a standard HTML form submission.
 const CustomSignInForm = () => (
    <form action="/api/shopify-login" method="POST" className="space-y-4">
       <div>
-         <label className="block text-sm font-medium text-gray-700">Email</label>
+         <label className="block text-sm font-medium text-black">Email</label>
          <input
             name="email"
             type="email"
@@ -22,7 +22,7 @@ const CustomSignInForm = () => (
          />
       </div>
       <div>
-         <label className="block text-sm font-medium text-gray-700">Password</label>
+         <label className="block text-sm font-medium text-black">Password</label>
          <input
             name="password"
             type="password"
@@ -32,7 +32,7 @@ const CustomSignInForm = () => (
          />
       </div>
       <div className="flex items-center justify-between">
-         <label className="flex items-center text-sm text-gray-700">
+         <label className="flex items-center text-sm text-black">
             <input name="rememberMe" type="checkbox" className="mr-2" />
             Remember Me
          </label>
@@ -49,7 +49,6 @@ const CustomSignInForm = () => (
    </form>
 );
 
-// Shopify sign in form.
 const ShopifySignInForm = () => (
    <form action="/api/shopify-login" method="POST" className="space-y-4">
       <button
@@ -76,11 +75,12 @@ export default function ProfileAuthModal() {
 
    const handleIconClick = (e: React.MouseEvent<HTMLDivElement>) => {
       e.preventDefault();
+      // Wait until loading is finished.
+      if (isLoading) return;
       if (user) {
-         // If logged in, navigate to the account dashboard.
+         // User is logged in: redirect to account dashboard.
          router.push('/account');
       } else {
-         // Otherwise, open the login modal.
          openModal();
       }
    };
@@ -99,8 +99,8 @@ export default function ProfileAuthModal() {
             )}
          </div>
 
-         {/* Modal overlay */}
-         {isOpen && (
+         {/* Render modal only when not logged in and modal is open */}
+         {!user && isOpen && (
             <div
                className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
                onClick={closeModal}
