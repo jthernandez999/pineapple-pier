@@ -3,12 +3,13 @@ import { UserIcon } from 'components/auth/user-icon';
 import { cookies } from 'next/headers';
 
 export default async function Login() {
-   const customerToken = (await cookies()).get('shop_customer_token')?.value;
+   // Notice the cookie name change here to match your refresh token logic.
+   const customerToken = (await cookies()).get('shop_access_token')?.value;
    const refreshToken = (await cookies()).get('shop_refresh_token')?.value;
    let isLoggedIn;
-   //obviously just checking for the cookies without verifying the cookie itself is not ideal. However, the cookie is validated on the
-   //account page, so a "fake" cookie does nothing, except show the UI and then it would be deleted when clicking on account
-   //so for now, just checking the cookie for the UI is sufficient. Alternatively, we can do a query here, or a custom JWT.
+
+   // Checking for the presence of these cookies isn't bulletproof,
+   // but hey, it's good enough until your account page does the real validation.
    if (!customerToken && !refreshToken) {
       isLoggedIn = false;
    } else {

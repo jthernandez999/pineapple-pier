@@ -23,7 +23,10 @@ const apiVersion = SHOPIFY_CUSTOMER_API_VERSION;
 const userAgent = SHOPIFY_USER_AGENT;
 // const customerEndpoint = `${customerAccountApiUrl}/account/customer/api/${apiVersion}/graphql`;
 const customerEndpoint = 'https://shopify.com/10242207/account/customer/api/2025-01/graphql';
-
+export function getOrigin(request: NextRequest): string {
+   // Your logic here, e.g., determine origin from request headers or environment
+   return request.headers.get('origin') || '';
+}
 //NEVER CACHE THIS! Doesn't see to be cached anyway b/c
 //https://nextjs.org/docs/app/building-your-application/data-fetching/fetching-caching-and-revalidating#opting-out-of-data-caching
 //The fetch request comes after the usage of headers or cookies.
@@ -107,54 +110,69 @@ export async function shopifyCustomerFetch<T>({
       };
    }
 }
+// Define an interface for the expected result from checkExpires
+interface CheckExpiresResponse {
+   ranRefresh: boolean;
+   refresh?: {
+      success: boolean;
+      data: {
+         customerAccessToken: string;
+         expires_in: number;
+         refresh_token: string;
+      };
+   };
+}
 
 export async function isLoggedIn(request: NextRequest, origin: string) {
    const customerToken = request.cookies.get('shop_customer_token');
-   const customerTokenValue = customerToken?.value;
    const refreshToken = request.cookies.get('shop_refresh_token');
-   const refreshTokenValue = refreshToken?.value;
+   const expiresToken = request.cookies.get('shop_expires_at');
    const newHeaders = new Headers(request.headers);
-   if (!customerTokenValue && !refreshTokenValue) {
-      const redirectUrl = new URL(`${origin}`);
-      const response = NextResponse.redirect(`${redirectUrl}`);
+
+   // If neither token exists, you're basically a stranger.
+   if (!customerToken && !refreshToken) {
+      console.log('No tokens found. Redirecting to origin and clearing cookies.');
+      const redirectUrl = new URL(origin);
+      const response = NextResponse.redirect(redirectUrl);
       return removeAllCookies(response);
    }
 
-   const expiresToken = request.cookies.get('shop_expires_at');
-   const expiresTokenValue = expiresToken?.value;
-   if (!expiresTokenValue) {
-      const redirectUrl = new URL(`${origin}`);
-      const response = NextResponse.redirect(`${redirectUrl}`);
+   // If there's no expiration info, how is the bouncer supposed to know when to kick you out?
+   if (!expiresToken) {
+      console.log('No expiration info found. Redirecting and clearing cookies.');
+      const redirectUrl = new URL(origin);
+      const response = NextResponse.redirect(redirectUrl);
       return removeAllCookies(response);
-      //return { success: false, message: `no_expires_at` }
    }
-   const isExpired = await checkExpires({
-      request: request,
-      expiresAt: expiresTokenValue,
-      origin: origin
-   });
-   console.log('is Expired?', isExpired);
-   //only execute the code below to reset the cookies if it was expired!
+
+   // Check if the token is expired or if we need a refresh.
+   // We're assuming checkExpires returns a CheckExpiresResponse.
+   const isExpired = (await checkExpires({
+      request,
+      expiresAt: expiresToken.value,
+      origin
+   })) as CheckExpiresResponse;
+   console.log('isExpired result:', isExpired);
+
+   // If a refresh was attempted...
    if (isExpired.ranRefresh) {
-      const isSuccess = isExpired?.refresh?.success;
-      if (!isSuccess) {
-         const redirectUrl = new URL(`${origin}`);
-         const response = NextResponse.redirect(`${redirectUrl}`);
+      // ...and it failed, then you're not getting in.
+      if (!isExpired.refresh || !isExpired.refresh.success) {
+         console.log('Token refresh failed. Redirecting and clearing cookies.');
+         const redirectUrl = new URL(origin);
+         const response = NextResponse.redirect(redirectUrl);
          return removeAllCookies(response);
-         //return { success: false, message: `no_refresh_token` }
       } else {
-         const refreshData = isExpired?.refresh?.data;
-         //console.log ("refresh data", refreshData)
-         console.log('We used the refresh token, so now going to reset the token and cookies');
-         const newCustomerAccessToken = refreshData?.customerAccessToken;
-         const expires_in = refreshData?.expires_in;
-         //const test_expires_in = 180 //to test to see if it expires in 60 seconds!
-         const expiresAt =
-            new Date(new Date().getTime() + (expires_in! - 120) * 1000).getTime() + '';
-         newHeaders.set('x-shop-customer-token', `${newCustomerAccessToken}`);
+         // Otherwise, refresh worked. Reset your cookies.
+         const refreshData = isExpired.refresh.data;
+         const newCustomerAccessToken = refreshData.customerAccessToken;
+         const expires_in = refreshData.expires_in;
+         // Set a new expiration timestamp, giving a 120-second grace period.
+         const expiresAt = (new Date().getTime() + (expires_in - 120) * 1000).toString();
+         console.log('Token refreshed successfully. Resetting cookies with new token.');
+         newHeaders.set('x-shop-customer-token', newCustomerAccessToken);
          const resetCookieResponse = NextResponse.next({
             request: {
-               // New request headers
                headers: newHeaders
             }
          });
@@ -162,33 +180,21 @@ export async function isLoggedIn(request: NextRequest, origin: string) {
             response: resetCookieResponse,
             customerAccessToken: newCustomerAccessToken,
             expires_in,
-            refresh_token: refreshData?.refresh_token,
+            refresh_token: refreshData.refresh_token,
             expiresAt
          });
       }
    }
 
-   newHeaders.set('x-shop-customer-token', `${customerTokenValue}`);
+   // If not expired (or no refresh was needed), just let you pass.
+   console.log('Token is still valid. Proceeding with existing token.');
+   // Since we already checked the existence of the token above, we can assert it's defined.
+   newHeaders.set('x-shop-customer-token', customerToken!.value);
    return NextResponse.next({
       request: {
-         // New request headers
          headers: newHeaders
       }
    });
-}
-
-//when we are running on the production website we just get the origin from the request.nextUrl
-export function getOrigin(request: NextRequest) {
-   const nextOrigin = request.nextUrl.origin;
-   //console.log("Current Origin", nextOrigin)
-   //when running localhost, we want to use fake origin otherwise we use the real origin
-   let newOrigin = nextOrigin;
-   if (nextOrigin === 'https://localhost:3000' || nextOrigin === 'http://localhost:3000') {
-      newOrigin = SHOPIFY_ORIGIN!;
-   } else {
-      newOrigin = nextOrigin;
-   }
-   return newOrigin;
 }
 
 export async function authorizeFn(request: NextRequest, origin: string) {
@@ -214,7 +220,7 @@ export async function authorizeFn(request: NextRequest, origin: string) {
 
    // Mark access as allowed.
    newHeaders.set('x-shop-access', 'allowed');
-   const accountUrl = new URL(`${origin}/account`);
+   const accountUrl = new URL(`https://shopify.com/10242207/account`);
    const authResponse = NextResponse.redirect(accountUrl);
 
    // Set the shop_access cookie to "allowed".
