@@ -1,7 +1,7 @@
 import { shopifyCustomerFetch } from 'lib/shopify/customer';
 import { SHOPIFY_CUSTOMER_API_VERSION, TAGS } from 'lib/shopify/customer/constants';
 import { CUSTOMER_DETAILS_QUERY } from 'lib/shopify/customer/queries/customer';
-import { headers } from 'next/headers';
+import { cookies, headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import AccountDashboard from '../../components/account/account-dashboard';
 
@@ -12,15 +12,15 @@ const apiVersion = SHOPIFY_CUSTOMER_API_VERSION;
 const customerEndpoint = `https://${SHOP_DOMAIN}/account/customer/api/${apiVersion}/graphql`;
 
 export default async function AccountPage() {
-   const headersList = headers();
-   const access = (await headersList).get('x-shop-customer-token');
-
-   if (!access || access === 'denied') {
-      console.error('ERROR: No valid access header on Account page');
+   const headersList = await headers();
+   const access = headersList.get('x-shop-customer-token');
+   const shopCustomerToken = (await cookies()).get('shop_customer_token')?.value;
+   // Rely on either the header or the cookie.
+   const customerAccessToken = access || shopCustomerToken;
+   if (!customerAccessToken || customerAccessToken === 'denied') {
       redirect('/logout');
    }
 
-   const customerAccessToken = access;
    let customerData;
    let orders;
    let success = true;
