@@ -2,60 +2,73 @@ import { authorizeFn, getOrigin, isLoggedIn, logoutFn } from 'lib/shopify/custom
 import { NextRequest, NextResponse } from 'next/server';
 
 // Helper function to extract account number from the customer token.
-// Adjust the decoding logic as needed for your token structure.
 async function getCustomerAccountNumber(request: NextRequest): Promise<string | null> {
    const token = request.cookies.get('shop_customer_token')?.value;
+   console.log('DEBUG: shop_customer_token:', token);
    if (!token) return null;
 
    try {
-      // Split the token and check for a valid JWT structure.
       const parts = token.split('.');
-      if (parts.length < 2) return null;
-      // Assert that parts[1] is defined.
+      if (parts.length < 2) {
+         console.log("DEBUG: Token split doesn't have enough parts:", parts);
+         return null;
+      }
       const payloadBase64 = parts[1]!;
       const payloadJson = atob(payloadBase64);
+      console.log('DEBUG: Decoded payload JSON:', payloadJson);
       const payload = JSON.parse(payloadJson);
-      // Adjust 'accountNumber' to match your actual token payload property.
-      return payload.accountNumber || null;
+      console.log('DEBUG: Parsed payload:', payload);
+      // Return payload.accountNumber if exists, otherwise fallback to payload.sub.
+      return payload.accountNumber || payload.sub || null;
    } catch (error) {
-      console.error('Failed to extract account number::::', error);
+      console.error('DEBUG: Failed to extract account number:', error);
       return null;
    }
 }
 
 export async function middleware(request: NextRequest) {
    const url = request.nextUrl.clone();
-   // Ensure origin is defined—if getOrigin returns undefined, you'll get a runtime error.
    const origin = getOrigin(request) as string;
+   console.log('DEBUG: URL pathname:', url.pathname);
+   console.log('DEBUG: Origin:', origin);
 
    // --- Dynamic Homepage Redirect Logic ---
    if (url.pathname === '/' && !url.searchParams.has('accountNumber')) {
       const accountNumber = await getCustomerAccountNumber(request);
       if (accountNumber) {
          url.searchParams.set('accountNumber', accountNumber);
-         console.log(`Redirecting to homepage with account number: ${accountNumber}`);
+         console.log(`DEBUG: Redirecting to homepage with account number: ${accountNumber}`);
          return NextResponse.redirect(url);
+      } else {
+         console.log('DEBUG: No account number found; not redirecting homepage');
       }
    }
 
    // --- Authorize Middleware ---
    if (url.pathname.startsWith('/authorize')) {
-      console.log('Running Initial Authorization Middleware');
-      return await authorizeFn(request, origin);
+      console.log('DEBUG: Running Initial Authorization Middleware');
+      const authResponse = await authorizeFn(request, origin);
+      console.log('DEBUG: authorizeFn response:', authResponse);
+      return authResponse;
    }
 
    // --- Logout Middleware ---
    if (url.pathname.startsWith('/logout')) {
-      console.log('Running Logout middleware');
-      return await logoutFn(request, origin);
+      console.log('DEBUG: Running Logout middleware');
+      const logoutResponse = await logoutFn(request, origin);
+      console.log('DEBUG: logoutFn response:', logoutResponse);
+      return logoutResponse;
    }
 
    // --- Account Middleware ---
    if (url.pathname.startsWith('/account')) {
-      console.log('Running Account middleware');
-      return await isLoggedIn(request, origin);
+      console.log('DEBUG: Running Account middleware');
+      const loggedInResponse = await isLoggedIn(request, origin);
+      console.log('DEBUG: isLoggedIn response:', loggedInResponse);
+      return loggedInResponse;
    }
 
+   console.log('DEBUG: No matching route; proceeding normally.');
    return NextResponse.next();
 }
 
