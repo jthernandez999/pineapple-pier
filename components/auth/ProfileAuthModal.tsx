@@ -1,21 +1,14 @@
 'use client';
+
 import clsx from 'clsx';
 import RegisterForm from 'components/auth/RegisterForm';
 import { UserIcon } from 'components/auth/user-icon';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { useAuth } from '../hooks/useAuth'; // updated hook
 
-// Dummy hook for authentication status. Replace with your real auth hook.
-const useAuth = () => {
-   // For demonstration, change this to a user object to simulate a logged-in user.
-   const [user] = useState(null);
-   return { user };
-};
-
-//
 // Custom sign in form using a standard HTML form submission.
-//
 const CustomSignInForm = () => {
    return (
       <form action="/api/shopify-login" method="POST" className="space-y-4">
@@ -26,7 +19,7 @@ const CustomSignInForm = () => {
                type="email"
                placeholder="Email"
                required
-               className="mt-1 block w-full rounded-md border border-gray-300 p-2 focus:border-blue-500 focus:ring-blue-500"
+               className="mt-1 block w-full border border-black p-2 focus:border-black focus:ring-black"
             />
          </div>
          <div>
@@ -36,7 +29,7 @@ const CustomSignInForm = () => {
                type="password"
                placeholder="Password"
                required
-               className="mt-1 block w-full rounded-md border border-gray-300 p-2 focus:border-blue-500 focus:ring-blue-500"
+               className="mt-1 block w-full border border-black p-2 focus:border-black focus:ring-black"
             />
          </div>
          <div className="flex items-center justify-between">
@@ -44,13 +37,13 @@ const CustomSignInForm = () => {
                <input name="rememberMe" type="checkbox" className="mr-2" />
                Remember Me
             </label>
-            <Link href="/auth/forgot-password" className="text-sm text-blue-500 underline">
+            <Link href="/auth/forgot-password" className="text-sm text-black underline">
                Forgot Password?
             </Link>
          </div>
          <button
             type="submit"
-            className="w-full rounded-md bg-blue-600 py-2 text-white hover:bg-blue-700"
+            className="w-full border border-black bg-black py-2 text-white transition hover:bg-black"
          >
             Sign In
          </button>
@@ -58,15 +51,13 @@ const CustomSignInForm = () => {
    );
 };
 
-//
 // Shopify sign in form.
-//
 const ShopifySignInForm = () => {
    return (
       <form action="/api/shopify-login" method="POST" className="space-y-4">
          <button
             type="submit"
-            className="w-full rounded-md bg-purple-600 py-2 text-white hover:bg-purple-700"
+            className="w-full border border-black bg-black py-2 text-white transition hover:bg-black"
          >
             Sign In with Shopify
          </button>
@@ -113,20 +104,20 @@ export default function ProfileAuthModal() {
             >
                {/* Modal content */}
                <div
-                  className="relative w-full max-w-md rounded-lg bg-white p-8 shadow-lg"
+                  className="relative w-full max-w-md border border-black bg-white p-8 shadow-lg"
                   onClick={(e) => e.stopPropagation()}
                >
                   {/* Close button */}
                   <button
                      onClick={closeModal}
-                     className={clsx('absolute right-2 top-2 text-gray-600 hover:text-gray-800')}
+                     className={clsx('absolute right-2 top-2 text-black hover:text-gray-700')}
                      aria-label="Close modal"
                   >
                      ✕
                   </button>
 
                   {/* Header */}
-                  <h2 className="mb-6 text-center text-2xl font-bold">
+                  <h2 className="mb-6 text-center text-2xl font-bold text-black">
                      {mode === 'custom'
                         ? 'Sign In'
                         : mode === 'shopify'
@@ -140,14 +131,14 @@ export default function ProfileAuthModal() {
                   {mode === 'signup' && <RegisterForm />}
 
                   {/* Footer with toggles */}
-                  <div className="mt-6 text-center text-sm text-gray-600">
+                  <div className="mt-6 text-center text-sm text-black">
                      {mode === 'custom' && (
                         <>
                            <p>
                               <button
                                  type="button"
                                  onClick={() => setMode('shopify')}
-                                 className="text-blue-500 underline"
+                                 className="text-black underline"
                               >
                                  Or sign in with Shopify
                               </button>
@@ -157,7 +148,7 @@ export default function ProfileAuthModal() {
                               <button
                                  type="button"
                                  onClick={() => setMode('signup')}
-                                 className="text-blue-500 underline"
+                                 className="text-black underline"
                               >
                                  Sign Up
                               </button>
@@ -170,7 +161,7 @@ export default function ProfileAuthModal() {
                            <button
                               type="button"
                               onClick={() => setMode('custom')}
-                              className="text-blue-500 underline"
+                              className="text-black underline"
                            >
                               Back to Custom Sign In
                            </button>
@@ -182,7 +173,7 @@ export default function ProfileAuthModal() {
                            <button
                               type="button"
                               onClick={() => setMode('custom')}
-                              className="text-blue-500 underline"
+                              className="text-black underline"
                            >
                               Sign In
                            </button>
