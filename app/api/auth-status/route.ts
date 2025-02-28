@@ -5,15 +5,15 @@ import { NextResponse } from 'next/server';
 export async function GET() {
    const cookieStore = cookies();
    const token = (await cookieStore).get('shop_customer_token');
+
    if (token) {
-      // Optionally, you can decode the token to get user info here.
+      // Optionally, decode token and return user info.
       return NextResponse.json({
          loggedIn: true,
          user: {
-            /* add user info if needed */
+            /* add user info if desired */
          }
       });
-   } else {
-      return NextResponse.json({ loggedIn: false });
    }
+   return NextResponse.json({ loggedIn: false });
 }

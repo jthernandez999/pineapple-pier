@@ -9,70 +9,66 @@ import { useState } from 'react';
 import { useAuth } from '../hooks/useAuth'; // updated hook
 
 // Custom sign in form using a standard HTML form submission.
-const CustomSignInForm = () => {
-   return (
-      <form action="/api/shopify-login" method="POST" className="space-y-4">
-         <div>
-            <label className="block text-sm font-medium text-gray-700">Email</label>
-            <input
-               name="email"
-               type="email"
-               placeholder="Email"
-               required
-               className="mt-1 block w-full border border-black p-2 focus:border-black focus:ring-black"
-            />
-         </div>
-         <div>
-            <label className="block text-sm font-medium text-gray-700">Password</label>
-            <input
-               name="password"
-               type="password"
-               placeholder="Password"
-               required
-               className="mt-1 block w-full border border-black p-2 focus:border-black focus:ring-black"
-            />
-         </div>
-         <div className="flex items-center justify-between">
-            <label className="flex items-center text-sm text-gray-700">
-               <input name="rememberMe" type="checkbox" className="mr-2" />
-               Remember Me
-            </label>
-            <Link href="/auth/forgot-password" className="text-sm text-black underline">
-               Forgot Password?
-            </Link>
-         </div>
-         <button
-            type="submit"
-            className="w-full border border-black bg-black py-2 text-white transition hover:bg-black"
-         >
-            Sign In
-         </button>
-      </form>
-   );
-};
+const CustomSignInForm = () => (
+   <form action="/api/shopify-login" method="POST" className="space-y-4">
+      <div>
+         <label className="block text-sm font-medium text-gray-700">Email</label>
+         <input
+            name="email"
+            type="email"
+            placeholder="Email"
+            required
+            className="mt-1 block w-full border border-black p-2 focus:border-black focus:ring-black"
+         />
+      </div>
+      <div>
+         <label className="block text-sm font-medium text-gray-700">Password</label>
+         <input
+            name="password"
+            type="password"
+            placeholder="Password"
+            required
+            className="mt-1 block w-full border border-black p-2 focus:border-black focus:ring-black"
+         />
+      </div>
+      <div className="flex items-center justify-between">
+         <label className="flex items-center text-sm text-gray-700">
+            <input name="rememberMe" type="checkbox" className="mr-2" />
+            Remember Me
+         </label>
+         <Link href="/auth/forgot-password" className="text-sm text-black underline">
+            Forgot Password?
+         </Link>
+      </div>
+      <button
+         type="submit"
+         className="w-full border border-black bg-black py-2 text-white transition hover:bg-black"
+      >
+         Sign In
+      </button>
+   </form>
+);
 
 // Shopify sign in form.
-const ShopifySignInForm = () => {
-   return (
-      <form action="/api/shopify-login" method="POST" className="space-y-4">
-         <button
-            type="submit"
-            className="w-full border border-black bg-black py-2 text-white transition hover:bg-black"
-         >
-            Sign In with Shopify
-         </button>
-      </form>
-   );
-};
+const ShopifySignInForm = () => (
+   <form action="/api/shopify-login" method="POST" className="space-y-4">
+      <button
+         type="submit"
+         className="w-full border border-black bg-black py-2 text-white transition hover:bg-black"
+      >
+         Sign In with Shopify
+      </button>
+   </form>
+);
 
 export default function ProfileAuthModal() {
-   const { user } = useAuth();
+   const { user, isLoading } = useAuth();
    const router = useRouter();
    const [mode, setMode] = useState<'custom' | 'shopify' | 'signup'>('custom');
    const [isOpen, setIsOpen] = useState(false);
 
    const openModal = () => {
-      setMode('custom'); // default to custom sign in when opening
+      setMode('custom');
       setIsOpen(true);
    };
 
@@ -81,7 +77,7 @@ export default function ProfileAuthModal() {
    const handleIconClick = (e: React.MouseEvent<HTMLDivElement>) => {
       e.preventDefault();
       if (user) {
-         // If already logged in, redirect to the account page.
+         // If logged in, navigate to the account dashboard.
          router.push('/account');
       } else {
          // Otherwise, open the login modal.
@@ -109,12 +105,10 @@ export default function ProfileAuthModal() {
                className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
                onClick={closeModal}
             >
-               {/* Modal content */}
                <div
                   className="relative w-full max-w-md border border-black bg-white p-8 shadow-lg"
                   onClick={(e) => e.stopPropagation()}
                >
-                  {/* Close button */}
                   <button
                      onClick={closeModal}
                      className={clsx('absolute right-2 top-2 text-black hover:text-gray-700')}
@@ -122,8 +116,6 @@ export default function ProfileAuthModal() {
                   >
                      ✕
                   </button>
-
-                  {/* Header */}
                   <h2 className="mb-6 text-center text-2xl font-bold text-black">
                      {mode === 'custom'
                         ? 'Sign In'
@@ -131,13 +123,9 @@ export default function ProfileAuthModal() {
                           ? 'Sign In with Shopify'
                           : 'Sign Up'}
                   </h2>
-
-                  {/* Render form based on mode */}
                   {mode === 'custom' && <CustomSignInForm />}
                   {mode === 'shopify' && <ShopifySignInForm />}
                   {mode === 'signup' && <RegisterForm />}
-
-                  {/* Footer with toggles */}
                   <div className="mt-6 text-center text-sm text-black">
                      {mode === 'custom' && (
                         <>

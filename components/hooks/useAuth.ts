@@ -1,27 +1,21 @@
 // hooks/useAuth.ts
-import { useEffect, useState } from 'react';
+import useSWR from 'swr';
+
+const fetcher = async (url: string) => {
+   const res = await fetch(url, { cache: 'no-store' });
+   if (!res.ok) throw new Error('Failed to fetch auth status');
+   return res.json();
+};
 
 export function useAuth() {
-   const [user, setUser] = useState<null | { [key: string]: any }>(null);
+   const { data, error } = useSWR('/api/auth-status', fetcher, {
+      revalidateOnFocus: true,
+      refreshInterval: 10000 // Adjust interval as needed.
+   });
 
-   useEffect(() => {
-      async function fetchAuthStatus() {
-         try {
-            const res = await fetch('/api/auth-status');
-            const data = await res.json();
-            if (data.loggedIn) {
-               // Set user data as needed; here we're just using a non-null object.
-               setUser(data.user || { loggedIn: true });
-            } else {
-               setUser(null);
-            }
-         } catch (error) {
-            console.error('Failed to fetch auth status:', error);
-            setUser(null);
-         }
-      }
-      fetchAuthStatus();
-   }, []);
-
-   return { user };
+   return {
+      user: data?.loggedIn ? data.user : null,
+      isLoading: !data && !error,
+      error
+   };
 }
