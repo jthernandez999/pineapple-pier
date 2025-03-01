@@ -353,19 +353,31 @@ export async function authorizeFn(request: NextRequest, origin: string) {
 // }
 
 export async function logoutFn(request: NextRequest, origin: string) {
+   // Get the id_token from cookies
    const idToken = request.cookies.get('shop_id_token')?.value;
 
+   // If no id_token exists, clear cookies and redirect to login
    if (!idToken) {
-      // No id_token, just redirect to login and clear cookies
-      const logoutUrl = new URL(`${origin}/login`);
-      const response = NextResponse.redirect(logoutUrl);
+      const response = NextResponse.redirect(`${origin}/login`);
       return removeAllCookies(response);
    }
 
-   // Instead of fetch(), use a direct redirect
-   const logoutUrl = `${customerAccountApiUrl}/logout?id_token_hint=${idToken}&post_logout_redirect_uri=${origin}`;
+   // Build the Shopify logout URL.
+   const logoutUrl = new URL(`${SHOPIFY_CUSTOMER_ACCOUNT_API_URL}/logout`);
+   logoutUrl.searchParams.set('id_token_hint', idToken);
+   logoutUrl.searchParams.set('post_logout_redirect_uri', origin);
 
-   return NextResponse.redirect(logoutUrl);
+   // Redirect to Shopify's logout endpoint.
+   const response = NextResponse.redirect(logoutUrl);
+
+   // Remove all authentication cookies.
+   const responseCleared = removeAllCookies(response);
+
+   // When the browser follows the redirect, Shopify should logout the user
+   // and then redirect back to your site (using the post_logout_redirect_uri).
+   // Once back on your site, your middleware (or client logic) will see no valid token
+   // and will remove any lingering accountNumber query parameter.
+   return responseCleared;
 }
 
 // export async function logoutFn(request: NextRequest, origin: string) {
