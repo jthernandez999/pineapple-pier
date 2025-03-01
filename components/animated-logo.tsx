@@ -50,6 +50,7 @@ export default function AnimatedLogo() {
       >
          <div className="relative z-[40] h-64 w-64 md:h-80 md:w-80">
             <Image
+               draggable={false}
                src={imageSrc}
                alt="DJ Logo"
                fill
