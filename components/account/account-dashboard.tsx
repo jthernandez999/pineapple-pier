@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import LogoutButton from 'components/account/LogoutButton';
 import { useState } from 'react';
 import { AccountAddressInfo } from './account-address-info';
 import { AccountOrdersHistory } from './account-orders-history';
@@ -125,11 +125,7 @@ export default function AccountDashboard({
             </nav>
             {/* Log Out Button */}
             <div className="mt-8">
-               <Link href="/logout">
-                  <p className="block w-full rounded-md bg-gray-700 px-4 py-2 text-center text-sm text-white transition-opacity duration-200 hover:opacity-80">
-                     Log Out
-                  </p>
-               </Link>
+               <LogoutButton />
             </div>
          </aside>
 
