@@ -194,19 +194,31 @@ export async function isLoggedIn(request: NextRequest, origin: string) {
    });
 }
 
-//when we are running on the production website we just get the origin from the request.nextUrl
+export const SHOPIFY_ORIGIN_URL = process.env.NEXT_PUBLIC_SHOPIFY_ORIGIN_URL;
+
 export function getOrigin(request: NextRequest) {
    const nextOrigin = request.nextUrl.origin;
-   //console.log("Current Origin", nextOrigin)
-   //when running localhost, we want to use fake origin otherwise we use the real origin
-   let newOrigin = nextOrigin;
+   // For localhost, you might want to use a different origin:
    if (nextOrigin === 'https://localhost:3000' || nextOrigin === 'http://localhost:3000') {
-      newOrigin = SHOPIFY_ORIGIN!;
-   } else {
-      newOrigin = nextOrigin;
+      return SHOPIFY_ORIGIN_URL!;
    }
-   return newOrigin;
+   // Otherwise, always use the env var value:
+   return SHOPIFY_ORIGIN_URL!;
 }
+
+// //when we are running on the production website we just get the origin from the request.nextUrl
+// export function getOrigin(request: NextRequest) {
+//    const nextOrigin = request.nextUrl.origin;
+//    //console.log("Current Origin", nextOrigin)
+//    //when running localhost, we want to use fake origin otherwise we use the real origin
+//    let newOrigin = nextOrigin;
+//    if (nextOrigin === 'https://localhost:3000' || nextOrigin === 'http://localhost:3000') {
+//       newOrigin = SHOPIFY_ORIGIN!;
+//    } else {
+//       newOrigin = nextOrigin;
+//    }
+//    return newOrigin;
+// }
 
 export async function authorizeFn(request: NextRequest, origin: string) {
    const clientId = SHOPIFY_CLIENT_ID;
@@ -353,7 +365,7 @@ export async function logoutFn(request: NextRequest, origin: string) {
    // Instead of fetch(), use a direct redirect
    const logoutUrl = `${customerAccountApiUrl}/logout?id_token_hint=${idToken}&post_logout_redirect_uri=${origin}`;
 
-   return NextResponse.redirect(logoutUrl); // Server-side redirect (no CORS issue)
+   return NextResponse.redirect(logoutUrl);
 }
 
 // export async function logoutFn(request: NextRequest, origin: string) {
