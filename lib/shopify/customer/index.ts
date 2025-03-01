@@ -341,27 +341,43 @@ export async function authorizeFn(request: NextRequest, origin: string) {
 // }
 
 export async function logoutFn(request: NextRequest, origin: string) {
-   //console.log("New Origin", newOrigin)
-   const idToken = request.cookies.get('shop_id_token');
-   const idTokenValue = idToken?.value;
-   //revalidateTag(TAGS.customer); //this causes some strange error in Nextjs about invariant, so removing for now.
+   const idToken = request.cookies.get('shop_id_token')?.value;
 
-   //if there is no idToken, then sending to logout url will redirect shopify, so just
-   //redirect to login here and delete cookies (presumably they don't even exist)
-   if (!idTokenValue) {
+   if (!idToken) {
+      // No id_token, just redirect to login and clear cookies
       const logoutUrl = new URL(`${origin}/login`);
-      const response = NextResponse.redirect(`${logoutUrl}`);
+      const response = NextResponse.redirect(logoutUrl);
       return removeAllCookies(response);
    }
 
-   //console.log ("id toke value", idTokenValue)
-   const logoutUrl = new URL(
-      `${customerAccountApiUrl}/logout?id_token_hint=${idTokenValue}&post_logout_redirect_uri=${origin}`
-   );
-   //console.log ("logout url", logoutUrl)
-   const logoutResponse = NextResponse.redirect(logoutUrl);
-   return removeAllCookies(logoutResponse);
+   // Instead of fetch(), use a direct redirect
+   const logoutUrl = `${customerAccountApiUrl}/logout?id_token_hint=${idToken}&post_logout_redirect_uri=${origin}`;
+
+   return NextResponse.redirect(logoutUrl); // Server-side redirect (no CORS issue)
 }
+
+// export async function logoutFn(request: NextRequest, origin: string) {
+//    //console.log("New Origin", newOrigin)
+//    const idToken = request.cookies.get('shop_id_token');
+//    const idTokenValue = idToken?.value;
+//    //revalidateTag(TAGS.customer); //this causes some strange error in Nextjs about invariant, so removing for now.
+
+//    //if there is no idToken, then sending to logout url will redirect shopify, so just
+//    //redirect to login here and delete cookies (presumably they don't even exist)
+//    if (!idTokenValue) {
+//       const logoutUrl = new URL(`${origin}/login`);
+//       const response = NextResponse.redirect(`${logoutUrl}`);
+//       return removeAllCookies(response);
+//    }
+
+//    //console.log ("id toke value", idTokenValue)
+//    const logoutUrl = new URL(
+//       `${customerAccountApiUrl}/logout?id_token_hint=${idTokenValue}&post_logout_redirect_uri=${origin}`
+//    );
+//    //console.log ("logout url", logoutUrl)
+//    const logoutResponse = NextResponse.redirect(logoutUrl);
+//    return removeAllCookies(logoutResponse);
+// }
 
 // import type { NextRequest } from 'next/server';
 // import { NextResponse } from 'next/server';
