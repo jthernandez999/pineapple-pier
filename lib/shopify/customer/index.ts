@@ -344,7 +344,7 @@ export async function logoutFn(request: NextRequest, origin: string) {
    //console.log("New Origin", newOrigin)
    const idToken = request.cookies.get('shop_id_token');
    const idTokenValue = idToken?.value;
-   //revalidateTag(TAGS.customer); //this causes some strange error in Nextjs about invariant, so removing for now
+   //revalidateTag(TAGS.customer); //this causes some strange error in Nextjs about invariant, so removing for now.
 
    //if there is no idToken, then sending to logout url will redirect shopify, so just
    //redirect to login here and delete cookies (presumably they don't even exist)
