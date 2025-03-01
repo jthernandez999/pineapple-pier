@@ -1,7 +1,7 @@
 import { authorizeFn, getOrigin, isLoggedIn, logoutFn } from 'lib/shopify/customer';
 import { NextRequest, NextResponse } from 'next/server';
 
-// Helper function to extract account number from the customer token.
+// Helper function to extract account number from the customer token..
 async function getCustomerAccountNumber(request: NextRequest): Promise<string | null> {
    const token = request.cookies.get('shop_customer_token')?.value;
    console.log('DEBUG: shop_customer_token:', token);
