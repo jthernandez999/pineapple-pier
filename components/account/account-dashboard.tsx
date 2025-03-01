@@ -46,27 +46,29 @@ function SubmitButton(props: any) {
       </>
    );
 }
+
 export default function AccountDashboard({
    customerData,
    orders,
    customerAccessToken
 }: AccountDashboardProps) {
-   // Set the default active menu to "welcome" so a welcome message is shown by default.
+   // Desktop menu state remains
    const [activeMenu, setActiveMenu] = useState<string>('welcome');
-   // Control sidebar visibility on mobile.
-   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
+   // For mobile, we'll use a separate state for the accordion (only one open at a time)
+   const [mobileActiveMenu, setMobileActiveMenu] = useState<string | null>(null);
    const [message, setMessage] = useState('');
 
    const handleLogout = async () => {
       try {
-         // Calling the logout server action.
          await doLogout(null);
       } catch (error: any) {
          setMessage('Error logging out. Please try again.');
       }
    };
-   const renderContent = () => {
-      switch (activeMenu) {
+
+   // Render content based on menu key.
+   const renderContentFor = (menu: string) => {
+      switch (menu) {
          case 'orders':
             return orders ? <AccountOrdersHistory orders={orders} /> : <p>No orders found.</p>;
          case 'manage':
@@ -103,94 +105,92 @@ export default function AccountDashboard({
 
    return (
       <div className="relative mx-auto flex max-w-screen-2xl flex-col px-4 py-8 md:flex-row">
-         {/* Mobile Header with Hamburger */}
-         <div className="mb-4 flex items-center justify-between md:hidden">
-            <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">Account / Home</h2>
-            <button
-               onClick={() => setIsSidebarOpen(true)}
-               className="rounded-md bg-black px-3 py-1 text-white transition-opacity duration-200 hover:opacity-80"
-               aria-label="Open Menu"
-            >
-               {/* Simple hamburger icon */}
-               <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                     strokeLinecap="round"
-                     strokeLinejoin="round"
-                     strokeWidth="2"
-                     d="M4 8h16M4 16h16"
-                  />
-               </svg>
-            </button>
-         </div>
-
-         {/* Sidebar Menu */}
-         <aside
-            className={`fixed inset-y-0 left-0 z-50 w-64 transform bg-white p-4 transition-transform dark:bg-gray-800 md:relative md:w-1/4 md:translate-x-0 md:pr-8 ${
-               isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-            }`}
-         >
-            <div className="flex items-center justify-between">
-               <div>
-                  <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">
-                     Account / Home
-                  </h2>
-                  <p className="mt-1 text-gray-600">
-                     Hi, {customerData?.emailAddress?.emailAddress || 'Guest'}
-                  </p>
-               </div>
-               <button
-                  onClick={() => setIsSidebarOpen(false)}
-                  className="rounded-md text-sm text-black transition-opacity duration-200 hover:opacity-80 md:hidden"
-                  aria-label="Close Menu"
-               >
-                  &times;
-               </button>
+         {/* Mobile Navigation (Accordion) */}
+         <aside className="mb-6 md:hidden">
+            <div className="mb-4">
+               <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">
+                  Account / Home
+               </h2>
+               <p className="mt-1 text-gray-600">
+                  Hi, {customerData?.emailAddress?.emailAddress || 'Guest'}
+               </p>
             </div>
-            <nav className="mt-4">
+            <nav>
                <ul>
-                  {['welcome', 'orders', 'manage', 'personal', 'address'].map((menu) => (
+                  {['welcome', 'orders', 'personal', 'address', 'manage'].map((menu) => (
+                     <li key={menu} className="mb-2 border-b border-gray-200">
+                        <button
+                           onClick={() =>
+                              setMobileActiveMenu((prev) => (prev === menu ? null : menu))
+                           }
+                           className="flex w-full items-center justify-between px-4 py-3 text-left text-black"
+                        >
+                           <span>{menu.charAt(0).toUpperCase() + menu.slice(1)}</span>
+                           <span className="text-xl font-bold">
+                              {mobileActiveMenu === menu ? '-' : '+'}
+                           </span>
+                        </button>
+                        {mobileActiveMenu === menu && (
+                           <div className="px-4 py-3">{renderContentFor(menu)}</div>
+                        )}
+                     </li>
+                  ))}
+                  <li className="mt-6">
+                     <button
+                        onClick={handleLogout}
+                        className="block w-full rounded-md bg-gray-700 px-4 py-3 text-center text-sm text-white transition hover:opacity-80"
+                     >
+                        Log Out
+                     </button>
+                     {message && <p className="mt-2 text-red-600">{message}</p>}
+                  </li>
+               </ul>
+            </nav>
+         </aside>
+
+         {/* Desktop Sidebar */}
+         <aside className="hidden md:block md:w-1/4 md:pr-8">
+            <div className="mb-4">
+               <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">
+                  Account / Home
+               </h2>
+               <p className="mt-1 text-gray-600">
+                  Hi, {customerData?.emailAddress?.emailAddress || 'Guest'}
+               </p>
+            </div>
+            <nav>
+               <ul>
+                  {['welcome', 'orders', 'personal', 'address', 'manage'].map((menu) => (
                      <li key={menu} className="mb-1">
                         <button
-                           onClick={() => {
-                              setActiveMenu(menu);
-                              setIsSidebarOpen(false);
-                           }}
-                           className={`w-full rounded-md px-4 py-2 text-black transition-opacity duration-200 hover:opacity-80 ${
+                           onClick={() => setActiveMenu(menu)}
+                           className={clsx(
+                              'w-full rounded-md px-4 py-2 text-black transition hover:opacity-80',
                               activeMenu === menu ? 'underline opacity-80' : 'opacity-100'
-                           }`}
+                           )}
                         >
                            {menu.charAt(0).toUpperCase() + menu.slice(1)}
                         </button>
                      </li>
                   ))}
                </ul>
-            </nav>
-            {/* Log Out Button */}
-            <div className="mt-8">
-               <div>
-                  <h3 className="mb-4 text-2xl font-bold">Manage Account</h3>
+               <div className="mt-8">
                   <button
                      onClick={handleLogout}
-                     className="rounded-md bg-black px-4 py-2 text-white hover:opacity-90"
+                     className="mx-auto w-full bg-black px-4 py-2 text-white hover:opacity-90"
                   >
                      Log Out
                   </button>
                   {message && <p className="mt-2 text-red-600">{message}</p>}
                </div>
-            </div>
+            </nav>
          </aside>
-
-         {/* Mobile Overlay */}
-         {isSidebarOpen && (
-            <div
-               className="fixed inset-0 z-40 bg-black opacity-50 md:hidden"
-               onClick={() => setIsSidebarOpen(false)}
-            ></div>
-         )}
 
          {/* Main Content */}
          <main className="w-full md:w-3/4 md:border-l md:border-neutral-200 md:pl-8 dark:md:border-neutral-800">
-            {renderContent()}
+            {/* Desktop renders content based on activeMenu */}
+            <div className="hidden md:block">{renderContentFor(activeMenu)}</div>
+            {/* On mobile, content is rendered within each accordion section */}
          </main>
       </div>
    );
