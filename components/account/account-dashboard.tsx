@@ -2,6 +2,7 @@
 import { ArrowRightIcon as LogOutIcon } from '@heroicons/react/24/outline';
 import clsx from 'clsx';
 import LoadingDots from 'components/loading-dots';
+import Link from 'next/link';
 import { useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { AccountAddressInfo } from './account-address-info';
@@ -106,6 +107,7 @@ export default function AccountDashboard({
    return (
       <div className="relative mx-auto flex max-w-screen-2xl flex-col px-4 py-8 md:flex-row">
          {/* Mobile Navigation (Accordion) */}
+         {/* Mobile Navigation (Accordion) */}
          <aside className="mb-6 md:hidden">
             <div className="mb-4">
                <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">
@@ -126,8 +128,43 @@ export default function AccountDashboard({
                            className="flex w-full items-center justify-between px-4 py-3 text-left text-black"
                         >
                            <span>{menu.charAt(0).toUpperCase() + menu.slice(1)}</span>
-                           <span className="text-xl font-bold">
-                              {mobileActiveMenu === menu ? '-' : '+'}
+                           <span>
+                              {mobileActiveMenu === menu ? (
+                                 // Minus icon when open
+                                 <svg className="h-6 w-6" viewBox="0 0 24 24">
+                                    <line
+                                       x1="5"
+                                       y1="12"
+                                       x2="19"
+                                       y2="12"
+                                       stroke="currentColor"
+                                       strokeWidth=".75"
+                                       strokeLinecap="round"
+                                    />
+                                 </svg>
+                              ) : (
+                                 // Plus icon when closed
+                                 <svg className="h-6 w-6" viewBox="0 0 24 24">
+                                    <line
+                                       x1="12"
+                                       y1="5"
+                                       x2="12"
+                                       y2="19"
+                                       stroke="currentColor"
+                                       strokeWidth=".75"
+                                       strokeLinecap="round"
+                                    />
+                                    <line
+                                       x1="5"
+                                       y1="12"
+                                       x2="19"
+                                       y2="12"
+                                       stroke="currentColor"
+                                       strokeWidth=".75"
+                                       strokeLinecap="round"
+                                    />
+                                 </svg>
+                              )}
                            </span>
                         </button>
                         {mobileActiveMenu === menu && (
@@ -135,6 +172,16 @@ export default function AccountDashboard({
                         )}
                      </li>
                   ))}
+                  <li className="mb-2">
+                     <Link href="https://dearjohndenimhq.returnscenter.com/" passHref>
+                        <p
+                           className="block w-full rounded-md px-4 py-2 text-black transition hover:opacity-80"
+                           rel="noopener noreferrer"
+                        >
+                           Start a Return
+                        </p>
+                     </Link>
+                  </li>
                   <li className="mt-6">
                      <button
                         onClick={handleLogout}
@@ -174,6 +221,16 @@ export default function AccountDashboard({
                      </li>
                   ))}
                </ul>
+               <div className="mb-4">
+                  <Link href="https://dearjohndenimhq.returnscenter.com/" passHref>
+                     <p
+                        className="mx-auto flex w-full justify-center px-4 py-2 text-black transition hover:opacity-80"
+                        rel="noopener noreferrer"
+                     >
+                        Start a Return
+                     </p>
+                  </Link>
+               </div>
                <div className="mt-8">
                   <button
                      onClick={handleLogout}
