@@ -68,9 +68,9 @@ export const ColorSwatch: React.FC<ColorSwatchProps> = ({ metaobjectId, fallback
       <div
          style={{
             backgroundColor: colorCode,
-            width: '20px',
-            height: '20px',
-            borderRadius: '9999px',
+            width: '18px',
+            height: '18px',
+            borderRadius: '50%',
             border: '1px solid #ccc' // for visibility
          }}
          title={colorCode}
