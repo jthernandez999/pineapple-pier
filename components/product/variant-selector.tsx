@@ -99,8 +99,8 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
       <>
          {filteredOptions.map((option) => (
             <form key={option.id}>
-               <dl className="mx-auto mb-8">
-                  <dt className="mb-4 text-sm uppercase tracking-wide">
+               <dl className="mx-auto mb-5">
+                  <dt className="mb-2 text-sm uppercase tracking-wide">
                      {option.name.toLowerCase() === 'color'
                         ? `${option.name.toUpperCase()} - ${
                              state.color ? state.color.toUpperCase() : ''
