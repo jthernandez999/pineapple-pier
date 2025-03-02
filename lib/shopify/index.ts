@@ -334,22 +334,31 @@ export async function getCollectionProducts({
       hasNextPage: boolean;
    };
 }> {
-   // Build the variables object conditionally:
+   // Build variables object.
    const variables: { handle: string; cursor?: string; sortKey?: string; reverse?: boolean } = {
       handle: collection
    };
 
-   // Only add sortKey and reverse if explicitly provided.
-   if (sortKey !== undefined) {
-      variables.sortKey = sortKey === 'CREATED_AT' ? 'CREATED' : sortKey;
-   }
-   if (reverse !== undefined) {
-      variables.reverse = reverse;
+   // For the "shop-new-arrivals" collection, omit sortKey and reverse so Shopify returns the default ordering.
+   if (collection !== 'shop-new-arrivals') {
+      if (sortKey !== undefined) {
+         // Optionally, map 'CREATED_AT' to 'CREATED'
+         variables.sortKey = sortKey === 'CREATED_AT' ? 'CREATED' : sortKey;
+      }
+      if (reverse !== undefined) {
+         variables.reverse = reverse;
+      }
+   } else {
+      // For new arrivals, don't include sortKey and reverse so Shopify's default ordering applies.
+      console.log('Using Shopify Admin default ordering for new arrivals');
    }
 
    const res = await shopifyFetch<ShopifyCollectionProductsOperation>({
       query: getCollectionProductsQuery,
-      tags: [TAGS.collections, TAGS.products],
+      tags:
+         collection === 'shop-new-arrivals'
+            ? [TAGS.collections, TAGS.products]
+            : [TAGS.collections],
       variables
    });
 
@@ -358,8 +367,6 @@ export async function getCollectionProducts({
       return { products: [], pageInfo: { endCursor: null, hasNextPage: false } };
    }
    const productsData = res.body.data.collection.products as any;
-   console.log('Raw collection products response:::', res.body.data.collection.products);
-   console.log(productsData.edges[0].node);
    const pageInfo = productsData.pageInfo as { hasNextPage: boolean; endCursor: string | null };
    const products = reshapeProducts(removeEdgesAndNodes(productsData));
    return { products, pageInfo };
@@ -575,7 +582,7 @@ export async function revalidate(req: NextRequest): Promise<NextResponse> {
    const isCollectionUpdate = collectionWebhooks.includes(topic);
    const isProductUpdate = productWebhooks.includes(topic);
 
-   if (!secret || secret !== process.env.SHOPIFY_REVALIDATION_SECRET) {
+   if (!secret || secret !== process.env.NEXT_PUBLIC_SHOPIFY_REVALIDATION_SECRET) {
       console.error('Invalid revalidation secret.');
       return NextResponse.json({ status: 401 });
    }
