@@ -330,36 +330,87 @@ export async function getCollectionProducts({
       hasNextPage: boolean;
    };
 }> {
+   // Build the variables object conditionally:
+   const variables: { handle: string; cursor?: string; sortKey?: string; reverse?: boolean } = {
+      handle: collection
+   };
+
+   if (cursor !== undefined) {
+      variables.cursor = cursor;
+   }
+   if (sortKey !== undefined) {
+      // Convert 'CREATED_AT' to 'CREATED' if needed.
+      variables.sortKey = sortKey === 'CREATED_AT' ? 'CREATED' : sortKey;
+   }
+   if (reverse !== undefined) {
+      variables.reverse = reverse;
+   }
+
    const res = await shopifyFetch<ShopifyCollectionProductsOperation>({
       query: getCollectionProductsQuery,
       tags: [TAGS.collections, TAGS.products],
-      // Cast to any so that we can add the optional cursor property
-      variables: {
-         handle: collection,
-         reverse,
-         sortKey: sortKey === 'CREATED_AT' ? 'CREATED' : sortKey,
-         cursor // optional; if undefined, it’s omitted
-      } as any
+      variables
    });
 
    if (!res.body.data.collection) {
       console.log(`No collection found for \`${collection}\``);
       return { products: [], pageInfo: { endCursor: null, hasNextPage: false } };
    }
-   const productsData = res.body.data.collection.products as any; // cast to any to access pageInfo
+   const productsData = res.body.data.collection.products as any;
    console.log('Raw collection products response:::', res.body.data.collection.products);
    console.log(productsData.edges[0].node);
-
    const pageInfo = productsData.pageInfo as { hasNextPage: boolean; endCursor: string | null };
-
-   //  const productsData = res.body.data.collection.products;
-   // TypeScript now expects productsData to include a pageInfo property.
-   // If your Shopify type (Connection<ShopifyProduct>) doesn’t include it,
-   // you may need to extend that type or cast accordingly.
-   //  const pageInfo = productsData.pageInfo;
    const products = reshapeProducts(removeEdgesAndNodes(productsData));
    return { products, pageInfo };
 }
+
+// export async function getCollectionProducts({
+//    collection,
+//    reverse,
+//    sortKey,
+//    cursor
+// }: {
+//    collection: string;
+//    reverse?: boolean;
+//    sortKey?: string;
+//    cursor?: string;
+// }): Promise<{
+//    products: Product[];
+//    pageInfo: {
+//       endCursor: string | null;
+//       hasNextPage: boolean;
+//    };
+// }> {
+//    const res = await shopifyFetch<ShopifyCollectionProductsOperation>({
+//       query: getCollectionProductsQuery,
+//       tags: [TAGS.collections, TAGS.products],
+//       // Cast to any so that we can add the optional cursor property
+//       variables: {
+//          handle: collection,
+//          reverse,
+//          sortKey: sortKey === 'CREATED_AT' ? 'CREATED' : sortKey,
+//          cursor // optional; if undefined, it’s omitted
+//       } as any
+//    });
+
+//    if (!res.body.data.collection) {
+//       console.log(`No collection found for \`${collection}\``);
+//       return { products: [], pageInfo: { endCursor: null, hasNextPage: false } };
+//    }
+//    const productsData = res.body.data.collection.products as any; // cast to any to access pageInfo
+//    console.log('Raw collection products response:::', res.body.data.collection.products);
+//    console.log(productsData.edges[0].node);
+
+//    const pageInfo = productsData.pageInfo as { hasNextPage: boolean; endCursor: string | null };
+
+//    //  const productsData = res.body.data.collection.products;
+//    // TypeScript now expects productsData to include a pageInfo property.
+//    // If your Shopify type (Connection<ShopifyProduct>) doesn’t include it,
+//    // you may need to extend that type or cast accordingly.
+//    //  const pageInfo = productsData.pageInfo;
+//    const products = reshapeProducts(removeEdgesAndNodes(productsData));
+//    return { products, pageInfo };
+// }
 
 export async function getCollections(): Promise<Collection[]> {
    const res = await shopifyFetch<ShopifyCollectionsOperation>({
