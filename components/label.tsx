@@ -11,6 +11,7 @@ interface LabelProps {
    metaobjectId?: string; // dynamic metaobject id
    fallbackColor?: string; // fallback color code
    position?: 'bottom' | 'center';
+   swatchMetaobjectId?: string; // added for compatibility with GridTileImage
 }
 
 const Label: React.FC<LabelProps> = ({

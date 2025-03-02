@@ -11,6 +11,7 @@ interface LabelProps {
    metaobjectId?: string; // metaobject ID to fetch swatch color, if available
    fallbackColor?: string; // fallback color if metaobject fetch fails
    position?: 'bottom' | 'center';
+   swatchMetaobjectId?: string; // added for compatibility with GridTileImage
 }
 
 const ProductGroupsDisplayLabel: React.FC<LabelProps> = ({
