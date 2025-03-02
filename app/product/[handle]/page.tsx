@@ -1,16 +1,20 @@
+// app/product/[handle]/page.tsx
+import type { Metadata } from 'next';
+import { notFound } from 'next/navigation';
+
 import { GridTileImage } from 'components/grid/tile';
 import Footer from 'components/layout/footer';
 import { Gallery } from 'components/product/gallery';
 import { ProductProvider } from 'components/product/product-context';
 import { ProductDescription } from 'components/product/product-description';
 import { HIDDEN_PRODUCT_TAG } from 'lib/constants';
-import { dynamicMetaobjectId, getSwatchMetaobjectId } from 'lib/helpers/metafieldHelpers';
+import { getSwatchMetaobjectId } from 'lib/helpers/metafieldHelpers';
 import { getProduct, getProductRecommendations } from 'lib/shopify';
 import type { Image, Product } from 'lib/shopify/types';
-import type { Metadata } from 'next';
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
+import Grid from '../../../components/grid';
+import Label from '../../../components/label';
 
 const fallbackImg = {
    url: 'https://cdn.shopify.com/s/files/1/1024/2207/files/default_logo_dear_john_denim.jpg?v=1739228110',
@@ -63,7 +67,7 @@ export default async function ProductPage(props: { params: Promise<{ handle: str
 
    if (!product) return notFound();
 
-   // If there's no featured image, use our fallback image.
+   // Use fallback image if featuredImage not available.
    const featuredImage = product.featuredImage || fallbackImg;
 
    const productJsonLd = {
@@ -123,6 +127,15 @@ export default async function ProductPage(props: { params: Promise<{ handle: str
    );
 }
 
+function flattenImages(images: any): any[] {
+   if (!images) return [];
+   if (Array.isArray(images)) return images;
+   if (images.edges) {
+      return images.edges.map((edge: any) => edge.node);
+   }
+   return [];
+}
+
 async function RelatedProducts({ id }: { id: string }) {
    const relatedProducts = await getProductRecommendations(id);
 
@@ -133,15 +146,13 @@ async function RelatedProducts({ id }: { id: string }) {
          <h2 className="mb-4 text-2xl font-bold">Related Products</h2>
          <ul className="flex w-full gap-4 overflow-x-auto pt-1">
             {relatedProducts.map((product: Product) => {
-               // Extract color option details.
+               // Extract color option.
                const colorOption = product.options?.find((o) => o.name.toLowerCase() === 'color');
                const colorName = colorOption ? colorOption.values[0] : undefined;
                const fallbackColor = colorName ? colorName.toLowerCase() : '#ccc';
 
-               // Get the metaobject value.
+               // Use helper to get swatch; if not a hex color, use fallback.
                const rawSwatch = getSwatchMetaobjectId(product);
-               // If rawSwatch starts with a hash, assume it's a hex color.
-               // Otherwise, fall back to fallbackColor.
                const swatchColor =
                   rawSwatch && rawSwatch.startsWith('#') ? rawSwatch : fallbackColor;
 
@@ -150,29 +161,42 @@ async function RelatedProducts({ id }: { id: string }) {
                      key={product.handle}
                      className="aspect-[2/3] w-full flex-none min-[475px]:w-1/2 sm:w-1/3 md:w-1/4 lg:w-1/5"
                   >
-                     <Link
-                        className="relative h-full w-full"
-                        href={`/product/${product.handle}`}
-                        prefetch={true}
-                     >
-                        <GridTileImage
-                           alt={product.title}
-                           label={{
-                              title: product.title,
-                              amount: product.priceRange.maxVariantPrice.amount,
-                              currencyCode: product.priceRange.maxVariantPrice.currencyCode
-                           }}
-                           src={product.featuredImage?.url}
-                           secondarySrc={product.images[1]?.url}
-                           fill
-                           sizes="100vw, (min-width: 768px) 20vw"
-                           className="object-cover"
-                           swatchMetaobjectId={dynamicMetaobjectId(product)}
-                           swatchFallbackColor={product.options
-                              ?.find((o) => o.name.toLowerCase() === 'color')
-                              ?.values[0]?.toLowerCase()}
-                        />
-                     </Link>
+                     <Grid.Item key={product.handle} className="animate-fadeIn">
+                        <Link
+                           href={`/product/${product.handle}`}
+                           prefetch={true}
+                           className="flex h-full w-full flex-col"
+                        >
+                           <div className="relative aspect-[2/3] w-full">
+                              <GridTileImage
+                                 alt={product.title}
+                                 src={product.featuredImage?.url || fallbackImg.url}
+                                 secondarySrc={
+                                    flattenImages(product.images)[1]?.url ||
+                                    product.featuredImage?.url
+                                 }
+                                 fill
+                                 sizes="(min-width: 768px) 33vw, (min-width: 640px) 50vw, 100vw"
+                              />
+                           </div>
+                           <div className="mt-2">
+                              <Label
+                                 title={product.title}
+                                 amount={product.priceRange.maxVariantPrice.amount}
+                                 currencyCode={product.priceRange.maxVariantPrice.currencyCode}
+                                 colorName={
+                                    product.options?.find((o) => o.name.toLowerCase() === 'color')
+                                       ?.values[0]
+                                 }
+                                 metaobjectId={getSwatchMetaobjectId(product)}
+                                 fallbackColor={product.options
+                                    ?.find((o) => o.name.toLowerCase() === 'color')
+                                    ?.values[0]?.toLowerCase()}
+                                 position="bottom"
+                              />
+                           </div>
+                        </Link>
+                     </Grid.Item>
                   </li>
                );
             })}

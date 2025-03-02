@@ -23,6 +23,7 @@ export function GridTileImage({
       currencyCode: string;
       position?: 'bottom' | 'center';
       colorName?: string; // Optional: if you want to pass a static color name.
+      metaobjectId?: string; // Optional: if you want to pass a static metaobject id.
    };
    secondarySrc?: string;
    swatchMetaobjectId?: string;

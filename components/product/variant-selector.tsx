@@ -143,7 +143,7 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
                                     width: '18px',
                                     height: '18px',
                                     borderRadius: '50%',
-                                    padding: '0'
+                                    padding: ''
                                  }}
                                  className={clsx(
                                     'relative flex items-center justify-center border dark:border-neutral-800',
@@ -173,7 +173,7 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
                                  }`}
                                  onClick={() => handleOptionSelect(optionNameLowerCase, value)}
                                  className={clsx(
-                                    'flex min-w-[18px] items-center justify-center border px-2 py-1 text-sm dark:border-neutral-800 dark:bg-neutral-900',
+                                    'flex h-10 min-h-[30px] w-10 min-w-[30px] items-center justify-center border px-1 py-1 text-sm dark:border-neutral-800 dark:bg-neutral-900',
                                     {
                                        'cursor-default ring-2 ring-blue-600': isActive,
                                        'ring-1 ring-transparent transition duration-300 ease-in-out hover:ring-blue-600':
