@@ -39,7 +39,12 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
    const filteredOptions = options.filter(
       (option) => !['spec', 'material'].includes(option.name.toLowerCase())
    );
-
+   // Ensure color option is always at the top
+   const sortedOptions = filteredOptions.sort((a, b) => {
+      if (a.name.toLowerCase() === 'color') return -1;
+      if (b.name.toLowerCase() === 'color') return 1;
+      return 0;
+   });
    if (
       !filteredOptions.length ||
       (filteredOptions.length === 1 && filteredOptions[0]?.values.length === 1)
@@ -173,7 +178,7 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
                                  }`}
                                  onClick={() => handleOptionSelect(optionNameLowerCase, value)}
                                  className={clsx(
-                                    'flex h-10 min-h-[30px] w-10 min-w-[30px] items-center justify-center border px-1 py-1 text-sm dark:border-neutral-800 dark:bg-neutral-900',
+                                    'flex h-10 min-h-[30px] w-10 min-w-[30px] items-center justify-center border px-2 py-1 text-sm dark:border-neutral-800 dark:bg-neutral-900',
                                     {
                                        'cursor-default ring-2 ring-blue-600': isActive,
                                        'ring-1 ring-transparent transition duration-300 ease-in-out hover:ring-blue-600':

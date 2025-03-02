@@ -6,7 +6,6 @@ import Price from 'components/price';
 import Prose from 'components/prose';
 import { Product } from 'lib/shopify/types';
 import { useState } from 'react';
-import JudgeMePreviewBadge from '../../components/judgeme/JudgeMeProductReview';
 import { ProductSpec } from './ProductSpec';
 import StretchabilitySection from './StretchabilitySection';
 import { VariantSelector } from './variant-selector';
@@ -40,16 +39,16 @@ export function ProductDescription({ product }: { product: Product }) {
    return (
       <>
          <div className="mx-auto flex flex-col justify-start border-b pb-6 dark:border-neutral-700 2xl:mx-auto">
-            <div className="mx-8 mt-4 text-start text-sm text-black dark:text-white">
+            <div className="mx-4 mt-2 text-start text-sm text-black dark:text-white">
                <div className="flex flex-col items-start justify-start">
-                  <h1 className="mb-4 flex justify-start text-start font-sans text-xl 2xl:text-3xl">
+                  <h1 className="mb-0 flex justify-start text-start font-sans text-xl md:mb-4 lg:mb-4 2xl:text-3xl">
                      {filteredTitle}
                   </h1>
-                  <JudgeMePreviewBadge
+                  {/* <JudgeMePreviewBadge
                      externalId={numericExternalId}
                      id={judgeMeId}
                      handle={product.handle}
-                  />
+                  /> */}
                   <div className="mr-auto w-auto pb-3 text-start text-lg text-black">
                      <Price
                         amount={product.priceRange.maxVariantPrice.amount}
