@@ -1,12 +1,12 @@
 'use client';
-
-import { dynamicMetaobjectId } from 'lib/helpers/metafieldHelpers';
+import { dynamicMetaobjectId, getSwatchMetaobjectId } from 'lib/helpers/metafieldHelpers';
 import Link from 'next/link';
 import Slider from 'react-slick';
 import 'slick-carousel/slick/slick-theme.css';
 import 'slick-carousel/slick/slick.css';
 import { Product } from '../lib/shopify/types';
 import { GridTileImage } from './grid/tile';
+import Label from './label';
 
 export interface CarouselData {
    products: Product[];
@@ -122,11 +122,6 @@ export function Carousel({ data }: CarouselProps) {
                      <div className="relative aspect-[2/3]">
                         <GridTileImage
                            alt={product.title}
-                           label={{
-                              title: product.title,
-                              amount: product.priceRange.maxVariantPrice.amount,
-                              currencyCode: product.priceRange.maxVariantPrice.currencyCode
-                           }}
                            src={product.featuredImage?.url}
                            secondarySrc={product.images[1]?.url}
                            fill
@@ -136,6 +131,22 @@ export function Carousel({ data }: CarouselProps) {
                            swatchFallbackColor={product.options
                               ?.find((o) => o.name.toLowerCase() === 'color')
                               ?.values[0]?.toLowerCase()}
+                        />
+                     </div>
+                     <div className="mt-2">
+                        <Label
+                           title={product.title}
+                           amount={product.priceRange.maxVariantPrice.amount}
+                           currencyCode={product.priceRange.maxVariantPrice.currencyCode}
+                           colorName={
+                              product.options?.find((o) => o.name.toLowerCase() === 'color')
+                                 ?.values[0]
+                           }
+                           metaobjectId={getSwatchMetaobjectId(product)}
+                           fallbackColor={product.options
+                              ?.find((o) => o.name.toLowerCase() === 'color')
+                              ?.values[0]?.toLowerCase()}
+                           position="bottom"
                         />
                      </div>
                   </Link>
