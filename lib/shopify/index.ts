@@ -347,6 +347,8 @@ export async function getCollectionProducts({
       return { products: [], pageInfo: { endCursor: null, hasNextPage: false } };
    }
    const productsData = res.body.data.collection.products as any; // cast to any to access pageInfo
+   console.log('Raw collection products response:::', res.body.data.collection.products);
+
    const pageInfo = productsData.pageInfo as { hasNextPage: boolean; endCursor: string | null };
 
    //  const productsData = res.body.data.collection.products;
