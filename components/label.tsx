@@ -33,12 +33,45 @@ const Label: React.FC<LabelProps> = ({
             'lg:px-20 lg:pb-[35%]': position === 'center'
          })}
       >
-         <div className="text-md mt-0 rounded-sm border bg-white/70 p-2 pt-0 font-semibold text-black backdrop-blur-md dark:border-neutral-800 dark:bg-black/70 dark:text-white">
+         <div className="text-md mt-0 bg-white/70 p-2 pt-0 font-semibold text-black backdrop-blur-md dark:border-neutral-800 dark:bg-black/70 dark:text-white">
             {/* Title and Price in one row */}
             <div className="mb-0 mt-0 flex items-center justify-between pb-0 pt-0 font-normal">
-               <h3 className="text-sm leading-none tracking-tight">{filteredTitle}</h3>
+               {/* <h3 className="leading-none tracking-tight md:text-sm">{filteredTitle}</h3> */}
+               <h3 className="font-light leading-none tracking-tight md:text-sm">
+                  {(() => {
+                     // Handle specific cases for 'North Hampton' and 'South Hampton'
+                     if (filteredTitle.startsWith('North Hampton')) {
+                        return (
+                           <>
+                              <span className="font-bold uppercase">North Hampton</span>{' '}
+                              {filteredTitle.replace('North Hampton', '').trim()}
+                           </>
+                        );
+                     }
+                     if (filteredTitle.startsWith('South Hampton')) {
+                        return (
+                           <>
+                              <span className="font-bold uppercase">South Hampton</span>{' '}
+                              {filteredTitle.replace('South Hampton', '').trim()}
+                           </>
+                        );
+                     }
+
+                     // Otherwise, split the title and apply styles
+                     const words = filteredTitle.split(' ');
+                     const firstWord = words[0];
+                     const restOfTitle = words.slice(1).join(' ');
+
+                     return (
+                        <>
+                           <span className="font-bold uppercase">{firstWord}</span> {restOfTitle}
+                        </>
+                     );
+                  })()}
+               </h3>
+
                <Price
-                  className="rounded-sm p-0 text-black"
+                  className="text-sm text-black"
                   amount={amount}
                   currencyCode={currencyCode}
                   currencyCodeClassName="hidden @[275px]/label:inline"
