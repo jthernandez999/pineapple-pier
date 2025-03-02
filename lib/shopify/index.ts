@@ -60,8 +60,8 @@ const key = process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN!;
 type ExtractVariables<T> = T extends { variables: object } ? T['variables'] : never;
 
 export async function shopifyFetch<T>({
-   // cache = 'force-cache',
-   cache = 'no-store',
+   cache = 'force-cache',
+   // cache = 'no-store',
    headers,
    query,
    tags,
@@ -339,11 +339,8 @@ export async function getCollectionProducts({
       handle: collection
    };
 
-   if (cursor !== undefined) {
-      variables.cursor = cursor;
-   }
+   // Only add sortKey and reverse if explicitly provided.
    if (sortKey !== undefined) {
-      // Convert 'CREATED_AT' to 'CREATED' if needed.
       variables.sortKey = sortKey === 'CREATED_AT' ? 'CREATED' : sortKey;
    }
    if (reverse !== undefined) {
