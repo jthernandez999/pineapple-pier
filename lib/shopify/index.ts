@@ -329,36 +329,27 @@ export async function getCollectionProducts({
    cursor?: string;
 }): Promise<{
    products: Product[];
-   pageInfo: {
-      endCursor: string | null;
-      hasNextPage: boolean;
-   };
+   pageInfo: { endCursor: string | null; hasNextPage: boolean };
 }> {
-   // Build variables object.
+   // Build variables object only with required parameters.
    const variables: { handle: string; cursor?: string; sortKey?: string; reverse?: boolean } = {
       handle: collection
    };
 
-   // For the "shop-new-arrivals" collection, omit sortKey and reverse so Shopify returns the default ordering.
-   if (collection !== 'shop-new-arrivals') {
-      if (sortKey !== undefined) {
-         // Optionally, map 'CREATED_AT' to 'CREATED'
-         variables.sortKey = sortKey === 'CREATED_AT' ? 'CREATED' : sortKey;
-      }
-      if (reverse !== undefined) {
-         variables.reverse = reverse;
-      }
-   } else {
-      // For new arrivals, don't include sortKey and reverse so Shopify's default ordering applies.
-      console.log('Using Shopify Admin default ordering for new arrivals');
+   // Only add sortKey and reverse if they're explicitly provided.
+   if (sortKey !== undefined) {
+      // If the provided sortKey is 'CREATED_AT', map it to Shopify's expected 'CREATED'
+      variables.sortKey = sortKey === 'CREATED_AT' ? 'CREATED' : sortKey;
    }
+   if (reverse !== undefined) {
+      variables.reverse = reverse;
+   }
+
+   console.log('Using variables:', variables);
 
    const res = await shopifyFetch<ShopifyCollectionProductsOperation>({
       query: getCollectionProductsQuery,
-      tags:
-         collection === 'shop-new-arrivals'
-            ? [TAGS.collections, TAGS.products]
-            : [TAGS.collections],
+      tags: [TAGS.collections, TAGS.products],
       variables
    });
 

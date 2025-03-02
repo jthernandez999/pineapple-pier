@@ -132,7 +132,7 @@ export default function HeroBanner({ banners, interval = 4000 }: BannerProps) {
 
                   <div className="bg-black/01 absolute inset-0"></div>
 
-                  <div className="relative z-10 p-4 text-center text-white">
+                  <div className="relative z-[65] p-4 text-center text-white">
                      {banner.title && (
                         <h2 className="text-xl font-bold md:text-3xl">{banner.title}</h2>
                      )}

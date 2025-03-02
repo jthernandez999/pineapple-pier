@@ -13,20 +13,16 @@ export const metadata = {
    }
 };
 
-// const data = await getCollectionProducts({ collection, sortKey, reverse });
-
 export default async function HomePage() {
-   const collection = 'whats-hot'; // or whichever collection you want to fetch
-   const sortKey = 'CREATED'; // or "TITLE", etc.
-   const reverse = false;
-   const data = await getCollectionProducts({ collection, sortKey, reverse });
+   const collection = 'whats-hot';
+   // Let Shopify return the default ordering by omitting sortKey and reverse:
+   const data = await getCollectionProducts({ collection });
    return (
       <>
          <HeroBanner banners={banners} interval={1100} />
          <ThreeImageCollections collectionImages={collectionImages} />
          <Carousel data={data} />
          <HighlightCollection highlightCollectionImages={highlightCollectionImages} />
-         {/* <ThreeItemGrid /> */}
          <Footer />
       </>
    );
