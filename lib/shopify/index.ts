@@ -60,7 +60,8 @@ const key = process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN!;
 type ExtractVariables<T> = T extends { variables: object } ? T['variables'] : never;
 
 export async function shopifyFetch<T>({
-   cache = 'force-cache',
+   // cache = 'force-cache',
+   cache = 'no-store',
    headers,
    query,
    tags,
@@ -73,6 +74,9 @@ export async function shopifyFetch<T>({
    variables?: ExtractVariables<T>;
 }): Promise<{ status: number; body: T } | never> {
    try {
+      console.log('Fetching collection products with variables:', variables);
+      console.log('Using cache tags:', tags);
+
       const result = await fetch(endpoint, {
          method: 'POST',
          headers: {
