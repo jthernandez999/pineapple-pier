@@ -11,9 +11,9 @@ import { cookies } from 'next/headers';
 import { ReactNode } from 'react';
 import { Toaster } from 'sonner';
 import JudgeMeIntegration from '../components/judgeme/JudgeMeIntegration';
-import { Navbar } from '../components/layout/navbar';
+import Navbar from '../components/layout/navbar';
+import NavbarScrollHandler from '../components/NavbarScrollHandler';
 import './globals.css';
-
 const { TWITTER_CREATOR, TWITTER_SITE, SITE_NAME } = process.env;
 const baseUrl = process.env.NEXT_PUBLIC_VERCEL_URL
    ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`
@@ -52,6 +52,8 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
             <AnnouncementBar />
             <CartProvider cartPromise={cart}>
                <Navbar />
+               <NavbarScrollHandler />
+
                <main>
                   {children}
                   <Toaster closeButton />
