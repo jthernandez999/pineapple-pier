@@ -10,7 +10,8 @@ const NavbarScrollHandler = () => {
 
       // Function to handle scroll and change classes
       const handleScroll = () => {
-         if (navElement) {
+         if (navElement && window.location.pathname === '/') {
+            // Only apply scroll behavior on homepage
             if (window.scrollY > navbarHeight) {
                // When scrolled past the threshold, add sticky and remove absolute
                navElement.classList.remove(
@@ -44,7 +45,7 @@ const NavbarScrollHandler = () => {
       };
    }, [navbarHeight]);
 
-   return <>{/* <AnimatedLogo /> */}</>;
+   return null; // This component doesn't render anything, it just handles the scroll behavior
 };
 
 export default NavbarScrollHandler;
