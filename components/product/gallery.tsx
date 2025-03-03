@@ -112,13 +112,13 @@ export function Gallery({ images }: { images: { src: string; altText: string }[]
       <form>
          <div className="relative mt-0 min-h-full w-full overflow-hidden pt-0">
             {effectiveImages.length === 0 ? (
-               <div className="p-4 text-center">
+               <div className="p-0 text-center">
                   <p>No images found for the selected color variant.</p>
                </div>
             ) : (
                <>
                   {/* Mobile Layout: Slider */}
-                  <div className="w-full md:hidden">
+                  <div className="top-0 mx-auto mt-0 h-full min-h-fit w-full pt-0 md:hidden">
                      <Slider
                         key={selectedColor}
                         ref={sliderRef}
@@ -131,13 +131,13 @@ export function Gallery({ images }: { images: { src: string; altText: string }[]
                         beforeChange={(oldIndex, newIndex) => setCurrentIndex(newIndex)}
                      >
                         {effectiveImages.map((img, idx) => (
-                           <div key={idx} className="relative h-screen w-full">
+                           <div key={idx} className="relative mt-0 h-[75vh] min-h-fit w-full pt-0">
                               <Image
                                  src={img.src}
                                  alt={img.altText}
                                  fill
                                  sizes="100vw"
-                                 className="object-cover"
+                                 className="aspect-[2/3] object-contain"
                                  unoptimized
                               />
                            </div>
