@@ -116,7 +116,7 @@ function ProductGridItemsComponent({ products, groupHandle }: ProductGridItemsPr
                            />
                         </div>
                         {/* Label rendered below the image */}
-                        <div className="mt-2">
+                        <div className="mt-0">
                            <Label
                               title={product.title}
                               amount={product.priceRange.maxVariantPrice.amount}
