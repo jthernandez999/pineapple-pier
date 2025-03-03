@@ -16,7 +16,7 @@ interface NavbarProps {
 
 export async function Navbar() {
    // This component is SSR because it fetches data on the server.
-   const menu: Menu[] = await getMenu('main-menu');
+   const menu: Menu[] = await getMenu('next-js-frontend-header-menu');
 
    return (
       // <nav className="sticky top-0 z-30 w-full border-gray-200 bg-white shadow-md dark:border-gray-600 dark:bg-gray-900">
