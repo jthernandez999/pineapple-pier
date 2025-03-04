@@ -7,11 +7,12 @@ const NavbarScrollHandler = () => {
 
    useEffect(() => {
       // Check if the current path is the homepage, collection page or product page
+      const navElement = document.querySelector('nav'); // Select the nav element
+      const desktopMenuId = document.getElementById('desktop-menu'); // ID of the desktop menu
+
       const isHomepage = window.location.pathname === '/';
       const isCollectionPage = window.location.pathname.includes('/collections/');
       const isProductPage = window.location.pathname.includes('/product/');
-      const navElement = document.querySelector('nav'); // Select the nav element
-      const desktopMenuId = document.getElementById('desktop-menu'); // ID of the desktop menu
 
       // Function to handle scroll and change classes
       const handleScroll = () => {
@@ -65,6 +66,13 @@ const NavbarScrollHandler = () => {
                }
             } else {
                // For all other pages, maintain sticky navbar without transition
+               navElement.classList.remove(
+                  'absolute',
+                  'lg:top-20',
+                  'top-10',
+                  'bg-transparent',
+                  'bg-opacity-0'
+               );
                navElement.classList.add(
                   'sticky',
                   'top-0',
@@ -73,13 +81,7 @@ const NavbarScrollHandler = () => {
                   'bg-opacity-100',
                   'transition-none'
                );
-               navElement.classList.remove(
-                  'absolute',
-                  'lg:top-20',
-                  'top-10',
-                  'bg-transparent',
-                  'bg-opacity-0'
-               );
+
                desktopMenuId.classList.remove('md:hidden');
                desktopMenuId.classList.add('md:block');
             }
@@ -88,6 +90,9 @@ const NavbarScrollHandler = () => {
 
       // Listen for scroll event
       window.addEventListener('scroll', handleScroll);
+
+      // Initial check for the navbar behavior on page load
+      handleScroll();
 
       // Cleanup the event listener when the component is unmounted
       return () => {
