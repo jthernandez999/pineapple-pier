@@ -12,13 +12,16 @@ export default function MobileMenu({ menu }: { menu: Menu[] }) {
    const pathname = usePathname();
    const searchParams = useSearchParams();
    const [isOpen, setIsOpen] = useState(false);
-   // openSubMenu will store the title of the menu item whose submenu is open.
+   // openSubMenu stores the title of the top-level menu item whose submenu is open.
    const [openSubMenu, setOpenSubMenu] = useState<string | null>(null);
+   // openSubSubMenu stores the title of the second-level menu item (within an open top-level submenu) whose submenu is open.
+   const [openSubSubMenu, setOpenSubSubMenu] = useState<string | null>(null);
 
    const openMobileMenu = () => setIsOpen(true);
    const closeMobileMenu = () => {
       setIsOpen(false);
       setOpenSubMenu(null);
+      setOpenSubSubMenu(null);
    };
 
    // Close mobile menu on resize if the viewport exceeds mobile size.
@@ -39,14 +42,61 @@ export default function MobileMenu({ menu }: { menu: Menu[] }) {
 
    // Handle clicking on a top-level menu item.
    const handleTopLevelClick = (item: Menu) => {
-      // If there are sub-items, toggle the submenu.
       if (item.items && item.items.length > 0) {
+         // Toggle the top-level submenu and reset any open second-level submenu.
          setOpenSubMenu((prev) => (prev === item.title ? null : item.title));
+         setOpenSubSubMenu(null);
       } else {
-         // Otherwise, close the menu and navigate.
          closeMobileMenu();
       }
    };
+
+   // Handle clicking on a second-level submenu item.
+   const handleSubMenuClick = (subItem: Menu) => {
+      if (subItem.items && subItem.items.length > 0) {
+         setOpenSubSubMenu((prev) => (prev === subItem.title ? null : subItem.title));
+      } else {
+         closeMobileMenu();
+      }
+   };
+
+   // SVG icons for plus and minus indicators.
+   const MinusIcon = (
+      <svg className="h-6 w-6" viewBox="0 0 24 24">
+         <line
+            x1="5"
+            y1="12"
+            x2="19"
+            y2="12"
+            stroke="currentColor"
+            strokeWidth=".75"
+            strokeLinecap="round"
+         />
+      </svg>
+   );
+
+   const PlusIcon = (
+      <svg className="h-6 w-6" viewBox="0 0 24 24">
+         <line
+            x1="12"
+            y1="5"
+            x2="12"
+            y2="19"
+            stroke="currentColor"
+            strokeWidth=".75"
+            strokeLinecap="round"
+         />
+         <line
+            x1="5"
+            y1="12"
+            x2="19"
+            y2="12"
+            stroke="currentColor"
+            strokeWidth=".75"
+            strokeLinecap="round"
+         />
+      </svg>
+   );
 
    return (
       <>
@@ -107,52 +157,54 @@ export default function MobileMenu({ menu }: { menu: Menu[] }) {
                                              className="flex w-full items-center justify-between"
                                           >
                                              <span>{item.title}</span>
-                                             {openSubMenu === item.title ? (
-                                                <svg className="h-6 w-6" viewBox="0 0 24 24">
-                                                   <line
-                                                      x1="5"
-                                                      y1="12"
-                                                      x2="19"
-                                                      y2="12"
-                                                      stroke="currentColor"
-                                                      strokeWidth=".75"
-                                                      strokeLinecap="round"
-                                                   />
-                                                </svg>
-                                             ) : (
-                                                <svg className="h-6 w-6" viewBox="0 0 24 24">
-                                                   <line
-                                                      x1="12"
-                                                      y1="5"
-                                                      x2="12"
-                                                      y2="19"
-                                                      stroke="currentColor"
-                                                      strokeWidth=".75"
-                                                      strokeLinecap="round"
-                                                   />
-                                                   <line
-                                                      x1="5"
-                                                      y1="12"
-                                                      x2="19"
-                                                      y2="12"
-                                                      stroke="currentColor"
-                                                      strokeWidth=".75"
-                                                      strokeLinecap="round"
-                                                   />
-                                                </svg>
-                                             )}
+                                             {openSubMenu === item.title ? MinusIcon : PlusIcon}
                                           </button>
                                           {openSubMenu === item.title && (
                                              <ul className="ml-4 mt-2 flex flex-col space-y-2">
                                                 {item.items.map((subItem) => (
                                                    <li key={subItem.title}>
-                                                      <Link
-                                                         href={subItem.path}
-                                                         onClick={closeMobileMenu}
-                                                         className="text-md block font-semibold text-gray-700 hover:text-gray-900"
-                                                      >
-                                                         {subItem.title}
-                                                      </Link>
+                                                      {subItem.items && subItem.items.length > 0 ? (
+                                                         <>
+                                                            <button
+                                                               onClick={() =>
+                                                                  handleSubMenuClick(subItem)
+                                                               }
+                                                               className="flex w-full items-center justify-between"
+                                                            >
+                                                               <span>{subItem.title}</span>
+                                                               {openSubSubMenu === subItem.title
+                                                                  ? MinusIcon
+                                                                  : PlusIcon}
+                                                            </button>
+                                                            {openSubSubMenu === subItem.title && (
+                                                               <ul className="ml-4 mt-2 flex flex-col space-y-2">
+                                                                  {subItem.items.map(
+                                                                     (subSubItem) => (
+                                                                        <li key={subSubItem.title}>
+                                                                           <Link
+                                                                              href={subSubItem.path}
+                                                                              onClick={
+                                                                                 closeMobileMenu
+                                                                              }
+                                                                              className="text-md block font-semibold text-gray-700 hover:text-gray-900"
+                                                                           >
+                                                                              {subSubItem.title}
+                                                                           </Link>
+                                                                        </li>
+                                                                     )
+                                                                  )}
+                                                               </ul>
+                                                            )}
+                                                         </>
+                                                      ) : (
+                                                         <Link
+                                                            href={subItem.path}
+                                                            onClick={closeMobileMenu}
+                                                            className="text-md block font-semibold text-gray-700 hover:text-gray-900"
+                                                         >
+                                                            {subItem.title}
+                                                         </Link>
+                                                      )}
                                                    </li>
                                                 ))}
                                              </ul>
