@@ -20,6 +20,32 @@ export function flattenMetafields(product: any): Metafield[] {
    }
    return [];
 }
+export async function fetchMetaobjectData(metaobjectId: string) {
+   const query = `
+     query GetMetaobject($id: ID!) {
+       metaobject(id: $id) {
+         id
+         type
+         fields {
+           key
+           value
+         }
+       }
+     }
+   `;
+   const variables = { id: metaobjectId };
+   const res = await fetch(process.env.NEXT_PUBLIC_SHOPIFY_GRAPHQL_ENDPOINT || '', {
+      method: 'POST',
+      headers: {
+         'Content-Type': 'application/json',
+         'X-Shopify-Storefront-Access-Token': process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_TOKEN || ''
+      },
+      body: JSON.stringify({ query, variables })
+   });
+   const json = await res.json();
+   console.log('Metaobject data:', json.data.metaobject);
+   return json.data.metaobject;
+}
 
 /**
  * getSwatchMetaobjectId
@@ -30,7 +56,11 @@ export function flattenMetafields(product: any): Metafield[] {
  */
 export function getSwatchMetaobjectId(product: any): string | undefined {
    const metafields = flattenMetafields(product);
-   const found = metafields.find((mf: Metafield) => mf.key === 'color-pattern');
+   // First try to find the metafield for color-pattern; if not found, try product_groups.
+   let found = metafields.find((mf: Metafield) => mf.key === 'color-pattern');
+   if (!found) {
+      found = metafields.find((mf: Metafield) => mf.key === 'product_groups');
+   }
    if (found && found.value) {
       try {
          const metaobjectIds: string[] = JSON.parse(found.value);
@@ -38,6 +68,23 @@ export function getSwatchMetaobjectId(product: any): string | undefined {
             `getSwatchMetaobjectId: For product ${product.handle} - parsed metaobject IDs:`,
             metaobjectIds
          );
+         // Fire-and-forget: fetch and log the full metaobject data for each metaobjectId
+         metaobjectIds.forEach((metaobjectId) => {
+            fetchMetaobjectData(metaobjectId)
+               .then((meta) => {
+                  if (meta && meta.fields) {
+                     // console.log(
+                     //    `Metaobject ${meta.id} fields:`,
+                     //    JSON.stringify(meta.fields, null, 2)
+                     // );
+                     // Alternatively, you could use
+                     console.table(meta.fields);
+                  }
+               })
+               .catch((error) =>
+                  console.error(`Error fetching metaobject data for ${metaobjectId}:`, error)
+               );
+         });
          if (Array.isArray(metaobjectIds) && metaobjectIds.length > 0) {
             return metaobjectIds[0];
          }
@@ -79,6 +126,7 @@ export async function getProductGroupMetaobjectId(product: any): Promise<string 
             console.log(
                `getProductGroupMetaobjectId: Querying Shopify API for metaobjectId: ${metaobjectId}`
             );
+            console.log(`Metafields for product ${product.handle}:`, product.metafields);
 
             // GraphQL query to get the metaobject details
             const query = `
@@ -148,17 +196,13 @@ const SHOPIFY_STOREFRONT_TOKEN = process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_TOKE
 export async function getProductGroupMetaobjectData(
    product: any
 ): Promise<{ id: string; label: string } | undefined> {
-   // Gather raw metafields from product.metafield (singular) or product.metafields (array)
+   // Gather candidate metaobject IDs from the product’s metafields.
    const rawMetafields = product.metafield ? [product.metafield] : product.metafields || [];
    console.log(`Product (${product.handle}) raw metafields:`, JSON.stringify(rawMetafields));
 
-   // We'll collect all candidate metaobject IDs from all metafields.
    const candidateIds: string[] = [];
-
-   // Iterate over each raw metafield and try to parse its value.
    for (const mf of rawMetafields) {
       try {
-         // Expecting the value to be a JSON string representing an array of metaobject IDs.
          const ids: string[] = JSON.parse(mf.value);
          console.log(`Parsed IDs from metafield for product ${product.handle}:`, ids);
          candidateIds.push(...ids);
@@ -166,30 +210,28 @@ export async function getProductGroupMetaobjectData(
          console.error(`Error parsing metafield value for product ${product.handle}:`, error);
       }
    }
-
    if (candidateIds.length === 0) {
       console.log(`No metaobject IDs found for product ${product.handle}`);
       return undefined;
    }
-
    console.log(`Candidate metaobject IDs for product ${product.handle}:`, candidateIds);
 
-   // Now, query Shopify for each candidate metaobject and filter for type "product_groups"
+   // Query Shopify for each candidate metaobject.
    const candidates = await Promise.all(
       candidateIds.map(async (id) => {
          console.log(`Querying Shopify API for metaobjectId: ${id}`);
          const query = `
-        query GetMetaobject($id: ID!) {
-          metaobject(id: $id) {
-            id
-            type
-            fields {
-              key
-              value
-            }
-          }
-        }
-      `;
+         query GetMetaobject($id: ID!) {
+           metaobject(id: $id) {
+             id
+             type
+             fields {
+               key
+               value
+             }
+           }
+         }
+       `;
          const variables = { id };
          console.log('Sending query with variables:', variables);
          try {
@@ -202,7 +244,8 @@ export async function getProductGroupMetaobjectData(
                body: JSON.stringify({ query, variables })
             });
             const data = await res.json();
-            console.log(`Shopify API response for metaobjectId ${id}:`, JSON.stringify(data));
+            // Log the full metaobject response
+            console.log(`Metaobject data for ${id}:`, data);
             if (!data.data) {
                console.error(`No data returned for metaobjectId ${id}`, data);
                return undefined;
@@ -212,8 +255,9 @@ export async function getProductGroupMetaobjectData(
                console.error(`No metaobject found for ID: ${id}`);
                return undefined;
             }
-            // Check if the metaobject's type is "product_groups"
+            // Check if this metaobject is of type "product_groups"
             if (metaobject.type === 'product_groups') {
+               console.log(`Metaobject fields for ${id}:`, metaobject.fields);
                const parsedFields =
                   metaobject.fields?.reduce(
                      (acc: Record<string, string>, field: any) => {
@@ -222,7 +266,6 @@ export async function getProductGroupMetaobjectData(
                      },
                      {} as Record<string, string>
                   ) || {};
-               console.log(`Metaobject fields for ID ${id}:`, parsedFields);
                const label: string = parsedFields.label || metaobject.id || 'Unknown';
                return { id, label };
             } else {
@@ -236,7 +279,6 @@ export async function getProductGroupMetaobjectData(
       })
    );
 
-   // Filter out undefined candidates.
    const validCandidates = candidates.filter((c) => c !== undefined) as {
       id: string;
       label: string;
@@ -251,3 +293,110 @@ export async function getProductGroupMetaobjectData(
       return undefined;
    }
 }
+
+// export async function getProductGroupMetaobjectData(
+//    product: any
+// ): Promise<{ id: string; label: string } | undefined> {
+//    // Gather raw metafields from product.metafield (singular) or product.metafields (array)
+//    const rawMetafields = product.metafield ? [product.metafield] : product.metafields || [];
+//    console.log(`Product (${product.handle}) raw metafields:`, JSON.stringify(rawMetafields));
+
+//    // We'll collect all candidate metaobject IDs from all metafields.
+//    const candidateIds: string[] = [];
+
+//    // Iterate over each raw metafield and try to parse its value.
+//    for (const mf of rawMetafields) {
+//       try {
+//          // Expecting the value to be a JSON string representing an array of metaobject IDs.
+//          const ids: string[] = JSON.parse(mf.value);
+//          console.log(`Parsed IDs from metafield for product ${product.handle}:`, ids);
+//          candidateIds.push(...ids);
+//       } catch (error) {
+//          console.error(`Error parsing metafield value for product ${product.handle}:`, error);
+//       }
+//    }
+
+//    if (candidateIds.length === 0) {
+//       console.log(`No metaobject IDs found for product ${product.handle}`);
+//       return undefined;
+//    }
+
+//    console.log(`Candidate metaobject IDs for product ${product.handle}:`, candidateIds);
+
+//    // Now, query Shopify for each candidate metaobject and filter for type "product_groups"
+//    const candidates = await Promise.all(
+//       candidateIds.map(async (id) => {
+//          console.log(`Querying Shopify API for metaobjectId: ${id}`);
+//          const query = `
+//         query GetMetaobject($id: ID!) {
+//           metaobject(id: $id) {
+//             id
+//             type
+//             fields {
+//               key
+//               value
+//             }
+//           }
+//         }
+//       `;
+//          const variables = { id };
+//          console.log('Sending query with variables:', variables);
+//          try {
+//             const res = await fetch(SHOPIFY_ENDPOINT, {
+//                method: 'POST',
+//                headers: {
+//                   'Content-Type': 'application/json',
+//                   'X-Shopify-Storefront-Access-Token': SHOPIFY_STOREFRONT_TOKEN
+//                },
+//                body: JSON.stringify({ query, variables })
+//             });
+//             const data = await res.json();
+//             console.log(`Shopify API response for metaobjectId ${id}:`, JSON.stringify(data));
+//             if (!data.data) {
+//                console.error(`No data returned for metaobjectId ${id}`, data);
+//                return undefined;
+//             }
+//             const metaobject = data.data.metaobject;
+//             if (!metaobject) {
+//                console.error(`No metaobject found for ID: ${id}`);
+//                return undefined;
+//             }
+//             // Check if the metaobject's type is "product_groups"
+//             if (metaobject.type === 'product_groups') {
+//                const parsedFields =
+//                   metaobject.fields?.reduce(
+//                      (acc: Record<string, string>, field: any) => {
+//                         acc[field.key] = field.value;
+//                         return acc;
+//                      },
+//                      {} as Record<string, string>
+//                   ) || {};
+//                console.log(`Metaobject fields for ID ${id}:`, parsedFields);
+//                const label: string = parsedFields.label || metaobject.id || 'Unknown';
+//                return { id, label };
+//             } else {
+//                console.log(`Metaobject ID ${id} is of type "${metaobject.type}", skipping.`);
+//                return undefined;
+//             }
+//          } catch (error) {
+//             console.error(`Error querying metaobject for ID ${id}:`, error);
+//             return undefined;
+//          }
+//       })
+//    );
+
+//    // Filter out undefined candidates.
+//    const validCandidates = candidates.filter((c) => c !== undefined) as {
+//       id: string;
+//       label: string;
+//    }[];
+//    console.log(`Valid candidates for product ${product.handle}:`, validCandidates);
+
+//    if (validCandidates.length > 0) {
+//       // Return the first candidate (or adjust your selection logic as needed).
+//       return validCandidates[0];
+//    } else {
+//       console.log(`No metaobject of type "product_groups" found for product ${product.handle}`);
+//       return undefined;
+//    }
+// }

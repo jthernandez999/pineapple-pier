@@ -31,7 +31,7 @@ interface VariantSelectorProps {
  * We then provide a fallback (the lowercased option value) if undefined.
  */
 export function VariantSelector({ options, variants, product }: VariantSelectorProps) {
-   console.log('VariantSelector product:', product);
+   // console.log('VariantSelector product::::', product?.metafield?.value);
 
    const { state, updateProductState } = useProduct();
    const updateURL = useUpdateURL();

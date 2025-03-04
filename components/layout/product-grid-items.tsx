@@ -1,12 +1,12 @@
 'use client';
 import Grid from 'components/grid';
 import { GridTileImage } from 'components/grid/tile';
+import Label from 'components/label';
+import ProductGroupsDisplay from 'components/product/ProductGroupsDisplay';
 import { getSwatchMetaobjectId } from 'lib/helpers/metafieldHelpers';
 import { Product } from 'lib/shopify/types';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
-import Label from '../../components/label';
-import ProductGroupsDisplay from '../../components/product/ProductGroupsDisplay';
 
 interface ProductGridItemsProps {
    products: Product[];
@@ -21,14 +21,12 @@ function ProductGridItemsComponent({ products, groupHandle }: ProductGridItemsPr
    products.forEach((product) => {
       const metaobjectId = getSwatchMetaobjectId(product);
       if (metaobjectId) {
-         if (!groupsMap[metaobjectId]) {
-            groupsMap[metaobjectId] = [];
-         }
+         groupsMap[metaobjectId] = groupsMap[metaobjectId] || [];
          groupsMap[metaobjectId].push(product);
       }
    });
 
-   // Fetch metaobject details for each group only once.
+   // Fetch metaobject details for each group.
    useEffect(() => {
       async function fetchMetaobjects() {
          const groupKeys = Object.keys(groupsMap);
@@ -66,9 +64,7 @@ function ProductGridItemsComponent({ products, groupHandle }: ProductGridItemsPr
 
    function flattenImages(images: any): any[] {
       if (!images) return [];
-      // If already an array, return as is.
       if (Array.isArray(images)) return images;
-      // If it's an object with an 'edges' array, map to nodes.
       if (images.edges) {
          return images.edges.map((edge: any) => edge.node);
       }
@@ -82,7 +78,6 @@ function ProductGridItemsComponent({ products, groupHandle }: ProductGridItemsPr
                const nameField = metaobject.fields.find((f: any) => f.key === 'name');
                const groupTitleFromMeta = nameField ? nameField.value : groupKey;
                const groupProducts: Product[] = groupsMap[groupKey] || [];
-
                return (
                   <ProductGroupsDisplay
                      key={groupKey}
@@ -101,7 +96,6 @@ function ProductGridItemsComponent({ products, groupHandle }: ProductGridItemsPr
                         prefetch={true}
                         className="flex h-full w-full flex-col"
                      >
-                        {/* Image container with fixed aspect ratio */}
                         <div className="relative aspect-[2/3] w-full">
                            <GridTileImage
                               alt={product.title}
@@ -115,7 +109,6 @@ function ProductGridItemsComponent({ products, groupHandle }: ProductGridItemsPr
                                  ?.values[0]?.toLowerCase()}
                            />
                         </div>
-                        {/* Label rendered below the image */}
                         <div className="mt-0">
                            <Label
                               title={product.title}

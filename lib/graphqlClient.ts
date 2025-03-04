@@ -11,13 +11,11 @@ export async function graphQLClient(query: string, variables: any) {
    });
 
    if (!res.ok) {
-      // Handle HTTP errors
       throw new Error(`HTTP error: ${res.statusText}`);
    }
 
    const json = await res.json();
    if (json.errors) {
-      // Handle GraphQL errors
       throw new Error(`GraphQL error: ${JSON.stringify(json.errors)}`);
    }
    return json.data;
