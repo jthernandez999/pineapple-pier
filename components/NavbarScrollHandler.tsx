@@ -8,8 +8,8 @@ const NavbarScrollHandler = () => {
    useEffect(() => {
       // Check if the current path is the homepage, collection page or product page
       const isHomepage = window.location.pathname === '/';
-      const isCollectionPage = window.location.pathname.startsWith('/collections/');
-      const isProductPage = window.location.pathname.startsWith('/product/');
+      const isCollectionPage = window.location.pathname.includes('/collections/');
+      const isProductPage = window.location.pathname.includes('/product/');
       const navElement = document.querySelector('nav'); // Select the nav element
       const desktopMenuId = document.getElementById('desktop-menu'); // ID of the desktop menu
 
