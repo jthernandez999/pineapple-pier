@@ -1,7 +1,7 @@
 'use client';
 
 import { Dialog, Transition } from '@headlessui/react';
-import { Bars3Icon, ChevronDownIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import { Menu } from 'lib/shopify/types';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
@@ -107,11 +107,40 @@ export default function MobileMenu({ menu }: { menu: Menu[] }) {
                                              className="flex w-full items-center justify-between"
                                           >
                                              <span>{item.title}</span>
-                                             <ChevronDownIcon
-                                                className={`h-5 w-5 transition-transform ${
-                                                   openSubMenu === item.title ? 'rotate-180' : ''
-                                                }`}
-                                             />
+                                             {openSubMenu === item.title ? (
+                                                <svg className="h-6 w-6" viewBox="0 0 24 24">
+                                                   <line
+                                                      x1="5"
+                                                      y1="12"
+                                                      x2="19"
+                                                      y2="12"
+                                                      stroke="currentColor"
+                                                      strokeWidth=".75"
+                                                      strokeLinecap="round"
+                                                   />
+                                                </svg>
+                                             ) : (
+                                                <svg className="h-6 w-6" viewBox="0 0 24 24">
+                                                   <line
+                                                      x1="12"
+                                                      y1="5"
+                                                      x2="12"
+                                                      y2="19"
+                                                      stroke="currentColor"
+                                                      strokeWidth=".75"
+                                                      strokeLinecap="round"
+                                                   />
+                                                   <line
+                                                      x1="5"
+                                                      y1="12"
+                                                      x2="19"
+                                                      y2="12"
+                                                      stroke="currentColor"
+                                                      strokeWidth=".75"
+                                                      strokeLinecap="round"
+                                                   />
+                                                </svg>
+                                             )}
                                           </button>
                                           {openSubMenu === item.title && (
                                              <ul className="ml-4 mt-2 flex flex-col space-y-2">
