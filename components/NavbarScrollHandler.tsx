@@ -13,12 +13,13 @@ const NavbarScrollHandler = () => {
       const isHomepage = window.location.pathname === '/';
       const isCollectionPage = window.location.pathname.includes('/collections/');
       const isProductPage = window.location.pathname.includes('/product/');
+      const isSearchPage = window.location.pathname.includes('/search');
 
       // Function to handle scroll and change classes
       const handleScroll = () => {
          const navbarHeight = 104; // Adjust based on your navbar's height
          if (navElement && desktopMenuId && window.location.pathname === '/') {
-            if (isHomepage && !isCollectionPage && !isProductPage) {
+            if (isHomepage && !isCollectionPage && !isProductPage && !isSearchPage) {
                // Only apply scroll behavior on homepage
                if (window.scrollY > navbarHeight) {
                   // When scrolled past the threshold, add sticky and remove absolute
