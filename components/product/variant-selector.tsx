@@ -32,7 +32,7 @@ interface VariantSelectorProps {
  */
 export function VariantSelector({ options, variants, product }: VariantSelectorProps) {
    // console.log('VariantSelector product::::', product?.metafield?.value);
-
+   console.log('VariantSelector product::::', product);
    const { state, updateProductState } = useProduct();
    const updateURL = useUpdateURL();
 

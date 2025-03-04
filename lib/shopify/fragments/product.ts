@@ -1,6 +1,7 @@
 import imageFragment from './image';
 import seoFragment from './seo';
 import videoFragment from './video';
+
 const productFragment = /* GraphQL */ `
    fragment product on Product {
       id
@@ -66,6 +67,9 @@ const productFragment = /* GraphQL */ `
       tags
       updatedAt
       metafield(namespace: "shopify", key: "color-pattern") {
+         value
+      }
+      parentGroups: metafield(namespace: "custom", key: "parent_groups") {
          value
       }
       collections(first: 10) {
