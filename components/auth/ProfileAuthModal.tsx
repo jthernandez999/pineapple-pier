@@ -1,9 +1,8 @@
-// components/auth/ProfileAuthModal.tsx
 'use client';
-
+import { UserIcon as OutlineUserIcon } from '@heroicons/react/24/outline';
+import { UserIcon as SolidUserIcon } from '@heroicons/react/24/solid';
 import clsx from 'clsx';
 import RegisterForm from 'components/auth/RegisterForm';
-import { UserIcon } from 'components/auth/user-icon';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -90,12 +89,15 @@ export default function ProfileAuthModal() {
          {/* Profile icon trigger */}
          <div onClick={handleIconClick} className="cursor-pointer">
             {user ? (
-               <div className="gap flex items-center text-xs md:text-sm">
-                  {/* <UserIcon /> */}
-                  <span>Account</span>
+               // Render the filled (solid) icon for logged in users.
+               <div className="h-4 w-4 md:h-6 md:w-6">
+                  <SolidUserIcon className="h-full w-full" />
                </div>
             ) : (
-               <UserIcon />
+               // Render the outline icon for guests.
+               <div className="h-4 w-4 md:h-6 md:w-6">
+                  <OutlineUserIcon className="h-full w-full" />
+               </div>
             )}
          </div>
 
