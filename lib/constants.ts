@@ -1,24 +1,46 @@
 export type SortFilterItem = {
    title: string;
    slug: string | null;
-   sortKey: 'CREATED_AT' | 'RELEVANCE' | 'BEST_SELLING' | 'PRICE';
+   sortKey: 'CREATED' | 'RELEVANCE' | 'BEST_SELLING' | 'PRICE';
    reverse: boolean;
 };
 
 export const defaultSort: SortFilterItem = {
    title: 'Relevance',
    slug: null,
-   sortKey: 'CREATED_AT',
+   sortKey: 'CREATED', // Changed from 'CREATED_AT' to 'CREATED'
    reverse: true
 };
 
 export const sorting: SortFilterItem[] = [
    defaultSort,
-   { title: 'Trending', slug: 'trending-desc', sortKey: 'BEST_SELLING', reverse: false }, // asc
-   { title: 'Latest arrivals', slug: 'latest-desc', sortKey: 'CREATED_AT', reverse: true },
-   { title: 'Price: Low to high', slug: 'price-asc', sortKey: 'PRICE', reverse: false }, // asc
+   { title: 'Trending', slug: 'trending-desc', sortKey: 'BEST_SELLING', reverse: false },
+   { title: 'Latest arrivals', slug: 'latest-desc', sortKey: 'CREATED', reverse: true },
+   { title: 'Price: Low to high', slug: 'price-asc', sortKey: 'PRICE', reverse: false },
    { title: 'Price: High to low', slug: 'price-desc', sortKey: 'PRICE', reverse: true }
 ];
+
+// export type SortFilterItem = {
+//    title: string;
+//    slug: string | null;
+//    sortKey: 'CREATED_AT' | 'RELEVANCE' | 'BEST_SELLING' | 'PRICE';
+//    reverse: boolean;
+// };
+
+// export const defaultSort: SortFilterItem = {
+//    title: 'Relevance',
+//    slug: null,
+//    sortKey: 'CREATED_AT',
+//    reverse: true
+// };
+
+// export const sorting: SortFilterItem[] = [
+//    defaultSort,
+//    { title: 'Trending', slug: 'trending-desc', sortKey: 'BEST_SELLING', reverse: false }, // asc
+//    { title: 'Latest arrivals', slug: 'latest-desc', sortKey: 'CREATED_AT', reverse: true },
+//    { title: 'Price: Low to high', slug: 'price-asc', sortKey: 'PRICE', reverse: false }, // asc
+//    { title: 'Price: High to low', slug: 'price-desc', sortKey: 'PRICE', reverse: true }
+// ];
 
 export const TAGS = {
    collections: 'collections',

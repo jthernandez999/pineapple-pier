@@ -1,9 +1,10 @@
 'use client';
 
+import { ProductGridItems } from 'components/layout/product-grid-items';
+import { getCollectionProductsQuery } from 'lib/shopify/queries/collection';
 import { Product } from 'lib/shopify/types';
 import { Suspense, useCallback, useState } from 'react';
-import { ProductGridItems } from '../components/layout/product-grid-items'; // Now a client component.
-import { getCollectionProductsQuery } from '../lib/shopify/queries/collection';
+
 interface InfiniteScrollProductGridProps {
    initialProducts: Product[];
    initialPageInfo: {
@@ -27,39 +28,26 @@ export default function InfiniteScrollProductGrid({
    const [hasNextPage, setHasNextPage] = useState(initialPageInfo.hasNextPage);
    const [isLoading, setIsLoading] = useState(false);
 
-   function flattenImages(images: any): any[] {
-      if (!images) return [];
-      // If it's already an array, return as is.
-      if (Array.isArray(images)) return images;
-      // If it's an object with an `edges` array, map to nodes.
-      if (images.edges) {
-         return images.edges.map((edge: any) => edge.node);
-      }
-      return [];
-   }
-
    const loadMoreProducts = useCallback(async () => {
       if (!hasNextPage || isLoading) return;
       setIsLoading(true);
       console.log('Load More triggered. Current cursor:', cursor);
 
-      const variables: any = {
+      const variables = {
          handle: collectionHandle,
          sortKey,
-         reverse
+         reverse,
+         cursor: cursor ?? undefined
       };
-      if (cursor) variables.cursor = cursor;
 
       try {
-         const res = await fetch(process.env.NEXT_PUBLIC_SHOPIFY_GRAPHQL_ENDPOINT || '', {
+         // Call our API route instead of the Shopify endpoint directly.
+         const res = await fetch('/api/collection-products', {
             method: 'POST',
-            headers: {
-               'Content-Type': 'application/json',
-               'X-Shopify-Storefront-Access-Token':
-                  process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_TOKEN || ''
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ query: getCollectionProductsQuery, variables })
          });
+
          const json = await res.json();
          console.log('Fetch response:', json);
 
@@ -76,7 +64,6 @@ export default function InfiniteScrollProductGrid({
             setHasNextPage(false);
          } else {
             const newProducts = newEdges.map((edge: any) => edge.node);
-            console.log('NEW PRODUCTS!!!!!!!!!!!!', newProducts);
             setProducts((prev) => [...prev, ...newProducts]);
             const pageInfo = json.data.collection.products.pageInfo;
             setCursor(pageInfo.endCursor);
