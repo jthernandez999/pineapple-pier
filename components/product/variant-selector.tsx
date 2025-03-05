@@ -64,7 +64,6 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
          {}
       )
    }));
-   console.log('PROUDCT::::', product);
 
    useEffect(() => {
       const defaults: Partial<ProductState> = {};
