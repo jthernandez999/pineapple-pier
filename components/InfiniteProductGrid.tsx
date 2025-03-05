@@ -39,7 +39,7 @@ export default function InfiniteScrollProductGrid({
          reverse,
          cursor: cursor ?? undefined
       };
-
+      console.log('VARIABLES::::::', variables);
       try {
          // Call our API route instead of the Shopify endpoint directly.
          const res = await fetch('/api/collection-products', {

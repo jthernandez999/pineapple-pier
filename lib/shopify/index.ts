@@ -562,6 +562,43 @@ export async function getProducts({
    return reshapeProducts(removeEdgesAndNodes(res.body.data.products));
 }
 
+// New function that returns both products and pagination info.
+
+export async function getProductsWithPagination({
+   query,
+   reverse,
+   sortKey
+}: {
+   query?: string;
+   reverse?: boolean;
+   sortKey?: string;
+}): Promise<{
+   products: Product[];
+   pageInfo: { endCursor: string | null; hasNextPage: boolean };
+}> {
+   // Here we explicitly tell TypeScript that our variables object is of type:
+   const variables: { query?: string; reverse?: boolean; sortKey?: string } = {
+      query,
+      reverse,
+      sortKey
+   };
+
+   // We also cast the response body once received.
+   const res = await shopifyFetch<ShopifyProductsOperation>({
+      query: getProductsQuery,
+      tags: [TAGS.products],
+      variables // ensure your shopifyFetch type allows a variables object of this shape
+   });
+   // Here we tell TypeScript that res.body is of type ShopifyProductsOperation.
+   const body = res.body as ShopifyProductsOperation;
+
+   const productsData = body.products;
+   const products = reshapeProducts(removeEdgesAndNodes(productsData));
+   const pageInfo = productsData.pageInfo;
+
+   return { products, pageInfo };
+}
+
 // This is called from `app/api/revalidate.ts` so providers can control revalidation logic.
 export async function revalidate(req: NextRequest): Promise<NextResponse> {
    // We always need to respond with a 200 status code to Shopify,

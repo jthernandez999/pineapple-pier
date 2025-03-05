@@ -193,6 +193,8 @@ export type ShopifyProduct = {
    tags: string[];
    updatedAt: string;
    metafields?: Metafield[];
+   edges?: { node: any }[];
+   pageInfo?: { endCursor: string; hasNextPage: boolean };
 };
 
 // export interface ShopifyProductConnection {
@@ -282,10 +284,13 @@ export type ShopifyCollectionOperation = {
 
 export type ShopifyCollectionProductsOperation = {
    data: {
+      product?: ShopifyProduct;
       collection: {
          products: Connection<ShopifyProduct>;
       };
+      products?: Connection<ShopifyProduct>;
    };
+
    variables: {
       handle: string;
       reverse?: boolean;
@@ -341,6 +346,7 @@ export type ShopifyProductRecommendationsOperation = {
 };
 
 export type ShopifyProductsOperation = {
+   products: any;
    data: {
       products: Connection<ShopifyProduct>;
    };

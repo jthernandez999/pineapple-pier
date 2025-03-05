@@ -1,5 +1,5 @@
 import Grid from 'components/grid';
-import { ProductGridItems } from 'components/layout/product-grid-items';
+import InfiniteScrollProductGrid from 'components/InfiniteProductGrid';
 import { defaultSort, sorting } from 'lib/constants';
 import { getProducts } from 'lib/shopify';
 
@@ -30,7 +30,13 @@ export default async function SearchPage(props: {
          ) : null}
          {products.length > 0 ? (
             <Grid className="m-auto w-full">
-               <ProductGridItems products={products} />
+               <InfiniteScrollProductGrid
+                  initialProducts={products}
+                  initialPageInfo={{ endCursor: null, hasNextPage: false }}
+                  collectionHandle="search"
+                  sortKey={sortKey}
+                  reverse={reverse}
+               />
             </Grid>
          ) : null}
       </>
