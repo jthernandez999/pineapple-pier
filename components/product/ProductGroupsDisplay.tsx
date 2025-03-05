@@ -1,13 +1,22 @@
+// components/product/ProductGroupsDisplay.tsx
 'use client';
-import { ParentProduct, ProductGroupsDisplayProps } from 'lib/shopify/types';
+
+import { ColorSwatch } from 'components/ColorSwatch';
+import { getColorPatternMetaobjectId } from 'lib/helpers/metafieldHelpers'; // renamed import
+import { ParentProduct } from 'lib/shopify/types';
 import Image from 'next/image';
 import React, { useState } from 'react';
-import ProductGroupsDisplayLabel from './ProductGroupDisplayLabel';
+import ProductGroupsDisplayLabel from '../../components/product/ProductGroupDisplayLabel';
+
+interface ProductGroupsDisplayProps {
+   groupTitle: string;
+   products: ParentProduct[];
+}
 
 const MAX_SWATCHES = 4;
 
 const ProductGroupsDisplay: React.FC<ProductGroupsDisplayProps> = ({ groupTitle, products }) => {
-   // Helper: extract price from product.
+   // Helper to extract price (simplified)
    const extractPrice = (product: ParentProduct): string => {
       if (product.price) return product.price;
       if (product.variants && product.variants.length > 0 && product.variants[0]?.priceV2) {
@@ -49,21 +58,8 @@ const ProductGroupsDisplay: React.FC<ProductGroupsDisplayProps> = ({ groupTitle,
       const colorOption = product.options?.find((option) => option.name.toLowerCase() === 'color');
       const colorValue = colorOption ? colorOption.values[0] : undefined;
 
-      let metaobjectId: string | null = null;
-      if (product.metafields && product.metafields.length > 0) {
-         const found = product.metafields.find((mf) => mf.key === 'color-pattern');
-         if (found && found.value) {
-            try {
-               const metaobjectIds = JSON.parse(found.value);
-               if (Array.isArray(metaobjectIds) && metaobjectIds.length > 0) {
-                  metaobjectId = metaobjectIds[0];
-               }
-            } catch (error) {
-               console.error('Error parsing metafield value:', error);
-            }
-         }
-      }
-
+      // Get color-pattern metaobject ID using our helper.
+      const metaobjectId = getColorPatternMetaobjectId(product);
       return (
          <button
             key={product.id}
@@ -93,7 +89,22 @@ const ProductGroupsDisplay: React.FC<ProductGroupsDisplayProps> = ({ groupTitle,
             className="h-8 w-8 cursor-pointer rounded-full border border-gray-300"
             style={{ backgroundColor: colorValue }}
             title={colorValue}
-         />
+         >
+            {/* Use the ColorSwatch component if a metaobjectId exists.
+            Otherwise, show a fallback swatch. */}
+            {metaobjectId ? (
+               <ColorSwatch metaobjectId={metaobjectId} fallbackColor={colorValue || '#ccc'} />
+            ) : (
+               <div
+                  style={{
+                     backgroundColor: colorValue || '#ccc',
+                     width: '100%',
+                     height: '100%',
+                     borderRadius: '50%'
+                  }}
+               />
+            )}
+         </button>
       );
    });
 
@@ -131,7 +142,7 @@ const ProductGroupsDisplay: React.FC<ProductGroupsDisplayProps> = ({ groupTitle,
             amount={selectedPrice}
             currencyCode="USD"
             colorName={selectedColorName}
-            metaobjectId={undefined}
+            metaobjectId={getColorPatternMetaobjectId(products[0])} // use first product's swatch ID
             fallbackColor="#ccc"
             position="bottom"
          />

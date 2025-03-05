@@ -102,7 +102,6 @@ export default function HeroBanner({ banners, interval = 4000 }: BannerProps) {
                         priority={index === 0}
                         fill
                         style={{
-                           objectFit: 'cover',
                            objectPosition: 'center'
                         }}
                         onLoad={() => setIsLoading(false)}
@@ -120,7 +119,6 @@ export default function HeroBanner({ banners, interval = 4000 }: BannerProps) {
                         priority={index === 0}
                         fill
                         style={{
-                           objectFit: 'cover',
                            objectPosition: 'center'
                         }}
                         onLoad={() => setIsLoading(false)}

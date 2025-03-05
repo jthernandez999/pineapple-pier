@@ -37,7 +37,6 @@ export default function ProductImageZoom({
                alt={alt}
                width={width}
                height={height}
-               layout="responsive"
                objectFit="cover"
                unoptimized={unoptimized}
                loading="lazy"

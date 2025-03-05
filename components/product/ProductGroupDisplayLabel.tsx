@@ -1,3 +1,5 @@
+// components/product/ProductGroupsDisplayLabel.tsx
+'use client';
 import clsx from 'clsx';
 import React from 'react';
 import { ColorSwatch } from '../ColorSwatch';
@@ -7,11 +9,10 @@ interface LabelProps {
    title: string;
    amount: string;
    currencyCode: string;
-   colorName?: string; // e.g. "Multi Print"
-   metaobjectId?: string; // metaobject ID to fetch swatch color, if available
-   fallbackColor?: string; // fallback color if metaobject fetch fails
+   colorName?: string;
+   metaobjectId?: string;
+   fallbackColor?: string;
    position?: 'bottom' | 'center';
-   swatchMetaobjectId?: string; // added for compatibility with GridTileImage
 }
 
 const ProductGroupsDisplayLabel: React.FC<LabelProps> = ({
@@ -30,7 +31,6 @@ const ProductGroupsDisplayLabel: React.FC<LabelProps> = ({
          })}
       >
          <div className="flex flex-col rounded-md border bg-white/70 p-1 text-xs font-semibold text-black backdrop-blur-md dark:border-neutral-800 dark:bg-black/70 dark:text-white">
-            {/* Row 1: Title & Price */}
             <div className="flex items-center justify-between">
                <h3 className="line-clamp-2 flex-grow pl-2 leading-none tracking-tight">{title}</h3>
                <Price
@@ -40,13 +40,11 @@ const ProductGroupsDisplayLabel: React.FC<LabelProps> = ({
                   currencyCodeClassName="hidden @[275px]/label:inline"
                />
             </div>
-            {/* Row 2: Color Name */}
             {colorName && (
                <div className="mt-1 flex items-center">
                   <span>{colorName}</span>
                </div>
             )}
-            {/* Row 3: Color Swatch using ColorSwatch component */}
             {metaobjectId ? (
                <div className="mt-1">
                   <ColorSwatch metaobjectId={metaobjectId} fallbackColor={fallbackColor} />

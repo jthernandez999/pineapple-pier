@@ -1,6 +1,6 @@
 'use client';
 import ProductGroupsDisplay from 'components/product/ProductGroupsDisplay';
-import { getProductGroupMetaobjectData } from 'lib/helpers/metafieldHelpers';
+import { getProductGroupMetaobjectId } from 'lib/helpers/metafieldHelpers';
 import { Product } from 'lib/shopify/types';
 import React, { useEffect, useState } from 'react';
 
@@ -23,7 +23,7 @@ const ProductGroups: React.FC<ProductGroupsProps> = ({ products }) => {
          // Iterate over all products to group by product group metaobject.
          for (const product of products) {
             // Use the helper to get the product group metaobject data.
-            const metaData = await getProductGroupMetaobjectData(product);
+            const metaData = await getProductGroupMetaobjectId(product);
             if (metaData && metaData.id) {
                if (!map[metaData.id]) {
                   map[metaData.id] = { metaobjectData: metaData, products: [] };
