@@ -124,7 +124,7 @@ export default function HeroBanner({ banners, interval = 4000 }: BannerProps) {
                         onLoad={() => setIsLoading(false)}
                         className={`${
                            isLoading ? 'scale-110' : 'scale-100'
-                        } ease-custom transition-transform duration-1200`}
+                        } ease-custom object-cover transition-transform duration-1200`}
                      />
                   </div>
 
