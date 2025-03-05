@@ -1,5 +1,5 @@
 'use client';
-import { dynamicMetaobjectId, getSwatchMetaobjectId } from 'lib/helpers/metafieldHelpers';
+import { dynamicMetaobjectId, getColorPatternMetaobjectId } from 'lib/helpers/metafieldHelpers';
 import Link from 'next/link';
 import Slider from 'react-slick';
 import 'slick-carousel/slick/slick-theme.css';
@@ -142,7 +142,7 @@ export function Carousel({ data }: CarouselProps) {
                               product.options?.find((o) => o.name.toLowerCase() === 'color')
                                  ?.values[0]
                            }
-                           metaobjectId={getSwatchMetaobjectId(product)}
+                           metaobjectId={getColorPatternMetaobjectId(product)}
                            fallbackColor={product.options
                               ?.find((o) => o.name.toLowerCase() === 'color')
                               ?.values[0]?.toLowerCase()}

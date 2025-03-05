@@ -3,7 +3,7 @@ import Grid from 'components/grid';
 import { GridTileImage } from 'components/grid/tile';
 import Label from 'components/label';
 import ProductGroupsDisplay from 'components/product/ProductGroupsDisplay';
-import { getSwatchMetaobjectId } from 'lib/helpers/metafieldHelpers';
+import { getColorPatternMetaobjectId } from 'lib/helpers/metafieldHelpers';
 import { Product } from 'lib/shopify/types';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
@@ -19,7 +19,7 @@ function ProductGridItemsComponent({ products, groupHandle }: ProductGridItemsPr
 
    // Group products by their swatch metafield.
    products.forEach((product) => {
-      const metaobjectId = getSwatchMetaobjectId(product);
+      const metaobjectId = getColorPatternMetaobjectId(product);
       if (metaobjectId) {
          groupsMap[metaobjectId] = groupsMap[metaobjectId] || [];
          groupsMap[metaobjectId].push(product);
@@ -103,7 +103,7 @@ function ProductGridItemsComponent({ products, groupHandle }: ProductGridItemsPr
                               secondarySrc={flattenedImages[1]?.url || product.featuredImage?.url}
                               fill
                               sizes="(min-width: 768px) 33vw, (min-width: 640px) 50vw, 100vw"
-                              swatchMetaobjectId={getSwatchMetaobjectId(product)}
+                              swatchMetaobjectId={getColorPatternMetaobjectId(product)}
                               swatchFallbackColor={product.options
                                  ?.find((o) => o.name.toLowerCase() === 'color')
                                  ?.values[0]?.toLowerCase()}
@@ -118,7 +118,7 @@ function ProductGridItemsComponent({ products, groupHandle }: ProductGridItemsPr
                                  product.options?.find((o) => o.name.toLowerCase() === 'color')
                                     ?.values[0]
                               }
-                              metaobjectId={getSwatchMetaobjectId(product)}
+                              metaobjectId={getColorPatternMetaobjectId(product)}
                               fallbackColor={product.options
                                  ?.find((o) => o.name.toLowerCase() === 'color')
                                  ?.values[0]?.toLowerCase()}

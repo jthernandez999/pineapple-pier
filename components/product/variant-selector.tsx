@@ -2,9 +2,9 @@
 
 import clsx from 'clsx';
 import { ProductState, useProduct, useUpdateURL } from 'components/product/product-context';
-import { getSwatchMetaobjectId } from 'lib/helpers/metafieldHelpers';
+import { dynamicMetaobjectId, getColorPatternMetaobjectId } from 'lib/helpers/metafieldHelpers';
 import { Product, ProductOption, ProductVariant } from 'lib/shopify/types';
-import { startTransition, useEffect } from 'react';
+import { startTransition, useEffect, useState } from 'react';
 import { ColorSwatch } from '../../components/ColorSwatch';
 
 // We'll assume our Product type only has metafields (an array).
@@ -27,12 +27,13 @@ interface VariantSelectorProps {
 
 /**
  * In this implementation, we rely on the collection helper
- * getSwatchMetaobjectId which returns a string or undefined.
+ * getColorPatternMetaobjectId which returns a string or undefined.
  * We then provide a fallback (the lowercased option value) if undefined.
  */
 export function VariantSelector({ options, variants, product }: VariantSelectorProps) {
+   const [swatchMetaobjectId, setSwatchMetaobjectId] = useState<string | undefined>(undefined);
    // console.log('VariantSelector product::::', product?.metafield?.value);
-   console.log('VariantSelector product::::', product);
+   // console.log('VariantSelector product::::', product.metafield);
    const { state, updateProductState } = useProduct();
    const updateURL = useUpdateURL();
 
@@ -94,6 +95,14 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
          updateURL(mergedState);
       });
    };
+   useEffect(() => {
+      // Define an async function to fetch the metaobject ID.
+      async function fetchSwatchId() {
+         const id = await dynamicMetaobjectId(product);
+         setSwatchMetaobjectId(id);
+      }
+      fetchSwatchId();
+   }, [product]);
 
    return (
       <>
@@ -133,7 +142,7 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
                         if (optionNameLowerCase === 'color') {
                            // Use the helper from the collection logic.
                            const swatchColor =
-                              getSwatchMetaobjectId(product) ?? value.toLowerCase();
+                              getColorPatternMetaobjectId(product) ?? value.toLowerCase();
                            return (
                               <button
                                  key={value}
@@ -162,7 +171,7 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
                                  )}
                               >
                                  <ColorSwatch
-                                    metaobjectId={swatchColor}
+                                    metaobjectId={swatchMetaobjectId || ''}
                                     fallbackColor={value.toLowerCase()}
                                  />
                               </button>

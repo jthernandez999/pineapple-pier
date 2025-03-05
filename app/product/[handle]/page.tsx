@@ -8,7 +8,7 @@ import { Gallery } from 'components/product/gallery';
 import { ProductProvider } from 'components/product/product-context';
 import { ProductDescription } from 'components/product/product-description';
 import { HIDDEN_PRODUCT_TAG } from 'lib/constants';
-import { getSwatchMetaobjectId } from 'lib/helpers/metafieldHelpers';
+import { getColorPatternMetaobjectId } from 'lib/helpers/metafieldHelpers';
 import { getProduct, getProductRecommendations } from 'lib/shopify';
 import type { Image, Product } from 'lib/shopify/types';
 import Link from 'next/link';
@@ -152,7 +152,7 @@ async function RelatedProducts({ id }: { id: string }) {
                const fallbackColor = colorName ? colorName.toLowerCase() : '#ccc';
 
                // Use helper to get swatch; if not a hex color, use fallback.
-               const rawSwatch = getSwatchMetaobjectId(product);
+               const rawSwatch = getColorPatternMetaobjectId(product);
                const swatchColor =
                   rawSwatch && rawSwatch.startsWith('#') ? rawSwatch : fallbackColor;
 
@@ -188,7 +188,7 @@ async function RelatedProducts({ id }: { id: string }) {
                                     product.options?.find((o) => o.name.toLowerCase() === 'color')
                                        ?.values[0]
                                  }
-                                 metaobjectId={getSwatchMetaobjectId(product)}
+                                 metaobjectId={getColorPatternMetaobjectId(product)}
                                  fallbackColor={product.options
                                     ?.find((o) => o.name.toLowerCase() === 'color')
                                     ?.values[0]?.toLowerCase()}
