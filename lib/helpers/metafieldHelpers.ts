@@ -23,7 +23,7 @@ export function flattenMetafields(product: any): Metafield[] {
    if (product.parentGroups) {
       fields.push({ key: 'custom.parent_groups', value: product.parentGroups.value });
    }
-   console.log('flattenMetafields:::', fields);
+
    return fields;
 }
 
