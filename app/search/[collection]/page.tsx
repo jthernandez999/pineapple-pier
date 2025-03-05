@@ -1,6 +1,6 @@
 // pages/collection/[collection]/page.tsx
 import Grid from 'components/grid';
-import { defaultSort, sorting } from 'lib/constants';
+import { collectionSorting, defaultCollectionSort } from 'lib/constants';
 import { getCollection, getCollectionProducts } from 'lib/shopify';
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
@@ -28,7 +28,8 @@ export default async function CategoryPage(props: {
    const searchParams = await props.searchParams;
    const params = await props.params;
    const { sort } = searchParams as { [key: string]: string };
-   const { sortKey, reverse } = sorting.find((item) => item.slug === sort) || defaultSort;
+   const { sortKey, reverse } =
+      collectionSorting.find((item) => item.slug === sort) || defaultCollectionSort;
 
    // Destructure to get both products and pageInfo
    const { products, pageInfo } = await getCollectionProducts({

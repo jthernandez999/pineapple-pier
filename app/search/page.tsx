@@ -1,6 +1,6 @@
 import Grid from 'components/grid';
 import InfiniteScrollProductGrid from 'components/InfiniteProductGrid';
-import { defaultSort, sorting } from 'lib/constants';
+import { defaultProductSort, productSorting } from 'lib/constants';
 import { getProducts } from 'lib/shopify';
 
 export const metadata = {
@@ -13,7 +13,8 @@ export default async function SearchPage(props: {
 }) {
    const searchParams = await props.searchParams;
    const { sort, q: searchValue } = searchParams as { [key: string]: string };
-   const { sortKey, reverse } = sorting.find((item) => item.slug === sort) || defaultSort;
+   const { sortKey, reverse } =
+      productSorting.find((item) => item.slug === sort) || defaultProductSort;
 
    const products = await getProducts({ sortKey, reverse, query: searchValue });
    const resultsText = products.length > 1 ? 'results' : 'result';

@@ -1,24 +1,93 @@
-export type SortFilterItem = {
+// lib/constants/sorting.ts
+
+// For collection queries (ProductCollectionSortKeys)
+export type CollectionSortFilterItem = {
    title: string;
    slug: string | null;
-   sortKey: 'CREATED_AT' | 'RELEVANCE' | 'BEST_SELLING' | 'PRICE';
+   sortKey:
+      | 'BEST_SELLING'
+      | 'COLLECTION_DEFAULT'
+      | 'CREATED'
+      | 'ID'
+      | 'MANUAL'
+      | 'PRICE'
+      | 'RELEVANCE'
+      | 'TITLE';
    reverse: boolean;
 };
 
-export const defaultSort: SortFilterItem = {
+export const defaultCollectionSort: CollectionSortFilterItem = {
+   title: 'Default',
+   slug: null,
+   sortKey: 'COLLECTION_DEFAULT',
+   reverse: false
+};
+
+export const collectionSorting: CollectionSortFilterItem[] = [
+   defaultCollectionSort,
+   { title: 'Trending', slug: 'trending-desc', sortKey: 'BEST_SELLING', reverse: false },
+   { title: 'Latest arrivals', slug: 'latest-desc', sortKey: 'CREATED', reverse: true },
+   { title: 'Price: Low to high', slug: 'price-asc', sortKey: 'PRICE', reverse: false },
+   { title: 'Price: High to low', slug: 'price-desc', sortKey: 'PRICE', reverse: true },
+   { title: 'Title', slug: 'title', sortKey: 'TITLE', reverse: false }
+];
+
+// For product queries (ProductSortKeys)
+export type ProductSortFilterItem = {
+   title: string;
+   slug: string | null;
+   sortKey:
+      | 'BEST_SELLING'
+      | 'CREATED_AT'
+      | 'ID'
+      | 'PRICE'
+      | 'PRODUCT_TYPE'
+      | 'RELEVANCE'
+      | 'TITLE'
+      | 'UPDATED_AT'
+      | 'VENDOR';
+   reverse: boolean;
+};
+
+export const defaultProductSort: ProductSortFilterItem = {
    title: 'Relevance',
    slug: null,
    sortKey: 'CREATED_AT',
    reverse: true
 };
 
-export const sorting: SortFilterItem[] = [
-   defaultSort,
-   { title: 'Trending', slug: 'trending-desc', sortKey: 'BEST_SELLING', reverse: false }, // asc
+export const productSorting: ProductSortFilterItem[] = [
+   defaultProductSort,
+   { title: 'Trending', slug: 'trending-desc', sortKey: 'BEST_SELLING', reverse: false },
    { title: 'Latest arrivals', slug: 'latest-desc', sortKey: 'CREATED_AT', reverse: true },
-   { title: 'Price: Low to high', slug: 'price-asc', sortKey: 'PRICE', reverse: false }, // asc
-   { title: 'Price: High to low', slug: 'price-desc', sortKey: 'PRICE', reverse: true }
+   { title: 'Price: Low to high', slug: 'price-asc', sortKey: 'PRICE', reverse: false },
+   { title: 'Price: High to low', slug: 'price-desc', sortKey: 'PRICE', reverse: true },
+   { title: 'Title', slug: 'title', sortKey: 'TITLE', reverse: false },
+   { title: 'Updated', slug: 'updated', sortKey: 'UPDATED_AT', reverse: false },
+   { title: 'Vendor', slug: 'vendor', sortKey: 'VENDOR', reverse: false }
 ];
+
+// export type SortFilterItem = {
+//    title: string;
+//    slug: string | null;
+//    sortKey: 'CREATED_AT' | 'RELEVANCE' | 'BEST_SELLING' | 'PRICE';
+//    reverse: boolean;
+// };
+
+// export const defaultSort: SortFilterItem = {
+//    title: 'Relevance',
+//    slug: null,
+//    sortKey: 'CREATED_AT',
+//    reverse: true
+// };
+
+// export const sorting: SortFilterItem[] = [
+//    defaultSort,
+//    { title: 'Trending', slug: 'trending-desc', sortKey: 'BEST_SELLING', reverse: false }, // asc
+//    { title: 'Latest arrivals', slug: 'latest-desc', sortKey: 'CREATED_AT', reverse: true },
+//    { title: 'Price: Low to high', slug: 'price-asc', sortKey: 'PRICE', reverse: false }, // asc
+//    { title: 'Price: High to low', slug: 'price-desc', sortKey: 'PRICE', reverse: true }
+// ];
 
 export const TAGS = {
    collections: 'collections',
