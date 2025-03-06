@@ -1,4 +1,3 @@
-'use client';
 import Grid from 'components/grid';
 import { GridTileImage } from 'components/grid/tile';
 import Label from 'components/label';
@@ -12,7 +11,6 @@ import Link from 'next/link';
 import React from 'react';
 
 // Helper to extract the parent group value from a product’s metafields.
-// cSpell:ignore Uncategorized
 function getParentGroup(product: Product): string {
    const fields: Metafield[] = flattenMetafields(product);
    const parentGroupField = fields.find((mf) => mf.key === 'custom.parent_groups');
@@ -35,15 +33,52 @@ interface ProductGridItemsProps {
 }
 
 function ProductGridItemsComponent({ products, groupHandle }: ProductGridItemsProps) {
+   // Group products by their parent group.
    const groupsMap: { [groupKey: string]: Product[] } = {};
-
-   // Group products by their parent group value.
    products.forEach((product) => {
       const parentGroup = getParentGroup(product);
       groupsMap[parentGroup] = groupsMap[parentGroup] || [];
       groupsMap[parentGroup].push(product);
    });
    console.log('groupsMap::::::::::::::::::::::::', groupsMap);
+
+   // Create a mapping for each group containing the metaobjectId for the "color-pattern"
+   // and a fallback color. Because who wouldn't want every group to have its own identity?
+   const groupMetaobjectMapping = Object.entries(groupsMap)
+      .map(([groupKey, groupProducts]) => {
+         if (!groupProducts || groupProducts.length === 0) return null;
+         const representativeProduct = groupProducts[0];
+         if (!representativeProduct) return null;
+         const metaobjectId = getColorPatternMetaobjectId(representativeProduct);
+         const fallbackColor =
+            representativeProduct.options
+               ?.find((o) => o.name.toLowerCase() === 'color')
+               ?.values[0]?.toLowerCase() || '#FFFFFF';
+         return {
+            group: groupKey,
+            metaobjectId,
+            fallbackColor,
+            groupProducts // Save groupProducts for later use.
+         };
+      })
+      .filter(
+         (
+            mapping
+         ): mapping is {
+            group: string;
+            metaobjectId: string | undefined;
+            fallbackColor: string;
+            groupProducts: Product[];
+         } => mapping !== null
+      );
+   // let's extract those metaobjectIds, filtering out any undefined ones.
+   const metaobjectIdsArray = groupMetaobjectMapping
+      .map((mapping) => mapping.metaobjectId)
+      .filter((id): id is string => id !== undefined);
+
+   console.log('metaobjectIdsArray::::::::::::::::::::::::', metaobjectIdsArray);
+
+   // Helper to flatten images (because our products love to hide behind nested objects).
    function flattenImages(images: any): any[] {
       if (!images) return [];
       if (Array.isArray(images)) return images;
@@ -55,61 +90,64 @@ function ProductGridItemsComponent({ products, groupHandle }: ProductGridItemsPr
 
    return (
       <>
-         {/* Render parent group cards, excluding "Uncategorized" and empty groups */}
+         {/* Render parent group cards (excluding "Uncategorized") */}
          <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3">
-            {Object.entries(groupsMap)
+            {groupMetaobjectMapping
                .filter(
-                  ([groupKey, groupProducts]) =>
-                     groupKey !== 'Uncategorized' && groupProducts.length > 0
+                  (mapping) => mapping.group !== 'Uncategorized' && mapping.groupProducts.length > 0
                )
-               .map(([groupKey, groupProducts]) => {
-                  // Now it's safe to assert that groupProducts[0] exists.
-                  const parentProduct = groupProducts[0]!;
-                  console.log(
-                     'parentProduct::::::::::::::::::::::::',
-                     parentProduct.priceRange.maxVariantPrice.amount
-                  );
-                  const parentPrice = extractPrice(parentProduct);
+               .map(({ group, metaobjectId, fallbackColor, groupProducts }) => {
+                  // Safely grab the representative product.
+                  const representativeProduct = groupProducts[0]!;
+                  const parentPrice = extractPrice(representativeProduct);
                   return (
-                     <Grid.Item key={groupKey} className="animate-fadeIn">
+                     <Grid.Item key={group} className="animate-fadeIn">
                         <Link
-                           href={`/product/${parentProduct.handle}`}
+                           href={`/product/${representativeProduct.handle}`}
                            prefetch={true}
                            className="flex h-full w-full flex-col"
                         >
                            <div className="relative aspect-[2/3] w-full">
                               <GridTileImage
-                                 alt={parentProduct.title}
-                                 src={parentProduct.featuredImage?.url}
+                                 alt={representativeProduct.title}
+                                 src={representativeProduct.featuredImage?.url}
                                  secondarySrc={
-                                    parentProduct.images && parentProduct.images[1]?.url
-                                       ? parentProduct.images[1].url
-                                       : parentProduct.featuredImage?.url
+                                    representativeProduct.images &&
+                                    representativeProduct.images[1]?.url
+                                       ? representativeProduct.images[1]?.url
+                                       : representativeProduct.featuredImage?.url
                                  }
                                  fill
                                  sizes="(min-width: 768px) 33vw, (min-width: 640px) 50vw, 100vw"
-                                 swatchMetaobjectId={getColorPatternMetaobjectId(parentProduct)}
-                                 swatchFallbackColor={parentProduct.options
-                                    ?.find((o) => o.name.toLowerCase() === 'color')
-                                    ?.values[0]?.toLowerCase()}
+                                 swatchMetaobjectId={metaobjectId}
+                                 swatchFallbackColor={fallbackColor}
                               />
                            </div>
                            <div className="mt-0">
                               <Label
-                                 title={parentProduct.title}
-                                 amount={parentProduct.priceRange.maxVariantPrice.amount}
+                                 title={representativeProduct.title}
+                                 amount={
+                                    representativeProduct.priceRange?.maxVariantPrice?.amount ??
+                                    parentPrice
+                                 }
                                  currencyCode={
-                                    parentProduct.priceRange.maxVariantPrice.currencyCode
+                                    representativeProduct.priceRange?.maxVariantPrice
+                                       ?.currencyCode ?? ''
                                  }
                                  colorName={
-                                    parentProduct.options?.find(
+                                    representativeProduct.options?.find(
                                        (o) => o.name.toLowerCase() === 'color'
                                     )?.values[0]
                                  }
-                                 metaobjectId={getColorPatternMetaobjectId(parentProduct)}
-                                 fallbackColor={parentProduct.options
-                                    ?.find((o) => o.name.toLowerCase() === 'color')
-                                    ?.values[0]?.toLowerCase()}
+                                 metaobjectId={metaobjectId}
+                                 metaobjectIdsArray={metaobjectIdsArray}
+                                 fallbackColor={
+                                    representativeProduct.options
+                                       ?.find((o) => o.name.toLowerCase() === 'color')
+                                       ?.values[0]?.toLowerCase() || '#FFFFFF'
+                                 }
+                                 // metaobjectId={metaobjectId}
+                                 // fallbackColor={fallbackColor}
                                  position="bottom"
                               />
                            </div>
@@ -119,7 +157,7 @@ function ProductGridItemsComponent({ products, groupHandle }: ProductGridItemsPr
                })}
          </div>
 
-         {/* Render the standard grid of all products */}
+         {/* Render the standard grid of individual products */}
          <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3">
             {products.map((product) => {
                const flattenedImages = flattenImages(product.images);
@@ -137,26 +175,29 @@ function ProductGridItemsComponent({ products, groupHandle }: ProductGridItemsPr
                               secondarySrc={flattenedImages[1]?.url || product.featuredImage?.url}
                               fill
                               sizes="(min-width: 768px) 33vw, (min-width: 640px) 50vw, 100vw"
-                              // Still showing the color-pattern swatch for individual grid items
                               swatchMetaobjectId={getColorPatternMetaobjectId(product)}
-                              swatchFallbackColor={product.options
-                                 ?.find((o) => o.name.toLowerCase() === 'color')
-                                 ?.values[0]?.toLowerCase()}
+                              swatchFallbackColor={
+                                 product.options
+                                    ?.find((o) => o.name.toLowerCase() === 'color')
+                                    ?.values[0]?.toLowerCase() || '#FFFFFF'
+                              }
                            />
                         </div>
                         <div className="mt-0">
                            <Label
                               title={product.title}
-                              amount={product.priceRange.maxVariantPrice.amount}
-                              currencyCode={product.priceRange.maxVariantPrice.currencyCode}
+                              amount={product.priceRange?.maxVariantPrice?.amount ?? ''}
+                              currencyCode={product.priceRange?.maxVariantPrice?.currencyCode ?? ''}
                               colorName={
                                  product.options?.find((o) => o.name.toLowerCase() === 'color')
                                     ?.values[0]
                               }
                               metaobjectId={getColorPatternMetaobjectId(product)}
-                              fallbackColor={product.options
-                                 ?.find((o) => o.name.toLowerCase() === 'color')
-                                 ?.values[0]?.toLowerCase()}
+                              fallbackColor={
+                                 product.options
+                                    ?.find((o) => o.name.toLowerCase() === 'color')
+                                    ?.values[0]?.toLowerCase() || '#FFFFFF'
+                              }
                               position="bottom"
                            />
                         </div>

@@ -3,15 +3,23 @@ import React from 'react';
 import { ColorSwatch } from './ColorSwatch';
 import Price from './price';
 
+interface Swatch {
+   metaobjectId: string;
+   fallbackColor: string;
+   colorName: string;
+}
+
 interface LabelProps {
    title: string;
    amount: string;
    currencyCode: string;
    colorName?: string;
-   metaobjectId?: string; // dynamic metaobject id
+   metaobjectId?: string; // dynamic metaobject id for the selected color
+   metaobjectIdsArray?: string[]; // array of metaobject ids for the group
    fallbackColor?: string; // fallback color code
    position?: 'bottom' | 'center';
-   swatchMetaobjectId?: string; // added for compatibility with GridTileImage
+   swatchMetaobjectId?: string; // for compatibility with GridTileImage
+   swatches?: Swatch[]; // new: an array of swatches to display below the color name
 }
 
 const Label: React.FC<LabelProps> = ({
@@ -21,7 +29,9 @@ const Label: React.FC<LabelProps> = ({
    colorName,
    metaobjectId,
    fallbackColor = '#ccc',
-   position = 'bottom'
+   position = 'bottom',
+   swatches,
+   metaobjectIdsArray
 }) => {
    const filteredTitle = colorName
       ? title.replace(new RegExp(`\\b${colorName}\\b`, 'i'), '').trim()
@@ -34,12 +44,10 @@ const Label: React.FC<LabelProps> = ({
          })}
       >
          <div className="text-md black mt-0 border-x-[0.5px] border-b-[0.5px] bg-white/70 p-2 font-semibold text-black backdrop-blur-md dark:border-neutral-800 dark:bg-black/70 dark:text-white">
-            {/* Title and Price in one row */}
+            {/* Title and Price */}
             <div className="mb-0 mt-0 flex items-center justify-between pb-0 pt-0 font-normal">
-               {/* <h3 className="leading-none tracking-tight md:text-sm">{filteredTitle}</h3> */}
                <h3 className="text-xs font-light leading-none tracking-tight md:text-sm">
                   {(() => {
-                     // Handle specific cases for 'North Hampton' and 'South Hampton'
                      if (filteredTitle.startsWith('North Hampton')) {
                         return (
                            <>
@@ -56,12 +64,9 @@ const Label: React.FC<LabelProps> = ({
                            </>
                         );
                      }
-
-                     // Otherwise, split the title and apply styles
                      const words = filteredTitle.split(' ');
                      const firstWord = words[0];
                      const restOfTitle = words.slice(1).join(' ');
-
                      return (
                         <>
                            <span className="font-semibold uppercase">{firstWord}</span>{' '}
@@ -70,7 +75,6 @@ const Label: React.FC<LabelProps> = ({
                      );
                   })()}
                </h3>
-
                <Price
                   className="text-xs text-black md:text-sm"
                   amount={amount}
@@ -78,12 +82,18 @@ const Label: React.FC<LabelProps> = ({
                   currencyCodeClassName="hidden @[275px]/label:inline"
                />
             </div>
+
             {/* Selected Color Name */}
             {colorName && <div className="mb-2 mt-0 pt-0 text-xs font-normal">{colorName}</div>}
-            {/* Color Swatch */}
+
+            {/* Selected Color Swatch (for the selected color) */}
             <div className="mt-0">
                {metaobjectId ? (
-                  <ColorSwatch metaobjectId={metaobjectId} fallbackColor={fallbackColor} />
+                  <ColorSwatch
+                     metaobjectId={metaobjectId}
+                     metaobjectIdsArray={metaobjectIdsArray}
+                     fallbackColor={fallbackColor}
+                  />
                ) : (
                   fallbackColor && (
                      <div
@@ -99,6 +109,29 @@ const Label: React.FC<LabelProps> = ({
                   )
                )}
             </div>
+
+            {/* Additional swatches: Render multiple swatches inline if provided */}
+            {swatches && swatches.length > 0 && (
+               <div className="mt-2 flex gap-2">
+                  {swatches.map((swatch, i) => (
+                     <div
+                        key={i}
+                        className="h-5 w-5 rounded-full border border-gray-300"
+                        title={swatch.colorName}
+                     >
+                        <div
+                           style={{
+                              backgroundColor: swatch.fallbackColor,
+                              width: '20px',
+                              height: '20px',
+                              borderRadius: '50%',
+                              border: '1px solid #ccc'
+                           }}
+                        />
+                     </div>
+                  ))}
+               </div>
+            )}
          </div>
       </div>
    );
