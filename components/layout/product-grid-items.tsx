@@ -35,7 +35,7 @@ function ProductGridItemsComponent({ products, groupHandle }: ProductGridItemsPr
       groupsMap[parentGroup] = groupsMap[parentGroup] || [];
       groupsMap[parentGroup].push(product);
    });
-
+   console.log('groupsMap::::::::::::::::::::::::', groupsMap);
    // Fetch metaobject details for each parent group.
    useEffect(() => {
       async function fetchMetaobjects() {
