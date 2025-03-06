@@ -14,6 +14,7 @@ import React from 'react';
 function getParentGroup(product: Product): string {
    const fields: Metafield[] = flattenMetafields(product);
    const parentGroupField = fields.find((mf) => mf.key === 'custom.parent_groups');
+   console.log('parentGrous::::::::::::::::::::::::', parentGroupField);
    return parentGroupField ? parentGroupField.value.trim() : 'Uncategorized';
 }
 
@@ -40,7 +41,7 @@ function ProductGridItemsComponent({ products, groupHandle }: ProductGridItemsPr
       groupsMap[parentGroup] = groupsMap[parentGroup] || [];
       groupsMap[parentGroup].push(product);
    });
-   console.log('groupsMap::::::::::::::::::::::::', groupsMap);
+   // console.log('groupsMap::::::::::::::::::::::::', groupsMap);
 
    // Create a mapping for each group containing the metaobjectId for the "color-pattern"
    // and a fallback color.
@@ -96,10 +97,22 @@ function ProductGridItemsComponent({ products, groupHandle }: ProductGridItemsPr
                .filter(
                   (mapping) => mapping.group !== 'Uncategorized' && mapping.groupProducts.length > 0
                )
-               .map(({ group, metaobjectId, fallbackColor, groupProducts }) => {
-                  // Safely grab the representative product.
+               .map(({ group, fallbackColor, groupProducts }) => {
+                  // Compute unique metaobject IDs for this group:
+                  const groupColorMetaobjectIds = Array.from(
+                     new Set(
+                        groupProducts
+                           .map((product) => getColorPatternMetaobjectId(product))
+                           .filter((id): id is string => !!id)
+                     )
+                  );
+                  // Use the first ID as the representative ID (if any)
+                  const repMetaobjectId = groupColorMetaobjectIds[0];
+
+                  // Grab a representative product to display other data (title, price, etc.)
                   const representativeProduct = groupProducts[0]!;
                   const parentPrice = extractPrice(representativeProduct);
+
                   return (
                      <Grid.Item key={group} className="animate-fadeIn">
                         <Link
@@ -119,7 +132,8 @@ function ProductGridItemsComponent({ products, groupHandle }: ProductGridItemsPr
                                  }
                                  fill
                                  sizes="(min-width: 768px) 33vw, (min-width: 640px) 50vw, 100vw"
-                                 swatchMetaobjectId={metaobjectId}
+                                 // Use the representative metaobject ID for the image swatch
+                                 swatchMetaobjectId={repMetaobjectId}
                                  swatchFallbackColor={fallbackColor}
                               />
                            </div>
@@ -139,9 +153,9 @@ function ProductGridItemsComponent({ products, groupHandle }: ProductGridItemsPr
                                        (o) => o.name.toLowerCase() === 'color'
                                     )?.values[0]
                                  }
-                                 metaobjectId={metaobjectId}
-                                 // Pass only the current group's metaobjectId as an array:
-                                 metaobjectIdsArray={metaobjectIdsArray}
+                                 // Use the group's representative metaobjectId and unique array
+                                 metaobjectId={repMetaobjectId}
+                                 metaobjectIdsArray={groupColorMetaobjectIds}
                                  fallbackColor={
                                     representativeProduct.options
                                        ?.find((o) => o.name.toLowerCase() === 'color')
