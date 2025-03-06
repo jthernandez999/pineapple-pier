@@ -1,6 +1,4 @@
-// components/product/ProductGroupsDisplay.tsx
 'use client';
-
 import { ColorSwatch } from 'components/ColorSwatch';
 import { getColorPatternMetaobjectId } from 'lib/helpers/metafieldHelpers'; // renamed import
 import { ParentProduct } from 'lib/shopify/types';
@@ -25,9 +23,10 @@ const ProductGroupsDisplay: React.FC<ProductGroupsDisplayProps> = ({ groupTitle,
       return '';
    };
 
-   const initialImage =
-      products[0]?.images[0]?.url ||
+   const defaultImage =
       'https://cdn.shopify.com/s/files/1/1024/2207/files/default_logo_dear_john_denim.jpg?v=1739228110';
+
+   const initialImage = products[0]?.images[0]?.url || defaultImage;
    const initialColorName =
       products[0]?.options?.find((option) => option.name.toLowerCase() === 'color')?.values[0] ||
       '';
@@ -43,9 +42,7 @@ const ProductGroupsDisplay: React.FC<ProductGroupsDisplayProps> = ({ groupTitle,
    } | null>(null);
 
    const updateSelection = (product: ParentProduct) => {
-      const productImage =
-         product.images[0]?.url ||
-         'https://cdn.shopify.com/s/files/1/1024/2207/files/default_logo_dear_john_denim.jpg?v=1739228110';
+      const productImage = product.images[0]?.url || defaultImage;
       const colorOption = product.options?.find((option) => option.name.toLowerCase() === 'color');
       const colorValue = colorOption ? colorOption.values[0] : '';
       const priceValue = extractPrice(product);
@@ -57,7 +54,6 @@ const ProductGroupsDisplay: React.FC<ProductGroupsDisplayProps> = ({ groupTitle,
    const swatches = products.map((product) => {
       const colorOption = product.options?.find((option) => option.name.toLowerCase() === 'color');
       const colorValue = colorOption ? colorOption.values[0] : undefined;
-
       // Get color-pattern metaobject ID using our helper.
       const metaobjectId = getColorPatternMetaobjectId(product);
       return (
@@ -79,10 +75,8 @@ const ProductGroupsDisplay: React.FC<ProductGroupsDisplayProps> = ({ groupTitle,
                e.stopPropagation();
                updateSelection(product);
                setLockedSelection({
-                  image:
-                     product.images[0]?.url ||
-                     'https://cdn.shopify.com/s/files/1/1024/2207/files/default_logo_dear_john_denim.jpg?v=1739228110',
-                  color: colorValue as string,
+                  image: product.images[0]?.url || defaultImage,
+                  color: (colorValue as string) || '',
                   price: extractPrice(product)
                });
             }}
