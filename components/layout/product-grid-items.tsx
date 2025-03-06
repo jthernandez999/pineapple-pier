@@ -44,6 +44,14 @@ function ProductGridItemsComponent({ products, groupHandle }: ProductGridItemsPr
       groupsMap[parentGroup].push(product);
    });
    console.log('groupsMap::::::::::::::::::::::::', groupsMap);
+   function flattenImages(images: any): any[] {
+      if (!images) return [];
+      if (Array.isArray(images)) return images;
+      if (images.edges) {
+         return images.edges.map((edge: any) => edge.node);
+      }
+      return [];
+   }
 
    return (
       <>
@@ -57,6 +65,10 @@ function ProductGridItemsComponent({ products, groupHandle }: ProductGridItemsPr
                .map(([groupKey, groupProducts]) => {
                   // Now it's safe to assert that groupProducts[0] exists.
                   const parentProduct = groupProducts[0]!;
+                  console.log(
+                     'parentProduct::::::::::::::::::::::::',
+                     parentProduct.priceRange.maxVariantPrice.amount
+                  );
                   const parentPrice = extractPrice(parentProduct);
                   return (
                      <Grid.Item key={groupKey} className="animate-fadeIn">
@@ -85,7 +97,7 @@ function ProductGridItemsComponent({ products, groupHandle }: ProductGridItemsPr
                            <div className="mt-0">
                               <Label
                                  title={parentProduct.title}
-                                 amount={parentPrice}
+                                 amount={parentProduct.priceRange.maxVariantPrice.amount}
                                  currencyCode={
                                     parentProduct.priceRange.maxVariantPrice.currencyCode
                                  }
@@ -110,6 +122,7 @@ function ProductGridItemsComponent({ products, groupHandle }: ProductGridItemsPr
          {/* Render the standard grid of all products */}
          <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3">
             {products.map((product) => {
+               const flattenedImages = flattenImages(product.images);
                return (
                   <Grid.Item key={product.handle} className="animate-fadeIn">
                      <Link
@@ -121,13 +134,10 @@ function ProductGridItemsComponent({ products, groupHandle }: ProductGridItemsPr
                            <GridTileImage
                               alt={product.title}
                               src={product.featuredImage?.url}
-                              secondarySrc={
-                                 product.images && product.images[1]?.url
-                                    ? product.images[1].url
-                                    : product.featuredImage?.url
-                              }
+                              secondarySrc={flattenedImages[1]?.url || product.featuredImage?.url}
                               fill
                               sizes="(min-width: 768px) 33vw, (min-width: 640px) 50vw, 100vw"
+                              // Still showing the color-pattern swatch for individual grid items
                               swatchMetaobjectId={getColorPatternMetaobjectId(product)}
                               swatchFallbackColor={product.options
                                  ?.find((o) => o.name.toLowerCase() === 'color')
