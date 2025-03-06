@@ -11,7 +11,7 @@ import { Product } from 'lib/shopify/types';
 import Link from 'next/link';
 import React, { useState } from 'react';
 
-// Helper to extract the parent group value from a product’s metafields.
+// Helper to extract the parent group value.
 function getParentGroup(product: Product): string {
    const fields: Metafield[] = flattenMetafields(product);
    const parentGroupField = fields.find((mf) => mf.key === 'custom.parent_groups');
@@ -45,7 +45,7 @@ interface ProductGridItemsProps {
 }
 
 export function ProductGridItemsComponent({ products, groupHandle }: ProductGridItemsProps) {
-   // Group products by their parent group.
+   // Group products by parent group.
    const groupsMap: { [groupKey: string]: Product[] } = {};
    products.forEach((product) => {
       const parentGroup = getParentGroup(product);
@@ -53,7 +53,7 @@ export function ProductGridItemsComponent({ products, groupHandle }: ProductGrid
       groupsMap[parentGroup].push(product);
    });
 
-   // Create a mapping for each group.
+   // Build mapping for each group.
    const groupMetaobjectMapping = Object.entries(groupsMap)
       .map(([groupKey, groupProducts]) => {
          if (!groupProducts || groupProducts.length === 0) return null;
@@ -81,12 +81,12 @@ export function ProductGridItemsComponent({ products, groupHandle }: ProductGrid
          } => mapping !== null
       );
 
-   // Only interactive groups (excluding "Uncategorized").
+   // Interactive groups (exclude "Uncategorized").
    const interactiveGroups = groupMetaobjectMapping.filter(
       (mapping) => mapping.group !== 'Uncategorized' && mapping.groupProducts.length > 0
    );
 
-   // State to track active product per group.
+   // State: active product per group.
    const [activeProducts, setActiveProducts] = useState<{ [group: string]: Product }>(() => {
       const initial: { [group: string]: Product } = {};
       interactiveGroups.forEach(({ group, groupProducts }) => {
@@ -105,7 +105,7 @@ export function ProductGridItemsComponent({ products, groupHandle }: ProductGrid
                const activeProduct = activeProducts[group] || groupProducts[0]!;
                const parentPrice = extractPrice(activeProduct);
 
-               // Compute unique metaobject IDs for the group.
+               // Compute unique metaobject IDs (colors) for the group.
                const groupColorMetaobjectIds = Array.from(
                   new Set(
                      groupProducts
@@ -114,19 +114,19 @@ export function ProductGridItemsComponent({ products, groupHandle }: ProductGrid
                   )
                );
 
-               // Build a map from metaobjectId to product.
+               // Map metaobjectId to product.
                const swatchMap: Record<string, Product> = {};
                groupProducts.forEach((product) => {
                   const id = getColorPatternMetaobjectId(product);
                   if (id) swatchMap[id] = product;
                });
 
-               // Determine the active product's color ID.
+               // Determine active product's color ID.
                const activeColorId = getColorPatternMetaobjectId(activeProduct) || metaobjectId;
                const currentIndex = groupColorMetaobjectIds.findIndex((id) => id === activeColorId);
                const nextIndex = (currentIndex + 1) % groupColorMetaobjectIds.length;
 
-               // onSwatchClick cycles to the next product in the group.
+               // onSwatchClick cycles to the next product.
                const handleSwatchClick = () => {
                   const nextColorId = groupColorMetaobjectIds[nextIndex];
                   const nextProduct = groupProducts.find(
@@ -187,7 +187,6 @@ export function ProductGridItemsComponent({ products, groupHandle }: ProductGrid
                                     ?.values[0]?.toLowerCase() || '#FFFFFF'
                               }
                               position="bottom"
-                              // Pass the group's unique metaobject IDs and swatch click handler.
                               metaobjectIdsArray={groupColorMetaobjectIds}
                               onSwatchClick={handleSwatchClick}
                            />

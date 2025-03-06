@@ -14,7 +14,7 @@ interface LabelProps {
    fallbackColor?: string; // fallback color code
    position?: 'bottom' | 'center';
    swatchMetaobjectId?: string; // for compatibility with GridTileImage
-   onSwatchClick?: () => void;
+   onSwatchClick?: (e: React.MouseEvent<HTMLDivElement>) => void;
 }
 
 const Label: React.FC<LabelProps> = ({
@@ -81,12 +81,13 @@ const Label: React.FC<LabelProps> = ({
             {/* Selected Color Name */}
             {colorName && <div className="mb-2 mt-0 pt-0 text-xs font-normal">{colorName}</div>}
 
-            {/* Swatch Display wrapped with onMouseEnter to trigger interactivity */}
+            {/* Swatch Display wrapped in a container that intercepts clicks */}
             <div
                className="mt-0"
-               onMouseEnter={(e) => {
+               onClick={(e) => {
+                  e.preventDefault();
                   e.stopPropagation();
-                  if (onSwatchClick) onSwatchClick();
+                  if (onSwatchClick) onSwatchClick(e);
                }}
                style={{ cursor: 'pointer' }}
             >
