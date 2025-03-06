@@ -1,6 +1,6 @@
 'use client';
 import { ColorSwatch } from 'components/ColorSwatch';
-import { getColorPatternMetaobjectId } from 'lib/helpers/metafieldHelpers'; // renamed import
+import { getColorPatternMetaobjectId } from 'lib/helpers/metafieldHelpers';
 import { ParentProduct } from 'lib/shopify/types';
 import Image from 'next/image';
 import React, { useState } from 'react';
@@ -9,16 +9,22 @@ import ProductGroupsDisplayLabel from '../../components/product/ProductGroupDisp
 interface ProductGroupsDisplayProps {
    groupTitle: string;
    products: ParentProduct[];
+   price?: string;
 }
 
 const MAX_SWATCHES = 4;
 
-const ProductGroupsDisplay: React.FC<ProductGroupsDisplayProps> = ({ groupTitle, products }) => {
+const ProductGroupsDisplay: React.FC<ProductGroupsDisplayProps> = ({
+   groupTitle,
+   products,
+   price
+}) => {
    // Helper to extract price (simplified)
    const extractPrice = (product: ParentProduct): string => {
-      if (product.price) return product.price;
+      if (product.price && !isNaN(Number(product.price))) return product.price;
       if (product.variants && product.variants.length > 0 && product.variants[0]?.priceV2) {
-         return product.variants[0].priceV2.amount || '';
+         const amount = Number(product.variants[0].priceV2.amount);
+         return isNaN(amount) ? '' : amount.toFixed(2);
       }
       return '';
    };
@@ -26,11 +32,14 @@ const ProductGroupsDisplay: React.FC<ProductGroupsDisplayProps> = ({ groupTitle,
    const defaultImage =
       'https://cdn.shopify.com/s/files/1/1024/2207/files/default_logo_dear_john_denim.jpg?v=1739228110';
 
+   // Use the first product's image as initial image
    const initialImage = products[0]?.images[0]?.url || defaultImage;
+   // Use the first product's color value (if available) as initial color
    const initialColorName =
       products[0]?.options?.find((option) => option.name.toLowerCase() === 'color')?.values[0] ||
       '';
-   const initialPrice = products[0] ? extractPrice(products[0]) : '';
+   // Use the passed-in price if available; otherwise, compute from the first product.
+   const initialPrice = price ?? (products[0] ? extractPrice(products[0]) : '');
 
    const [mainImage, setMainImage] = useState(initialImage);
    const [selectedColorName, setSelectedColorName] = useState(initialColorName);
@@ -51,16 +60,18 @@ const ProductGroupsDisplay: React.FC<ProductGroupsDisplayProps> = ({ groupTitle,
       setSelectedPrice(priceValue);
    };
 
+   // Generate swatches from all products in this group.
    const swatches = products.map((product) => {
       const colorOption = product.options?.find((option) => option.name.toLowerCase() === 'color');
       const colorValue = colorOption ? colorOption.values[0] : undefined;
-      // Get color-pattern metaobject ID using our helper.
+      // Get the color-pattern metaobject ID (if available)
       const metaobjectId = getColorPatternMetaobjectId(product);
       return (
          <button
             key={product.id}
             onMouseEnter={() => updateSelection(product)}
             onMouseLeave={() => {
+               // Restore locked selection if set, otherwise revert to initial values.
                if (lockedSelection) {
                   setMainImage(lockedSelection.image);
                   setSelectedColorName(lockedSelection.color);
@@ -84,8 +95,6 @@ const ProductGroupsDisplay: React.FC<ProductGroupsDisplayProps> = ({ groupTitle,
             style={{ backgroundColor: colorValue }}
             title={colorValue}
          >
-            {/* Use the ColorSwatch component if a metaobjectId exists.
-            Otherwise, show a fallback swatch. */}
             {metaobjectId ? (
                <ColorSwatch metaobjectId={metaobjectId} fallbackColor={colorValue || '#ccc'} />
             ) : (

@@ -2,7 +2,6 @@
 import Grid from 'components/grid';
 import { GridTileImage } from 'components/grid/tile';
 import Label from 'components/label';
-import ProductGroupsDisplay from 'components/product/ProductGroupsDisplay';
 import {
    flattenMetafields,
    getColorPatternMetaobjectId,
@@ -10,14 +9,24 @@ import {
 } from 'lib/helpers/metafieldHelpers';
 import { Product } from 'lib/shopify/types';
 import Link from 'next/link';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 
 // Helper to extract the parent group value from a product’s metafields.
+// cSpell:ignore Uncategorized
 function getParentGroup(product: Product): string {
-   // Use flattenMetafields to find the custom.parent_groups metafield.
    const fields: Metafield[] = flattenMetafields(product);
    const parentGroupField = fields.find((mf) => mf.key === 'custom.parent_groups');
    return parentGroupField ? parentGroupField.value.trim() : 'Uncategorized';
+}
+
+// Helper to extract price (adjust as needed)
+function extractPrice(product: Product): string {
+   if (product.price && !isNaN(Number(product.price))) return product.price;
+   if (product.variants && product.variants.length > 0 && product.variants[0]?.priceV2) {
+      const amount = Number(product.variants[0].priceV2.amount);
+      return isNaN(amount) ? '' : amount.toFixed(2);
+   }
+   return '';
 }
 
 interface ProductGridItemsProps {
@@ -26,7 +35,6 @@ interface ProductGridItemsProps {
 }
 
 function ProductGridItemsComponent({ products, groupHandle }: ProductGridItemsProps) {
-   const [metaobjectResults, setMetaobjectResults] = useState<any[]>([]);
    const groupsMap: { [groupKey: string]: Product[] } = {};
 
    // Group products by their parent group value.
@@ -36,73 +44,72 @@ function ProductGridItemsComponent({ products, groupHandle }: ProductGridItemsPr
       groupsMap[parentGroup].push(product);
    });
    console.log('groupsMap::::::::::::::::::::::::', groupsMap);
-   // Fetch metaobject details for each parent group.
-   useEffect(() => {
-      async function fetchMetaobjects() {
-         const groupKeys = Object.keys(groupsMap);
-         const queries = groupKeys.map(async (groupKey) => {
-            const metaobjectQuery = `
-          query GetProductGroupMetaobject($handle: MetaobjectHandleInput!) {
-            metaobject(handle: $handle) {
-              id
-              handle
-              fields {
-                key
-                value
-              }
-            }
-          }
-        `;
-            const variables = { handle: { handle: groupKey, type: 'product_groups' } };
-
-            const res = await fetch(process.env.NEXT_PUBLIC_SHOPIFY_GRAPHQL_ENDPOINT || '', {
-               method: 'POST',
-               headers: {
-                  'Content-Type': 'application/json',
-                  'X-Shopify-Storefront-Access-Token':
-                     process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_TOKEN || ''
-               },
-               body: JSON.stringify({ query: metaobjectQuery, variables })
-            });
-            const json = await res.json();
-            return { groupKey, metaobject: json.data?.metaobject };
-         });
-         const results = await Promise.all(queries);
-         setMetaobjectResults(results.filter((r) => r.metaobject !== null));
-      }
-      fetchMetaobjects();
-   }, [products]);
-
-   function flattenImages(images: any): any[] {
-      if (!images) return [];
-      if (Array.isArray(images)) return images;
-      if (images.edges) {
-         return images.edges.map((edge: any) => edge.node);
-      }
-      return [];
-   }
 
    return (
       <>
-         {/* Render grouped parent tiles if metaobject details are available */}
-         {metaobjectResults.length > 0 &&
-            metaobjectResults.map(({ groupKey, metaobject }) => {
-               const nameField = metaobject.fields.find((f: any) => f.key === 'name');
-               const groupTitleFromMeta = nameField ? nameField.value : groupKey;
-               const groupProducts: Product[] = groupsMap[groupKey] || [];
+         {/* Render parent group cards, excluding "Uncategorized" and empty groups */}
+         <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3">
+            {Object.entries(groupsMap)
+               .filter(
+                  ([groupKey, groupProducts]) =>
+                     groupKey !== 'Uncategorized' && groupProducts.length > 0
+               )
+               .map(([groupKey, groupProducts]) => {
+                  // Now it's safe to assert that groupProducts[0] exists.
+                  const parentProduct = groupProducts[0]!;
+                  const parentPrice = extractPrice(parentProduct);
+                  return (
+                     <Grid.Item key={groupKey} className="animate-fadeIn">
+                        <Link
+                           href={`/product/${parentProduct.handle}`}
+                           prefetch={true}
+                           className="flex h-full w-full flex-col"
+                        >
+                           <div className="relative aspect-[2/3] w-full">
+                              <GridTileImage
+                                 alt={parentProduct.title}
+                                 src={parentProduct.featuredImage?.url}
+                                 secondarySrc={
+                                    parentProduct.images && parentProduct.images[1]?.url
+                                       ? parentProduct.images[1].url
+                                       : parentProduct.featuredImage?.url
+                                 }
+                                 fill
+                                 sizes="(min-width: 768px) 33vw, (min-width: 640px) 50vw, 100vw"
+                                 swatchMetaobjectId={getColorPatternMetaobjectId(parentProduct)}
+                                 swatchFallbackColor={parentProduct.options
+                                    ?.find((o) => o.name.toLowerCase() === 'color')
+                                    ?.values[0]?.toLowerCase()}
+                              />
+                           </div>
+                           <div className="mt-0">
+                              <Label
+                                 title={parentProduct.title}
+                                 amount={parentPrice}
+                                 currencyCode={
+                                    parentProduct.priceRange.maxVariantPrice.currencyCode
+                                 }
+                                 colorName={
+                                    parentProduct.options?.find(
+                                       (o) => o.name.toLowerCase() === 'color'
+                                    )?.values[0]
+                                 }
+                                 metaobjectId={getColorPatternMetaobjectId(parentProduct)}
+                                 fallbackColor={parentProduct.options
+                                    ?.find((o) => o.name.toLowerCase() === 'color')
+                                    ?.values[0]?.toLowerCase()}
+                                 position="bottom"
+                              />
+                           </div>
+                        </Link>
+                     </Grid.Item>
+                  );
+               })}
+         </div>
 
-               return (
-                  <ProductGroupsDisplay
-                     key={groupKey}
-                     groupTitle={groupTitleFromMeta}
-                     products={groupProducts}
-                  />
-               );
-            })}
          {/* Render the standard grid of all products */}
          <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3">
             {products.map((product) => {
-               const flattenedImages = flattenImages(product.images);
                return (
                   <Grid.Item key={product.handle} className="animate-fadeIn">
                      <Link
@@ -114,10 +121,13 @@ function ProductGridItemsComponent({ products, groupHandle }: ProductGridItemsPr
                            <GridTileImage
                               alt={product.title}
                               src={product.featuredImage?.url}
-                              secondarySrc={flattenedImages[1]?.url || product.featuredImage?.url}
+                              secondarySrc={
+                                 product.images && product.images[1]?.url
+                                    ? product.images[1].url
+                                    : product.featuredImage?.url
+                              }
                               fill
                               sizes="(min-width: 768px) 33vw, (min-width: 640px) 50vw, 100vw"
-                              // Still showing the color-pattern swatch for individual grid items
                               swatchMetaobjectId={getColorPatternMetaobjectId(product)}
                               swatchFallbackColor={product.options
                                  ?.find((o) => o.name.toLowerCase() === 'color')
