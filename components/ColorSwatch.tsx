@@ -5,22 +5,23 @@ interface ColorSwatchProps {
    metaobjectId: string;
    fallbackColor: string;
    metaobjectIdsArray?: string[];
+   onColorsFetched?: (colors: string[]) => void;
 }
 
 const SHOPIFY_ENDPOINT = process.env.NEXT_PUBLIC_SHOPIFY_GRAPHQL_ENDPOINT!;
 const SHOPIFY_STOREFRONT_TOKEN = process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_TOKEN!;
 
 export const ColorSwatch: React.FC<ColorSwatchProps> = ({
-   metaobjectIdsArray,
    metaobjectId,
-   fallbackColor
+   fallbackColor,
+   metaobjectIdsArray,
+   onColorsFetched
 }) => {
-   // We start off with our fallback color in an array because, hey, consistency.
+   // We store our color(s) in an array.
    const [colorCodes, setColorCodes] = useState<string[]>([fallbackColor]);
 
    useEffect(() => {
-      // Helper to fetch the color for a single metaobject ID.
-      async function fetchMetaobjectColor(id: string): Promise<string> {
+      async function fetchMetaobject(id: string): Promise<string> {
          const query = `
         query GetMetaobject($id: ID!) {
           metaobject(id: $id) {
@@ -43,7 +44,7 @@ export const ColorSwatch: React.FC<ColorSwatchProps> = ({
                body: JSON.stringify({ query, variables })
             });
             const data = await res.json();
-            console.log('Metaobject response:', data);
+            console.log('DATA FROM COLORSWATCH::::', data);
             if (!data.data) {
                console.error('No data returned for metaobject', id, data);
                return fallbackColor;
@@ -53,7 +54,7 @@ export const ColorSwatch: React.FC<ColorSwatchProps> = ({
                console.error('No metaobject data found for ID:', id);
                return fallbackColor;
             }
-            // Look for the "color" field
+            // Look for the "color" field.
             const colorField = metaobjectData.fields.find((f: any) => f.key === 'color');
             if (colorField?.value) {
                return colorField.value;
@@ -67,53 +68,50 @@ export const ColorSwatch: React.FC<ColorSwatchProps> = ({
          }
       }
 
-      // If we have an array of metaobject IDs, fetch them all.
       async function fetchColors() {
          if (metaobjectIdsArray && metaobjectIdsArray.length > 0) {
-            const colors = await Promise.all(
-               metaobjectIdsArray.map((id) => fetchMetaobjectColor(id))
-            );
+            const colors = await Promise.all(metaobjectIdsArray.map((id) => fetchMetaobject(id)));
             setColorCodes(colors);
+            if (onColorsFetched) onColorsFetched(colors);
          } else if (metaobjectId) {
-            const color = await fetchMetaobjectColor(metaobjectId);
+            const color = await fetchMetaobject(metaobjectId);
             setColorCodes([color]);
+            if (onColorsFetched) onColorsFetched([color]);
          }
       }
-
       fetchColors();
-   }, [metaobjectId, metaobjectIdsArray, fallbackColor]);
+   }, [metaobjectId, metaobjectIdsArray, fallbackColor, onColorsFetched]);
 
-   // Render multiple swatches if we have more than one color code; otherwise, render one.
+   // Render multiple swatches if we have more than one color; otherwise, render one.
+   if (colorCodes.length > 1) {
+      return (
+         <div style={{ display: 'flex', gap: '4px' }}>
+            {colorCodes.map((code, index) => (
+               <div
+                  key={index}
+                  style={{
+                     backgroundColor: code,
+                     width: '18px',
+                     height: '18px',
+                     borderRadius: '50%',
+                     border: '1px solid #ccc'
+                  }}
+                  title={code}
+               />
+            ))}
+         </div>
+      );
+   }
    return (
-      <>
-         {colorCodes.length > 1 ? (
-            <div style={{ display: 'flex', gap: '4px' }}>
-               {colorCodes.map((code, index) => (
-                  <div
-                     key={index}
-                     style={{
-                        backgroundColor: code,
-                        width: '18px',
-                        height: '18px',
-                        borderRadius: '50%',
-                        border: '1px solid #ccc'
-                     }}
-                     title={code}
-                  />
-               ))}
-            </div>
-         ) : (
-            <div
-               style={{
-                  backgroundColor: colorCodes[0],
-                  width: '18px',
-                  height: '18px',
-                  borderRadius: '50%',
-                  border: '1px solid #ccc'
-               }}
-               title={colorCodes[0]}
-            />
-         )}
-      </>
+      <div
+         style={{
+            backgroundColor: colorCodes[0],
+            width: '18px',
+            height: '18px',
+            borderRadius: '50%',
+            border: '1px solid #ccc'
+         }}
+         title={colorCodes[0]}
+      />
    );
 };

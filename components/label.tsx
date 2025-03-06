@@ -3,12 +3,6 @@ import React from 'react';
 import { ColorSwatch } from './ColorSwatch';
 import Price from './price';
 
-interface Swatch {
-   metaobjectId: string;
-   fallbackColor: string;
-   colorName: string;
-}
-
 interface LabelProps {
    title: string;
    amount: string;
@@ -19,7 +13,6 @@ interface LabelProps {
    fallbackColor?: string; // fallback color code
    position?: 'bottom' | 'center';
    swatchMetaobjectId?: string; // for compatibility with GridTileImage
-   swatches?: Swatch[]; // new: an array of swatches to display below the color name
 }
 
 const Label: React.FC<LabelProps> = ({
@@ -30,7 +23,6 @@ const Label: React.FC<LabelProps> = ({
    metaobjectId,
    fallbackColor = '#ccc',
    position = 'bottom',
-   swatches,
    metaobjectIdsArray
 }) => {
    const filteredTitle = colorName
@@ -109,29 +101,6 @@ const Label: React.FC<LabelProps> = ({
                   )
                )}
             </div>
-
-            {/* Additional swatches: Render multiple swatches inline if provided */}
-            {swatches && swatches.length > 0 && (
-               <div className="mt-2 flex gap-2">
-                  {swatches.map((swatch, i) => (
-                     <div
-                        key={i}
-                        className="h-5 w-5 rounded-full border border-gray-300"
-                        title={swatch.colorName}
-                     >
-                        <div
-                           style={{
-                              backgroundColor: swatch.fallbackColor,
-                              width: '20px',
-                              height: '20px',
-                              borderRadius: '50%',
-                              border: '1px solid #ccc'
-                           }}
-                        />
-                     </div>
-                  ))}
-               </div>
-            )}
          </div>
       </div>
    );

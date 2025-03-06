@@ -43,7 +43,7 @@ function ProductGridItemsComponent({ products, groupHandle }: ProductGridItemsPr
    console.log('groupsMap::::::::::::::::::::::::', groupsMap);
 
    // Create a mapping for each group containing the metaobjectId for the "color-pattern"
-   // and a fallback color. Because who wouldn't want every group to have its own identity?
+   // and a fallback color.
    const groupMetaobjectMapping = Object.entries(groupsMap)
       .map(([groupKey, groupProducts]) => {
          if (!groupProducts || groupProducts.length === 0) return null;
@@ -71,14 +71,14 @@ function ProductGridItemsComponent({ products, groupHandle }: ProductGridItemsPr
             groupProducts: Product[];
          } => mapping !== null
       );
-   // let's extract those metaobjectIds, filtering out any undefined ones.
+   // Extract metaobjectIds for the entire grid (filtering out undefined ones).
    const metaobjectIdsArray = groupMetaobjectMapping
       .map((mapping) => mapping.metaobjectId)
       .filter((id): id is string => id !== undefined);
 
    console.log('metaobjectIdsArray::::::::::::::::::::::::', metaobjectIdsArray);
 
-   // Helper to flatten images (because our products love to hide behind nested objects).
+   // Helper to flatten images.
    function flattenImages(images: any): any[] {
       if (!images) return [];
       if (Array.isArray(images)) return images;
@@ -140,14 +140,13 @@ function ProductGridItemsComponent({ products, groupHandle }: ProductGridItemsPr
                                     )?.values[0]
                                  }
                                  metaobjectId={metaobjectId}
+                                 // Pass only the current group's metaobjectId as an array:
                                  metaobjectIdsArray={metaobjectIdsArray}
                                  fallbackColor={
                                     representativeProduct.options
                                        ?.find((o) => o.name.toLowerCase() === 'color')
                                        ?.values[0]?.toLowerCase() || '#FFFFFF'
                                  }
-                                 // metaobjectId={metaobjectId}
-                                 // fallbackColor={fallbackColor}
                                  position="bottom"
                               />
                            </div>
