@@ -1,3 +1,4 @@
+'use client';
 import clsx from 'clsx';
 import React from 'react';
 import { ColorSwatch } from './ColorSwatch';
@@ -13,6 +14,7 @@ interface LabelProps {
    fallbackColor?: string; // fallback color code
    position?: 'bottom' | 'center';
    swatchMetaobjectId?: string; // for compatibility with GridTileImage
+   onSwatchClick?: () => void;
 }
 
 const Label: React.FC<LabelProps> = ({
@@ -23,7 +25,8 @@ const Label: React.FC<LabelProps> = ({
    metaobjectId,
    fallbackColor = '#ccc',
    position = 'bottom',
-   metaobjectIdsArray
+   metaobjectIdsArray,
+   onSwatchClick
 }) => {
    const filteredTitle = colorName
       ? title.replace(new RegExp(`\\b${colorName}\\b`, 'i'), '').trim()
@@ -78,8 +81,15 @@ const Label: React.FC<LabelProps> = ({
             {/* Selected Color Name */}
             {colorName && <div className="mb-2 mt-0 pt-0 text-xs font-normal">{colorName}</div>}
 
-            {/* Selected Color Swatch (for the selected color) */}
-            <div className="mt-0">
+            {/* Swatch Display wrapped with onMouseEnter to trigger interactivity */}
+            <div
+               className="mt-0"
+               onMouseEnter={(e) => {
+                  e.stopPropagation();
+                  if (onSwatchClick) onSwatchClick();
+               }}
+               style={{ cursor: 'pointer' }}
+            >
                {metaobjectId ? (
                   <ColorSwatch
                      metaobjectId={metaobjectId}

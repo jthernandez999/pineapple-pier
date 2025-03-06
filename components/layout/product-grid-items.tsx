@@ -1,3 +1,4 @@
+'use client';
 import Grid from 'components/grid';
 import { GridTileImage } from 'components/grid/tile';
 import Label from 'components/label';
@@ -8,7 +9,7 @@ import {
 } from 'lib/helpers/metafieldHelpers';
 import { Product } from 'lib/shopify/types';
 import Link from 'next/link';
-import React from 'react';
+import React, { useState } from 'react';
 
 // Helper to extract the parent group value from a product’s metafields.
 function getParentGroup(product: Product): string {
@@ -18,7 +19,7 @@ function getParentGroup(product: Product): string {
    return parentGroupField ? parentGroupField.value.trim() : 'Uncategorized';
 }
 
-// Helper to extract price (adjust as needed)
+// Helper to extract price.
 function extractPrice(product: Product): string {
    if (product.price && !isNaN(Number(product.price))) return product.price;
    if (product.variants && product.variants.length > 0 && product.variants[0]?.priceV2) {
@@ -28,12 +29,22 @@ function extractPrice(product: Product): string {
    return '';
 }
 
+// Helper to flatten images.
+function flattenImages(images: any): any[] {
+   if (!images) return [];
+   if (Array.isArray(images)) return images;
+   if ('edges' in images && Array.isArray(images.edges)) {
+      return images.edges.map((edge: any) => edge.node);
+   }
+   return [];
+}
+
 interface ProductGridItemsProps {
    products: Product[];
    groupHandle?: string;
 }
 
-function ProductGridItemsComponent({ products, groupHandle }: ProductGridItemsProps) {
+export function ProductGridItemsComponent({ products, groupHandle }: ProductGridItemsProps) {
    // Group products by their parent group.
    const groupsMap: { [groupKey: string]: Product[] } = {};
    products.forEach((product) => {
@@ -41,15 +52,12 @@ function ProductGridItemsComponent({ products, groupHandle }: ProductGridItemsPr
       groupsMap[parentGroup] = groupsMap[parentGroup] || [];
       groupsMap[parentGroup].push(product);
    });
-   // console.log('groupsMap::::::::::::::::::::::::', groupsMap);
 
-   // Create a mapping for each group containing the metaobjectId for the "color-pattern"
-   // and a fallback color.
+   // Create a mapping for each group.
    const groupMetaobjectMapping = Object.entries(groupsMap)
       .map(([groupKey, groupProducts]) => {
          if (!groupProducts || groupProducts.length === 0) return null;
-         const representativeProduct = groupProducts[0];
-         if (!representativeProduct) return null;
+         const representativeProduct = groupProducts[0]!;
          const metaobjectId = getColorPatternMetaobjectId(representativeProduct);
          const fallbackColor =
             representativeProduct.options
@@ -59,7 +67,7 @@ function ProductGridItemsComponent({ products, groupHandle }: ProductGridItemsPr
             group: groupKey,
             metaobjectId,
             fallbackColor,
-            groupProducts // Save groupProducts for later use.
+            groupProducts
          };
       })
       .filter(
@@ -72,105 +80,125 @@ function ProductGridItemsComponent({ products, groupHandle }: ProductGridItemsPr
             groupProducts: Product[];
          } => mapping !== null
       );
-   // Extract metaobjectIds for the entire grid (filtering out undefined ones).
-   const metaobjectIdsArray = groupMetaobjectMapping
-      .map((mapping) => mapping.metaobjectId)
-      .filter((id): id is string => id !== undefined);
 
-   console.log('metaobjectIdsArray::::::::::::::::::::::::', metaobjectIdsArray);
+   // Only interactive groups (excluding "Uncategorized").
+   const interactiveGroups = groupMetaobjectMapping.filter(
+      (mapping) => mapping.group !== 'Uncategorized' && mapping.groupProducts.length > 0
+   );
 
-   // Helper to flatten images.
-   function flattenImages(images: any): any[] {
-      if (!images) return [];
-      if (Array.isArray(images)) return images;
-      if (images.edges) {
-         return images.edges.map((edge: any) => edge.node);
-      }
-      return [];
-   }
+   // State to track active product per group.
+   const [activeProducts, setActiveProducts] = useState<{ [group: string]: Product }>(() => {
+      const initial: { [group: string]: Product } = {};
+      interactiveGroups.forEach(({ group, groupProducts }) => {
+         if (groupProducts.length > 0) {
+            initial[group] = groupProducts[0]!;
+         }
+      });
+      return initial;
+   });
 
    return (
       <>
-         {/* Render parent group cards (excluding "Uncategorized") */}
+         {/* Render interactive group cards */}
          <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3">
-            {groupMetaobjectMapping
-               .filter(
-                  (mapping) => mapping.group !== 'Uncategorized' && mapping.groupProducts.length > 0
-               )
-               .map(({ group, fallbackColor, groupProducts }) => {
-                  // Compute unique metaobject IDs for this group:
-                  const groupColorMetaobjectIds = Array.from(
-                     new Set(
-                        groupProducts
-                           .map((product) => getColorPatternMetaobjectId(product))
-                           .filter((id): id is string => !!id)
-                     )
-                  );
-                  // Use the first ID as the representative ID (if any)
-                  const repMetaobjectId = groupColorMetaobjectIds[0];
+            {interactiveGroups.map(({ group, fallbackColor, groupProducts, metaobjectId }) => {
+               const activeProduct = activeProducts[group] || groupProducts[0]!;
+               const parentPrice = extractPrice(activeProduct);
 
-                  // Grab a representative product to display other data (title, price, etc.)
-                  const representativeProduct = groupProducts[0]!;
-                  const parentPrice = extractPrice(representativeProduct);
+               // Compute unique metaobject IDs for the group.
+               const groupColorMetaobjectIds = Array.from(
+                  new Set(
+                     groupProducts
+                        .map((product) => getColorPatternMetaobjectId(product))
+                        .filter((id): id is string => Boolean(id))
+                  )
+               );
 
-                  return (
-                     <Grid.Item key={group} className="animate-fadeIn">
-                        <Link
-                           href={`/product/${representativeProduct.handle}`}
-                           prefetch={true}
-                           className="flex h-full w-full flex-col"
-                        >
-                           <div className="relative aspect-[2/3] w-full">
-                              <GridTileImage
-                                 alt={representativeProduct.title}
-                                 src={representativeProduct.featuredImage?.url}
-                                 secondarySrc={
-                                    representativeProduct.images &&
-                                    representativeProduct.images[1]?.url
-                                       ? representativeProduct.images[1]?.url
-                                       : representativeProduct.featuredImage?.url
-                                 }
-                                 fill
-                                 sizes="(min-width: 768px) 33vw, (min-width: 640px) 50vw, 100vw"
-                                 // Use the representative metaobject ID for the image swatch
-                                 swatchMetaobjectId={repMetaobjectId}
-                                 swatchFallbackColor={fallbackColor}
-                              />
-                           </div>
-                           <div className="mt-0">
-                              <Label
-                                 title={representativeProduct.title}
-                                 amount={
-                                    representativeProduct.priceRange?.maxVariantPrice?.amount ??
-                                    parentPrice
-                                 }
-                                 currencyCode={
-                                    representativeProduct.priceRange?.maxVariantPrice
-                                       ?.currencyCode ?? ''
-                                 }
-                                 colorName={
-                                    representativeProduct.options?.find(
-                                       (o) => o.name.toLowerCase() === 'color'
-                                    )?.values[0]
-                                 }
-                                 // Use the group's representative metaobjectId and unique array
-                                 metaobjectId={repMetaobjectId}
-                                 metaobjectIdsArray={groupColorMetaobjectIds}
-                                 fallbackColor={
-                                    representativeProduct.options
-                                       ?.find((o) => o.name.toLowerCase() === 'color')
-                                       ?.values[0]?.toLowerCase() || '#FFFFFF'
-                                 }
-                                 position="bottom"
-                              />
-                           </div>
-                        </Link>
-                     </Grid.Item>
+               // Build a map from metaobjectId to product.
+               const swatchMap: Record<string, Product> = {};
+               groupProducts.forEach((product) => {
+                  const id = getColorPatternMetaobjectId(product);
+                  if (id) swatchMap[id] = product;
+               });
+
+               // Determine the active product's color ID.
+               const activeColorId = getColorPatternMetaobjectId(activeProduct) || metaobjectId;
+               const currentIndex = groupColorMetaobjectIds.findIndex((id) => id === activeColorId);
+               const nextIndex = (currentIndex + 1) % groupColorMetaobjectIds.length;
+
+               // onSwatchClick cycles to the next product in the group.
+               const handleSwatchClick = () => {
+                  const nextColorId = groupColorMetaobjectIds[nextIndex];
+                  const nextProduct = groupProducts.find(
+                     (product) => getColorPatternMetaobjectId(product) === nextColorId
                   );
-               })}
+                  if (nextProduct) {
+                     setActiveProducts((prev) => ({
+                        ...prev,
+                        [group]: nextProduct
+                     }));
+                  }
+               };
+
+               return (
+                  <Grid.Item key={group} className="animate-fadeIn">
+                     <Link
+                        href={`/product/${activeProduct.handle}`}
+                        prefetch={true}
+                        className="flex h-full w-full flex-col"
+                     >
+                        <div className="relative aspect-[2/3] w-full">
+                           <GridTileImage
+                              alt={activeProduct.title}
+                              src={activeProduct.featuredImage?.url}
+                              secondarySrc={
+                                 activeProduct.images && activeProduct.images[1]?.url
+                                    ? activeProduct.images[1]?.url
+                                    : activeProduct.featuredImage?.url
+                              }
+                              fill
+                              sizes="(min-width: 768px) 33vw, (min-width: 640px) 50vw, 100vw"
+                              swatchMetaobjectId={
+                                 getColorPatternMetaobjectId(activeProduct) || metaobjectId
+                              }
+                              swatchFallbackColor={fallbackColor}
+                           />
+                        </div>
+                        <div className="mt-0">
+                           <Label
+                              title={activeProduct.title}
+                              amount={
+                                 activeProduct.priceRange?.maxVariantPrice?.amount ?? parentPrice
+                              }
+                              currencyCode={
+                                 activeProduct.priceRange?.maxVariantPrice?.currencyCode ?? ''
+                              }
+                              colorName={
+                                 activeProduct.options?.find(
+                                    (o) => o.name.toLowerCase() === 'color'
+                                 )?.values[0]
+                              }
+                              metaobjectId={
+                                 getColorPatternMetaobjectId(activeProduct) || metaobjectId
+                              }
+                              fallbackColor={
+                                 activeProduct.options
+                                    ?.find((o) => o.name.toLowerCase() === 'color')
+                                    ?.values[0]?.toLowerCase() || '#FFFFFF'
+                              }
+                              position="bottom"
+                              // Pass the group's unique metaobject IDs and swatch click handler.
+                              metaobjectIdsArray={groupColorMetaobjectIds}
+                              onSwatchClick={handleSwatchClick}
+                           />
+                        </div>
+                     </Link>
+                  </Grid.Item>
+               );
+            })}
          </div>
 
-         {/* Render the standard grid of individual products */}
+         {/* Render individual product cards */}
          <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3">
             {products.map((product) => {
                const flattenedImages = flattenImages(product.images);
