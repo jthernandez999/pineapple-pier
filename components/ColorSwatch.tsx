@@ -44,7 +44,7 @@ export const ColorSwatch: React.FC<ColorSwatchProps> = ({
                body: JSON.stringify({ query, variables })
             });
             const data = await res.json();
-            console.log('DATA FROM COLORSWATCH::::', data);
+            // console.log('DATA FROM COLORSWATCH::::', data);
             if (!data.data) {
                console.error('No data returned for metaobject', id, data);
                return fallbackColor;

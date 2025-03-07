@@ -10,13 +10,12 @@ import {
 } from 'lib/helpers/metafieldHelpers';
 import { Product } from 'lib/shopify/types';
 import Link from 'next/link';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
 // Helper to extract the parent group value.
 function getParentGroup(product: Product): string {
    const fields: Metafield[] = flattenMetafields(product);
    const parentGroupField = fields.find((mf) => mf.key === 'custom.parent_groups');
-   // console.log('parentGrous::::::::::::::::::::::::', parentGroupField);
    return parentGroupField ? parentGroupField.value.trim() : 'Uncategorized';
 }
 
@@ -46,13 +45,17 @@ interface ProductGridItemsProps {
 }
 
 export function ProductGridItemsComponent({ products, groupHandle }: ProductGridItemsProps) {
-   // Group products by parent group.
-   const groupsMap: { [groupKey: string]: Product[] } = {};
-   products.forEach((product) => {
-      const parentGroup = getParentGroup(product);
-      groupsMap[parentGroup] = groupsMap[parentGroup] || [];
-      groupsMap[parentGroup].push(product);
-   });
+   // Memoize groupsMap so it only recalculates when products change.
+   const groupsMap = useMemo(() => {
+      const map: { [groupKey: string]: Product[] } = {};
+      products.forEach((product) => {
+         const parentGroup = getParentGroup(product);
+         map[parentGroup] = map[parentGroup] || [];
+         map[parentGroup].push(product);
+      });
+      return map;
+   }, [products]);
+
    // Use our ProductGroups context to store the groups.
    const { setGroups } = useProductGroups();
    useEffect(() => {
@@ -60,37 +63,41 @@ export function ProductGridItemsComponent({ products, groupHandle }: ProductGrid
    }, [groupsMap, setGroups]);
 
    // Build mapping for each group.
-   const groupMetaobjectMapping = Object.entries(groupsMap)
-      .map(([groupKey, groupProducts]) => {
-         if (!groupProducts || groupProducts.length === 0) return null;
-         const representativeProduct = groupProducts[0]!;
-         const metaobjectId = getColorPatternMetaobjectId(representativeProduct);
-         const fallbackColor =
-            representativeProduct.options
-               ?.find((o) => o.name.toLowerCase() === 'color')
-               ?.values[0]?.toLowerCase() || '#FFFFFF';
-         return {
-            group: groupKey,
-            metaobjectId,
-            fallbackColor,
-            groupProducts
-         };
-      })
-      .filter(
-         (
-            mapping
-         ): mapping is {
-            group: string;
-            metaobjectId: string | undefined;
-            fallbackColor: string;
-            groupProducts: Product[];
-         } => mapping !== null
-      );
+   const groupMetaobjectMapping = useMemo(() => {
+      return Object.entries(groupsMap)
+         .map(([groupKey, groupProducts]) => {
+            if (!groupProducts || groupProducts.length === 0) return null;
+            const representativeProduct = groupProducts[0]!;
+            const metaobjectId = getColorPatternMetaobjectId(representativeProduct);
+            const fallbackColor =
+               representativeProduct.options
+                  ?.find((o) => o.name.toLowerCase() === 'color')
+                  ?.values[0]?.toLowerCase() || '#FFFFFF';
+            return {
+               group: groupKey,
+               metaobjectId,
+               fallbackColor,
+               groupProducts
+            };
+         })
+         .filter(
+            (
+               mapping
+            ): mapping is {
+               group: string;
+               metaobjectId: string | undefined;
+               fallbackColor: string;
+               groupProducts: Product[];
+            } => mapping !== null
+         );
+   }, [groupsMap]);
 
-   // Interactive groups (exclude "Uncategorized").
-   const interactiveGroups = groupMetaobjectMapping.filter(
-      (mapping) => mapping.group !== 'Uncategorized' && mapping.groupProducts.length > 0
-   );
+   // Filter out "Uncategorized" groups for interactivity.
+   const interactiveGroups = useMemo(() => {
+      return groupMetaobjectMapping.filter(
+         (mapping) => mapping.group !== 'Uncategorized' && mapping.groupProducts.length > 0
+      );
+   }, [groupMetaobjectMapping]);
 
    // State: active product per group.
    const [activeProducts, setActiveProducts] = useState<{ [group: string]: Product }>(() => {
@@ -120,16 +127,6 @@ export function ProductGridItemsComponent({ products, groupHandle }: ProductGrid
                   )
                );
 
-               // Build a map from metaobjectId to product.
-               const swatchMap: Record<string, Product> = {};
-               groupProducts.forEach((product) => {
-                  const id = getColorPatternMetaobjectId(product);
-                  if (id) swatchMap[id] = product;
-               });
-
-               // Determine the active product's color ID.
-               const activeColorId = getColorPatternMetaobjectId(activeProduct) || metaobjectId;
-
                // onSwatchClick handler: update active product only if a different swatch is clicked.
                const handleSwatchSelect = (
                   swatchId: string,
@@ -137,27 +134,13 @@ export function ProductGridItemsComponent({ products, groupHandle }: ProductGrid
                ) => {
                   e.preventDefault();
                   e.stopPropagation();
-
-                  // Normalize the current active ID and clicked swatch id.
                   const currentActiveId = (
                      getColorPatternMetaobjectId(activeProduct) || metaobjectId
                   )
                      ?.toLowerCase()
                      .trim();
                   const clickedId = swatchId.toLowerCase().trim();
-                  console.log(
-                     'Swatch click: currentActiveId=',
-                     currentActiveId,
-                     'clickedId=',
-                     clickedId
-                  );
-
-                  // If the same swatch is clicked, do nothing.
-                  if (clickedId === currentActiveId) {
-                     return;
-                  }
-
-                  // Find the product corresponding to the clicked swatch.
+                  if (clickedId === currentActiveId) return;
                   const nextProduct = groupProducts.find(
                      (product) =>
                         (getColorPatternMetaobjectId(product) || '').toLowerCase().trim() ===
@@ -170,27 +153,6 @@ export function ProductGridItemsComponent({ products, groupHandle }: ProductGrid
                      }));
                   }
                };
-
-               // const handleSwatchSelect = (
-               //    swatchId: string,
-               //    e: React.MouseEvent<HTMLDivElement>
-               // ) => {
-               //    e.preventDefault();
-               //    e.stopPropagation();
-               //    if (swatchId === activeColorId) {
-               //       // Already active; do nothing.
-               //       return;
-               //    }
-               //    const nextProduct = groupProducts.find(
-               //       (product) => getColorPatternMetaobjectId(product) === swatchId
-               //    );
-               //    if (nextProduct) {
-               //       setActiveProducts((prev) => ({
-               //          ...prev,
-               //          [group]: nextProduct
-               //       }));
-               //    }
-               // };
 
                return (
                   <Grid.Item key={group} className="animate-fadeIn">
