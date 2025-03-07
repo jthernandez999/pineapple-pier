@@ -138,7 +138,7 @@ export function ProductGridItemsComponent({ products, groupHandle }: ProductGrid
                   e.preventDefault();
                   e.stopPropagation();
 
-                  // Normalize the active product's color ID and the clicked swatch id.
+                  // Normalize the current active ID and clicked swatch id.
                   const currentActiveId = (
                      getColorPatternMetaobjectId(activeProduct) || metaobjectId
                   )
@@ -152,10 +152,12 @@ export function ProductGridItemsComponent({ products, groupHandle }: ProductGrid
                      clickedId
                   );
 
-                  // If the clicked swatch is already active, do nothing.
-                  if (clickedId === currentActiveId) return;
+                  // If the same swatch is clicked, do nothing.
+                  if (clickedId === currentActiveId) {
+                     return;
+                  }
 
-                  // Find the product for the clicked swatch.
+                  // Find the product corresponding to the clicked swatch.
                   const nextProduct = groupProducts.find(
                      (product) =>
                         (getColorPatternMetaobjectId(product) || '').toLowerCase().trim() ===

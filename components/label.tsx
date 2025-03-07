@@ -94,9 +94,18 @@ const Label: React.FC<LabelProps> = ({
                            if (onSwatchClick) onSwatchClick(id, e);
                         }}
                         style={{
-                           // Optionally, you can style the active swatch differently:
-                           // border: id === metaobjectId ? '2px solid black' : '1px solid #ccc',
-                           borderRadius: '50%'
+                           border:
+                              id === metaobjectId
+                                 ? '2px solid ' // a subtle silver blue hue
+                                 : '1px solid rgba(255,255,255,0.25)',
+                           borderRadius: '50%',
+                           boxShadow:
+                              id === metaobjectId ? '0 0 10px rgba(191,166,116,0.7)' : 'none',
+                           transform: id === metaobjectId ? 'scale(1.05)' : 'scale(1)',
+                           background:
+                              id === metaobjectId
+                                 ? 'linear-gradient(135deg, #ffffff, #f5f3e3)' // light, refined gradient
+                                 : '#f8f7f4'
                         }}
                         title={id}
                      >

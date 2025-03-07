@@ -30,9 +30,11 @@ export function flattenMetafields(product: any): Metafield[] {
 const metaobjectCache = new Map<string, any>();
 
 export async function fetchMetaobjectData(metaobjectId: string) {
+   // If we have the metaobject in our cache, return it
    if (metaobjectCache.has(metaobjectId)) {
       return metaobjectCache.get(metaobjectId);
    }
+
    const query = /* GraphQL */ `
       query GetMetaobject($id: ID!) {
          metaobject(id: $id) {
@@ -46,21 +48,29 @@ export async function fetchMetaobjectData(metaobjectId: string) {
       }
    `;
    const variables = { id: metaobjectId };
-   const res = await fetch(process.env.NEXT_PUBLIC_SHOPIFY_GRAPHQL_ENDPOINT || '', {
-      method: 'POST',
-      headers: {
-         'Content-Type': 'application/json',
-         'X-Shopify-Storefront-Access-Token': process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_TOKEN || ''
-      },
-      body: JSON.stringify({ query, variables }),
-      next: { revalidate: 60 }
-   });
-   const json = await res.json();
-   const meta = json.data?.metaobject;
-   if (meta) {
-      metaobjectCache.set(metaobjectId, meta);
+
+   try {
+      const res = await fetch(process.env.NEXT_PUBLIC_SHOPIFY_GRAPHQL_ENDPOINT || '', {
+         method: 'POST',
+         headers: {
+            'Content-Type': 'application/json',
+            'X-Shopify-Storefront-Access-Token':
+               process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_TOKEN || ''
+         },
+         body: JSON.stringify({ query, variables }),
+         // Next.js caching if applicable:
+         next: { revalidate: 60 }
+      });
+      const json = await res.json();
+      const meta = json.data?.metaobject;
+      if (meta) {
+         metaobjectCache.set(metaobjectId, meta);
+      }
+      return meta;
+   } catch (error) {
+      console.error(`Error fetching metaobject data for ${metaobjectId}:`, error);
+      return null;
    }
-   return meta;
 }
 
 /**
