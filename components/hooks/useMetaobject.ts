@@ -6,7 +6,7 @@ interface MetaobjectField {
    value: string;
 }
 
-interface MetaobjectData {
+export interface MetaobjectData {
    id: string;
    handle: string;
    fields: MetaobjectField[];
@@ -38,7 +38,9 @@ export function useMetaobject(metaobjectId: string): MetaobjectData | null {
                   'X-Shopify-Storefront-Access-Token':
                      process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_TOKEN!
                },
-               body: JSON.stringify({ query, variables })
+               body: JSON.stringify({ query, variables }),
+               // Next.js caching: cache the response and revalidate every 60 seconds.
+               next: { revalidate: 60 }
             });
             const data = await res.json();
             console.log('Metaobject response:', data);
