@@ -39,7 +39,7 @@ export function useMetaobject(metaobjectId: string): MetaobjectData | null {
                      process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_TOKEN!
                },
                body: JSON.stringify({ query, variables }),
-               // Next.js caching: cache the response and revalidate every 60 seconds.
+               // Use Next.js caching: cache the response and revalidate every 60 seconds.
                next: { revalidate: 60 }
             });
             const data = await res.json();
