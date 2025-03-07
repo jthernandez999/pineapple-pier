@@ -1,23 +1,19 @@
+// components/product/variant-selector.tsx
 'use client';
 
 import clsx from 'clsx';
-import { useProduct, useUpdateURL } from 'components/product/product-context';
+import { ColorSwatch } from 'components/ColorSwatch';
+import { ProductState, useProduct, useUpdateURL } from 'components/product/product-context';
 import { dynamicMetaobjectId, getColorPatternMetaobjectId } from 'lib/helpers/metafieldHelpers';
-import type { Product, ProductOption, ProductVariant } from 'lib/shopify/types';
-import { startTransition, useEffect, useMemo, useState } from 'react';
-import { ColorSwatch } from '../../components/ColorSwatch';
+import { Product, ProductOption, ProductVariant } from 'lib/shopify/types';
+import { startTransition, useEffect, useState } from 'react';
 
-// We'll assume our Product type only has metafields (an array).
-interface ProductWithOptionalMetafield extends Product {
-   metafield?: { key: string; value: string };
-}
-
-// Define a type for variant combinations.
-// This allows additional keys to be string or boolean.
-type Combination = {
+// Revised Combination type
+interface Combination {
    id: string;
    availableForSale: boolean;
-} & { [key: string]: string | boolean };
+   [key: string]: string | boolean;
+}
 
 interface VariantSelectorProps {
    options: ProductOption[];
@@ -25,21 +21,20 @@ interface VariantSelectorProps {
    product?: Product;
 }
 
-/**
- * This implementation relies on getColorPatternMetaobjectId for fallback swatch color.
- * It updates the product state and URL when an option is selected,
- * and when the color changes it looks up a matching variant.
- */
 export function VariantSelector({ options, variants, product }: VariantSelectorProps) {
+   // Guard in case product is undefined
+   if (!product) return null;
+
    const [swatchMetaobjectId, setSwatchMetaobjectId] = useState<string | undefined>(undefined);
-   const { state, updateProductState, updateActiveProduct, activeProduct } = useProduct();
+   const { state, updateProductState, updateActiveProduct } = useProduct();
    const updateURL = useUpdateURL();
 
+   // Filter options (ignoring 'spec' and 'material')
    const filteredOptions = options.filter(
       (option) => !['spec', 'material'].includes(option.name.toLowerCase())
    );
 
-   // Ensure the color option is at the top.
+   // Optionally sort so "color" comes first
    const sortedOptions = filteredOptions.sort((a, b) => {
       if (a.name.toLowerCase() === 'color') return -1;
       if (b.name.toLowerCase() === 'color') return 1;
@@ -53,20 +48,21 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
       return null;
    }
 
-   // Compute combinations from variants.
-   const combinations: Combination[] = useMemo(() => {
-      return variants.map((variant) => ({
+   // Build combinations from variants
+   const combinations: Combination[] = variants.map((variant) => {
+      const opts = variant.selectedOptions.reduce<Record<string, string>>((acc, option) => {
+         acc[option.name.toLowerCase()] = option.value;
+         return acc;
+      }, {});
+      return {
          id: variant.id,
          availableForSale: variant.availableForSale,
-         ...variant.selectedOptions.reduce<Record<string, string>>((acc, option) => {
-            acc[option.name.toLowerCase()] = option.value;
-            return acc;
-         }, {})
-      }));
-   }, [variants]);
+         ...opts
+      };
+   });
 
    useEffect(() => {
-      const defaults: Partial<typeof state> = {};
+      const defaults: Partial<ProductState> = {};
       const colorOption = filteredOptions.find((option) => option.name.toLowerCase() === 'color');
       const sizeOption = filteredOptions.find((option) => option.name.toLowerCase() === 'size');
 
@@ -78,53 +74,44 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
          defaults.size = sizeOption.values[0];
       }
 
-      if (Object.keys(defaults).length) {
-         const mergedState = updateProductState(defaults);
-         updateURL(mergedState);
+      if (Object.keys(defaults).length > 0) {
+         startTransition(() => {
+            const mergedState = updateProductState(defaults);
+            updateURL(mergedState);
+         });
       }
    }, [filteredOptions, state, updateProductState, updateURL]);
 
-   const handleOptionSelect = (optionNameLowerCase: string, value: string) => {
-      startTransition(() => {
-         const updates: Partial<typeof state> = { [optionNameLowerCase]: value };
-         if (optionNameLowerCase === 'color') {
-            updates.image = '0'; // Reset image index when color changes.
-         }
-         const mergedState = updateProductState(updates);
-         console.log('Merged state after selection:', mergedState);
-         updateURL(mergedState);
-      });
-   };
-
    useEffect(() => {
-      // Fetch a dynamic metaobject id for swatch fallback.
       async function fetchSwatchId() {
-         if (product) {
-            const id = await dynamicMetaobjectId(product);
-            setSwatchMetaobjectId(id);
-         }
+         const id = await dynamicMetaobjectId(product);
+         setSwatchMetaobjectId(id);
       }
       fetchSwatchId();
    }, [product]);
 
-   // When the color option changes, update the active product variant.
-   useEffect(() => {
-      if (!product || !state.color) return;
-      const selectedColor = state.color.toLowerCase().trim();
-      // Find the matching variant combination.
-      const matchingCombination = combinations.find(
-         (comb) =>
-            String(comb['color']).toLowerCase().trim() === selectedColor && comb.availableForSale
-      );
-      if (matchingCombination && product) {
-         // For now, we use the base product as a placeholder.
-         // Replace this with logic to merge variant details into the product.
-         if (product.id !== activeProduct.id) {
-            console.log('Updating active product variant to:', matchingCombination.id);
-            updateActiveProduct(product);
+   const handleOptionSelect = (optionNameLowerCase: string, value: string) => {
+      startTransition(() => {
+         const updates: Partial<ProductState> = { [optionNameLowerCase]: value };
+         if (optionNameLowerCase === 'color') {
+            updates.image = '0';
          }
-      }
-   }, [state.color, combinations, product, activeProduct, updateActiveProduct]);
+         const mergedState = updateProductState(updates);
+         updateURL(mergedState);
+
+         // Find matching variant based on new state
+         const newVariant = combinations.find((combination) =>
+            filteredOptions.every(
+               (opt) => mergedState[opt.name.toLowerCase()] === combination[opt.name.toLowerCase()]
+            )
+         );
+
+         if (newVariant) {
+            const newActiveProduct = { ...product, ...newVariant };
+            updateActiveProduct(newActiveProduct);
+         }
+      });
+   };
 
    return (
       <>
@@ -133,35 +120,25 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
                <dl className="mx-auto mb-5">
                   <dt className="mb-2 text-sm uppercase tracking-wide">
                      {option.name.toLowerCase() === 'color'
-                        ? `${option.name.toUpperCase()} - ${
-                             state.color ? state.color.toUpperCase() : ''
-                          }`
+                        ? `${option.name.toUpperCase()} - ${state.color ? state.color.toUpperCase() : ''}`
                         : option.name.toUpperCase()}
                   </dt>
                   <dd className="flex flex-wrap gap-3">
                      {option.values.map((value: string) => {
-                        const optionNameLowerCase = option.name.toLowerCase();
-                        const isActive = state[optionNameLowerCase] === value;
-                        const filtered = Object.entries({
-                           ...state,
-                           [optionNameLowerCase]: value
-                        }).filter(([key, val]) =>
-                           filteredOptions.find(
-                              (opt) =>
-                                 opt.name.toLowerCase() === key &&
-                                 opt.values.includes(val as string)
-                           )
-                        );
+                        const optionKey = option.name.toLowerCase();
+                        const isActive = state[optionKey] === value;
+                        const testState = { ...state, [optionKey]: value };
                         const isAvailableForSale = Boolean(
                            combinations.find((combination) =>
-                              filtered.every(
-                                 ([key, val]) =>
-                                    combination[key] === val && combination.availableForSale
+                              filteredOptions.every(
+                                 (opt) =>
+                                    testState[opt.name.toLowerCase()] ===
+                                    combination[opt.name.toLowerCase()]
                               )
                            )
                         );
 
-                        if (optionNameLowerCase === 'color') {
+                        if (optionKey === 'color') {
                            const swatchColor =
                               getColorPatternMetaobjectId(product) ?? value.toLowerCase();
                            return (
@@ -169,16 +146,13 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
                                  key={value}
                                  type="button"
                                  disabled={!isAvailableForSale}
-                                 title={`${option.name} ${value}${
-                                    !isAvailableForSale ? ' (Out of Stock)' : ''
-                                 }`}
-                                 onClick={() => handleOptionSelect(optionNameLowerCase, value)}
+                                 title={`${option.name} ${value}${!isAvailableForSale ? ' (Out of Stock)' : ''}`}
+                                 onClick={() => handleOptionSelect(optionKey, value)}
                                  style={{
                                     backgroundColor: 'transparent',
                                     width: '18px',
                                     height: '18px',
-                                    borderRadius: '50%',
-                                    padding: ''
+                                    borderRadius: '50%'
                                  }}
                                  className={clsx(
                                     'relative flex items-center justify-center border dark:border-neutral-800',
@@ -186,8 +160,7 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
                                        'cursor-default ring-2 ring-blue-600': isActive,
                                        'ring-1 ring-transparent transition duration-300 ease-in-out hover:ring-blue-600':
                                           !isActive && isAvailableForSale,
-                                       'cursor-not-allowed overflow-hidden text-neutral-500':
-                                          !isAvailableForSale
+                                       'cursor-not-allowed text-neutral-500': !isAvailableForSale
                                     }
                                  )}
                               >
@@ -203,18 +176,15 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
                                  key={value}
                                  type="button"
                                  disabled={!isAvailableForSale}
-                                 title={`${option.name} ${value}${
-                                    !isAvailableForSale ? ' (Out of Stock)' : ''
-                                 }`}
-                                 onClick={() => handleOptionSelect(optionNameLowerCase, value)}
+                                 title={`${option.name} ${value}${!isAvailableForSale ? ' (Out of Stock)' : ''}`}
+                                 onClick={() => handleOptionSelect(optionKey, value)}
                                  className={clsx(
                                     'flex h-10 min-h-[30px] w-10 min-w-[30px] items-center justify-center border px-2 py-1 text-sm dark:border-neutral-800 dark:bg-neutral-900',
                                     {
                                        'cursor-default ring-2 ring-blue-600': isActive,
                                        'ring-1 ring-transparent transition duration-300 ease-in-out hover:ring-blue-600':
                                           !isActive && isAvailableForSale,
-                                       'relative z-10 cursor-not-allowed overflow-hidden text-neutral-500 ring-1 ring-neutral-300 before:absolute before:inset-x-0 before:top-1/2 before:-z-10 before:h-[2px] before:-translate-y-1/2 before:-rotate-45 before:bg-neutral-300 before:transition-transform before:content-[""] dark:before:bg-neutral-700':
-                                          !isAvailableForSale
+                                       'cursor-not-allowed text-neutral-500': !isAvailableForSale
                                     }
                                  )}
                               >
