@@ -27,7 +27,12 @@ export function flattenMetafields(product: any): Metafield[] {
    return fields;
 }
 
+const metaobjectCache = new Map<string, any>();
+
 export async function fetchMetaobjectData(metaobjectId: string) {
+   if (metaobjectCache.has(metaobjectId)) {
+      return metaobjectCache.get(metaobjectId);
+   }
    const query = /* GraphQL */ `
       query GetMetaobject($id: ID!) {
          metaobject(id: $id) {
@@ -41,7 +46,6 @@ export async function fetchMetaobjectData(metaobjectId: string) {
       }
    `;
    const variables = { id: metaobjectId };
-
    const res = await fetch(process.env.NEXT_PUBLIC_SHOPIFY_GRAPHQL_ENDPOINT || '', {
       method: 'POST',
       headers: {
@@ -49,12 +53,14 @@ export async function fetchMetaobjectData(metaobjectId: string) {
          'X-Shopify-Storefront-Access-Token': process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_TOKEN || ''
       },
       body: JSON.stringify({ query, variables }),
-      // Use Next.js caching here:
-      next: { revalidate: 60 } // Revalidate every 60 seconds
+      next: { revalidate: 60 }
    });
-
    const json = await res.json();
-   return json.data.metaobject;
+   const meta = json.data?.metaobject;
+   if (meta) {
+      metaobjectCache.set(metaobjectId, meta);
+   }
+   return meta;
 }
 
 /**
