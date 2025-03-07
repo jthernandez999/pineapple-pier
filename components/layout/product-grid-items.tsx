@@ -114,23 +114,29 @@ export function ProductGridItemsComponent({ products, groupHandle }: ProductGrid
                   )
                );
 
-               // Map metaobjectId to product.
+               // Build a map from metaobjectId to product.
                const swatchMap: Record<string, Product> = {};
                groupProducts.forEach((product) => {
                   const id = getColorPatternMetaobjectId(product);
                   if (id) swatchMap[id] = product;
                });
 
-               // Determine active product's color ID.
+               // Determine the active product's color ID.
                const activeColorId = getColorPatternMetaobjectId(activeProduct) || metaobjectId;
-               const currentIndex = groupColorMetaobjectIds.findIndex((id) => id === activeColorId);
-               const nextIndex = (currentIndex + 1) % groupColorMetaobjectIds.length;
 
-               // onSwatchClick cycles to the next product.
-               const handleSwatchClick = () => {
-                  const nextColorId = groupColorMetaobjectIds[nextIndex];
+               // onSwatchClick handler: update active product only if a different swatch is clicked.
+               const handleSwatchSelect = (
+                  swatchId: string,
+                  e: React.MouseEvent<HTMLDivElement>
+               ) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  if (swatchId === activeColorId) {
+                     // Already active; do nothing.
+                     return;
+                  }
                   const nextProduct = groupProducts.find(
-                     (product) => getColorPatternMetaobjectId(product) === nextColorId
+                     (product) => getColorPatternMetaobjectId(product) === swatchId
                   );
                   if (nextProduct) {
                      setActiveProducts((prev) => ({
@@ -188,7 +194,7 @@ export function ProductGridItemsComponent({ products, groupHandle }: ProductGrid
                               }
                               position="bottom"
                               metaobjectIdsArray={groupColorMetaobjectIds}
-                              onSwatchClick={handleSwatchClick}
+                              onSwatchClick={handleSwatchSelect}
                            />
                         </div>
                      </Link>
