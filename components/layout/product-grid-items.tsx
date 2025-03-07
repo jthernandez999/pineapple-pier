@@ -126,7 +126,7 @@ export function ProductGridItemsComponent({ products, groupHandle }: ProductGrid
                         .filter((id): id is string => Boolean(id))
                   )
                );
-
+               console.log('Group color metaobject IDs:', groupColorMetaobjectIds);
                // onSwatchClick handler: update active product only if a different swatch is clicked.
                const handleSwatchSelect = (
                   swatchId: string,

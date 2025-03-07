@@ -7,7 +7,6 @@ import Footer from 'components/layout/footer';
 import { Gallery } from 'components/product/gallery';
 import { ProductProvider } from 'components/product/product-context';
 import { ProductDescription } from 'components/product/product-description';
-import { ProductGroupsProvider } from 'components/product/ProductGroupsContext';
 import { HIDDEN_PRODUCT_TAG } from 'lib/constants';
 import { getColorPatternMetaobjectId } from 'lib/helpers/metafieldHelpers';
 import { getProduct, getProductRecommendations } from 'lib/shopify';
@@ -89,46 +88,42 @@ export default async function ProductPage(props: { params: Promise<{ handle: str
    };
 
    return (
-      <ProductGroupsProvider>
-         <ProductProvider initialProduct={product} key={product.id}>
-            <script
-               type="application/ld+json"
-               dangerouslySetInnerHTML={{
-                  __html: JSON.stringify(productJsonLd)
-               }}
-            />
-            <div className="mx-auto w-full px-0 md:max-w-[1950px] md:px-4">
-               <div className="flex flex-col bg-white p-0 dark:border-neutral-800 dark:bg-black md:p-8 lg:flex-row lg:gap-8">
-                  {/* Gallery / Main Image */}
-                  <div className="w-full lg:basis-1/2">
-                     <Suspense
-                        fallback={<div className="relative h-full w-full overflow-hidden" />}
-                     >
-                        <Gallery
-                           images={
-                              product.images && product.images.length
-                                 ? product.images.slice(0, 5).map((image: Image) => ({
-                                      src: image.url,
-                                      altText: image.altText
-                                   }))
-                                 : [{ src: fallbackImg.url, altText: fallbackImg.altText }]
-                           }
-                        />
-                     </Suspense>
-                  </div>
-
-                  {/* Product Description */}
-                  <div className="w-full lg:basis-1/2">
-                     <Suspense fallback={null}>
-                        <ProductDescription product={product} />
-                     </Suspense>
-                  </div>
+      <ProductProvider initialProduct={product} key={product.id}>
+         <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+               __html: JSON.stringify(productJsonLd)
+            }}
+         />
+         <div className="mx-auto w-full px-0 md:max-w-[1950px] md:px-4">
+            <div className="flex flex-col bg-white p-0 dark:border-neutral-800 dark:bg-black md:p-8 lg:flex-row lg:gap-8">
+               {/* Gallery / Main Image */}
+               <div className="w-full lg:basis-1/2">
+                  <Suspense fallback={<div className="relative h-full w-full overflow-hidden" />}>
+                     <Gallery
+                        images={
+                           product.images && product.images.length
+                              ? product.images.slice(0, 5).map((image: Image) => ({
+                                   src: image.url,
+                                   altText: image.altText
+                                }))
+                              : [{ src: fallbackImg.url, altText: fallbackImg.altText }]
+                        }
+                     />
+                  </Suspense>
                </div>
-               <RelatedProducts id={product.id} />
+
+               {/* Product Description */}
+               <div className="w-full lg:basis-1/2">
+                  <Suspense fallback={null}>
+                     <ProductDescription product={product} />
+                  </Suspense>
+               </div>
             </div>
-            <Footer />
-         </ProductProvider>
-      </ProductGroupsProvider>
+            <RelatedProducts id={product.id} />
+         </div>
+         <Footer />
+      </ProductProvider>
    );
 }
 

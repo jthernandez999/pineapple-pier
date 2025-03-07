@@ -3,6 +3,7 @@ import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import AnnouncementBar from 'components/AnnouncementBar';
 import { CartProvider } from 'components/cart/cart-context';
+import { ProductGroupsProvider } from 'components/product/ProductGroupsContext';
 import { WelcomeToast } from 'components/welcome-toast';
 import { GeistSans } from 'geist/font/sans';
 import { getCart } from 'lib/shopify';
@@ -49,21 +50,23 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
    return (
       <html lang="en" className={GeistSans.variable}>
          <body className="bg-neutral-50 text-black selection:bg-teal-300 dark:bg-neutral-900 dark:text-white dark:selection:bg-pink-500 dark:selection:text-white">
-            <AnnouncementBar />
-            <CartProvider cartPromise={cart}>
-               <Navbar />
-               <NavbarScrollHandler />
+            <ProductGroupsProvider>
+               <AnnouncementBar />
+               <CartProvider cartPromise={cart}>
+                  <Navbar />
+                  <NavbarScrollHandler />
 
-               <main>
-                  {children}
-                  <Toaster closeButton />
-                  <WelcomeToast />
-                  <JudgeMeIntegration />
-               </main>
-            </CartProvider>
-            <SpeedInsights />
-            <Analytics />
-            <GoogleAnalytics gaId="G-STZJVRZBTL" />
+                  <main>
+                     {children}
+                     <Toaster closeButton />
+                     <WelcomeToast />
+                     <JudgeMeIntegration />
+                  </main>
+               </CartProvider>
+               <SpeedInsights />
+               <Analytics />
+               <GoogleAnalytics gaId="G-STZJVRZBTL" />
+            </ProductGroupsProvider>
          </body>
       </html>
    );

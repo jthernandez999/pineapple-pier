@@ -1,31 +1,32 @@
-// components/product/product-description.tsx
 'use client';
 
 import { AddToCart } from 'components/cart/add-to-cart';
 import Price from 'components/price';
+import { useProduct } from 'components/product/product-context';
 import Prose from 'components/prose';
 import { Product } from 'lib/shopify/types';
 import { useState } from 'react';
 import { ProductSpec } from './ProductSpec';
 import StretchabilitySection from './StretchabilitySection';
 import { VariantSelector } from './variant-selector';
-// Import active product from the context
-import { useProduct } from 'components/product/product-context';
 
-export function ProductDescription({ product }: { product: Product }) {
-   // Get the active product from context. It may be updated by the VariantSelector.
+// In components/product/product-description.tsx
+interface ProductDescriptionProps {
+   product: Product;
+   groupColorMetaobjectIds?: string[];
+}
+
+export function ProductDescription({ product, groupColorMetaobjectIds }: ProductDescriptionProps) {
    const { activeProduct } = useProduct();
-   // Use activeProduct if available, otherwise fall back to the original product prop.
    const currentProduct = activeProduct || product;
 
-   // Use the currentProduct details for display.
    const productSpec = currentProduct.options.filter((option) => option.name === 'Spec');
    const filteredTitle = currentProduct.title
       ? currentProduct.title
            .replace(new RegExp(`\\b${currentProduct.options[1]?.values[0]}\\b`, 'i'), '')
            .trim()
       : currentProduct.title;
-
+   console.log('ProductTitle:', filteredTitle);
    const stretchTag: string = currentProduct.tags
       ? ((() => {
            if (currentProduct.tags.some((tag) => tag.toLowerCase() === 'stretch')) {
@@ -38,12 +39,9 @@ export function ProductDescription({ product }: { product: Product }) {
         })() ?? 'N/A')
       : 'N/A';
 
-   // Extract the numeric portion from the Shopify product id.
    const numericExternalId = parseInt(currentProduct.id.split('/').pop() || '', 10);
-   // Default judgeMeId if not provided.
    const judgeMeId = (currentProduct as any).judgeMeId ?? -1;
 
-   // State for the description dropdown (open by default)
    const [isDescriptionOpen, setIsDescriptionOpen] = useState(true);
    console.log('currentProduct tags', currentProduct.tags);
 
@@ -62,15 +60,14 @@ export function ProductDescription({ product }: { product: Product }) {
                      />
                   </div>
                </div>
-               {/* Render the variant selector without extra props */}
                <VariantSelector
                   options={currentProduct.options}
                   variants={currentProduct.variants}
                   product={currentProduct}
+                  metaobjectIdsArray={groupColorMetaobjectIds}
                />
                <AddToCart product={currentProduct} />
 
-               {/* Description Dropdown */}
                {currentProduct.descriptionHtml && (
                   <div className="my-6 mb-4 border-b pb-2">
                      <button
