@@ -4,6 +4,7 @@ import { ProductGridItems } from 'components/layout/product-grid-items';
 import { getCollectionProductsQuery } from 'lib/shopify/queries/collection';
 import { Product } from 'lib/shopify/types';
 import { Suspense, useCallback, useState } from 'react';
+import { ProductGroupsProvider } from './product/ProductGroupsContext';
 
 interface InfiniteScrollProductGridProps {
    initialProducts: Product[];
@@ -79,7 +80,9 @@ export default function InfiniteScrollProductGrid({
    return (
       <div>
          <Suspense fallback={<div>Loading products...</div>}>
-            <ProductGridItems products={products} groupHandle={collectionHandle} />
+            <ProductGroupsProvider>
+               <ProductGridItems products={products} groupHandle={collectionHandle} />
+            </ProductGroupsProvider>
          </Suspense>
          {hasNextPage && (
             <div style={{ textAlign: 'center', marginTop: '2rem' }}>

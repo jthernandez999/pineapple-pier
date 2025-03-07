@@ -2,6 +2,7 @@
 import Grid from 'components/grid';
 import { GridTileImage } from 'components/grid/tile';
 import Label from 'components/label';
+import { useProductGroups } from 'components/product/ProductGroupsContext';
 import {
    flattenMetafields,
    getColorPatternMetaobjectId,
@@ -9,13 +10,13 @@ import {
 } from 'lib/helpers/metafieldHelpers';
 import { Product } from 'lib/shopify/types';
 import Link from 'next/link';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 // Helper to extract the parent group value.
 function getParentGroup(product: Product): string {
    const fields: Metafield[] = flattenMetafields(product);
    const parentGroupField = fields.find((mf) => mf.key === 'custom.parent_groups');
-   console.log('parentGrous::::::::::::::::::::::::', parentGroupField);
+   // console.log('parentGrous::::::::::::::::::::::::', parentGroupField);
    return parentGroupField ? parentGroupField.value.trim() : 'Uncategorized';
 }
 
@@ -52,6 +53,11 @@ export function ProductGridItemsComponent({ products, groupHandle }: ProductGrid
       groupsMap[parentGroup] = groupsMap[parentGroup] || [];
       groupsMap[parentGroup].push(product);
    });
+   // Use our ProductGroups context to store the groups.
+   const { setGroups } = useProductGroups();
+   useEffect(() => {
+      setGroups(groupsMap);
+   }, [groupsMap, setGroups]);
 
    // Build mapping for each group.
    const groupMetaobjectMapping = Object.entries(groupsMap)
@@ -131,12 +137,29 @@ export function ProductGridItemsComponent({ products, groupHandle }: ProductGrid
                ) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  if (swatchId === activeColorId) {
-                     // Already active; do nothing.
-                     return;
-                  }
+
+                  // Normalize the active product's color ID and the clicked swatch id.
+                  const currentActiveId = (
+                     getColorPatternMetaobjectId(activeProduct) || metaobjectId
+                  )
+                     ?.toLowerCase()
+                     .trim();
+                  const clickedId = swatchId.toLowerCase().trim();
+                  console.log(
+                     'Swatch click: currentActiveId=',
+                     currentActiveId,
+                     'clickedId=',
+                     clickedId
+                  );
+
+                  // If the clicked swatch is already active, do nothing.
+                  if (clickedId === currentActiveId) return;
+
+                  // Find the product for the clicked swatch.
                   const nextProduct = groupProducts.find(
-                     (product) => getColorPatternMetaobjectId(product) === swatchId
+                     (product) =>
+                        (getColorPatternMetaobjectId(product) || '').toLowerCase().trim() ===
+                        clickedId
                   );
                   if (nextProduct) {
                      setActiveProducts((prev) => ({
@@ -145,6 +168,27 @@ export function ProductGridItemsComponent({ products, groupHandle }: ProductGrid
                      }));
                   }
                };
+
+               // const handleSwatchSelect = (
+               //    swatchId: string,
+               //    e: React.MouseEvent<HTMLDivElement>
+               // ) => {
+               //    e.preventDefault();
+               //    e.stopPropagation();
+               //    if (swatchId === activeColorId) {
+               //       // Already active; do nothing.
+               //       return;
+               //    }
+               //    const nextProduct = groupProducts.find(
+               //       (product) => getColorPatternMetaobjectId(product) === swatchId
+               //    );
+               //    if (nextProduct) {
+               //       setActiveProducts((prev) => ({
+               //          ...prev,
+               //          [group]: nextProduct
+               //       }));
+               //    }
+               // };
 
                return (
                   <Grid.Item key={group} className="animate-fadeIn">
