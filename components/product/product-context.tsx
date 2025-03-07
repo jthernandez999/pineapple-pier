@@ -65,8 +65,14 @@ export function ProductProvider({ children, initialProduct }: ProductProviderPro
 
    // Active product state and updater:
    const [activeProduct, setActiveProduct] = useState<Product>(initialProduct);
+
+   // components/product/product-context.tsx
    const updateActiveProduct = (product: Product) => {
-      setActiveProduct(product);
+      setActiveProduct((prev) => {
+         // Only update if the product id is different.
+         if (prev.id === product.id) return prev;
+         return product;
+      });
    };
 
    const value = useMemo(

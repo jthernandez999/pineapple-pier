@@ -1,23 +1,23 @@
 'use client';
 
 import clsx from 'clsx';
-import { ProductState, useProduct, useUpdateURL } from 'components/product/product-context';
+import { useProduct, useUpdateURL } from 'components/product/product-context';
 import { dynamicMetaobjectId, getColorPatternMetaobjectId } from 'lib/helpers/metafieldHelpers';
-import { Product, ProductOption, ProductVariant } from 'lib/shopify/types';
-import { startTransition, useEffect, useState } from 'react';
+import type { Product, ProductOption, ProductVariant } from 'lib/shopify/types';
+import { startTransition, useEffect, useMemo, useState } from 'react';
 import { ColorSwatch } from '../../components/ColorSwatch';
 
 // We'll assume our Product type only has metafields (an array).
-// We add a type cast if needed.
 interface ProductWithOptionalMetafield extends Product {
    metafield?: { key: string; value: string };
 }
 
+// Define a type for variant combinations.
+// This allows additional keys to be string or boolean.
 type Combination = {
    id: string;
    availableForSale: boolean;
-   [key: string]: string | boolean;
-};
+} & { [key: string]: string | boolean };
 
 interface VariantSelectorProps {
    options: ProductOption[];
@@ -26,26 +26,26 @@ interface VariantSelectorProps {
 }
 
 /**
- * In this implementation, we rely on the collection helper
- * getColorPatternMetaobjectId which returns a string or undefined.
- * We then provide a fallback (the lowercased option value) if undefined.
+ * This implementation relies on getColorPatternMetaobjectId for fallback swatch color.
+ * It updates the product state and URL when an option is selected,
+ * and when the color changes it looks up a matching variant.
  */
 export function VariantSelector({ options, variants, product }: VariantSelectorProps) {
    const [swatchMetaobjectId, setSwatchMetaobjectId] = useState<string | undefined>(undefined);
-   // console.log('VariantSelector product::::', product?.metafield?.value);
-   // console.log('VariantSelector product::::', product.metafield);
-   const { state, updateProductState } = useProduct();
+   const { state, updateProductState, updateActiveProduct, activeProduct } = useProduct();
    const updateURL = useUpdateURL();
 
    const filteredOptions = options.filter(
       (option) => !['spec', 'material'].includes(option.name.toLowerCase())
    );
-   // Ensure color option is always at the top
+
+   // Ensure the color option is at the top.
    const sortedOptions = filteredOptions.sort((a, b) => {
       if (a.name.toLowerCase() === 'color') return -1;
       if (b.name.toLowerCase() === 'color') return 1;
       return 0;
    });
+
    if (
       !filteredOptions.length ||
       (filteredOptions.length === 1 && filteredOptions[0]?.values.length === 1)
@@ -53,20 +53,20 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
       return null;
    }
 
-   const combinations: Combination[] = variants.map((variant) => ({
-      id: variant.id,
-      availableForSale: variant.availableForSale,
-      ...variant.selectedOptions.reduce(
-         (acc, option) => ({
-            ...acc,
-            [option.name.toLowerCase()]: option.value
-         }),
-         {}
-      )
-   }));
+   // Compute combinations from variants.
+   const combinations: Combination[] = useMemo(() => {
+      return variants.map((variant) => ({
+         id: variant.id,
+         availableForSale: variant.availableForSale,
+         ...variant.selectedOptions.reduce<Record<string, string>>((acc, option) => {
+            acc[option.name.toLowerCase()] = option.value;
+            return acc;
+         }, {})
+      }));
+   }, [variants]);
 
    useEffect(() => {
-      const defaults: Partial<ProductState> = {};
+      const defaults: Partial<typeof state> = {};
       const colorOption = filteredOptions.find((option) => option.name.toLowerCase() === 'color');
       const sizeOption = filteredOptions.find((option) => option.name.toLowerCase() === 'size');
 
@@ -86,7 +86,7 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
 
    const handleOptionSelect = (optionNameLowerCase: string, value: string) => {
       startTransition(() => {
-         const updates: Partial<ProductState> = { [optionNameLowerCase]: value };
+         const updates: Partial<typeof state> = { [optionNameLowerCase]: value };
          if (optionNameLowerCase === 'color') {
             updates.image = '0'; // Reset image index when color changes.
          }
@@ -95,18 +95,40 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
          updateURL(mergedState);
       });
    };
+
    useEffect(() => {
-      // Define an async function to fetch the metaobject ID.
+      // Fetch a dynamic metaobject id for swatch fallback.
       async function fetchSwatchId() {
-         const id = await dynamicMetaobjectId(product);
-         setSwatchMetaobjectId(id);
+         if (product) {
+            const id = await dynamicMetaobjectId(product);
+            setSwatchMetaobjectId(id);
+         }
       }
       fetchSwatchId();
    }, [product]);
 
+   // When the color option changes, update the active product variant.
+   useEffect(() => {
+      if (!product || !state.color) return;
+      const selectedColor = state.color.toLowerCase().trim();
+      // Find the matching variant combination.
+      const matchingCombination = combinations.find(
+         (comb) =>
+            String(comb['color']).toLowerCase().trim() === selectedColor && comb.availableForSale
+      );
+      if (matchingCombination && product) {
+         // For now, we use the base product as a placeholder.
+         // Replace this with logic to merge variant details into the product.
+         if (product.id !== activeProduct.id) {
+            console.log('Updating active product variant to:', matchingCombination.id);
+            updateActiveProduct(product);
+         }
+      }
+   }, [state.color, combinations, product, activeProduct, updateActiveProduct]);
+
    return (
       <>
-         {filteredOptions.map((option) => (
+         {sortedOptions.map((option) => (
             <form key={option.id}>
                <dl className="mx-auto mb-5">
                   <dt className="mb-2 text-sm uppercase tracking-wide">
@@ -140,7 +162,6 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
                         );
 
                         if (optionNameLowerCase === 'color') {
-                           // Use the helper from the collection logic.
                            const swatchColor =
                               getColorPatternMetaobjectId(product) ?? value.toLowerCase();
                            return (
