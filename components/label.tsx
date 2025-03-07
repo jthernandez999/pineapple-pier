@@ -9,12 +9,12 @@ interface LabelProps {
    amount: string;
    currencyCode: string;
    colorName?: string;
-   metaobjectId?: string; // dynamic metaobject id for the selected color
-   metaobjectIdsArray?: string[]; // array of metaobject ids for the group
+   metaobjectId?: string; // currently active metaobject id
+   metaobjectIdsArray?: string[]; // array of metaobject ids for the group (should be unique)
    fallbackColor?: string; // fallback color code
    position?: 'bottom' | 'center';
    swatchMetaobjectId?: string; // for compatibility with GridTileImage
-   onSwatchClick?: (e: React.MouseEvent<HTMLDivElement>) => void;
+   onSwatchClick?: (swatchId: string, e: React.MouseEvent<HTMLDivElement>) => void;
 }
 
 const Label: React.FC<LabelProps> = ({
@@ -81,37 +81,45 @@ const Label: React.FC<LabelProps> = ({
             {/* Selected Color Name */}
             {colorName && <div className="mb-2 mt-0 pt-0 text-xs font-normal">{colorName}</div>}
 
-            {/* Swatch Display wrapped in a container that intercepts clicks */}
-            <div
-               className="mt-0"
-               onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  if (onSwatchClick) onSwatchClick(e);
-               }}
-               style={{ cursor: 'pointer' }}
-            >
-               {metaobjectId ? (
-                  <ColorSwatch
-                     metaobjectId={metaobjectId}
-                     metaobjectIdsArray={metaobjectIdsArray}
-                     fallbackColor={fallbackColor}
-                  />
-               ) : (
-                  fallbackColor && (
+            {/* If there are multiple swatches, render one set */}
+            {metaobjectIdsArray && metaobjectIdsArray.length > 1 ? (
+               <div className="mt-2 flex gap-2">
+                  {metaobjectIdsArray.map((id) => (
                      <div
-                        style={{
-                           backgroundColor: fallbackColor,
-                           width: '20px',
-                           height: '20px',
-                           borderRadius: '50%',
-                           border: '1px solid #ccc'
+                        key={id}
+                        className="cursor-pointer"
+                        onClick={(e) => {
+                           e.preventDefault();
+                           e.stopPropagation();
+                           if (onSwatchClick) onSwatchClick(id, e);
                         }}
-                        title={fallbackColor}
+                        style={{
+                           // Optionally, you can style the active swatch differently:
+                           // border: id === metaobjectId ? '2px solid black' : '1px solid #ccc',
+                           borderRadius: '50%'
+                        }}
+                        title={id}
+                     >
+                        <ColorSwatch
+                           metaobjectId={id}
+                           // Do not pass metaobjectIdsArray here so that only one swatch is rendered per id.
+                           fallbackColor={fallbackColor}
+                        />
+                     </div>
+                  ))}
+               </div>
+            ) : (
+               // If only one swatch is available, render it directly.
+               metaobjectId && (
+                  <div className="mt-2">
+                     <ColorSwatch
+                        metaobjectId={metaobjectId}
+                        metaobjectIdsArray={metaobjectIdsArray}
+                        fallbackColor={fallbackColor}
                      />
-                  )
-               )}
-            </div>
+                  </div>
+               )
+            )}
          </div>
       </div>
    );
