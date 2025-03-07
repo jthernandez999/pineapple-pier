@@ -1,25 +1,32 @@
+// components/product/product-context.tsx
 'use client';
-
+import type { Product } from 'lib/shopify/types';
 import { useRouter, useSearchParams } from 'next/navigation';
-import React, { createContext, useContext, useMemo, useOptimistic } from 'react';
+import React, { createContext, useContext, useMemo, useOptimistic, useState } from 'react';
 
-// Allow keys to be string or undefined.
 export type ProductState = {
    [key: string]: string | undefined;
 } & {
    image?: string;
 };
 
-type ProductContextType = {
+interface ProductContextType {
    state: ProductState;
    updateOption: (name: string, value: string) => ProductState;
    updateImage: (index: string) => ProductState;
    updateProductState: (updates: Partial<ProductState>) => ProductState;
-};
+   activeProduct: Product;
+   updateActiveProduct: (product: Product) => void;
+}
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
 
-export function ProductProvider({ children }: { children: React.ReactNode }) {
+interface ProductProviderProps {
+   children: React.ReactNode;
+   initialProduct?: Product;
+}
+
+export function ProductProvider({ children, initialProduct }: ProductProviderProps) {
    const searchParams = useSearchParams();
 
    const getInitialState = (): ProductState => {
@@ -56,14 +63,22 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
       return newState;
    };
 
+   // Active product state and updater:
+   const [activeProduct, setActiveProduct] = useState<Product>(initialProduct);
+   const updateActiveProduct = (product: Product) => {
+      setActiveProduct(product);
+   };
+
    const value = useMemo(
       () => ({
          state,
          updateOption,
          updateImage,
-         updateProductState
+         updateProductState,
+         activeProduct,
+         updateActiveProduct
       }),
-      [state]
+      [state, activeProduct]
    );
 
    return <ProductContext.Provider value={value}>{children}</ProductContext.Provider>;
@@ -71,7 +86,7 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
 
 export function useProduct() {
    const context = useContext(ProductContext);
-   if (context === undefined) {
+   if (!context) {
       throw new Error('useProduct must be used within a ProductProvider');
    }
    return context;
@@ -89,7 +104,6 @@ export function useUpdateURL() {
       router.push(`?${newParams.toString()}`, { scroll: false });
    };
 }
-
 export function useUpdateSpec() {
    const { state, updateOption } = useProduct();
    return (spec: ProductState) => {
@@ -100,95 +114,3 @@ export function useUpdateSpec() {
       });
    };
 }
-
-// 'use client';
-
-// import { useRouter, useSearchParams } from 'next/navigation';
-// import React, { createContext, useContext, useMemo, useOptimistic } from 'react';
-
-// type ProductState = {
-//    [key: string]: string;
-// } & {
-//    image?: string;
-// };
-
-// type ProductContextType = {
-//    state: ProductState;
-//    updateOption: (name: string, value: string) => ProductState;
-//    updateImage: (index: string) => ProductState;
-// };
-
-// const ProductContext = createContext<ProductContextType | undefined>(undefined);
-
-// export function ProductProvider({ children }: { children: React.ReactNode }) {
-//    const searchParams = useSearchParams();
-
-//    const getInitialState = () => {
-//       const params: ProductState = {};
-//       for (const [key, value] of searchParams.entries()) {
-//          params[key] = value;
-//       }
-//       return params;
-//    };
-
-//    const [state, setOptimisticState] = useOptimistic(
-//       getInitialState(),
-//       (prevState: ProductState, update: ProductState) => ({
-//          ...prevState,
-//          ...update
-//       })
-//    );
-
-//    const updateOption = (name: string, value: string) => {
-//       const newState = { [name]: value };
-//       setOptimisticState(newState);
-//       return { ...state, ...newState };
-//    };
-
-//    const updateImage = (index: string) => {
-//       const newState = { image: index };
-//       setOptimisticState(newState);
-//       return { ...state, ...newState };
-//    };
-
-//    const value = useMemo(
-//       () => ({
-//          state,
-//          updateOption,
-//          updateImage
-//       }),
-//       [state]
-//    );
-
-//    return <ProductContext.Provider value={value}>{children}</ProductContext.Provider>;
-// }
-
-// export function useProduct() {
-//    const context = useContext(ProductContext);
-//    if (context === undefined) {
-//       throw new Error('useProduct must be used within a ProductProvider');
-//    }
-//    return context;
-// }
-
-// export function useUpdateURL() {
-//    const router = useRouter();
-
-//    return (state: ProductState) => {
-//       const newParams = new URLSearchParams(window.location.search);
-//       Object.entries(state).forEach(([key, value]) => {
-//          newParams.set(key, value);
-//       });
-//       router.push(`?${newParams.toString()}`, { scroll: false });
-//    };
-// }
-
-// export function useUpdateSpec() {
-//    const { state, updateOption } = useProduct();
-
-//    return (spec: ProductState) => {
-//       Object.entries(spec).forEach(([key, value]) => {
-//          updateOption(key, value);
-//       });
-//    };
-// }
