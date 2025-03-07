@@ -23,7 +23,7 @@ const ProductContext = createContext<ProductContextType | undefined>(undefined);
 
 interface ProductProviderProps {
    children: React.ReactNode;
-   initialProduct?: Product;
+   initialProduct: Product; // now required
 }
 
 export function ProductProvider({ children, initialProduct }: ProductProviderProps) {
@@ -104,6 +104,7 @@ export function useUpdateURL() {
       router.push(`?${newParams.toString()}`, { scroll: false });
    };
 }
+
 export function useUpdateSpec() {
    const { state, updateOption } = useProduct();
    return (spec: ProductState) => {

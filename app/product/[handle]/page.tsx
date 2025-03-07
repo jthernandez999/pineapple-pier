@@ -88,7 +88,7 @@ export default async function ProductPage(props: { params: Promise<{ handle: str
    };
 
    return (
-      <ProductProvider>
+      <ProductProvider initialProduct={product} key={product.id}>
          <script
             type="application/ld+json"
             dangerouslySetInnerHTML={{
