@@ -1,6 +1,5 @@
 import Grid from 'components/grid';
 import { ProductGridItems } from 'components/layout/product-grid-items';
-import { ProductGroupsProvider } from 'components/product/ProductGroupsContext';
 import { defaultProductSort, productSorting } from 'lib/constants';
 import { getProducts } from 'lib/shopify';
 export const metadata = {
@@ -30,14 +29,12 @@ export default async function SearchPage(props: {
             </p>
          ) : null}
          {products.length > 0 ? (
-            <ProductGroupsProvider>
-               <Grid className="grid-cols-2 sm:grid-cols-2 lg:grid-cols-3">
-                  <ProductGridItems
-                     products={products}
-                     // groupHandle={collectionHandle}
-                  />
-               </Grid>
-            </ProductGroupsProvider>
+            <Grid className="grid-cols-2 sm:grid-cols-2 lg:grid-cols-3">
+               <ProductGridItems
+                  products={products}
+                  // groupHandle={collectionHandle}
+               />
+            </Grid>
          ) : null}
       </>
    );

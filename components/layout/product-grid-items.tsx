@@ -98,7 +98,7 @@ export function ProductGridItemsComponent({ products, groupHandle }: ProductGrid
          (mapping) => mapping.group !== 'Uncategorized' && mapping.groupProducts.length > 0
       );
    }, [groupMetaobjectMapping]);
-
+   console.log('interactiveGroups:::::!::!:!:!:', interactiveGroups);
    // State: active product per group.
    const [activeProducts, setActiveProducts] = useState<{ [group: string]: Product }>(() => {
       const initial: { [group: string]: Product } = {};
@@ -126,7 +126,10 @@ export function ProductGridItemsComponent({ products, groupHandle }: ProductGrid
                         .filter((id): id is string => Boolean(id))
                   )
                );
-               console.log('Group color metaobject IDs:', groupColorMetaobjectIds);
+               console.log(
+                  'Group color metaobject IDs from PRODUCT GRID ITEMS:',
+                  groupColorMetaobjectIds
+               );
                // onSwatchClick handler: update active product only if a different swatch is clicked.
                const handleSwatchSelect = (
                   swatchId: string,

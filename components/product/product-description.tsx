@@ -26,7 +26,7 @@ export function ProductDescription({ product, groupColorMetaobjectIds }: Product
            .replace(new RegExp(`\\b${currentProduct.options[1]?.values[0]}\\b`, 'i'), '')
            .trim()
       : currentProduct.title;
-   console.log('ProductTitle:', filteredTitle);
+
    const stretchTag: string = currentProduct.tags
       ? ((() => {
            if (currentProduct.tags.some((tag) => tag.toLowerCase() === 'stretch')) {
@@ -60,6 +60,7 @@ export function ProductDescription({ product, groupColorMetaobjectIds }: Product
                      />
                   </div>
                </div>
+
                <VariantSelector
                   options={currentProduct.options}
                   variants={currentProduct.variants}

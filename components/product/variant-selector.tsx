@@ -41,19 +41,27 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
          .find((mf) => mf.key === 'custom.parent_groups')
          ?.value.trim() || 'Uncategorized';
 
+   // ...
    const groupProducts = groups[activeProductGroup] || [];
+
+   // Fallback: if groupProducts is empty, use the current product only
+   const fallbackColorIds = product ? [getColorPatternMetaobjectId(product)].filter(Boolean) : [];
 
    const groupColorMetaobjectIds = useMemo(
       () =>
          Array.from(
             new Set(
-               groupProducts
-                  .map((prod) => getColorPatternMetaobjectId(prod))
-                  .filter((id): id is string => Boolean(id))
+               groupProducts.length > 0
+                  ? groupProducts
+                       .map((prod) => getColorPatternMetaobjectId(prod))
+                       .filter((id): id is string => Boolean(id))
+                  : fallbackColorIds
             )
          ),
-      [groupProducts]
+      [groupProducts, fallbackColorIds]
    );
+
+   console.log('groupColorMetaobjectIds from the variant-selector', groupColorMetaobjectIds);
 
    // Memoize filtered and sorted options so they are not recomputed on every render.
    const filteredOptions = useMemo(
