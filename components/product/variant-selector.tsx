@@ -1,7 +1,5 @@
 'use client';
-
 import clsx from 'clsx';
-import { ColorSwatch } from 'components/ColorSwatch';
 import { ProductState, useProduct, useUpdateURL } from 'components/product/product-context';
 import {
    dynamicMetaobjectId,
@@ -10,9 +8,9 @@ import {
 } from 'lib/helpers/metafieldHelpers';
 import { Product, ProductOption, ProductVariant } from 'lib/shopify/types';
 import { startTransition, useEffect, useMemo, useState } from 'react';
+import { ColorSwatch } from '../../components/ColorSwatch';
 import { useProductGroups } from './ProductGroupsContext';
 
-// Revised Combination type: each variant’s selected options are stored as strings.
 interface Combination {
    id: string;
    availableForSale: boolean;
@@ -36,33 +34,39 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
    // Use the active product from context if available; otherwise, use the passed product.
    const baseProduct = useMemo(() => activeProduct || product, [activeProduct, product]);
 
+   // Get the parent group or "Uncategorized"
    const activeProductGroup =
       flattenMetafields(baseProduct)
          .find((mf) => mf.key === 'custom.parent_groups')
          ?.value.trim() || 'Uncategorized';
 
-   // ...
+   // Get the products in the same group
    const groupProducts = groups[activeProductGroup] || [];
 
    // Fallback: if groupProducts is empty, use the current product only
    const fallbackColorIds = product ? [getColorPatternMetaobjectId(product)].filter(Boolean) : [];
 
-   const groupColorMetaobjectIds = useMemo(
-      () =>
-         Array.from(
+   // Determine if the product is truly in a group (i.e. parent group is not "Uncategorized")
+   const isGroupProduct = activeProductGroup.toLowerCase() !== 'uncategorized';
+
+   const groupColorMetaobjectIds = useMemo(() => {
+      if (isGroupProduct && groupProducts.length > 0) {
+         return Array.from(
             new Set(
-               groupProducts.length > 0
-                  ? groupProducts
-                       .map((prod) => getColorPatternMetaobjectId(prod))
-                       .filter((id): id is string => Boolean(id))
-                  : fallbackColorIds
+               groupProducts
+                  .map((prod) => getColorPatternMetaobjectId(prod))
+                  .filter((id): id is string => Boolean(id))
             )
-         ),
-      [groupProducts, fallbackColorIds]
-   );
+         );
+      } else {
+         return fallbackColorIds;
+      }
+   }, [isGroupProduct, groupProducts, fallbackColorIds]);
 
    console.log('groupColorMetaobjectIds from the variant-selector', groupColorMetaobjectIds);
+
    const metaobjectIdsArray = groupColorMetaobjectIds.length > 0 ? groupColorMetaobjectIds : [];
+
    // Memoize filtered and sorted options so they are not recomputed on every render.
    const filteredOptions = useMemo(
       () => options.filter((option) => !['spec', 'material'].includes(option.name.toLowerCase())),
@@ -108,7 +112,6 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
       const colorOption = filteredOptions.find((option) => option.name.toLowerCase() === 'color');
       const sizeOption = filteredOptions.find((option) => option.name.toLowerCase() === 'size');
 
-      // if (colorOption && !baseProduct.options.find((opt) => opt.name.toLowerCase() === 'color')) {
       if (colorOption && !state['color']) {
          defaults.color = colorOption.values[0];
          defaults.image = '0';
@@ -124,6 +127,7 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
          });
       }
    }, [filteredOptions, baseProduct, state.color, state.size, updateProductState, updateURL]);
+
    // Fetch swatch metaobject ID for the active product.
    const [swatchMetaobjectId, setSwatchMetaobjectId] = useState<string | undefined>(undefined);
 
