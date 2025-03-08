@@ -5,7 +5,7 @@ import Label from 'components/label';
 import { useProductGroups } from 'components/product/ProductGroupsContext';
 import {
    flattenMetafields,
-   getColorPatternMetaobjectId,
+   getColorPatternMetaobjectId, // This helper now uses caching internally.
    Metafield
 } from 'lib/helpers/metafieldHelpers';
 import { Product } from 'lib/shopify/types';
@@ -99,6 +99,7 @@ export function ProductGridItemsComponent({ products, groupHandle }: ProductGrid
       );
    }, [groupMetaobjectMapping]);
    console.log('interactiveGroups:::::!::!:!:!:', interactiveGroups);
+
    // State: active product per group.
    const [activeProducts, setActiveProducts] = useState<{ [group: string]: Product }>(() => {
       const initial: { [group: string]: Product } = {};
