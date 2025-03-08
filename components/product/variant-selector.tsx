@@ -23,7 +23,7 @@ interface VariantSelectorProps {
    options: ProductOption[];
    variants: ProductVariant[];
    product?: Product;
-   metaobjectIdsArray?: string[];
+   metaobjectIdsArray?: string[] | [];
 }
 
 export function VariantSelector({ options, variants, product }: VariantSelectorProps) {
@@ -62,7 +62,7 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
    );
 
    console.log('groupColorMetaobjectIds from the variant-selector', groupColorMetaobjectIds);
-
+   const metaobjectIdsArray = groupColorMetaobjectIds.length > 0 ? groupColorMetaobjectIds : [];
    // Memoize filtered and sorted options so they are not recomputed on every render.
    const filteredOptions = useMemo(
       () => options.filter((option) => !['spec', 'material'].includes(option.name.toLowerCase())),
@@ -198,6 +198,7 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
                            // Use the helper from the collection logic.
                            const swatchColor =
                               getColorPatternMetaobjectId(product) ?? value.toLowerCase();
+
                            return (
                               <button
                                  key={value}
@@ -228,6 +229,9 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
                                  <ColorSwatch
                                     metaobjectId={swatchMetaobjectId || ''}
                                     fallbackColor={value.toLowerCase()}
+                                    metaobjectIdsArray={groupColorMetaobjectIds.filter(
+                                       (id): id is string => !!id
+                                    )}
                                  />
                               </button>
                            );

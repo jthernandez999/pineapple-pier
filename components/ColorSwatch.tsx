@@ -1,10 +1,11 @@
+// ColorSwatch.tsx
 'use client';
 import React, { useEffect, useState } from 'react';
 
 interface ColorSwatchProps {
    metaobjectId: string;
    fallbackColor: string;
-   metaobjectIdsArray?: string[];
+   metaobjectIdsArray?: string[] | [];
    onColorsFetched?: (colors: string[]) => void;
 }
 
@@ -17,23 +18,21 @@ export const ColorSwatch: React.FC<ColorSwatchProps> = ({
    metaobjectIdsArray,
    onColorsFetched
 }) => {
-   // We store our color(s) in an array.
-   const [colorCodes, setColorCodes] = useState<string[]>([fallbackColor]);
+   const [colorCodes, setColorCodes] = useState<string[]>([]);
 
    useEffect(() => {
       async function fetchMetaobject(id: string): Promise<string> {
-         const query = `
-        query GetMetaobject($id: ID!) {
-          metaobject(id: $id) {
-            id
-            fields {
-              key
-              value
+         const query = /* GraphQL */ `
+            query GetMetaobject($id: ID!) {
+               metaobject(id: $id) {
+                  id
+                  fields {
+                     key
+                     value
+                  }
+               }
             }
-          }
-        }
-      `;
-         const variables = { id };
+         `;
          try {
             const res = await fetch(SHOPIFY_ENDPOINT, {
                method: 'POST',
@@ -41,27 +40,15 @@ export const ColorSwatch: React.FC<ColorSwatchProps> = ({
                   'Content-Type': 'application/json',
                   'X-Shopify-Storefront-Access-Token': SHOPIFY_STOREFRONT_TOKEN
                },
-               body: JSON.stringify({ query, variables })
+               body: JSON.stringify({ query, variables: { id } })
             });
             const data = await res.json();
-            // console.log('DATA FROM COLORSWATCH::::', data);
-            if (!data.data) {
-               console.error('No data returned for metaobject', id, data);
+            if (!data.data?.metaobject) {
+               console.error('No metaobject data found for ID:', id, data);
                return fallbackColor;
             }
-            const metaobjectData = data.data.metaobject;
-            if (!metaobjectData) {
-               console.error('No metaobject data found for ID:', id);
-               return fallbackColor;
-            }
-            // Look for the "color" field.
-            const colorField = metaobjectData.fields.find((f: any) => f.key === 'color');
-            if (colorField?.value) {
-               return colorField.value;
-            } else {
-               console.error('Color field not found in metaobject fields', metaobjectData.fields);
-               return fallbackColor;
-            }
+            const colorField = data.data.metaobject.fields.find((f: any) => f.key === 'color');
+            return colorField?.value ?? fallbackColor;
          } catch (error) {
             console.error('Error fetching metaobject:', error);
             return fallbackColor;
@@ -69,49 +56,59 @@ export const ColorSwatch: React.FC<ColorSwatchProps> = ({
       }
 
       async function fetchColors() {
-         if (metaobjectIdsArray && metaobjectIdsArray.length > 0) {
+         // If multiple metaobject IDs exist, fetch them all
+         if (metaobjectIdsArray?.length) {
             const colors = await Promise.all(metaobjectIdsArray.map((id) => fetchMetaobject(id)));
             setColorCodes(colors);
-            if (onColorsFetched) onColorsFetched(colors);
-         } else if (metaobjectId) {
+            onColorsFetched?.(colors);
+         }
+         // Otherwise, fetch the single metaobject ID
+         else if (metaobjectId) {
             const color = await fetchMetaobject(metaobjectId);
             setColorCodes([color]);
-            if (onColorsFetched) onColorsFetched([color]);
+            onColorsFetched?.([color]);
+         }
+         // Fallback if nothing
+         else {
+            setColorCodes([fallbackColor]);
          }
       }
+
       fetchColors();
    }, [metaobjectId, metaobjectIdsArray, fallbackColor, onColorsFetched]);
 
-   // Render multiple swatches if we have more than one color; otherwise, render one.
-   if (colorCodes.length > 1) {
+   if (!colorCodes.length) {
+      // Fallback to a single circle of fallbackColor
       return (
-         <div style={{ display: 'flex', gap: '4px' }}>
-            {colorCodes.map((code, index) => (
-               <div
-                  key={index}
-                  style={{
-                     backgroundColor: code,
-                     width: '18px',
-                     height: '18px',
-                     borderRadius: '50%',
-                     border: '1px solid #ccc'
-                  }}
-                  title={code}
-               />
-            ))}
-         </div>
+         <div
+            style={{
+               backgroundColor: fallbackColor,
+               width: '18px',
+               height: '18px',
+               borderRadius: '50%',
+               border: '1px solid #ccc'
+            }}
+            title={fallbackColor}
+         />
       );
    }
+
+   // Always map colorCodes so you get exactly one circle per color
    return (
-      <div
-         style={{
-            backgroundColor: colorCodes[0],
-            width: '18px',
-            height: '18px',
-            borderRadius: '50%',
-            border: '1px solid #ccc'
-         }}
-         title={colorCodes[0]}
-      />
+      <div style={{ display: 'flex', gap: '6px' }}>
+         {colorCodes.map((code, index) => (
+            <div
+               key={index}
+               style={{
+                  backgroundColor: code,
+                  width: '18px',
+                  height: '18px',
+                  borderRadius: '50%',
+                  border: '1px solid #ccc'
+               }}
+               title={code}
+            />
+         ))}
+      </div>
    );
 };
