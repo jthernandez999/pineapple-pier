@@ -7,7 +7,9 @@ export async function graphQLClient(query: string, variables: any) {
          'X-Shopify-Storefront-Access-Token': process.env
             .NEXT_PUBLIC_SHOPIFY_STOREFRONT_TOKEN as string
       },
-      body: JSON.stringify({ query, variables })
+      body: JSON.stringify({ query, variables }),
+      // This instructs Next.js to cache the response at the edge and revalidate every 60 seconds.
+      next: { revalidate: 60 }
    });
 
    if (!res.ok) {

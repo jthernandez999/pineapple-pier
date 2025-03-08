@@ -45,7 +45,9 @@ export default function InfiniteScrollProductGrid({
          const res = await fetch('/api/collection-products', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ query: getCollectionProductsQuery, variables })
+            body: JSON.stringify({ query: getCollectionProductsQuery, variables }),
+            // This instructs Next.js to cache the response at the edge and revalidate every 60 seconds.
+            next: { revalidate: 60 }
          });
 
          const json = await res.json();

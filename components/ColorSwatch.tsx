@@ -40,7 +40,9 @@ export const ColorSwatch: React.FC<ColorSwatchProps> = ({
                   'Content-Type': 'application/json',
                   'X-Shopify-Storefront-Access-Token': SHOPIFY_STOREFRONT_TOKEN
                },
-               body: JSON.stringify({ query, variables: { id } })
+               body: JSON.stringify({ query, variables: { id } }),
+               // This instructs Next.js to cache the response at the edge and revalidate every 60 seconds.
+               next: { revalidate: 60 }
             });
             const data = await res.json();
             if (!data.data?.metaobject) {
