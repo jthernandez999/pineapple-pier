@@ -1,6 +1,6 @@
 'use client';
 import { Product } from 'lib/shopify/types';
-import React, { createContext, useContext, useMemo, useState } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 
 interface ProductGroups {
    [group: string]: Product[];
@@ -11,20 +11,37 @@ interface ProductGroupsContextType {
    setGroups: (groups: ProductGroups) => void;
 }
 
-const ProductGroupsContext = createContext<ProductGroupsContextType | undefined>(undefined);
+type ProductGroupsContextProps = ProductGroupsContextType;
 
-export const ProductGroupsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-   const [groups, setGroups] = useState<ProductGroups>({});
+// 🔥 Ensure persistent state by using localStorage
+const ProductGroupsContext = createContext<ProductGroupsContextProps>({
+   groups: {},
+   setGroups: () => {}
+});
 
-   const value = useMemo(() => ({ groups, setGroups }), [groups]);
+export function ProductGroupsProvider({ children }: { children: React.ReactNode }) {
+   const [groups, setGroups] = useState<{ [groupKey: string]: Product[] }>(() => {
+      if (typeof window !== 'undefined') {
+         const storedGroups = localStorage.getItem('productGroups');
+         return storedGroups ? JSON.parse(storedGroups) : {};
+      }
+      return {};
+   });
 
-   return <ProductGroupsContext.Provider value={value}>{children}</ProductGroupsContext.Provider>;
-};
+   const updateGroups = (newGroups: { [groupKey: string]: Product[] }) => {
+      setGroups(newGroups);
+      if (typeof window !== 'undefined') {
+         localStorage.setItem('productGroups', JSON.stringify(newGroups));
+      }
+   };
+
+   return (
+      <ProductGroupsContext.Provider value={{ groups, setGroups: updateGroups }}>
+         {children}
+      </ProductGroupsContext.Provider>
+   );
+}
 
 export function useProductGroups() {
-   const context = useContext(ProductGroupsContext);
-   if (!context) {
-      throw new Error('useProductGroups must be used within a ProductGroupsProvider');
-   }
-   return context;
+   return useContext(ProductGroupsContext);
 }

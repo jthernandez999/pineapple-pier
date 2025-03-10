@@ -1,9 +1,8 @@
-// ColorSwatch.tsx
 'use client';
 import React, { useEffect, useState } from 'react';
 
 interface ColorSwatchProps {
-   metaobjectId: string;
+   metaobjectId?: string;
    fallbackColor: string;
    metaobjectIdsArray?: string[];
    onColorsFetched?: (colors: string[]) => void;
@@ -19,11 +18,6 @@ export const ColorSwatch: React.FC<ColorSwatchProps> = ({
    onColorsFetched
 }) => {
    const [colorCodes, setColorCodes] = useState<string[]>([]);
-   const [mounted, setMounted] = useState(false);
-
-   useEffect(() => {
-      setMounted(true);
-   }, []);
 
    useEffect(() => {
       async function fetchMetaobject(id: string): Promise<string> {
@@ -53,10 +47,9 @@ export const ColorSwatch: React.FC<ColorSwatchProps> = ({
                console.error('No metaobject data found for ID:', id, data);
                return fallbackColor;
             }
-            // Check for a field called "color" (or update this to your actual field name)
-            const colorField =
-               data.data.metaobject.fields.find((f: any) => f.key.toLowerCase() === 'color') ||
-               data.data.metaobject.fields.find((f: any) => f.key.toLowerCase() === 'swatch_color');
+            const colorField = data.data.metaobject.fields.find(
+               (f: any) => f.key.toLowerCase() === 'color'
+            );
             return colorField?.value ?? fallbackColor;
          } catch (error) {
             console.error('Error fetching metaobject:', error);
@@ -66,35 +59,27 @@ export const ColorSwatch: React.FC<ColorSwatchProps> = ({
 
       async function fetchColors() {
          let idsToFetch: string[] = [];
-         if (metaobjectIdsArray && metaobjectIdsArray.length > 1) {
-            idsToFetch = metaobjectIdsArray;
+
+         if (metaobjectIdsArray && metaobjectIdsArray.length > 0) {
+            idsToFetch = [...metaobjectIdsArray.filter(Boolean)];
          } else if (metaobjectId) {
             idsToFetch = [metaobjectId];
          }
 
          if (idsToFetch.length) {
             const colors = await Promise.all(idsToFetch.map((id) => fetchMetaobject(id)));
-            setColorCodes(colors);
+            setColorCodes(colors.filter(Boolean)); // Prevents empty swatches
             onColorsFetched?.(colors);
          } else {
-            setColorCodes([fallbackColor]);
+            setColorCodes([]); // Prevents the default white swatch from showing
          }
       }
 
       fetchColors();
    }, [metaobjectId, metaobjectIdsArray, fallbackColor, onColorsFetched]);
 
-   // Only render once mounted to avoid hydration mismatch.
-   if (!mounted) {
-      return null;
-   }
+   if (!colorCodes.length) return null; // Prevents rendering a white swatch
 
-   // If we haven't fetched colors yet, render nothing (or a loading spinner if you prefer).
-   if (!colorCodes.length) {
-      return null;
-   }
-
-   // Render a swatch for each color code.
    return (
       <div style={{ display: 'flex', gap: '6px' }}>
          {colorCodes.map((code, index) => (

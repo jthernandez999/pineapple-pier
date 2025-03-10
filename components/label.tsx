@@ -123,7 +123,7 @@ const Label: React.FC<LabelProps> = ({
                   <div className="mt-2">
                      <ColorSwatch
                         metaobjectId={metaobjectId}
-                        metaobjectIdsArray={metaobjectIdsArray}
+                        metaobjectIdsArray={metaobjectIdsArray?.filter(Boolean)} // Ensure no empty entries
                         fallbackColor={fallbackColor}
                      />
                   </div>

@@ -57,9 +57,17 @@ export function ProductGridItemsComponent({ products, groupHandle }: ProductGrid
    }, [products]);
 
    // Use our ProductGroups context to store the groups.
-   const { setGroups } = useProductGroups();
+   // const { setGroups } = useProductGroups();
+   // useEffect(() => {
+   //    setGroups(groupsMap);
+   // }, [groupsMap, setGroups]);
+
+   // ✅ Only update groups if they have changed
+   const { groups, setGroups } = useProductGroups();
    useEffect(() => {
-      setGroups(groupsMap);
+      if (Object.keys(groupsMap).length > 0) {
+         setGroups(groupsMap);
+      }
    }, [groupsMap, setGroups]);
 
    // Build mapping for each group.
