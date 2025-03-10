@@ -17,7 +17,7 @@ interface VariantSelectorProps {
 export function VariantSelector({ options, variants, product }: VariantSelectorProps) {
    const { state, updateProductState, updateActiveProduct } = useProduct();
    const updateURL = useUpdateURL();
-   const { groups } = useProductGroups(); // ✅ Get product groups
+   const { groups } = useProductGroups();
 
    if (!product) return null;
 
@@ -28,30 +28,29 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
 
    if (!filteredOptions.length) return null;
 
-   // ✅ Group Colors Metaobject IDs: Ensures all grouped colors are available
-   const groupColorMetaobjectIds = useMemo(() => {
-      const activeProductGroup =
-         groups &&
-         Object.keys(groups).find((groupKey) =>
-            groups[groupKey]?.some((prod) => prod.id === product.id)
-         );
+   // ✅ Check if the product is part of a group
+   const activeProductGroup = useMemo(() => {
+      return Object.keys(groups || {}).find((groupKey) =>
+         groups?.[groupKey]?.some((prod) => prod.id === product.id)
+      );
+   }, [product, groups]);
 
-      if (!activeProductGroup) return [];
+   const groupProducts = activeProductGroup ? groups?.[activeProductGroup] || [] : [];
 
-      const groupProducts = groups[activeProductGroup] || [];
-      const uniqueColors = Array.from(
+   // ✅ Only get group colors if it's a grouped product
+   const groupColorMetaobjectIds: string[] = useMemo(() => {
+      if (!activeProductGroup) return []; // Only apply to grouped products
+      return Array.from(
          new Set(
             groupProducts
                .map((prod) => getColorPatternMetaobjectId(prod))
                .filter((id): id is string => Boolean(id))
          )
       );
+   }, [groupProducts, activeProductGroup]);
 
-      console.log('✅ Grouped Color Metaobject IDs:', uniqueColors);
-      return uniqueColors;
-   }, [product, groups]);
+   console.log('✅ Available Colors in Group:', groupColorMetaobjectIds);
 
-   // ✅ Variant Map: Ensure proper index signature for TypeScript
    const variantMap = useMemo(() => {
       return variants.map((variant) => {
          const variantOptions = variant.selectedOptions.reduce<Record<string, string>>(
@@ -69,7 +68,6 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
       });
    }, [variants]);
 
-   // ✅ Ensure default selection on page load
    useEffect(() => {
       if (state.color && state.size) return;
 
@@ -92,19 +90,30 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
       }
    }, [filteredOptions, state.color, state.size, updateProductState, updateURL]);
 
-   // ✅ Handle selection of color and size
    const handleOptionSelect = (optionName: string, value: string) => {
       startTransition(() => {
          const updates: Partial<ProductState> = { [optionName]: value };
 
          if (optionName === 'color') {
-            updates.image = '0';
+            updates.image = '0'; // ✅ Reset image on color change
          }
 
          const mergedState = updateProductState(updates);
          updateURL(mergedState);
 
-         // ✅ Find the correct variant based on selected options
+         if (optionName === 'color' && activeProductGroup) {
+            // ✅ Switch product for grouped products only
+            const nextProduct = groupProducts.find(
+               (prod) => getColorPatternMetaobjectId(prod) === value
+            );
+
+            if (nextProduct) {
+               console.log('✅ Switching to Product:', nextProduct.title);
+               updateActiveProduct(nextProduct);
+               return;
+            }
+         }
+
          const newVariant = variantMap.find((variant) =>
             Object.keys(mergedState).every((key) => variant[key] === mergedState[key])
          );
@@ -115,9 +124,41 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
       });
    };
 
+   // ✅ Get color name properly (Grouped and Non-grouped products)
+   const currentColorName = useMemo(() => {
+      if (!state.color) return '';
+
+      if (activeProductGroup) {
+         return (
+            groupProducts
+               .find((prod) => getColorPatternMetaobjectId(prod) === state.color)
+               ?.options?.find((o) => o.name.toLowerCase() === 'color')?.values[0] || ''
+         );
+      }
+
+      return (
+         product?.options
+            ?.find((o) => o.name.toLowerCase() === 'color')
+            ?.values.find((val) => getColorPatternMetaobjectId(product) === state.color) || ''
+      );
+   }, [state.color, groupProducts, product, activeProductGroup]);
+
+   // ✅ Ensure only the correct colors are displayed (Grouped vs. Non-Grouped)
+   const availableColors = useMemo(() => {
+      if (activeProductGroup) {
+         return groupColorMetaobjectIds; // Only show colors from the group
+      }
+
+      return (
+         product?.options
+            ?.find((o) => o.name.toLowerCase() === 'color')
+            ?.values.map((color) => getColorPatternMetaobjectId(product) || color.toLowerCase()) ||
+         []
+      );
+   }, [activeProductGroup, groupColorMetaobjectIds, product]);
+
    return (
       <>
-         {/* Variant Selection Loop */}
          {filteredOptions.map((option) => {
             const isColorOption = option.name.toLowerCase() === 'color';
 
@@ -126,50 +167,74 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
                   <dl className="mx-auto mb-5">
                      <dt className="mb-2 text-sm uppercase tracking-wide">
                         {isColorOption
-                           ? `${option.name.toUpperCase()} - ${state.color?.toUpperCase() || ''}`
+                           ? `COLOR - ${currentColorName || 'N/A'}`
                            : option.name.toUpperCase()}
                      </dt>
+
                      <dd className="flex flex-wrap gap-3">
-                        {option.values.map((value: string) => {
-                           const optionNameLowerCase = option.name.toLowerCase();
-                           const isActive = state[optionNameLowerCase] === value;
+                        {isColorOption ? (
+                           <>
+                              {availableColors.map((metaobjectId) => {
+                                 const isActive =
+                                    metaobjectId === getColorPatternMetaobjectId(product);
+                                 return (
+                                    <button
+                                       key={metaobjectId}
+                                       type="button"
+                                       onClick={() => handleOptionSelect('color', metaobjectId)}
+                                       className={clsx(
+                                          'relative flex items-center justify-center rounded border p-2 transition-all',
+                                          {
+                                             'ring-2 ring-blue-600': isActive,
+                                             'ring-1 ring-transparent hover:ring-blue-600':
+                                                !isActive
+                                          }
+                                       )}
+                                    >
+                                       <ColorSwatch
+                                          metaobjectId={metaobjectId}
+                                          fallbackColor={'#ccc'}
+                                       />
+                                    </button>
+                                 );
+                              })}
+                           </>
+                        ) : (
+                           <>
+                              {option.values.map((value: string) => {
+                                 const optionNameLowerCase = option.name.toLowerCase();
+                                 const isActive = state[optionNameLowerCase] === value;
 
-                           // ✅ Ensure variant lookup works correctly
-                           const isAvailableForSale = variantMap.some(
-                              (variant) =>
-                                 (variant[optionNameLowerCase] as string) === value &&
-                                 (variant.availableForSale as boolean)
-                           );
+                                 const isAvailableForSale = variantMap.some(
+                                    (variant) =>
+                                       (variant[optionNameLowerCase] as string) === value &&
+                                       (variant.availableForSale as boolean)
+                                 );
 
-                           return (
-                              <button
-                                 key={value}
-                                 type="button"
-                                 disabled={!isAvailableForSale}
-                                 onClick={() => handleOptionSelect(optionNameLowerCase, value)}
-                                 className={clsx(
-                                    'relative flex items-center justify-center rounded border p-2 transition-all',
-                                    {
-                                       'ring-2 ring-blue-600': isActive,
-                                       'ring-1 ring-transparent hover:ring-blue-600':
-                                          !isActive && isAvailableForSale,
-                                       'cursor-not-allowed opacity-50': !isAvailableForSale
-                                    }
-                                 )}
-                              >
-                                 {/* ✅ Individual color swatches */}
-                                 {isColorOption ? (
-                                    <ColorSwatch
-                                       metaobjectId={getColorPatternMetaobjectId(product) ?? ''}
-                                       fallbackColor={value.toLowerCase()}
-                                       metaobjectIdsArray={groupColorMetaobjectIds} // ✅ Pass grouped colors
-                                    />
-                                 ) : (
-                                    <span className="text-sm font-medium">{value}</span>
-                                 )}
-                              </button>
-                           );
-                        })}
+                                 return (
+                                    <button
+                                       key={value}
+                                       type="button"
+                                       disabled={!isAvailableForSale}
+                                       onClick={() =>
+                                          handleOptionSelect(optionNameLowerCase, value)
+                                       }
+                                       className={clsx(
+                                          'relative flex items-center justify-center rounded border p-2 transition-all',
+                                          {
+                                             'ring-2 ring-blue-600': isActive,
+                                             'ring-1 ring-transparent hover:ring-blue-600':
+                                                !isActive,
+                                             'cursor-not-allowed opacity-50': !isAvailableForSale
+                                          }
+                                       )}
+                                    >
+                                       <span className="text-sm font-medium">{value}</span>
+                                    </button>
+                                 );
+                              })}
+                           </>
+                        )}
                      </dd>
                   </dl>
                </form>
