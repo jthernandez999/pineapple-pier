@@ -1,17 +1,20 @@
 'use client';
+
 import type { Product } from 'lib/shopify/types';
 import { useRouter, useSearchParams } from 'next/navigation';
 import React, { createContext, useContext, useMemo, useState } from 'react';
 
 export type ProductState = {
    [key: string]: string | undefined;
-} & { image?: string };
+} & {
+   image?: string;
+};
 
 interface ProductContextType {
    state: ProductState;
-   updateOption: (name: string, value: string) => void;
-   updateImage: (index: string) => void;
-   updateProductState: (updates: Partial<ProductState>) => void;
+   updateOption: (name: string, value: string) => ProductState;
+   updateImage: (index: string) => ProductState;
+   updateProductState: (updates: Partial<ProductState>) => ProductState;
    activeProduct: Product;
    updateActiveProduct: (product: Product) => void;
 }
@@ -20,50 +23,55 @@ const ProductContext = createContext<ProductContextType | undefined>(undefined);
 
 interface ProductProviderProps {
    children: React.ReactNode;
-   initialProduct: Product;
+   initialProduct: Product; // now required
 }
 
 export function ProductProvider({ children, initialProduct }: ProductProviderProps) {
-   // Read initial state from the URL search parameters
    const searchParams = useSearchParams();
-   const initialState: ProductState = {};
-   for (const [key, value] of searchParams.entries()) {
-      initialState[key] = value;
+
+   // Get initial state from URL search parameters.
+   const getInitialState = (): ProductState => {
+      const params: ProductState = {};
+      for (const [key, value] of searchParams.entries()) {
+         params[key] = value;
+      }
+      return params;
+   };
+
+   // Using useState to hold product state.
+   const [state, setState] = useState<ProductState>(getInitialState());
+
+   // Each update function creates a new state object, saves it, and returns it.
+   function updateOption(name: string, value: string): ProductState {
+      const newState: ProductState = { ...state, [name]: value };
+      setState(newState);
+      if (typeof window !== 'undefined') {
+         localStorage.setItem('productState', JSON.stringify(newState));
+      }
+      return newState;
    }
 
-   const [state, setState] = useState<ProductState>(initialState);
+   function updateImage(index: string): ProductState {
+      const newState: ProductState = { ...state, image: index };
+      setState(newState);
+      if (typeof window !== 'undefined') {
+         localStorage.setItem('productState', JSON.stringify(newState));
+      }
+      return newState;
+   }
 
-   const updateOption = (name: string, value: string) => {
-      setState((prev) => {
-         const newState = { ...prev, [name]: value };
-         if (typeof window !== 'undefined') {
-            localStorage.setItem('productState', JSON.stringify(newState));
-         }
-         return newState;
-      });
-   };
+   function updateProductState(updates: Partial<ProductState>): ProductState {
+      const newState: ProductState = { ...state, ...updates };
+      setState(newState);
+      if (typeof window !== 'undefined') {
+         localStorage.setItem('productState', JSON.stringify(newState));
+      }
+      return newState;
+   }
 
-   const updateImage = (index: string) => {
-      setState((prev) => {
-         const newState = { ...prev, image: index };
-         if (typeof window !== 'undefined') {
-            localStorage.setItem('productState', JSON.stringify(newState));
-         }
-         return newState;
-      });
-   };
-
-   const updateProductState = (updates: Partial<ProductState>) => {
-      setState((prev) => {
-         const newState = { ...prev, ...updates };
-         if (typeof window !== 'undefined') {
-            localStorage.setItem('productState', JSON.stringify(newState));
-         }
-         return newState;
-      });
-   };
-
+   // Active product state and updater.
    const [activeProduct, setActiveProduct] = useState<Product>(initialProduct);
+
    const updateActiveProduct = (product: Product) => {
       setActiveProduct((prev) => (prev.id === product.id ? prev : product));
    };
@@ -100,11 +108,7 @@ export function useUpdateURL() {
             newParams.set(key, value);
          }
       });
-      const newQuery = newParams.toString();
-      // Only push if the query has actually changed.
-      if (newQuery !== window.location.search.substring(1)) {
-         router.push(`?${newQuery}`, { scroll: false });
-      }
+      router.push(`?${newParams.toString()}`, { scroll: false });
    };
 }
 

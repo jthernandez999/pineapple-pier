@@ -1,7 +1,7 @@
 'use client';
-import clsx from 'clsx';
+import clsx from 'clsx'; // cSpell:ignore clsx
 import { ProductState, useProduct, useUpdateURL } from 'components/product/product-context';
-import { getColorPatternMetaobjectId } from 'lib/helpers/metafieldHelpers';
+import { getColorPatternMetaobjectId } from 'lib/helpers/metafieldHelpers'; // cSpell:ignore metafield
 import { Product, ProductOption, ProductVariant } from 'lib/shopify/types';
 import { startTransition, useEffect, useMemo } from 'react';
 import { ColorSwatch } from '../../components/ColorSwatch';
@@ -48,7 +48,7 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
       const groupKey = Object.keys(groups || {}).find((key) =>
          groups?.[key]?.some((prod) => prod.id === product.id)
       );
-      // "uncategorized" is simply ignored here.
+      // cSpell:ignore uncategorized
       const activeGroup =
          groupKey && groupKey.toLowerCase() !== 'uncategorized' ? groupKey : undefined;
       console.log('[VariantSelector] activeProductGroup:', activeGroup);
@@ -59,7 +59,9 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
 
    // Get product's color option.
    const colorOption = product.options?.find((o) => o.name.toLowerCase() === 'color');
+   // For non-grouped, use the first (display) value.
    const productDisplayColor = colorOption ? colorOption.values[0] : '';
+   // For grouped products, we use the metafield.
    const productMetaColor = getColorPatternMetaobjectId(product);
    console.log(
       '[VariantSelector] productDisplayColor:',
@@ -101,7 +103,7 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
             id: variant.id,
             availableForSale: variant.availableForSale,
             ...opts,
-            spec: variant.spec || '' // always a string
+            spec: variant.spec || '' // ensure spec is always truthy
          } as Record<string, string | boolean>;
       });
       console.log('[VariantSelector] variantMap:', map);
@@ -110,25 +112,35 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
 
    // --- Reset state when the product changes ---
    useEffect(() => {
-      // Only reset if state is empty (i.e. first render)
-      if (Object.keys(state).length === 0) {
-         const defaults: Partial<ProductState> = {
-            color: isGrouped
-               ? productMetaColor || availableColors[0]
-               : productDisplayColor?.toLowerCase(),
-            size: filteredOptions.find((opt) => opt.name.toLowerCase() === 'size')?.values[0] || '',
-            image: '0',
-            spec: ''
-         };
-         console.log('[VariantSelector] Resetting state on product change:', defaults);
-         startTransition(() => {
-            updateProductState(defaults);
-            updateURL(defaults);
-         });
-      }
-   }, [product.id]); // run only when the product changes
+      const defaults: Partial<ProductState> = {
+         color: isGrouped
+            ? productMetaColor || availableColors[0]
+            : productDisplayColor?.toLowerCase(),
+         // Default size: choose the first size that is available for sale.
+         size: (() => {
+            const sizeOpt = filteredOptions.find((opt) => opt.name.toLowerCase() === 'size');
+            if (sizeOpt) {
+               const availableSize = sizeOpt.values.find((val) =>
+                  variantMap.some(
+                     (variant) =>
+                        variant.size === val.toLowerCase() && variant.availableForSale === true
+                  )
+               );
+               return availableSize || sizeOpt.values[0];
+            }
+            return '';
+         })(),
+         image: '0',
+         spec: '' // default spec value
+      };
+      console.log('[VariantSelector] Resetting state on product change:', defaults);
+      startTransition(() => {
+         const newState = updateProductState(defaults);
+         updateURL(newState);
+      });
+   }, [product.id]);
 
-   // --- Set default selections on mount if missing ---
+   // --- Set default selections on mount if missing (in case state is initially empty) ---
    useEffect(() => {
       if (state.color && state.size) return;
       const defaults: Partial<ProductState> = {};
@@ -141,14 +153,18 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
          defaults.image = '0';
       }
       if (sizeOpt && !state.size) {
-         defaults.size = sizeOpt.values[0];
+         const availableSize = sizeOpt.values.find((val) =>
+            variantMap.some(
+               (variant) => variant.size === val.toLowerCase() && variant.availableForSale === true
+            )
+         );
+         defaults.size = availableSize || sizeOpt.values[0];
       }
       if (Object.keys(defaults).length) {
          startTransition(() => {
-            const mergedState = { ...state, ...defaults };
-            updateProductState(defaults);
-            updateURL(mergedState);
-            console.log('[VariantSelector] Default merged state:', mergedState);
+            const newState = updateProductState(defaults);
+            console.log('[VariantSelector] Default merged state:', newState);
+            updateURL(newState);
          });
       }
    }, [
@@ -160,7 +176,8 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
       updateURL,
       isGrouped,
       productMetaColor,
-      productDisplayColor
+      productDisplayColor,
+      variantMap
    ]);
 
    // --- Auto Variant Matching ---
@@ -171,6 +188,7 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
             (key) => !['image', 'spec'].includes(key) && variantMap[0] && key in variantMap[0]
          );
          console.log('[VariantSelector] Keys to match:', keysToMatch);
+         // Determine the display color to match.
          const displayColor =
             isGrouped && groupProducts.length > 0
                ? groupProducts
@@ -186,37 +204,38 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
             keysToMatch.every((key) => {
                const variantVal = (variant[key] as string).trim().toLowerCase();
                const stateVal = (state[key] as string).trim().toLowerCase();
-               return key === 'color'
-                  ? displayColor?.trim().toLowerCase() === variantVal
-                  : variantVal === stateVal;
+               if (key === 'color') {
+                  return displayColor?.trim().toLowerCase() === variantVal;
+               }
+               return variantVal === stateVal;
             })
          );
          console.log('[VariantSelector] newVariant:', newVariant);
          if (newVariant) {
-            const newSpec = typeof newVariant.spec === 'string' ? newVariant.spec : '';
-            if (state.spec !== newSpec) {
-               startTransition(() => {
-                  const updatedState = { ...state, spec: newSpec };
-                  updateProductState(updatedState);
-                  const groupProduct =
-                     isGrouped && groupProducts.length > 0
-                        ? groupProducts.find(
-                             (prod) =>
-                                getColorPatternMetaobjectId(prod)?.toLowerCase() ===
-                                state.color?.toLowerCase()
-                          )
-                        : null;
-                  const baseProduct = groupProduct ? groupProduct : product;
-                  const updatedProduct = {
-                     ...baseProduct,
-                     availableForSale: !!newVariant.availableForSale,
-                     spec: parseSpec(newSpec),
-                     selectedVariant: newVariant
-                  };
-                  updateActiveProduct(updatedProduct);
-                  console.log('[VariantSelector] Auto updated active product:', updatedProduct);
-               });
-            }
+            startTransition(() => {
+               const updatedState = {
+                  ...state,
+                  spec: typeof newVariant.spec === 'string' ? newVariant.spec : ''
+               };
+               updateProductState(updatedState);
+               const groupProduct =
+                  isGrouped && groupProducts.length > 0
+                     ? groupProducts.find(
+                          (prod) =>
+                             getColorPatternMetaobjectId(prod)?.toLowerCase() ===
+                             state.color?.toLowerCase()
+                       )
+                     : null;
+               const baseProduct = groupProduct ? groupProduct : product;
+               const updatedProduct = {
+                  ...baseProduct,
+                  availableForSale: !!newVariant.availableForSale,
+                  spec: typeof newVariant.spec === 'string' ? parseSpec(newVariant.spec) : {},
+                  selectedVariant: newVariant
+               };
+               updateActiveProduct(updatedProduct);
+               console.log('[VariantSelector] Auto updated active product:', updatedProduct);
+            });
          } else {
             console.warn(
                '[VariantSelector] Auto variant matching found no variant for state:',
@@ -257,11 +276,10 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
          if (optionName === 'color') {
             updates.image = '0';
          }
-         const mergedState = { ...state, ...updates };
-         updateProductState(updates);
-         updateURL(mergedState);
+         const newState = updateProductState(updates);
+         updateURL(newState);
          console.log(`[VariantSelector] Option selected: ${optionName} = ${value}`);
-         console.log('[VariantSelector] Merged state after selection:', mergedState);
+         console.log('[VariantSelector] Merged state after selection:', newState);
       });
    };
 
@@ -301,17 +319,18 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
                                             }
                                          )}
                                       >
-                                         <ColorSwatch metaobjectId={colorId} fallbackColor="#ccc" />
+                                         <ColorSwatch
+                                            metaobjectId={colorId}
+                                            fallbackColor={'#ccc'}
+                                         />
                                       </button>
                                    );
                                 })
-                              : // Non-grouped: Render swatches via product metafield lookup.
-                                // Non-grouped: render swatches via metafield lookup.
+                              : // Non-grouped: render swatches via metafield lookup.
                                 option.values.map((value) => {
                                    const optName = option.name.toLowerCase();
                                    const isActive = state[optName] === value.toLowerCase();
                                    let metaobjectId: string | null = null;
-                                   // Updated lookup: check for the singular 'metafield'
                                    if (product?.metafield && product.metafield.value) {
                                       try {
                                          const metaobjectIds = JSON.parse(product.metafield.value);
@@ -328,7 +347,6 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
                                          );
                                       }
                                    }
-                                   // Render the swatch
                                    return (
                                       <button
                                          key={value}
@@ -363,7 +381,7 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
                                       </button>
                                    );
                                 })
-                           : // Render non-color options (e.g. size)
+                           : // Render non-color options (e.g., size) as buttons.
                              option.values.map((value) => {
                                 const optName = option.name.toLowerCase();
                                 const isActive = state[optName] === value.toLowerCase();
