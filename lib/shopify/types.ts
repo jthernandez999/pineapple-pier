@@ -119,7 +119,7 @@ export type Product = Omit<ShopifyProduct, 'variants' | 'images'> & {
       Inseam?: string;
    };
    metafields?: Metafield[] | Metafield;
-   metafield?: Metafield | Metafield[];
+   metafield?: Metafield[] | Metafield;
    price?: string;
    collectionHandle?: string;
    collections?: {

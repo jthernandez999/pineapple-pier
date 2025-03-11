@@ -61,7 +61,7 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
    const colorOption = product.options?.find((o) => o.name.toLowerCase() === 'color');
    // For non-grouped, use the first (display) value.
    const productDisplayColor = colorOption ? colorOption.values[0] : '';
-   // For grouped products, we use the metafield.
+   // For grouped products, we use the metafield helper.
    const productMetaColor = getColorPatternMetaobjectId(product);
    console.log(
       '[VariantSelector] productDisplayColor:',
@@ -116,7 +116,7 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
          color: isGrouped
             ? productMetaColor || availableColors[0]
             : productDisplayColor?.toLowerCase(),
-         // Default size: choose the first size that is available for sale.
+         // Default size: choose the first size available for sale.
          size: (() => {
             const sizeOpt = filteredOptions.find((opt) => opt.name.toLowerCase() === 'size');
             if (sizeOpt) {
@@ -131,7 +131,7 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
             return '';
          })(),
          image: '0',
-         spec: '' // default spec value
+         spec: ''
       };
       console.log('[VariantSelector] Resetting state on product change:', defaults);
       startTransition(() => {
@@ -140,7 +140,7 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
       });
    }, [product.id]);
 
-   // --- Set default selections on mount if missing (in case state is initially empty) ---
+   // --- Set default selections on mount if missing ---
    useEffect(() => {
       if (state.color && state.size) return;
       const defaults: Partial<ProductState> = {};
@@ -326,14 +326,22 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
                                       </button>
                                    );
                                 })
-                              : // Non-grouped: render swatches via metafield lookup.
+                              : // Non-grouped: Render swatches via metafield lookup.
                                 option.values.map((value) => {
                                    const optName = option.name.toLowerCase();
                                    const isActive = state[optName] === value.toLowerCase();
                                    let metaobjectId: string | null = null;
-                                   if (product?.metafield && product.metafield.value) {
+                                   let metafieldValue: string | undefined;
+                                   if (product?.metafield) {
+                                      // Explicitly cast to the union type to safely access "value"
+                                      const mf = product.metafield as
+                                         | { value: string }
+                                         | { value: string }[];
+                                      metafieldValue = Array.isArray(mf) ? mf[0]?.value : mf.value;
+                                   }
+                                   if (metafieldValue) {
                                       try {
-                                         const metaobjectIds = JSON.parse(product.metafield.value);
+                                         const metaobjectIds = JSON.parse(metafieldValue);
                                          if (
                                             Array.isArray(metaobjectIds) &&
                                             metaobjectIds.length > 0
