@@ -23,7 +23,12 @@ export function ProductDetails({ product }: { product: Product }) {
          </div>
 
          {/* Variant Selector */}
-         <VariantSelector options={options} variants={variants} />
+         <VariantSelector
+            options={options}
+            variants={variants}
+            product={product}
+            // metaobjectIdsArray={groupColorMetaobjectIds}
+         />
 
          {/* Description */}
          {descriptionHtml && (
