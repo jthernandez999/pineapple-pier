@@ -176,19 +176,50 @@ const reshapeImages = (images: Connection<Image>, productTitle: string) => {
    });
 };
 
-const reshapeProduct = (product: ShopifyProduct, filterHiddenProducts: boolean = true) => {
+// In your /lib/shopify/index.ts file:
+
+const reshapeProduct = (
+   product: ShopifyProduct,
+   filterHiddenProducts: boolean = true
+): Product | undefined => {
    if (!product || (filterHiddenProducts && product.tags.includes(HIDDEN_PRODUCT_TAG))) {
       return undefined;
    }
 
-   const { images, variants, ...rest } = product;
+   const { images, variants, metafield, ...rest } = product;
+
+   // Normalize metafield:
+   // If metafield is an array with a single item, return that item.
+   // Otherwise, if it’s an array with more than one element, we assume you need the array (for grouped products).
+   // (If you want to update your Product type, change metafield’s type to Metafield | Metafield[].)
+   let normalizedMetafield: any;
+   if (Array.isArray(metafield)) {
+      normalizedMetafield = metafield.length === 1 ? metafield[0] : metafield;
+   } else {
+      normalizedMetafield = metafield;
+   }
 
    return {
       ...rest,
+      metafield: normalizedMetafield,
       images: reshapeImages(images, product.title),
       variants: removeEdgesAndNodes(variants)
-   };
+   } as Product; // cast to Product if needed
 };
+
+// const reshapeProduct = (product: ShopifyProduct, filterHiddenProducts: boolean = true) => {
+//    if (!product || (filterHiddenProducts && product.tags.includes(HIDDEN_PRODUCT_TAG))) {
+//       return undefined;
+//    }
+
+//    const { images, variants, ...rest } = product;
+
+//    return {
+//       ...rest,
+//       images: reshapeImages(images, product.title),
+//       variants: removeEdgesAndNodes(variants)
+//    };
+// };
 
 const reshapeProducts = (products: ShopifyProduct[]) => {
    const reshapedProducts = [];

@@ -118,8 +118,8 @@ export type Product = Omit<ShopifyProduct, 'variants' | 'images'> & {
       'Leg Opening'?: string;
       Inseam?: string;
    };
-   metafields?: Metafield[] | null;
-   metafield?: Metafield;
+   metafields?: Metafield[] | Metafield;
+   metafield?: Metafield | Metafield[];
    price?: string;
    collectionHandle?: string;
    collections?: {
