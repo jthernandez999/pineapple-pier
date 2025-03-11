@@ -3,7 +3,7 @@ import clsx from 'clsx'; // cSpell:ignore clsx
 import { ProductState, useProduct, useUpdateURL } from 'components/product/product-context';
 import { getColorPatternMetaobjectId } from 'lib/helpers/metafieldHelpers'; // cSpell:ignore metafield
 import { Metafield, Product, ProductOption, ProductVariant } from 'lib/shopify/types';
-import { startTransition, useEffect, useMemo } from 'react';
+import { startTransition, useEffect, useMemo, useRef } from 'react';
 import { ColorSwatch } from '../../components/ColorSwatch';
 import { useProductGroups } from './ProductGroupsContext';
 
@@ -30,6 +30,7 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
    const { state, updateProductState, updateActiveProduct } = useProduct();
    const updateURL = useUpdateURL();
    const { groups } = useProductGroups();
+   const autoMatchedRef = useRef(false); // guard to run auto–matching only once per product
 
    console.log('[VariantSelector] Product:', product);
 
@@ -59,8 +60,9 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
 
    // Get product's color option.
    const colorOption = product.options?.find((o) => o.name.toLowerCase() === 'color');
-   // For non-grouped, use the first (display) value (default to empty string).
-   const productDisplayColor: string = colorOption ? (colorOption.values[0] ?? '') : '';
+   // For non-grouped, use the first (display) value (or empty string if missing).
+   const productDisplayColor: string =
+      colorOption && colorOption.values[0] ? colorOption.values[0] : '';
    // For grouped products, we use the metafield.
    const productMetaColor: string = getColorPatternMetaobjectId(product) ?? '';
    console.log(
@@ -94,7 +96,7 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
       const map = variants.map((variant) => {
          const opts = variant.selectedOptions.reduce(
             (acc, option) => {
-               acc[option.name.toLowerCase()] = option.value.toLowerCase();
+               acc[option.name.toLowerCase()] = String(option.value).toLowerCase();
                return acc;
             },
             {} as Record<string, string>
@@ -103,7 +105,7 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
             id: variant.id,
             availableForSale: variant.availableForSale,
             ...opts,
-            spec: variant.spec || '' // ensure spec is always truthy
+            spec: variant.spec || '' // keep spec as string (if available)
          } as Record<string, string | boolean>;
       });
       console.log('[VariantSelector] variantMap:', map);
@@ -112,48 +114,29 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
 
    // --- Reset state when the product changes ---
    useEffect(() => {
-      // Default size: choose the first size that is available for sale.
+      autoMatchedRef.current = false; // reset for new product
       const sizeOpt = filteredOptions.find((opt) => opt.name.toLowerCase() === 'size');
-      let defaultSize = '' as any;
+      let defaultSize = '';
       if (sizeOpt) {
          const availableSize = sizeOpt.values.find((val) =>
             variantMap.some(
                (variant) => variant.size === val.toLowerCase() && variant.availableForSale === true
             )
          );
-         defaultSize = availableSize || sizeOpt.values[0];
+         defaultSize = availableSize || sizeOpt.values[0] || '';
       }
       const defaults: Partial<ProductState> = {
          color: isGrouped
-            ? productMetaColor || availableColors[0]
+            ? productMetaColor || (availableColors[0] ?? '')
             : productDisplayColor.toLowerCase(),
          size: defaultSize,
          image: '0',
-         spec: '' // default spec value
+         spec: {} as any // default spec as an object
       };
       console.log('[VariantSelector] Resetting state on product change:', defaults);
       startTransition(() => {
          const newState = updateProductState(defaults);
          updateURL(newState);
-         // Fallback: if no variant was auto-selected, default to first available variant.
-         if (!newState.size || !newState.color) {
-            if (variantMap.length > 0) {
-               const fallbackVariant = variantMap.find(
-                  (variant) => variant.availableForSale === true
-               );
-               if (fallbackVariant) {
-                  const fallbackState: Partial<ProductState> = {
-                     color: (fallbackVariant.color as string) || '',
-                     size: (fallbackVariant.size as string) || '',
-                     image: '0',
-                     spec: (fallbackVariant.spec as string) || ''
-                  };
-                  console.log('[VariantSelector] Applying fallback state:', fallbackState);
-                  updateProductState(fallbackState);
-                  updateURL(fallbackState);
-               }
-            }
-         }
       });
    }, [product.id]);
 
@@ -165,7 +148,7 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
       const sizeOpt = filteredOptions.find((opt) => opt.name.toLowerCase() === 'size');
       if (colOpt && !state.color && availableColors.length > 0) {
          defaults.color = isGrouped
-            ? productMetaColor || availableColors[0]
+            ? productMetaColor || (availableColors[0] ?? '')
             : productDisplayColor.toLowerCase();
          defaults.image = '0';
       }
@@ -175,7 +158,7 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
                (variant) => variant.size === val.toLowerCase() && variant.availableForSale === true
             )
          );
-         defaults.size = availableSize || sizeOpt.values[0];
+         defaults.size = availableSize || sizeOpt.values[0] || '';
       }
       if (Object.keys(defaults).length) {
          startTransition(() => {
@@ -199,13 +182,13 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
 
    // --- Auto Variant Matching ---
    useEffect(() => {
-      if (state.color && state.size) {
+      if (state.color && state.size && !autoMatchedRef.current) {
          console.log('[VariantSelector] Auto variant matching with state:', state);
          const keysToMatch = Object.keys(state).filter(
             (key) => !['image', 'spec'].includes(key) && variantMap[0] && key in variantMap[0]
          );
          console.log('[VariantSelector] Keys to match:', keysToMatch);
-         // Determine the display color to match.
+         // Determine display color to use in matching.
          const displayColor =
             isGrouped && groupProducts.length > 0
                ? (groupProducts
@@ -231,19 +214,23 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
                return variantVal === stateVal;
             })
          );
-         // Fallback: if no matching variant is found, use the first available variant.
+         // Fallback: choose the first available variant.
          if (!newVariant && variantMap.length > 0) {
-            console.warn(
-               '[VariantSelector] No matching variant found. Falling back to first available variant.'
-            );
+            console.warn('[VariantSelector] No matching variant found. Falling back.');
             newVariant = variantMap.find((variant) => variant.availableForSale === true);
          }
          console.log('[VariantSelector] newVariant:', newVariant);
          if (newVariant) {
+            autoMatchedRef.current = true;
             startTransition(() => {
-               const updatedState = {
+               // Set spec as an object – if newVariant.spec exists and is nonempty, parse it; else, default to {}.
+               const parsedSpec =
+                  typeof newVariant.spec === 'string' && newVariant.spec.trim() !== ''
+                     ? parseSpec(newVariant.spec)
+                     : ({} as any);
+               const updatedState: Partial<ProductState> = {
                   ...state,
-                  spec: typeof newVariant.spec === 'string' ? newVariant.spec : ''
+                  spec: parsedSpec
                };
                updateProductState(updatedState);
                const groupProduct =
@@ -258,7 +245,7 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
                const updatedProduct = {
                   ...baseProduct,
                   availableForSale: !!newVariant.availableForSale,
-                  spec: typeof newVariant.spec === 'string' ? parseSpec(newVariant.spec) : {},
+                  spec: parsedSpec,
                   selectedVariant: newVariant
                };
                updateActiveProduct(updatedProduct);
@@ -328,7 +315,7 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
                      <dd className="flex flex-wrap gap-3">
                         {isColorOption
                            ? isGrouped
-                              ? // Grouped: Render swatches from availableColors.
+                              ? // Render grouped swatches from availableColors.
                                 availableColors.map((colorId) => {
                                    const isActive =
                                       (colorId || '').toLowerCase() ===
@@ -337,9 +324,7 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
                                       <button
                                          key={colorId}
                                          type="button"
-                                         onClick={() =>
-                                            handleOptionSelect('color', colorId as string)
-                                         }
+                                         onClick={() => handleOptionSelect('color', colorId)}
                                          className={clsx(
                                             'relative flex items-center justify-center rounded border p-2 transition-all',
                                             {
@@ -353,24 +338,21 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
                                       </button>
                                    );
                                 })
-                              : // Non-grouped: Render swatches via metafield lookup.
+                              : // Non-grouped: render swatches using metafield lookup.
                                 option.values.map((value) => {
                                    const optName = option.name.toLowerCase();
                                    const isActive = state[optName] === value.toLowerCase();
-                                   let metaobjectId: string | null = null;
+                                   let metaobjectId: string | any;
                                    let metafieldValue: string | undefined;
                                    if (product?.metafield) {
-                                      // Cast to Metafield | Metafield[]
                                       const mf = product.metafield as Metafield | Metafield[];
-                                      if (Array.isArray(mf)) {
-                                         metafieldValue = mf[0]?.value;
-                                      } else {
-                                         metafieldValue = mf.value;
-                                      }
+                                      metafieldValue = Array.isArray(mf) ? mf[0]?.value : mf.value;
                                    }
                                    if (metafieldValue) {
                                       try {
-                                         const metaobjectIds = JSON.parse(metafieldValue) as any;
+                                         const metaobjectIds = JSON.parse(
+                                            metafieldValue
+                                         ) as string[];
                                          if (
                                             Array.isArray(metaobjectIds) &&
                                             metaobjectIds.length > 0
@@ -418,7 +400,7 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
                                       </button>
                                    );
                                 })
-                           : // Render non-color options (e.g., size) as buttons.
+                           : // Render non-color options (e.g. size) as buttons.
                              option.values.map((value) => {
                                 const optName = option.name.toLowerCase();
                                 const isActive = state[optName] === value.toLowerCase();
