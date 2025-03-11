@@ -134,6 +134,7 @@ export type ProductOption = {
 };
 
 export type ProductVariant = {
+   spec: string;
    id: string;
    title: string;
    availableForSale: boolean;
@@ -193,6 +194,7 @@ export type ShopifyProduct = {
    tags: string[];
    updatedAt: string;
    metafields?: Metafield[];
+   metafield?: Metafield[];
    edges?: { node: any }[];
    pageInfo?: { endCursor: string; hasNextPage: boolean };
 };

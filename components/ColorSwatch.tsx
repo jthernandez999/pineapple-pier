@@ -59,26 +59,25 @@ export const ColorSwatch: React.FC<ColorSwatchProps> = ({
 
       async function fetchColors() {
          let idsToFetch: string[] = [];
-
          if (metaobjectIdsArray && metaobjectIdsArray.length > 0) {
             idsToFetch = [...metaobjectIdsArray.filter(Boolean)];
          } else if (metaobjectId) {
             idsToFetch = [metaobjectId];
          }
-
          if (idsToFetch.length) {
             const colors = await Promise.all(idsToFetch.map((id) => fetchMetaobject(id)));
-            setColorCodes(colors.filter(Boolean)); // Prevents empty swatches
-            onColorsFetched?.(colors);
+            const filtered = colors.filter(Boolean);
+            setColorCodes(filtered);
+            onColorsFetched?.(filtered);
          } else {
-            setColorCodes([]); // Prevents the default white swatch from showing
+            setColorCodes([]);
          }
       }
 
       fetchColors();
    }, [metaobjectId, metaobjectIdsArray, fallbackColor, onColorsFetched]);
 
-   if (!colorCodes.length) return null; // Prevents rendering a white swatch
+   if (!colorCodes.length) return null;
 
    return (
       <div style={{ display: 'flex', gap: '6px' }}>

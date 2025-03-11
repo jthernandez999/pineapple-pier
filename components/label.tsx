@@ -9,11 +9,11 @@ interface LabelProps {
    amount: string;
    currencyCode: string;
    colorName?: string;
-   metaobjectId?: string; // currently active metaobject id
-   metaobjectIdsArray?: string[]; // array of metaobject ids for the group (should be unique)
-   fallbackColor?: string; // fallback color code
+   metaobjectId?: string;
+   metaobjectIdsArray?: string[];
+   fallbackColor?: string;
    position?: 'bottom' | 'center';
-   swatchMetaobjectId?: string; // for compatibility with GridTileImage
+   swatchMetaobjectId?: string;
    onSwatchClick?: (swatchId: string, e: React.MouseEvent<HTMLDivElement>) => void;
 }
 
@@ -39,7 +39,6 @@ const Label: React.FC<LabelProps> = ({
          })}
       >
          <div className="text-md black mt-0 border-x-[0.5px] border-b-[0.5px] bg-white/70 p-2 font-semibold text-black backdrop-blur-md dark:border-neutral-800 dark:bg-black/70 dark:text-white">
-            {/* Title and Price */}
             <div className="mb-0 mt-0 flex items-center justify-between pb-0 pt-0 font-normal">
                <h3 className="text-xs font-light leading-none tracking-tight md:text-sm">
                   {(() => {
@@ -77,11 +76,7 @@ const Label: React.FC<LabelProps> = ({
                   currencyCodeClassName="hidden @[275px]/label:inline"
                />
             </div>
-
-            {/* Selected Color Name */}
             {colorName && <div className="mb-2 mt-0 pt-0 text-xs font-normal">{colorName}</div>}
-
-            {/* If there are multiple swatches, render one set */}
             {metaobjectIdsArray && metaobjectIdsArray.length > 1 ? (
                <div className="mt-2 flex gap-2">
                   {metaobjectIdsArray.map((id) => (
@@ -96,7 +91,7 @@ const Label: React.FC<LabelProps> = ({
                         style={{
                            border:
                               id === metaobjectId
-                                 ? '2px solid ' // a subtle silver blue hue
+                                 ? '2px solid'
                                  : '1px solid rgba(255,255,255,0.25)',
                            borderRadius: '50%',
                            boxShadow:
@@ -104,26 +99,21 @@ const Label: React.FC<LabelProps> = ({
                            transform: id === metaobjectId ? 'scale(1.05)' : 'scale(1)',
                            background:
                               id === metaobjectId
-                                 ? 'linear-gradient(135deg, #ffffff, #f5f3e3)' // light, refined gradient
+                                 ? 'linear-gradient(135deg, #ffffff, #f5f3e3)'
                                  : '#f8f7f4'
                         }}
                         title={id}
                      >
-                        <ColorSwatch
-                           metaobjectId={id}
-                           // Do not pass metaobjectIdsArray here so that only one swatch is rendered per id.
-                           fallbackColor={fallbackColor}
-                        />
+                        <ColorSwatch metaobjectId={id} fallbackColor={fallbackColor} />
                      </div>
                   ))}
                </div>
             ) : (
-               // If only one swatch is available, render it directly.
                metaobjectId && (
                   <div className="mt-2">
                      <ColorSwatch
                         metaobjectId={metaobjectId}
-                        metaobjectIdsArray={metaobjectIdsArray?.filter(Boolean)} // Ensure no empty entries
+                        metaobjectIdsArray={metaobjectIdsArray?.filter(Boolean)}
                         fallbackColor={fallbackColor}
                      />
                   </div>

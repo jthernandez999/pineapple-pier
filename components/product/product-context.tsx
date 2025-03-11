@@ -1,20 +1,17 @@
-// components/product/product-context.tsx
 'use client';
 import type { Product } from 'lib/shopify/types';
 import { useRouter, useSearchParams } from 'next/navigation';
-import React, { createContext, useContext, useMemo, useOptimistic, useState } from 'react';
+import React, { createContext, useContext, useMemo, useState } from 'react';
 
 export type ProductState = {
    [key: string]: string | undefined;
-} & {
-   image?: string;
-};
+} & { image?: string };
 
 interface ProductContextType {
    state: ProductState;
-   updateOption: (name: string, value: string) => ProductState;
-   updateImage: (index: string) => ProductState;
-   updateProductState: (updates: Partial<ProductState>) => ProductState;
+   updateOption: (name: string, value: string) => void;
+   updateImage: (index: string) => void;
+   updateProductState: (updates: Partial<ProductState>) => void;
    activeProduct: Product;
    updateActiveProduct: (product: Product) => void;
 }
@@ -23,56 +20,52 @@ const ProductContext = createContext<ProductContextType | undefined>(undefined);
 
 interface ProductProviderProps {
    children: React.ReactNode;
-   initialProduct: Product; // now required
+   initialProduct: Product;
 }
 
 export function ProductProvider({ children, initialProduct }: ProductProviderProps) {
+   // Read initial state from the URL search parameters
    const searchParams = useSearchParams();
+   const initialState: ProductState = {};
+   for (const [key, value] of searchParams.entries()) {
+      initialState[key] = value;
+   }
 
-   const getInitialState = (): ProductState => {
-      const params: ProductState = {};
-      for (const [key, value] of searchParams.entries()) {
-         params[key] = value;
-      }
-      return params;
-   };
+   const [state, setState] = useState<ProductState>(initialState);
 
-   const [state, setOptimisticState] = useOptimistic(
-      getInitialState(),
-      (prevState: ProductState, update: ProductState) => ({
-         ...prevState,
-         ...update
-      })
-   );
-
-   const updateOption = (name: string, value: string): ProductState => {
-      const newState = { [name]: value };
-      setOptimisticState(newState);
-      return { ...state, ...newState };
-   };
-
-   const updateImage = (index: string): ProductState => {
-      const newState = { image: index };
-      setOptimisticState(newState);
-      return { ...state, ...newState };
-   };
-
-   const updateProductState = (updates: Partial<ProductState>): ProductState => {
-      const newState = { ...state, ...updates };
-      setOptimisticState(newState);
-      return newState;
-   };
-
-   // Active product state and updater:
-   const [activeProduct, setActiveProduct] = useState<Product>(initialProduct);
-
-   // components/product/product-context.tsx
-   const updateActiveProduct = (product: Product) => {
-      setActiveProduct((prev) => {
-         // Only update if the product id is different.
-         if (prev.id === product.id) return prev;
-         return product;
+   const updateOption = (name: string, value: string) => {
+      setState((prev) => {
+         const newState = { ...prev, [name]: value };
+         if (typeof window !== 'undefined') {
+            localStorage.setItem('productState', JSON.stringify(newState));
+         }
+         return newState;
       });
+   };
+
+   const updateImage = (index: string) => {
+      setState((prev) => {
+         const newState = { ...prev, image: index };
+         if (typeof window !== 'undefined') {
+            localStorage.setItem('productState', JSON.stringify(newState));
+         }
+         return newState;
+      });
+   };
+
+   const updateProductState = (updates: Partial<ProductState>) => {
+      setState((prev) => {
+         const newState = { ...prev, ...updates };
+         if (typeof window !== 'undefined') {
+            localStorage.setItem('productState', JSON.stringify(newState));
+         }
+         return newState;
+      });
+   };
+
+   const [activeProduct, setActiveProduct] = useState<Product>(initialProduct);
+   const updateActiveProduct = (product: Product) => {
+      setActiveProduct((prev) => (prev.id === product.id ? prev : product));
    };
 
    const value = useMemo(
@@ -107,7 +100,11 @@ export function useUpdateURL() {
             newParams.set(key, value);
          }
       });
-      router.push(`?${newParams.toString()}`, { scroll: false });
+      const newQuery = newParams.toString();
+      // Only push if the query has actually changed.
+      if (newQuery !== window.location.search.substring(1)) {
+         router.push(`?${newQuery}`, { scroll: false });
+      }
    };
 }
 

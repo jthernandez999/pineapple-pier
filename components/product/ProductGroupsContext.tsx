@@ -1,5 +1,5 @@
 'use client';
-import { Product } from 'lib/shopify/types';
+import type { Product } from 'lib/shopify/types';
 import React, { createContext, useContext, useState } from 'react';
 
 interface ProductGroups {
@@ -11,10 +11,7 @@ interface ProductGroupsContextType {
    setGroups: (groups: ProductGroups) => void;
 }
 
-type ProductGroupsContextProps = ProductGroupsContextType;
-
-// 🔥 Ensure persistent state by using localStorage
-const ProductGroupsContext = createContext<ProductGroupsContextProps>({
+const ProductGroupsContext = createContext<ProductGroupsContextType>({
    groups: {},
    setGroups: () => {}
 });
