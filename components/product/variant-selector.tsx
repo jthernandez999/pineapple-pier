@@ -2,7 +2,7 @@
 import clsx from 'clsx'; // cSpell:ignore clsx
 import { ProductState, useProduct, useUpdateURL } from 'components/product/product-context';
 import { getColorPatternMetaobjectId } from 'lib/helpers/metafieldHelpers'; // cSpell:ignore metafield
-import { Product, ProductOption, ProductVariant } from 'lib/shopify/types';
+import { Metafield, Product, ProductOption, ProductVariant } from 'lib/shopify/types';
 import { startTransition, useEffect, useMemo } from 'react';
 import { ColorSwatch } from '../../components/ColorSwatch';
 import { useProductGroups } from './ProductGroupsContext';
@@ -59,10 +59,10 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
 
    // Get product's color option.
    const colorOption = product.options?.find((o) => o.name.toLowerCase() === 'color');
-   // For non-grouped, use the first (display) value.
-   const productDisplayColor = colorOption ? colorOption.values[0] : '';
-   // For grouped products, we use the metafield helper.
-   const productMetaColor = getColorPatternMetaobjectId(product);
+   // For non-grouped, use the first (display) value (default to empty string).
+   const productDisplayColor: string = colorOption ? (colorOption.values[0] ?? '') : '';
+   // For grouped products, we use the metafield.
+   const productMetaColor: string = getColorPatternMetaobjectId(product) ?? '';
    console.log(
       '[VariantSelector] productDisplayColor:',
       productDisplayColor,
@@ -83,7 +83,7 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
          console.log('[VariantSelector] availableColors (grouped):', groupColors);
          return groupColors;
       } else {
-         const val = productDisplayColor?.toLowerCase();
+         const val = productDisplayColor ? productDisplayColor.toLowerCase() : '';
          console.log('[VariantSelector] availableColors (non-grouped):', [val]);
          return [val];
       }
@@ -112,31 +112,48 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
 
    // --- Reset state when the product changes ---
    useEffect(() => {
+      // Default size: choose the first size that is available for sale.
+      const sizeOpt = filteredOptions.find((opt) => opt.name.toLowerCase() === 'size');
+      let defaultSize = '' as any;
+      if (sizeOpt) {
+         const availableSize = sizeOpt.values.find((val) =>
+            variantMap.some(
+               (variant) => variant.size === val.toLowerCase() && variant.availableForSale === true
+            )
+         );
+         defaultSize = availableSize || sizeOpt.values[0];
+      }
       const defaults: Partial<ProductState> = {
          color: isGrouped
             ? productMetaColor || availableColors[0]
-            : productDisplayColor?.toLowerCase(),
-         // Default size: choose the first size available for sale.
-         size: (() => {
-            const sizeOpt = filteredOptions.find((opt) => opt.name.toLowerCase() === 'size');
-            if (sizeOpt) {
-               const availableSize = sizeOpt.values.find((val) =>
-                  variantMap.some(
-                     (variant) =>
-                        variant.size === val.toLowerCase() && variant.availableForSale === true
-                  )
-               );
-               return availableSize || sizeOpt.values[0];
-            }
-            return '';
-         })(),
+            : productDisplayColor.toLowerCase(),
+         size: defaultSize,
          image: '0',
-         spec: ''
+         spec: '' // default spec value
       };
       console.log('[VariantSelector] Resetting state on product change:', defaults);
       startTransition(() => {
          const newState = updateProductState(defaults);
          updateURL(newState);
+         // Fallback: if no variant was auto-selected, default to first available variant.
+         if (!newState.size || !newState.color) {
+            if (variantMap.length > 0) {
+               const fallbackVariant = variantMap.find(
+                  (variant) => variant.availableForSale === true
+               );
+               if (fallbackVariant) {
+                  const fallbackState: Partial<ProductState> = {
+                     color: (fallbackVariant.color as string) || '',
+                     size: (fallbackVariant.size as string) || '',
+                     image: '0',
+                     spec: (fallbackVariant.spec as string) || ''
+                  };
+                  console.log('[VariantSelector] Applying fallback state:', fallbackState);
+                  updateProductState(fallbackState);
+                  updateURL(fallbackState);
+               }
+            }
+         }
       });
    }, [product.id]);
 
@@ -149,7 +166,7 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
       if (colOpt && !state.color && availableColors.length > 0) {
          defaults.color = isGrouped
             ? productMetaColor || availableColors[0]
-            : productDisplayColor?.toLowerCase();
+            : productDisplayColor.toLowerCase();
          defaults.image = '0';
       }
       if (sizeOpt && !state.size) {
@@ -191,25 +208,36 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
          // Determine the display color to match.
          const displayColor =
             isGrouped && groupProducts.length > 0
-               ? groupProducts
+               ? (groupProducts
                     .find(
                        (prod) =>
-                          getColorPatternMetaobjectId(prod)?.toLowerCase() ===
-                          state.color?.toLowerCase()
+                          (getColorPatternMetaobjectId(prod) || '').toLowerCase() ===
+                          (state.color || '').toLowerCase()
                     )
-                    ?.options?.find((o) => o.name.toLowerCase() === 'color')?.values[0] || ''
+                    ?.options?.find((o) => o.name.toLowerCase() === 'color')?.values[0] ?? '')
                : productDisplayColor;
          console.log('[VariantSelector] displayColor for matching:', displayColor);
-         const newVariant = variantMap.find((variant) =>
+         let newVariant = variantMap.find((variant) =>
             keysToMatch.every((key) => {
-               const variantVal = (variant[key] as string).trim().toLowerCase();
-               const stateVal = (state[key] as string).trim().toLowerCase();
+               const variantVal = String(variant[key] ?? '')
+                  .trim()
+                  .toLowerCase();
+               const stateVal = String(state[key] ?? '')
+                  .trim()
+                  .toLowerCase();
                if (key === 'color') {
-                  return displayColor?.trim().toLowerCase() === variantVal;
+                  return displayColor.trim().toLowerCase() === variantVal;
                }
                return variantVal === stateVal;
             })
          );
+         // Fallback: if no matching variant is found, use the first available variant.
+         if (!newVariant && variantMap.length > 0) {
+            console.warn(
+               '[VariantSelector] No matching variant found. Falling back to first available variant.'
+            );
+            newVariant = variantMap.find((variant) => variant.availableForSale === true);
+         }
          console.log('[VariantSelector] newVariant:', newVariant);
          if (newVariant) {
             startTransition(() => {
@@ -222,8 +250,8 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
                   isGrouped && groupProducts.length > 0
                      ? groupProducts.find(
                           (prod) =>
-                             getColorPatternMetaobjectId(prod)?.toLowerCase() ===
-                             state.color?.toLowerCase()
+                             (getColorPatternMetaobjectId(prod) || '').toLowerCase() ===
+                             (state.color || '').toLowerCase()
                        )
                      : null;
                const baseProduct = groupProduct ? groupProduct : product;
@@ -260,9 +288,10 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
       if (isGrouped && groupProducts.length > 0) {
          const match = groupProducts.find(
             (prod) =>
-               getColorPatternMetaobjectId(prod)?.toLowerCase() === state.color?.toLowerCase()
+               (getColorPatternMetaobjectId(prod) || '').toLowerCase() ===
+               (state.color || '').toLowerCase()
          );
-         return match?.options?.find((o) => o.name.toLowerCase() === 'color')?.values[0] || '';
+         return match?.options?.find((o) => o.name.toLowerCase() === 'color')?.values[0] ?? '';
       }
       return productDisplayColor;
    }, [state.color, groupProducts, isGrouped, productDisplayColor]);
@@ -302,7 +331,8 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
                               ? // Grouped: Render swatches from availableColors.
                                 availableColors.map((colorId) => {
                                    const isActive =
-                                      colorId?.toLowerCase() === state.color?.toLowerCase();
+                                      (colorId || '').toLowerCase() ===
+                                      (state.color || '').toLowerCase();
                                    return (
                                       <button
                                          key={colorId}
@@ -319,10 +349,7 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
                                             }
                                          )}
                                       >
-                                         <ColorSwatch
-                                            metaobjectId={colorId}
-                                            fallbackColor={'#ccc'}
-                                         />
+                                         <ColorSwatch metaobjectId={colorId} fallbackColor="#ccc" />
                                       </button>
                                    );
                                 })
@@ -333,15 +360,17 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
                                    let metaobjectId: string | null = null;
                                    let metafieldValue: string | undefined;
                                    if (product?.metafield) {
-                                      // Explicitly cast to the union type to safely access "value"
-                                      const mf = product.metafield as
-                                         | { value: string }
-                                         | { value: string }[];
-                                      metafieldValue = Array.isArray(mf) ? mf[0]?.value : mf.value;
+                                      // Cast to Metafield | Metafield[]
+                                      const mf = product.metafield as Metafield | Metafield[];
+                                      if (Array.isArray(mf)) {
+                                         metafieldValue = mf[0]?.value;
+                                      } else {
+                                         metafieldValue = mf.value;
+                                      }
                                    }
                                    if (metafieldValue) {
                                       try {
-                                         const metaobjectIds = JSON.parse(metafieldValue);
+                                         const metaobjectIds = JSON.parse(metafieldValue) as any;
                                          if (
                                             Array.isArray(metaobjectIds) &&
                                             metaobjectIds.length > 0
@@ -395,7 +424,7 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
                                 const isActive = state[optName] === value.toLowerCase();
                                 const isAvailable = variantMap.some(
                                    (variant) =>
-                                      (variant[optName] as string).toLowerCase() ===
+                                      String(variant[optName] ?? '').toLowerCase() ===
                                          value.toLowerCase() &&
                                       (variant.availableForSale as boolean)
                                 );
