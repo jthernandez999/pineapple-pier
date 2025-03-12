@@ -67,14 +67,28 @@ export function AddToCart({ product }: { product: Product }) {
    }
 
    // Merge the default state with the current state.
-   const mergedState = { ...defaultState, ...state };
+   const mergedState = { ...defaultState, ...state } as Record<string, string>;
 
-   // Find the matching variant using the merged state (normalize both sides to lowercase).
+   // For the color option, if the state has a metaobject id (starts with "gid://")
+   // then use the human‑readable product color instead.
+   const colorKey = 'color';
+   const productDisplayColor =
+      product.options?.find((o) => o.name.toLowerCase() === 'color')?.values[0]?.toLowerCase() ||
+      '';
+   const normalizedState: Record<string, string> = {
+      ...mergedState,
+      [colorKey]:
+         mergedState[colorKey] && mergedState[colorKey].startsWith('gid://')
+            ? productDisplayColor
+            : mergedState[colorKey] || productDisplayColor
+   };
+
+   // Find the matching variant using the normalized state.
    const variant = variants.find((variant: ProductVariant) =>
       variant.selectedOptions.every(
          (option) =>
             option.value.toLowerCase() ===
-            String(mergedState[option.name.toLowerCase()]).toLowerCase()
+            String(normalizedState[option.name.toLowerCase()]).toLowerCase()
       )
    );
 
@@ -82,10 +96,11 @@ export function AddToCart({ product }: { product: Product }) {
    const defaultVariantId = variants.length === 1 ? variants[0]?.id : undefined;
    const selectedVariantId = variant?.id || defaultVariantId;
 
-   const actionWithVariant = formAction.bind(null, selectedVariantId);
+   // Make sure selectedVariantId is a string before using it.
    const finalVariant = variants.find((variant) => variant.id === selectedVariantId)!;
    console.log('finalVariant:::::::::', finalVariant);
 
+   const actionWithVariant = formAction.bind(null, selectedVariantId);
    const handleSubmit = async () => {
       console.log('selectedVariantID', selectedVariantId);
       addCartItem(finalVariant, product);

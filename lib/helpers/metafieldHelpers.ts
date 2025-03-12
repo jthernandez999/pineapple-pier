@@ -5,6 +5,19 @@ export type Metafield = {
    value: string;
 };
 
+// In lib/helpers/metaobjectHelpers.ts
+
+/**
+ * Normalizes a metaobject ID to a standard format.
+ * For example, we could convert it to lower case and trim whitespace.
+ */
+// In lib/helpers/metafieldHelpers.ts
+export function normalizeMetaobjectId(id?: string): string | undefined {
+   if (!id) return undefined;
+   // Replace any occurrence of "/metaobject/" with "/Metaobject/"
+   return id.replace(/\/metaobject\//i, '/Metaobject/');
+}
+
 export function flattenMetafields(product: any): Metafield[] {
    const fields: Metafield[] = [];
 
@@ -166,7 +179,7 @@ export function getColorPatternMetaobjectId(product: any): string | undefined {
                   if (meta && meta.fields) {
                      // console.log(
                      //    `Color pattern metaobject ${meta.id} fields:`,
-                     //    JSON.stringify(meta.fields, null, 2)
+                     JSON.stringify(meta.fields, null, 2);
                      // );
                   }
                })
