@@ -56,14 +56,8 @@ export function ProductGridItemsComponent({ products, groupHandle }: ProductGrid
       return map;
    }, [products]);
 
-   // Use our ProductGroups context to store the groups.
-   // const { setGroups } = useProductGroups();
-   // useEffect(() => {
-   //    setGroups(groupsMap);
-   // }, [groupsMap, setGroups]);
-
-   // ✅ Only update groups if they have changed
-   const { groups, setGroups } = useProductGroups();
+   // Use our ProductGroups context to store the groups and update the selected product.
+   const { groups, setGroups, updateSelectedProduct } = useProductGroups();
    useEffect(() => {
       if (Object.keys(groupsMap).length > 0) {
          setGroups(groupsMap);
@@ -163,6 +157,8 @@ export function ProductGridItemsComponent({ products, groupHandle }: ProductGrid
                         ...prev,
                         [group]: nextProduct
                      }));
+                     // Update context with the full product details so that the product page can initialize with these details.
+                     updateSelectedProduct(nextProduct);
                   }
                };
 

@@ -2,7 +2,8 @@
 
 import type { Product } from 'lib/shopify/types';
 import { useRouter, useSearchParams } from 'next/navigation';
-import React, { createContext, useContext, useMemo, useState } from 'react';
+import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import { useProductGroups } from './ProductGroupsContext';
 
 export type ProductState = {
    [key: string]: string | undefined;
@@ -23,7 +24,7 @@ const ProductContext = createContext<ProductContextType | undefined>(undefined);
 
 interface ProductProviderProps {
    children: React.ReactNode;
-   initialProduct: Product; // now required
+   initialProduct: Product;
 }
 
 export function ProductProvider({ children, initialProduct }: ProductProviderProps) {
@@ -33,16 +34,14 @@ export function ProductProvider({ children, initialProduct }: ProductProviderPro
    const getInitialState = (): ProductState => {
       const params: ProductState = {};
       for (const [key, value] of searchParams.entries()) {
-         // Normalize the color key to lower-case if it exists.
+         // Normalize the "color" key to lower-case.
          params[key] = key === 'color' ? value.toLowerCase() : value;
       }
       return params;
    };
 
-   // Using useState to hold product state.
    const [state, setState] = useState<ProductState>(getInitialState());
 
-   // Each update function creates a new state object, saves it, and returns it.
    function updateOption(name: string, value: string): ProductState {
       const newState: ProductState = { ...state, [name]: value };
       setState(newState);
@@ -76,6 +75,14 @@ export function ProductProvider({ children, initialProduct }: ProductProviderPro
    const updateActiveProduct = (product: Product) => {
       setActiveProduct((prev) => (prev.id === product.id ? prev : product));
    };
+
+   // NEW: If the ProductGroups context has a selectedProduct, override activeProduct.
+   const { selectedProduct } = useProductGroups();
+   useEffect(() => {
+      if (selectedProduct && selectedProduct.id !== activeProduct.id) {
+         updateActiveProduct(selectedProduct);
+      }
+   }, [selectedProduct, activeProduct, updateActiveProduct]);
 
    const value = useMemo(
       () => ({

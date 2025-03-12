@@ -29,7 +29,8 @@ interface VariantSelectorProps {
 export function VariantSelector({ options, variants, product }: VariantSelectorProps) {
    const { state, updateProductState, updateActiveProduct } = useProduct();
    const updateURL = useUpdateURL();
-   const { groups } = useProductGroups();
+   // Pull both groups and selectedProduct from the product groups context.
+   const { groups, selectedProduct } = useProductGroups();
    const autoMatchedRef = useRef(false);
 
    // Filter out unwanted options.
@@ -160,11 +161,11 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
          spec: ''
       };
 
-      console.log('[VariantSelector] Resetting state on product change:', defaults);
+      console.log('[VariantSelector] Resetting state on product mount:', defaults);
       startTransition(() => {
          const newState = updateProductState(defaults);
          updateURL(newState);
-         console.log('[VariantSelector] NEW MERGED STATE AFTER RESET:', newState);
+         console.log('[VariantSelector] NEW MERGED STATE AFTER MOUNT:', newState);
       });
    }, [product.id, state.color, filteredOptions, productDisplayColor, initialColor, variantMap]);
 
@@ -190,7 +191,6 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
                : productDisplayColor;
          console.log('[VariantSelector] displayColor for matching:', displayColor);
 
-         // Declare newVariant here so it is in scope for the following code.
          let newVariant: Combination | undefined = variantMap.find((variant) =>
             keysToMatch.every((key) => {
                const variantVal = variant.options[key] ? variant.options[key].toLowerCase() : '';
@@ -221,13 +221,18 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
                           return prodColor === (state.color ?? '').toLowerCase();
                        })
                      : null;
-               const baseProduct = groupProduct ? groupProduct : product;
+               // If a product was selected via the collection page, use it.
+               const baseProduct = selectedProduct
+                  ? selectedProduct
+                  : groupProduct
+                    ? groupProduct
+                    : product;
 
-               // Create updatedProduct with updated image fields.
                const updatedProduct: ExtendedProduct = {
                   ...baseProduct,
                   availableForSale: !!newVariant!.availableForSale,
                   selectedVariant: newVariant,
+                  // Use the image fields from the matching group product if available.
                   featuredImage: groupProduct ? groupProduct.featuredImage : product.featuredImage,
                   images: groupProduct ? groupProduct.images : product.images,
                   media: groupProduct ? groupProduct.media : product.media
@@ -253,7 +258,8 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
       productDisplayColor,
       product,
       updateProductState,
-      updateActiveProduct
+      updateActiveProduct,
+      selectedProduct
    ]);
 
    // --- Compute current color name for display ---

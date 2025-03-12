@@ -1,18 +1,17 @@
-// app/product/[handle]/page.tsx
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
 import { GridTileImage } from 'components/grid/tile';
 import Footer from 'components/layout/footer';
-import { Gallery } from 'components/product/gallery';
 import { ProductProvider } from 'components/product/product-context';
 import { ProductDescription } from 'components/product/product-description';
 import { HIDDEN_PRODUCT_TAG } from 'lib/constants';
 import { getColorPatternMetaobjectId } from 'lib/helpers/metafieldHelpers';
 import { getProduct, getProductRecommendations } from 'lib/shopify';
-import type { Image, Product } from 'lib/shopify/types';
+import type { Product } from 'lib/shopify/types';
 import Link from 'next/link';
 import { Suspense } from 'react';
+import ActiveGallery from '../../../components/ActiveGallery';
 import Grid from '../../../components/grid';
 import Label from '../../../components/label';
 
@@ -48,92 +47,10 @@ export async function generateMetadata(props: {
       },
       openGraph: url
          ? {
-              images: [
-                 {
-                    url,
-                    width,
-                    height,
-                    alt
-                 }
-              ]
+              images: [{ url, width, height, alt }]
            }
          : null
    };
-}
-
-export default async function ProductPage(props: { params: Promise<{ handle: string }> }) {
-   const params = await props.params;
-   const product = await getProduct(params.handle);
-
-   if (!product) return notFound();
-
-   // Use fallback image if featuredImage not available.
-   const featuredImage = product.featuredImage || fallbackImg;
-
-   const productJsonLd = {
-      '@context': 'https://schema.org',
-      '@type': 'Product',
-      name: product.title,
-      description: product.description,
-      image: featuredImage.url,
-      offers: {
-         '@type': 'AggregateOffer',
-         availability: product.availableForSale
-            ? 'https://schema.org/InStock'
-            : 'https://schema.org/OutOfStock',
-         priceCurrency: product.priceRange.minVariantPrice.currencyCode,
-         highPrice: product.priceRange.maxVariantPrice.amount,
-         lowPrice: product.priceRange.minVariantPrice.amount
-      }
-   };
-
-   return (
-      <ProductProvider initialProduct={product} key={product.id}>
-         <script
-            type="application/ld+json"
-            dangerouslySetInnerHTML={{
-               __html: JSON.stringify(productJsonLd)
-            }}
-         />
-         <div className="mx-auto w-full px-0 md:max-w-[1950px] md:px-4">
-            <div className="flex flex-col bg-white p-0 dark:border-neutral-800 dark:bg-black md:p-8 lg:flex-row lg:gap-8">
-               {/* Gallery / Main Image */}
-               <div className="w-full lg:basis-1/2">
-                  <Suspense fallback={<div className="relative h-full w-full overflow-hidden" />}>
-                     <Gallery
-                        images={
-                           product.images && product.images.length
-                              ? product.images.slice(0, 5).map((image: Image) => ({
-                                   src: image.url,
-                                   altText: image.altText
-                                }))
-                              : [{ src: fallbackImg.url, altText: fallbackImg.altText }]
-                        }
-                     />
-                  </Suspense>
-               </div>
-
-               {/* Product Description */}
-               <div className="w-full lg:basis-1/2">
-                  <Suspense fallback={null}>
-                     <ProductDescription product={product} />
-                  </Suspense>
-               </div>
-            </div>
-            <RelatedProducts id={product.id} />
-         </div>
-         <Footer />
-      </ProductProvider>
-   );
-}
-
-function flattenImages(images: any): any[] {
-   if (!images) return [];
-   if (Array.isArray(images)) return images;
-   if (images.edges) {
-      return images.edges.map((edge: any) => edge.node);
-   }
-   return [];
 }
 
 async function RelatedProducts({ id }: { id: string }) {
@@ -141,17 +58,24 @@ async function RelatedProducts({ id }: { id: string }) {
 
    if (!relatedProducts.length) return null;
 
+   function flattenImages(images: any): any[] {
+      if (!images) return [];
+      if (Array.isArray(images)) return images;
+      if (images.edges && Array.isArray(images.edges)) {
+         return images.edges.map((edge: any) => edge.node);
+      }
+      return [];
+   }
+
    return (
       <div className="p-8 py-8">
          <h2 className="mb-4 text-2xl font-bold">Related Products</h2>
          <ul className="flex w-full gap-4 overflow-x-auto pt-1">
             {relatedProducts.map((product: Product) => {
-               // Extract color option.
                const colorOption = product.options?.find((o) => o.name.toLowerCase() === 'color');
                const colorName = colorOption ? colorOption.values[0] : undefined;
                const fallbackColor = colorName ? colorName.toLowerCase() : '#ccc';
 
-               // Use helper to get swatch; if not a hex color, use fallback.
                const rawSwatch = getColorPatternMetaobjectId(product);
                const swatchColor =
                   rawSwatch && rawSwatch.startsWith('#') ? rawSwatch : fallbackColor;
@@ -189,9 +113,11 @@ async function RelatedProducts({ id }: { id: string }) {
                                        ?.values[0]
                                  }
                                  metaobjectId={getColorPatternMetaobjectId(product)}
-                                 fallbackColor={product.options
-                                    ?.find((o) => o.name.toLowerCase() === 'color')
-                                    ?.values[0]?.toLowerCase()}
+                                 fallbackColor={
+                                    product.options
+                                       ?.find((o) => o.name.toLowerCase() === 'color')
+                                       ?.values[0]?.toLowerCase() || '#FFFFFF'
+                                 }
                                  position="bottom"
                               />
                            </div>
@@ -202,5 +128,59 @@ async function RelatedProducts({ id }: { id: string }) {
             })}
          </ul>
       </div>
+   );
+}
+
+export default async function ProductPage(props: { params: Promise<{ handle: string }> }) {
+   const params = await props.params;
+   const product = await getProduct(params.handle);
+
+   if (!product) return notFound();
+
+   const featuredImage = product.featuredImage || fallbackImg;
+
+   const productJsonLd = {
+      '@context': 'https://schema.org',
+      '@type': 'Product',
+      name: product.title,
+      description: product.description,
+      image: featuredImage.url,
+      offers: {
+         '@type': 'AggregateOffer',
+         availability: product.availableForSale
+            ? 'https://schema.org/InStock'
+            : 'https://schema.org/OutOfStock',
+         priceCurrency: product.priceRange.minVariantPrice.currencyCode,
+         highPrice: product.priceRange.maxVariantPrice.amount,
+         lowPrice: product.priceRange.minVariantPrice.amount
+      }
+   };
+
+   return (
+      <ProductProvider initialProduct={product} key={product.id}>
+         <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
+         />
+         <div className="mx-auto w-full px-0 md:max-w-[1950px] md:px-4">
+            <div className="flex flex-col bg-white p-0 dark:border-neutral-800 dark:bg-black md:p-8 lg:flex-row lg:gap-8">
+               {/* Gallery / Main Image */}
+               <div className="w-full lg:basis-1/2">
+                  <Suspense fallback={<div className="relative h-full w-full overflow-hidden" />}>
+                     <ActiveGallery />
+                  </Suspense>
+               </div>
+
+               {/* Product Description */}
+               <div className="w-full lg:basis-1/2">
+                  <Suspense fallback={null}>
+                     <ProductDescription product={product} />
+                  </Suspense>
+               </div>
+            </div>
+            <RelatedProducts id={product.id} />
+         </div>
+         <Footer />
+      </ProductProvider>
    );
 }
