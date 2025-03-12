@@ -33,7 +33,7 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
 
    // Filter out unwanted options.
    const filteredOptions = useMemo(
-      () => options.filter((opt) => !['spec', 'material'].includes(opt.name.toLowerCase())),
+      () => options.filter((opt) => !['material'].includes(opt.name.toLowerCase())),
       [options]
    );
    if (!filteredOptions.length) return null;
@@ -87,6 +87,7 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
    // Build a variant lookup map.
    const variantMap: Combination[] = useMemo(() => {
       return variants.map((variant) => {
+         console.log('[VariantSelector] variantMap:', variant);
          const opts = variant.selectedOptions.reduce<Record<string, string>>((acc, option) => {
             acc[option.name.toLowerCase()] = String(option.value).toLowerCase();
             return acc;
@@ -94,12 +95,11 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
          return {
             id: variant.id,
             availableForSale: variant.availableForSale,
-            options: opts,
-            spec: variant.spec // may be undefined if not provided
+            options: opts
+            // may be undefined if not provided
          };
       });
    }, [variants]);
-   console.log('[VariantSelector] variantMap:', variantMap);
 
    // --- Reset state when product changes ---
    useEffect(() => {
