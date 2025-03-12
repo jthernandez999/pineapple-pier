@@ -39,7 +39,6 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
    if (!filteredOptions.length) return null;
 
    // Determine if the product belongs to a group.
-   // cSpell:disable-next-line
    const activeProductGroup = useMemo(() => {
       const groupKey = Object.keys(groups || {}).find((key) =>
          groups?.[key]?.some((prod) => prod.id === product.id)
@@ -50,24 +49,30 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
    const isGrouped = Boolean(activeProductGroup);
    const groupProducts = isGrouped ? groups[activeProductGroup!] || [] : [];
 
-   // Get product display color.
+   // Get product display color (as provided by the product options).
    const colorOption = product.options?.find((o) => o.name.toLowerCase() === 'color');
    const productDisplayColor: string =
       colorOption && colorOption.values[0] ? colorOption.values[0] : '';
-   // Get and normalize the metaobject ID from the product.
-   const rawMetaColor = getColorPatternMetaobjectId(product);
-   const normalizedProductMetaColor = normalizeMetaobjectId(rawMetaColor) ?? '';
+
+   // For non‑grouped products we use the display color;
+   // for grouped, we’ll use the first product’s color (if available) in the group.
+   const initialColor = isGrouped
+      ? groupProducts[0]?.options
+           ?.find((o) => o.name.toLowerCase() === 'color')
+           ?.values[0]?.toLowerCase() || productDisplayColor.toLowerCase()
+      : productDisplayColor.toLowerCase();
 
    console.log(
       '[VariantSelector] productDisplayColor:',
       productDisplayColor,
-      'normalizedProductMetaColor:',
-      normalizedProductMetaColor
+      'initialColor:',
+      initialColor
    );
 
    // Compute available colors.
    const availableColors = useMemo(() => {
       if (isGrouped && groupProducts.length > 0) {
+         // Here, availableColors remains a set of metaobject IDs (for swatch rendering).
          const groupColors = Array.from(
             new Set(
                groupProducts
@@ -96,7 +101,7 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
             id: variant.id,
             availableForSale: variant.availableForSale,
             options: opts
-            // may be undefined if not provided
+            // spec may be undefined if not provided
          };
       });
    }, [variants]);
@@ -118,9 +123,7 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
          defaultSize = availableSize || sizeOpt.values[0] || '';
       }
       const defaults: Partial<ProductState> = {
-         color: isGrouped
-            ? normalizedProductMetaColor || (availableColors[0] ?? '')
-            : productDisplayColor.toLowerCase(),
+         color: isGrouped ? initialColor : productDisplayColor.toLowerCase(),
          size: defaultSize,
          image: '0',
          spec: ''
@@ -141,9 +144,7 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
       const colOpt = filteredOptions.find((opt) => opt.name.toLowerCase() === 'color');
       const sizeOpt = filteredOptions.find((opt) => opt.name.toLowerCase() === 'size');
       if (colOpt && !state.color && availableColors.length > 0) {
-         defaults.color = isGrouped
-            ? normalizedProductMetaColor || (availableColors[0] ?? '')
-            : productDisplayColor.toLowerCase();
+         defaults.color = isGrouped ? initialColor : productDisplayColor.toLowerCase();
          defaults.image = '0';
       }
       if (sizeOpt && !state.size) {
@@ -176,7 +177,7 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
       updateProductState,
       updateURL,
       isGrouped,
-      normalizedProductMetaColor,
+      initialColor,
       productDisplayColor,
       variantMap
    ]);
@@ -189,14 +190,17 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
             (key) => key !== 'image' && key !== 'spec' && key in (variantMap[0]?.options || {})
          );
          console.log('[VariantSelector] Keys to match:', keysToMatch);
+         // For grouped products, compare the product’s color option value with state.color.
          const displayColor =
             isGrouped && groupProducts.length > 0
                ? groupProducts
-                    .find(
-                       (prod) =>
-                          normalizeMetaobjectId(getColorPatternMetaobjectId(prod)) ===
-                          (state.color ?? '').toLowerCase()
-                    )
+                    .find((prod) => {
+                       const prodColor =
+                          prod.options
+                             ?.find((o) => o.name.toLowerCase() === 'color')
+                             ?.values[0]?.toLowerCase() || '';
+                       return prodColor === (state.color ?? '').toLowerCase();
+                    })
                     ?.options?.find((o) => o.name.toLowerCase() === 'color')?.values[0] || ''
                : productDisplayColor;
          console.log('[VariantSelector] displayColor for matching:', displayColor);
@@ -220,14 +224,16 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
          if (newVariant) {
             autoMatchedRef.current = true;
             startTransition(() => {
-               // For grouped products, try to pick a matching product.
+               // For grouped products, try to pick a matching product based on color.
                const groupProduct =
                   isGrouped && groupProducts.length > 0
-                     ? groupProducts.find(
-                          (prod) =>
-                             normalizeMetaobjectId(getColorPatternMetaobjectId(prod)) ===
-                             (state.color ?? '').toLowerCase()
-                       )
+                     ? groupProducts.find((prod) => {
+                          const prodColor =
+                             prod.options
+                                ?.find((o) => o.name.toLowerCase() === 'color')
+                                ?.values[0]?.toLowerCase() || '';
+                          return prodColor === (state.color ?? '').toLowerCase();
+                       })
                      : null;
                const baseProduct = groupProduct ? groupProduct : product;
                const updatedProduct: ExtendedProduct = {
@@ -262,11 +268,13 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
    const currentColorName = useMemo(() => {
       if (!state.color) return '';
       if (isGrouped && groupProducts.length > 0) {
-         const match = groupProducts.find(
-            (prod) =>
-               normalizeMetaobjectId(getColorPatternMetaobjectId(prod)) ===
-               (state.color ?? '').toLowerCase()
-         );
+         const match = groupProducts.find((prod) => {
+            const prodColor =
+               prod.options
+                  ?.find((o) => o.name.toLowerCase() === 'color')
+                  ?.values[0]?.toLowerCase() || '';
+            return prodColor === (state.color ?? '').toLowerCase();
+         });
          return match?.options?.find((o) => o.name.toLowerCase() === 'color')?.values[0] || '';
       }
       return productDisplayColor;
@@ -277,6 +285,10 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
    // --- Handle manual option selection ---
    const handleOptionSelect = (optionName: string, value: string) => {
       startTransition(() => {
+         // Reset auto-matching so that the useEffect will re-run for new selections.
+         if (optionName === 'color') {
+            autoMatchedRef.current = false;
+         }
          const updates: Partial<ProductState> = { [optionName]: value };
          if (optionName === 'color') {
             updates.image = '0';
@@ -305,14 +317,25 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
                            ? isGrouped
                               ? // Render grouped swatches.
                                 availableColors.map((colorId) => {
-                                   const isActive =
-                                      (colorId ?? '').toLowerCase() ===
-                                      (state.color ?? '').toLowerCase();
+                                   // Look for a product in the group with the matching metaobject ID.
+                                   const matchedProduct = groupProducts.find(
+                                      (prod) =>
+                                         normalizeMetaobjectId(
+                                            getColorPatternMetaobjectId(prod)
+                                         ) === colorId
+                                   );
+                                   // Retrieve the color name from the product's color option.
+                                   const colorName =
+                                      matchedProduct?.options
+                                         ?.find((o) => o.name.toLowerCase() === 'color')
+                                         ?.values[0]?.toLowerCase() || '';
+                                   const isActive = colorName === (state.color ?? '').toLowerCase();
+
                                    return (
                                       <button
                                          key={colorId}
                                          type="button"
-                                         onClick={() => handleOptionSelect('color', colorId)}
+                                         onClick={() => handleOptionSelect('color', colorName)}
                                          className={clsx(
                                             'relative flex items-center justify-center rounded border p-2 transition-all',
                                             {
