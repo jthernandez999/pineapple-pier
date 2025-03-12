@@ -33,7 +33,8 @@ export function ProductProvider({ children, initialProduct }: ProductProviderPro
    const getInitialState = (): ProductState => {
       const params: ProductState = {};
       for (const [key, value] of searchParams.entries()) {
-         params[key] = value;
+         // Normalize the color key to lower-case if it exists.
+         params[key] = key === 'color' ? value.toLowerCase() : value;
       }
       return params;
    };

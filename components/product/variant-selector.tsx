@@ -16,6 +16,7 @@ interface Combination {
    availableForSale: boolean;
    options: Record<string, string>;
    spec?: string;
+   imageUrl?: string;
 }
 
 interface VariantSelectorProps {
@@ -49,13 +50,11 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
    const isGrouped = Boolean(activeProductGroup);
    const groupProducts = isGrouped ? groups[activeProductGroup!] || [] : [];
 
-   // Get product display color (as provided by the product options).
+   // Get product display color.
    const colorOption = product.options?.find((o) => o.name.toLowerCase() === 'color');
    const productDisplayColor: string =
       colorOption && colorOption.values[0] ? colorOption.values[0] : '';
-
-   // For non‑grouped products we use the display color;
-   // for grouped, we’ll use the first product’s color (if available) in the group.
+   // For grouped products, use the first product's color if available.
    const initialColor = isGrouped
       ? groupProducts[0]?.options
            ?.find((o) => o.name.toLowerCase() === 'color')
@@ -72,7 +71,6 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
    // Compute available colors.
    const availableColors = useMemo(() => {
       if (isGrouped && groupProducts.length > 0) {
-         // Here, availableColors remains a set of metaobject IDs (for swatch rendering).
          const groupColors = Array.from(
             new Set(
                groupProducts
@@ -101,7 +99,6 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
             id: variant.id,
             availableForSale: variant.availableForSale,
             options: opts
-            // spec may be undefined if not provided
          };
       });
    }, [variants]);
@@ -139,15 +136,13 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
 
    // --- Set default selections on mount if missing ---
    useEffect(() => {
-      if (state.color && state.size) return;
-      const defaults: Partial<ProductState> = {};
-      const colOpt = filteredOptions.find((opt) => opt.name.toLowerCase() === 'color');
+      // Only reset if the state doesn't already have a color (from the URL)
+      if (state.color) return;
+
+      autoMatchedRef.current = false;
       const sizeOpt = filteredOptions.find((opt) => opt.name.toLowerCase() === 'size');
-      if (colOpt && !state.color && availableColors.length > 0) {
-         defaults.color = isGrouped ? initialColor : productDisplayColor.toLowerCase();
-         defaults.image = '0';
-      }
-      if (sizeOpt && !state.size) {
+      let defaultSize = '';
+      if (sizeOpt) {
          const availableSize = sizeOpt.values.find((val) =>
             variantMap.some(
                (variant) =>
@@ -156,31 +151,22 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
                   variant.availableForSale === true
             )
          );
-         defaults.size = availableSize || sizeOpt.values[0] || '';
+         defaultSize = availableSize || sizeOpt.values[0] || '';
       }
-      if (!state.spec) {
-         defaults.spec = '';
-      }
-      if (Object.keys(defaults).length) {
-         startTransition(() => {
-            const newState = updateProductState(defaults);
-            console.log('[VariantSelector] Default merged state:', newState);
-            updateURL(newState);
-         });
-      }
-   }, [
-      filteredOptions,
-      availableColors,
-      state.color,
-      state.size,
-      state.spec,
-      updateProductState,
-      updateURL,
-      isGrouped,
-      initialColor,
-      productDisplayColor,
-      variantMap
-   ]);
+      const defaults: Partial<ProductState> = {
+         color: isGrouped ? initialColor : productDisplayColor.toLowerCase(),
+         size: defaultSize,
+         image: '0',
+         spec: ''
+      };
+
+      console.log('[VariantSelector] Resetting state on product change:', defaults);
+      startTransition(() => {
+         const newState = updateProductState(defaults);
+         updateURL(newState);
+         console.log('[VariantSelector] NEW MERGED STATE AFTER RESET:', newState);
+      });
+   }, [product.id, state.color, filteredOptions, productDisplayColor, initialColor, variantMap]);
 
    // --- Auto Variant Matching ---
    useEffect(() => {
@@ -190,7 +176,6 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
             (key) => key !== 'image' && key !== 'spec' && key in (variantMap[0]?.options || {})
          );
          console.log('[VariantSelector] Keys to match:', keysToMatch);
-         // For grouped products, compare the product’s color option value with state.color.
          const displayColor =
             isGrouped && groupProducts.length > 0
                ? groupProducts
@@ -205,7 +190,8 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
                : productDisplayColor;
          console.log('[VariantSelector] displayColor for matching:', displayColor);
 
-         let newVariant = variantMap.find((variant) =>
+         // Declare newVariant here so it is in scope for the following code.
+         let newVariant: Combination | undefined = variantMap.find((variant) =>
             keysToMatch.every((key) => {
                const variantVal = variant.options[key] ? variant.options[key].toLowerCase() : '';
                const stateVal = (state[key] ?? '').toLowerCase();
@@ -224,7 +210,7 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
          if (newVariant) {
             autoMatchedRef.current = true;
             startTransition(() => {
-               // For grouped products, try to pick a matching product based on color.
+               // Look up the matching group product based on the selected color.
                const groupProduct =
                   isGrouped && groupProducts.length > 0
                      ? groupProducts.find((prod) => {
@@ -236,13 +222,19 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
                        })
                      : null;
                const baseProduct = groupProduct ? groupProduct : product;
+
+               // Create updatedProduct with updated image fields.
                const updatedProduct: ExtendedProduct = {
                   ...baseProduct,
-                  availableForSale: !!newVariant.availableForSale,
-                  selectedVariant: newVariant
+                  availableForSale: !!newVariant!.availableForSale,
+                  selectedVariant: newVariant,
+                  featuredImage: groupProduct ? groupProduct.featuredImage : product.featuredImage,
+                  images: groupProduct ? groupProduct.images : product.images,
+                  media: groupProduct ? groupProduct.media : product.media
                };
-               // Update the state with the variant’s spec (or empty string if missing)
-               updateProductState({ spec: newVariant.spec ?? '' });
+
+               // Update state: reset the image index and update spec.
+               updateProductState({ spec: newVariant!.spec ?? '', image: '0' });
                updateActiveProduct(updatedProduct);
                console.log('[VariantSelector] Auto updated active product:', updatedProduct);
             });
@@ -324,13 +316,12 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
                                             getColorPatternMetaobjectId(prod)
                                          ) === colorId
                                    );
-                                   // Retrieve the color name from the product's color option.
+                                   // Retrieve the actual color name.
                                    const colorName =
                                       matchedProduct?.options
                                          ?.find((o) => o.name.toLowerCase() === 'color')
                                          ?.values[0]?.toLowerCase() || '';
                                    const isActive = colorName === (state.color ?? '').toLowerCase();
-
                                    return (
                                       <button
                                          key={colorId}
