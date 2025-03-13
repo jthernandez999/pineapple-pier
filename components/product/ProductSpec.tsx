@@ -4,35 +4,53 @@ import { Product } from 'lib/shopify/types';
 import { useEffect, useState } from 'react';
 import { useProduct, useUpdateSpec } from '../../components/product/product-context';
 
-// Custom parser to split on commas not inside parentheses.
-function splitSpecs(specs: string): string[] {
-   const result: string[] = [];
-   let current = '';
+//
+// Helper: finds the first comma that's not inside parentheses and splits the string into two parts.
+// If no comma is found, the entire string is returned as the "material" part.
+function splitAtFirstComma(specs: string): { firstPart: string; rest: string } {
    let level = 0;
    for (let i = 0; i < specs.length; i++) {
       const char = specs[i];
-      if (char === '(') {
-         level++;
-      } else if (char === ')') {
-         level--;
-      }
-      if (char === ',' && level === 0) {
-         result.push(current.trim());
-         current = '';
-      } else {
-         current += char;
+      if (char === '(') level++;
+      else if (char === ')') level--;
+      else if (char === ',' && level === 0) {
+         return {
+            firstPart: specs.substring(0, i).trim(),
+            rest: specs.substring(i + 1).trim()
+         };
       }
    }
-   if (current.trim() !== '') {
-      result.push(current.trim());
+   return { firstPart: specs.trim(), rest: '' };
+}
+
+//
+// Helper: extract the first parenthesized group from a string.
+// Returns an object with the text outside the first parentheses (trimmed)
+// and the content of the first parentheses (including the parentheses).
+// If no parentheses found, returns the original text and an empty care.
+function extractFirstParenthesis(text: string): { withoutParen: string; care: string } {
+   const start = text.indexOf('(');
+   if (start !== -1) {
+      const end = text.indexOf(')', start);
+      if (end !== -1) {
+         const care = text.substring(start, end + 1).trim();
+         const withoutParen = (text.substring(0, start) + text.substring(end + 1)).trim();
+         return { withoutParen, care };
+      }
    }
-   return result;
+   return { withoutParen: text.trim(), care: '' };
+}
+
+//
+// Helper: Remove a leading "Material:" prefix (case-insensitive)
+function removeMaterialPrefix(text: string): string {
+   return text.replace(/^material:\s*/i, '').trim();
 }
 
 export function ProductSpec({ product }: { product: Product }) {
    const { state } = useProduct();
    const updateSpec = useUpdateSpec();
-   // Initialize currentSpec with a default of "n/a"
+   // Initialize with a default spec string.
    const [currentSpec, setCurrentSpec] = useState<string>('n/a');
 
    // Dropdown states for Materials & Care and Specifications
@@ -44,7 +62,6 @@ export function ProductSpec({ product }: { product: Product }) {
          setCurrentSpec(state.spec);
       } else {
          console.warn('No "spec" found in state, using fallback from product options.');
-         // Ensure we always have a string by defaulting to "n/a"
          const fallbackSpec: string =
             product?.options?.find((opt) => opt.name.toLowerCase() === 'spec')?.values?.[0] ??
             'n/a';
@@ -52,59 +69,60 @@ export function ProductSpec({ product }: { product: Product }) {
       }
    }, [state, product]);
 
-   // Always work with a defined string by defaulting to "n/a"
+   // Work with a safe string:
    let safeSpec = (currentSpec ?? 'n/a').trim();
-   const materialPrefix = 'Material:';
-   if (safeSpec.startsWith(materialPrefix)) {
-      safeSpec = safeSpec.slice(materialPrefix.length).trim();
-   }
-   // Remove any trailing comma.
+   // Remove any trailing commas.
    safeSpec = safeSpec.replace(/,\s*$/, '');
 
-   // Use our custom parser to split the safeSpec into tokens.
-   const tokens = splitSpecs(safeSpec);
-   // For debugging:
-   // console.log('Tokens:', tokens);
+   // --- Materials & Care Parsing ---
 
-   let materialText = '';
-   let careText = '';
-   let specTokens: string[] = [];
+   // Split at the first comma that is outside of any parentheses.
+   const { firstPart, rest } = splitAtFirstComma(safeSpec);
 
-   if (tokens.length > 0) {
-      // The first token is always the material.
-      materialText = tokens[0] || 'n/a';
-      // Then, iterate over the remaining tokens:
-      // - As long as we haven't seen a token containing a colon, consider them part of the care instructions.
-      // - Once a token includes a colon, treat that and all subsequent tokens as specification pairs.
-      const careTokens: string[] = [];
-      let specsStarted = false;
-      for (let i = 1; i < tokens.length; i++) {
-         const token = tokens[i] ?? '';
-         if (!specsStarted && token.includes(':')) {
-            specsStarted = true;
-            specTokens.push(token);
-         } else if (!specsStarted && !token.includes(':')) {
-            careTokens.push(token);
+   // Remove any "Material:" prefix from the first part.
+   const cleanedFirst = removeMaterialPrefix(firstPart);
+
+   // Extract the first parenthesis group as care.
+   const { withoutParen: materialTextRaw, care: careTextRaw } =
+      extractFirstParenthesis(cleanedFirst);
+
+   // Material text is what remains (or the whole text if no parenthesis was found).
+   const materialText = materialTextRaw || 'n/a';
+   // Use the extracted care text if found; if not, default to 'n/a'.
+   const careText = careTextRaw || 'n/a';
+
+   // --- Specifications Parsing ---
+   // Use the rest of the string (after the first comma) for specifications.
+   // Split on commas that are not inside parentheses.
+   function splitSpecifications(spec: string): string[] {
+      const result: string[] = [];
+      let current = '';
+      let level = 0;
+      for (let i = 0; i < spec.length; i++) {
+         const char = spec[i];
+         if (char === '(') level++;
+         else if (char === ')') level--;
+         if (char === ',' && level === 0) {
+            result.push(current.trim());
+            current = '';
          } else {
-            specTokens.push(token);
+            current += char;
          }
       }
-      careText = careTokens.join(', ') || 'n/a';
-   } else {
-      materialText = 'n/a';
-      careText = 'n/a';
+      if (current.trim() !== '') {
+         result.push(current.trim());
+      }
+      return result;
    }
+   const specificationTokens = rest ? splitSpecifications(rest) : [];
 
-   // Map specTokens into key–value pairs.
-   const specPairs = specTokens
-      .map((token) => {
-         const parts = token.split(':');
-         // Use defaults in case parts[0] or the rest is undefined.
-         const key: string = (parts[0] ?? 'n/a').trim();
-         const value: string = (parts.slice(1).join(':') || 'n/a').trim();
-         return { key, value };
-      })
-      .filter(({ key, value }) => key !== '' && value !== '');
+   // Optionally, you can further process each specification token (e.g., split key/value on colon)
+   const specPairs = specificationTokens.map((token) => {
+      const parts = token.split(':');
+      const key = parts[0]?.trim() || '';
+      const value = parts.slice(1).join(':').trim();
+      return { key, value };
+   });
 
    return (
       <div className="mb-6">
@@ -152,16 +170,12 @@ export function ProductSpec({ product }: { product: Product }) {
             </button>
             {materialsOpen && (
                <div className="mt-2 pl-4 text-gray-700">
-                  {materialText && (
-                     <p>
-                        <strong>Material:</strong> {materialText}
-                     </p>
-                  )}
-                  {careText && (
-                     <p>
-                        <strong>Care:</strong> {careText}
-                     </p>
-                  )}
+                  <p>
+                     <strong>Material:</strong> {materialText}
+                  </p>
+                  <p>
+                     <strong>Care:</strong> {careText}
+                  </p>
                </div>
             )}
          </div>
@@ -210,10 +224,17 @@ export function ProductSpec({ product }: { product: Product }) {
             </button>
             {specsOpen && (
                <div className="mt-2 pl-4 text-gray-700">
-                  {specPairs.length > 0 ? (
-                     specPairs.map((pair, index) => (
+                  {specificationTokens.length > 0 ? (
+                     specificationTokens.map((spec, index) => (
                         <p key={index}>
-                           <strong>{pair.key}:</strong> {pair.value}
+                           {spec.includes(':') ? (
+                              <>
+                                 <strong>{spec.split(':')[0]?.trim()}:</strong>{' '}
+                                 {spec.split(':').slice(1).join(':').trim()}
+                              </>
+                           ) : (
+                              spec
+                           )}
                         </p>
                      ))
                   ) : (
