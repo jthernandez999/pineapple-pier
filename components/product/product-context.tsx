@@ -1,142 +1,62 @@
 'use client';
-
 import type { Product } from 'lib/shopify/types';
-import { useRouter, useSearchParams } from 'next/navigation';
-import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import { useProductGroups } from './ProductGroupsContext';
+import React, { createContext, useContext, useState } from 'react';
 
-export type ProductState = {
-   [key: string]: string | undefined;
-} & {
-   image?: string;
-};
-
-interface ProductContextType {
-   state: ProductState;
-   updateOption: (name: string, value: string) => ProductState;
-   updateImage: (index: string) => ProductState;
-   updateProductState: (updates: Partial<ProductState>) => ProductState;
-   activeProduct: Product;
-   updateActiveProduct: (product: Product) => void;
+interface ProductGroups {
+   [group: string]: Product[];
 }
 
-const ProductContext = createContext<ProductContextType | undefined>(undefined);
-
-interface ProductProviderProps {
-   children: React.ReactNode;
-   initialProduct: Product;
+interface ProductGroupsContextType {
+   groups: ProductGroups;
+   setGroups: (groups: ProductGroups) => void;
+   // New: selectedProduct holds the full product details from an interactive group
+   selectedProduct: Product | null;
+   updateSelectedProduct: (product: Product) => void;
 }
 
-export function ProductProvider({ children, initialProduct }: ProductProviderProps) {
-   const searchParams = useSearchParams();
+const ProductGroupsContext = createContext<ProductGroupsContextType>({
+   groups: {},
+   setGroups: () => {},
+   selectedProduct: null,
+   updateSelectedProduct: () => {}
+});
 
-   // Get initial state from URL search parameters.
-   const getInitialState = (): ProductState => {
-      const params: ProductState = {};
-      for (const [key, value] of searchParams.entries()) {
-         // Normalize the "color" key to lower-case.
-         params[key] = key === 'color' ? value.toLowerCase() : value;
+export function ProductGroupsProvider({ children }: { children: React.ReactNode }) {
+   const [groups, setGroups] = useState<ProductGroups>(() => {
+      if (typeof window !== 'undefined') {
+         const storedGroups = localStorage.getItem('productGroups');
+         return storedGroups ? JSON.parse(storedGroups) : {};
       }
-      return params;
+      return {};
+   });
+
+   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+
+   const updateGroups = (newGroups: ProductGroups) => {
+      setGroups(newGroups);
+      if (typeof window !== 'undefined') {
+         localStorage.setItem('productGroups', JSON.stringify(newGroups));
+      }
    };
 
-   // Initialize state once
-   const [state, setState] = useState<ProductState>(getInitialState());
-
-   // NEW: Listen for changes to searchParams and update state if needed.
-   useEffect(() => {
-      const initialState = getInitialState();
-      // Only update if there is something new from the URL that isn't in state yet.
-      if (Object.keys(initialState).length > 0) {
-         setState((prev) => ({ ...initialState, ...prev }));
-      }
-   }, [searchParams.toString()]); // using toString() makes dependency comparison easier
-
-   function updateOption(name: string, value: string): ProductState {
-      const newState: ProductState = { ...state, [name]: value };
-      setState(newState);
-      if (typeof window !== 'undefined') {
-         localStorage.setItem('productState', JSON.stringify(newState));
-      }
-      return newState;
-   }
-
-   function updateImage(index: string): ProductState {
-      const newState: ProductState = { ...state, image: index };
-      setState(newState);
-      if (typeof window !== 'undefined') {
-         localStorage.setItem('productState', JSON.stringify(newState));
-      }
-      return newState;
-   }
-
-   function updateProductState(updates: Partial<ProductState>): ProductState {
-      const newState: ProductState = { ...state, ...updates };
-      setState(newState);
-      if (typeof window !== 'undefined') {
-         localStorage.setItem('productState', JSON.stringify(newState));
-      }
-      return newState;
-   }
-
-   // Active product state and updater.
-   const [activeProduct, setActiveProduct] = useState<Product>(initialProduct);
-
-   const updateActiveProduct = (product: Product) => {
-      setActiveProduct((prev) => (prev.id === product.id ? prev : product));
+   const updateSelectedProduct = (product: Product) => {
+      setSelectedProduct(product);
    };
 
-   // NEW: If the ProductGroups context has a selectedProduct, override activeProduct.
-   const { selectedProduct } = useProductGroups();
-   useEffect(() => {
-      if (selectedProduct && selectedProduct.id !== activeProduct.id) {
-         updateActiveProduct(selectedProduct);
-      }
-   }, [selectedProduct, activeProduct]);
-
-   const value = useMemo(
-      () => ({
-         state,
-         updateOption,
-         updateImage,
-         updateProductState,
-         activeProduct,
-         updateActiveProduct
-      }),
-      [state, activeProduct]
+   return (
+      <ProductGroupsContext.Provider
+         value={{
+            groups,
+            setGroups: updateGroups,
+            selectedProduct,
+            updateSelectedProduct
+         }}
+      >
+         {children}
+      </ProductGroupsContext.Provider>
    );
-
-   return <ProductContext.Provider value={value}>{children}</ProductContext.Provider>;
 }
 
-export function useProduct() {
-   const context = useContext(ProductContext);
-   if (!context) {
-      throw new Error('useProduct must be used within a ProductProvider');
-   }
-   return context;
-}
-
-export function useUpdateURL() {
-   const router = useRouter();
-   return (state: ProductState) => {
-      const newParams = new URLSearchParams(window.location.search);
-      Object.entries(state).forEach(([key, value]) => {
-         if (value !== undefined) {
-            newParams.set(key, value);
-         }
-      });
-      router.push(`?${newParams.toString()}`, { scroll: false });
-   };
-}
-
-export function useUpdateSpec() {
-   const { state, updateOption } = useProduct();
-   return (spec: ProductState) => {
-      Object.entries(spec).forEach(([key, value]) => {
-         if (value !== undefined) {
-            updateOption(key, value);
-         }
-      });
-   };
+export function useProductGroups() {
+   return useContext(ProductGroupsContext);
 }
