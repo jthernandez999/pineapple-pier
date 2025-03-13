@@ -15,6 +15,7 @@ interface Combination {
    id: string;
    availableForSale: boolean;
    options: Record<string, string>;
+   spec?: string;
    imageUrl?: string;
 }
 
@@ -34,7 +35,7 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
 
    // Filter out unwanted options.
    const filteredOptions = useMemo(
-      () => options.filter((opt) => !['material', 'spec'].includes(opt.name.toLowerCase())),
+      () => options.filter((opt) => !['material'].includes(opt.name.toLowerCase())),
       [options]
    );
    if (!filteredOptions.length) return null;
@@ -122,8 +123,8 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
       const defaults: Partial<ProductState> = {
          color: isGrouped ? initialColor : productDisplayColor.toLowerCase(),
          size: defaultSize,
-         image: '0'
-         // We no longer require spec.
+         image: '0',
+         spec: ''
       };
 
       console.log('[VariantSelector] Resetting state on product change:', defaults);
@@ -156,7 +157,8 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
       const defaults: Partial<ProductState> = {
          color: isGrouped ? initialColor : productDisplayColor.toLowerCase(),
          size: defaultSize,
-         image: '0'
+         image: '0',
+         spec: ''
       };
 
       console.log('[VariantSelector] Resetting state on product mount:', defaults);
@@ -201,7 +203,7 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
 
          if (!newVariant && variantMap.length > 0) {
             console.warn('[VariantSelector] No matching variant found. Falling back.');
-            newVariant = variantMap[0]!;
+            newVariant = { ...variantMap[0]!, spec: variantMap[0]!.spec ?? '' };
          }
 
          console.log('[VariantSelector] newVariant:', newVariant);
@@ -236,8 +238,8 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
                   media: groupProduct ? groupProduct.media : product.media
                };
 
-               // Update state: reset the image index (we removed spec).
-               updateProductState({ image: '0' });
+               // Update state: reset the image index and update spec.
+               updateProductState({ spec: newVariant!.spec ?? '', image: '0' });
                updateActiveProduct(updatedProduct);
                console.log('[VariantSelector] Auto updated active product:', updatedProduct);
             });
