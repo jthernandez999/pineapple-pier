@@ -1,6 +1,7 @@
 'use client';
+
 import type { Product } from 'lib/shopify/types';
-import React, { createContext, useContext, useState } from 'react';
+import { createContext, ReactNode, useContext, useState } from 'react';
 
 interface ProductGroups {
    [group: string]: Product[];
@@ -10,19 +11,23 @@ interface ProductGroupsContextType {
    groups: ProductGroups;
    setGroups: (groups: ProductGroups) => void;
    selectedProduct: Product | null;
-   // Must allow null
    updateSelectedProduct: (product: Product | null) => void;
 }
 
-const ProductGroupsContext = createContext<ProductGroupsContextType>({
+const defaultContext: ProductGroupsContextType = {
    groups: {},
    setGroups: () => {},
    selectedProduct: null,
-   // Must accept Product | null
    updateSelectedProduct: () => {}
-});
+};
 
-export function ProductGroupsProvider({ children }: { children: React.ReactNode }) {
+const ProductGroupsContext = createContext<ProductGroupsContextType>(defaultContext);
+
+interface ProductGroupsProviderProps {
+   children: ReactNode;
+}
+
+export function ProductGroupsProvider({ children }: ProductGroupsProviderProps) {
    const [groups, setGroups] = useState<ProductGroups>(() => {
       if (typeof window !== 'undefined') {
          const storedGroups = localStorage.getItem('productGroups');
@@ -40,7 +45,6 @@ export function ProductGroupsProvider({ children }: { children: React.ReactNode 
       }
    }
 
-   // Must accept Product | null
    function updateSelectedProduct(product: Product | null) {
       setSelectedProduct(product);
    }
@@ -60,5 +64,9 @@ export function ProductGroupsProvider({ children }: { children: React.ReactNode 
 }
 
 export function useProductGroups() {
-   return useContext(ProductGroupsContext);
+   const context = useContext(ProductGroupsContext);
+   if (!context) {
+      throw new Error('useProductGroups must be used within a ProductGroupsProvider');
+   }
+   return context;
 }

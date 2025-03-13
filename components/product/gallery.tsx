@@ -1,7 +1,8 @@
 'use client';
 import { ArrowLeftIcon, ArrowRightIcon } from '@heroicons/react/24/outline';
 import { useProduct, useUpdateURL } from 'components/product/product-context';
-import ProductImageZoom from 'components/ProductImageZoom';
+import ProductImageZoomNoSSR from 'components/ProductImageZoomNoSSR';
+
 import Image from 'next/image';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Slider from 'react-slick';
@@ -151,7 +152,7 @@ export function Gallery({ images }: { images: { src: string; altText: string }[]
                         {/* Main Image with Zoom */}
                         <div className="relative h-full w-full">
                            <figure className="relative h-full w-full">
-                              <ProductImageZoom
+                              <ProductImageZoomNoSSR
                                  lowResSrc={effectiveImages[currentIndex]?.src ?? ''}
                                  highResSrc={`${effectiveImages[currentIndex]?.src}?w=2000&h=2000&fit=cover`} // High-res for zoom
                                  alt={effectiveImages[currentIndex]?.altText ?? 'Product Image'}
@@ -181,7 +182,7 @@ export function Gallery({ images }: { images: { src: string; altText: string }[]
                                     className="relative h-full w-full"
                                  >
                                     <figure className="relative h-full w-full">
-                                       <ProductImageZoom
+                                       <ProductImageZoomNoSSR
                                           lowResSrc={img.src}
                                           highResSrc={`${img.src}?w=2000&h=2000&fit=cover`}
                                           alt={img.altText}

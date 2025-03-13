@@ -30,11 +30,9 @@ interface ProductProviderProps {
 export function ProductProvider({ children, initialProduct }: ProductProviderProps) {
    const searchParams = useSearchParams();
 
-   // Get initial state from URL search parameters.
    const getInitialState = (): ProductState => {
       const params: ProductState = {};
       for (const [key, value] of searchParams.entries()) {
-         // Normalize the "color" key to lower-case.
          params[key] = key === 'color' ? value.toLowerCase() : value;
       }
       return params;
@@ -42,47 +40,45 @@ export function ProductProvider({ children, initialProduct }: ProductProviderPro
 
    const [state, setState] = useState<ProductState>(getInitialState());
 
-   function updateOption(name: string, value: string): ProductState {
+   const updateOption = (name: string, value: string): ProductState => {
       const newState: ProductState = { ...state, [name]: value };
       setState(newState);
       if (typeof window !== 'undefined') {
          localStorage.setItem('productState', JSON.stringify(newState));
       }
       return newState;
-   }
+   };
 
-   function updateImage(index: string): ProductState {
+   const updateImage = (index: string): ProductState => {
       const newState: ProductState = { ...state, image: index };
       setState(newState);
       if (typeof window !== 'undefined') {
          localStorage.setItem('productState', JSON.stringify(newState));
       }
       return newState;
-   }
+   };
 
-   function updateProductState(updates: Partial<ProductState>): ProductState {
+   const updateProductState = (updates: Partial<ProductState>): ProductState => {
       const newState: ProductState = { ...state, ...updates };
       setState(newState);
       if (typeof window !== 'undefined') {
          localStorage.setItem('productState', JSON.stringify(newState));
       }
       return newState;
-   }
+   };
 
-   // Active product state and updater.
    const [activeProduct, setActiveProduct] = useState<Product>(initialProduct);
 
    const updateActiveProduct = (product: Product) => {
       setActiveProduct((prev) => (prev.id === product.id ? prev : product));
    };
 
-   // NEW: If the ProductGroups context has a selectedProduct, override activeProduct.
    const { selectedProduct } = useProductGroups();
    useEffect(() => {
       if (selectedProduct && selectedProduct.id !== activeProduct.id) {
          updateActiveProduct(selectedProduct);
       }
-   }, [selectedProduct, activeProduct, updateActiveProduct]);
+   }, [selectedProduct, activeProduct]);
 
    const value = useMemo(
       () => ({
