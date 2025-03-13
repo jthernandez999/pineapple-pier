@@ -40,7 +40,17 @@ export function ProductProvider({ children, initialProduct }: ProductProviderPro
       return params;
    };
 
+   // Initialize state once
    const [state, setState] = useState<ProductState>(getInitialState());
+
+   // NEW: Listen for changes to searchParams and update state if needed.
+   useEffect(() => {
+      const initialState = getInitialState();
+      // Only update if there is something new from the URL that isn't in state yet.
+      if (Object.keys(initialState).length > 0) {
+         setState((prev) => ({ ...initialState, ...prev }));
+      }
+   }, [searchParams.toString()]); // using toString() makes dependency comparison easier
 
    function updateOption(name: string, value: string): ProductState {
       const newState: ProductState = { ...state, [name]: value };
@@ -82,7 +92,7 @@ export function ProductProvider({ children, initialProduct }: ProductProviderPro
       if (selectedProduct && selectedProduct.id !== activeProduct.id) {
          updateActiveProduct(selectedProduct);
       }
-   }, [selectedProduct, activeProduct, updateActiveProduct]);
+   }, [selectedProduct, activeProduct]);
 
    const value = useMemo(
       () => ({
