@@ -9,15 +9,16 @@ interface ProductGroups {
 interface ProductGroupsContextType {
    groups: ProductGroups;
    setGroups: (groups: ProductGroups) => void;
-   // New: selectedProduct holds the full product details from an interactive group
    selectedProduct: Product | null;
-   updateSelectedProduct: (product: Product) => void;
+   // Must allow null
+   updateSelectedProduct: (product: Product | null) => void;
 }
 
 const ProductGroupsContext = createContext<ProductGroupsContextType>({
    groups: {},
    setGroups: () => {},
    selectedProduct: null,
+   // Must accept Product | null
    updateSelectedProduct: () => {}
 });
 
@@ -32,16 +33,17 @@ export function ProductGroupsProvider({ children }: { children: React.ReactNode 
 
    const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
-   const updateGroups = (newGroups: ProductGroups) => {
+   function updateGroups(newGroups: ProductGroups) {
       setGroups(newGroups);
       if (typeof window !== 'undefined') {
          localStorage.setItem('productGroups', JSON.stringify(newGroups));
       }
-   };
+   }
 
-   const updateSelectedProduct = (product: Product) => {
+   // Must accept Product | null
+   function updateSelectedProduct(product: Product | null) {
       setSelectedProduct(product);
-   };
+   }
 
    return (
       <ProductGroupsContext.Provider

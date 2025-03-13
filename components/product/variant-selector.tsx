@@ -8,9 +8,7 @@ import { startTransition, useEffect, useMemo, useRef } from 'react';
 import { ColorSwatch } from '../../components/ColorSwatch';
 import { useProductGroups } from './ProductGroupsContext';
 
-// Extend Product type temporarily so we can use a "selectedVariant" property.
-type ExtendedProduct = Product & { selectedVariant?: Combination };
-
+// Combination must have all fields, no undefined:
 interface Combination {
    id: string;
    availableForSale: boolean;
@@ -18,6 +16,11 @@ interface Combination {
    spec?: string;
    imageUrl?: string;
 }
+
+// Extend Shopify Product
+type ExtendedProduct = Product & {
+   selectedVariant?: Combination;
+};
 
 interface VariantSelectorProps {
    options: ProductOption[];
@@ -27,99 +30,98 @@ interface VariantSelectorProps {
 }
 
 export function VariantSelector({ options, variants, product }: VariantSelectorProps) {
+   // Pull relevant product context
    const { state, updateProductState, updateActiveProduct } = useProduct();
    const updateURL = useUpdateURL();
-   // Pull both groups and selectedProduct from the product groups context.
-   const { groups, selectedProduct } = useProductGroups();
+
+   // Pull groups, selectedProduct, updateSelectedProduct
+   const { groups, selectedProduct, updateSelectedProduct } = useProductGroups();
+
+   // Flag to avoid repeated auto-match
    const autoMatchedRef = useRef(false);
 
-   // Filter out unwanted options.
+   // Filter out unwanted options (like 'material')
    const filteredOptions = useMemo(
-      () => options.filter((opt) => !['material'].includes(opt.name.toLowerCase())),
+      () => options.filter((opt) => !['material', 'spec'].includes(opt.name.toLowerCase())),
       [options]
    );
    if (!filteredOptions.length) return null;
 
-   // Determine if the product belongs to a group.
+   // Possibly undefined group logic
    const activeProductGroup = useMemo(() => {
-      const groupKey = Object.keys(groups || {}).find((key) =>
-         groups?.[key]?.some((prod) => prod.id === product.id)
+      // Find which group includes this product
+      const groupKey = Object.keys(groups ?? {}).find((key) =>
+         groups[key]?.some((p) => p.id === product.id)
       );
-      // Treat "uncategorized" (case-insensitive) as not grouped.
+      // treat 'uncategorized' (case-insensitive) as not grouped
       return groupKey && groupKey.toLowerCase() !== 'uncategorized' ? groupKey : undefined;
    }, [product, groups]);
+
    const isGrouped = Boolean(activeProductGroup);
-   const groupProducts = isGrouped ? groups[activeProductGroup!] || [] : [];
+   const groupProducts = isGrouped ? (groups[activeProductGroup!] ?? []) : [];
 
-   // Get product display color.
+   // Compute product's color
    const colorOption = product.options?.find((o) => o.name.toLowerCase() === 'color');
-   const productDisplayColor: string =
-      colorOption && colorOption.values[0] ? colorOption.values[0] : '';
-   // For grouped products, use the first product's color if available.
-   const initialColor = isGrouped
-      ? groupProducts[0]?.options
-           ?.find((o) => o.name.toLowerCase() === 'color')
-           ?.values[0]?.toLowerCase() || productDisplayColor.toLowerCase()
-      : productDisplayColor.toLowerCase();
+   const productDisplayColor = colorOption?.values?.[0] ?? '';
 
-   console.log(
-      '[VariantSelector] productDisplayColor:',
-      productDisplayColor,
-      'initialColor:',
-      initialColor
-   );
-
-   // Compute available colors.
-   const availableColors = useMemo(() => {
+   // For grouped, if there's a first product with color, use that; otherwise fallback
+   const initialColor = useMemo(() => {
       if (isGrouped && groupProducts.length > 0) {
-         const groupColors = Array.from(
-            new Set(
-               groupProducts
-                  .map((prod) => normalizeMetaobjectId(getColorPatternMetaobjectId(prod)))
-                  .filter((id): id is string => Boolean(id))
-            )
+         return (
+            groupProducts[0]?.options
+               ?.find((o) => o.name.toLowerCase() === 'color')
+               ?.values?.[0]?.toLowerCase() ?? productDisplayColor.toLowerCase()
          );
-         console.log('[VariantSelector] availableColors (grouped):', groupColors);
-         return groupColors;
-      } else {
-         const val = productDisplayColor ? productDisplayColor.toLowerCase() : '';
-         console.log('[VariantSelector] availableColors (non-grouped):', [val]);
-         return [val];
       }
+      return productDisplayColor.toLowerCase();
    }, [isGrouped, groupProducts, productDisplayColor]);
 
-   // Build a variant lookup map.
+   // Build variant map
    const variantMap: Combination[] = useMemo(() => {
-      return variants.map((variant) => {
-         console.log('[VariantSelector] variantMap:', variant);
-         const opts = variant.selectedOptions.reduce<Record<string, string>>((acc, option) => {
-            acc[option.name.toLowerCase()] = String(option.value).toLowerCase();
+      return variants.map((v) => {
+         const opts = v.selectedOptions.reduce<Record<string, string>>((acc, o) => {
+            acc[o.name.toLowerCase()] = String(o.value).toLowerCase();
             return acc;
          }, {});
          return {
-            id: variant.id,
-            availableForSale: variant.availableForSale,
+            id: v.id,
+            availableForSale: v.availableForSale,
             options: opts
          };
       });
    }, [variants]);
 
-   // --- Reset state when product changes ---
-   useEffect(() => {
-      autoMatchedRef.current = false;
-      const sizeOpt = filteredOptions.find((opt) => opt.name.toLowerCase() === 'size');
-      let defaultSize = '';
-      if (sizeOpt) {
-         const availableSize = sizeOpt.values.find((val) =>
-            variantMap.some(
-               (variant) =>
-                  variant.options.size &&
-                  variant.options.size.toLowerCase() === val.toLowerCase() &&
-                  variant.availableForSale === true
+   // Compute array of possible colors
+   const availableColors = useMemo(() => {
+      if (isGrouped && groupProducts.length > 0) {
+         return Array.from(
+            new Set(
+               groupProducts
+                  .map((prod) => normalizeMetaobjectId(getColorPatternMetaobjectId(prod)))
+                  .filter((id): id is string => !!id)
             )
          );
-         defaultSize = availableSize || sizeOpt.values[0] || '';
       }
+      // If not grouped, just the product's color
+      return [productDisplayColor.toLowerCase()];
+   }, [isGrouped, groupProducts, productDisplayColor]);
+
+   // --------------------------------------------------------------------------
+   // Reset state on product change
+   // --------------------------------------------------------------------------
+   useEffect(() => {
+      autoMatchedRef.current = false;
+
+      // Determine default size
+      const sizeOpt = filteredOptions.find((o) => o.name.toLowerCase() === 'size');
+      let defaultSize = '';
+      if (sizeOpt) {
+         const foundSize = sizeOpt.values.find((val) =>
+            variantMap.some((v) => v.options.size === val.toLowerCase() && v.availableForSale)
+         );
+         defaultSize = foundSize || sizeOpt.values[0] || '';
+      }
+
       const defaults: Partial<ProductState> = {
          color: isGrouped ? initialColor : productDisplayColor.toLowerCase(),
          size: defaultSize,
@@ -127,33 +129,26 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
          spec: ''
       };
 
-      console.log('[VariantSelector] Resetting state on product change:', defaults);
       startTransition(() => {
          const newState = updateProductState(defaults);
          updateURL(newState);
-         console.log('[VariantSelector] NEW MERGED STATE AFTER RESET:', newState);
       });
    }, [product.id]);
 
-   // --- Set default selections on mount if missing ---
+   // --------------------------------------------------------------------------
+   // Set default selections on mount if missing
+   // --------------------------------------------------------------------------
    useEffect(() => {
-      // Only reset if the state doesn't already have a color (from the URL)
-      if (state.color) return;
-
       autoMatchedRef.current = false;
-      const sizeOpt = filteredOptions.find((opt) => opt.name.toLowerCase() === 'size');
-      let defaultSize = '';
-      if (sizeOpt) {
-         const availableSize = sizeOpt.values.find((val) =>
-            variantMap.some(
-               (variant) =>
-                  variant.options.size &&
-                  variant.options.size.toLowerCase() === val.toLowerCase() &&
-                  variant.availableForSale === true
-            )
-         );
-         defaultSize = availableSize || sizeOpt.values[0] || '';
-      }
+
+      const sizeOpt = filteredOptions.find((o) => o.name.toLowerCase() === 'size');
+      const defaultSize =
+         sizeOpt?.values.find((val) =>
+            variantMap.some((v) => v.options.size === val.toLowerCase() && v.availableForSale)
+         ) ??
+         sizeOpt?.values?.[0] ??
+         '';
+
       const defaults: Partial<ProductState> = {
          color: isGrouped ? initialColor : productDisplayColor.toLowerCase(),
          size: defaultSize,
@@ -161,39 +156,88 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
          spec: ''
       };
 
-      console.log('[VariantSelector] Resetting state on product mount:', defaults);
       startTransition(() => {
-         const newState = updateProductState(defaults);
-         updateURL(newState);
-         console.log('[VariantSelector] NEW MERGED STATE AFTER MOUNT:', newState);
-      });
-   }, [product.id, state.color, filteredOptions, productDisplayColor, initialColor, variantMap]);
+         updateProductState(defaults);
+         updateURL(defaults);
 
-   // --- Auto Variant Matching ---
+         if (isGrouped && groupProducts.length > 0) {
+            // Attempt to find a product in the group that matches the default color
+            const groupProduct = groupProducts.find((p) => {
+               const c = p.options
+                  ?.find((opt) => opt.name.toLowerCase() === 'color')
+                  ?.values?.[0]?.toLowerCase();
+               return c === defaults.color;
+            });
+            const matchedProduct = groupProduct || product;
+
+            // Attempt to find a matching variant for that color
+            const matchedVariant =
+               matchedProduct.variants.find((v) =>
+                  v.selectedOptions.some(
+                     (opt) =>
+                        opt.name.toLowerCase() === 'color' &&
+                        opt.value?.toLowerCase() === defaults.color
+                  )
+               ) ?? variants[0];
+
+            updateActiveProduct({
+               ...matchedProduct,
+               selectedVariant: matchedVariant
+            } as ExtendedProduct);
+         } else {
+            // Not grouped: just set first variant
+            updateActiveProduct({
+               ...product,
+               selectedVariant: variants[0]
+            } as ExtendedProduct);
+         }
+
+         // If not grouped, but there's a leftover selected product, reset
+         if (!isGrouped && selectedProduct) {
+            updateSelectedProduct(null);
+         }
+      });
+   }, [
+      product.id,
+      isGrouped,
+      filteredOptions,
+      initialColor,
+      productDisplayColor,
+      variantMap,
+      groupProducts,
+      selectedProduct,
+      variants,
+      updateProductState,
+      updateURL,
+      updateActiveProduct,
+      updateSelectedProduct
+   ]);
+
+   // --------------------------------------------------------------------------
+   // Auto Variant Matching
+   // --------------------------------------------------------------------------
    useEffect(() => {
       if (state.color && state.size && !autoMatchedRef.current) {
-         console.log('[VariantSelector] Auto variant matching with state:', state);
          const keysToMatch = Object.keys(state).filter(
-            (key) => key !== 'image' && key !== 'spec' && key in (variantMap[0]?.options || {})
+            (k) => k !== 'image' && k !== 'spec' && k in (variantMap[0]?.options || {})
          );
-         console.log('[VariantSelector] Keys to match:', keysToMatch);
+
+         // If grouped, see if there's a group product matching 'state.color'
          const displayColor =
             isGrouped && groupProducts.length > 0
-               ? groupProducts
-                    .find((prod) => {
-                       const prodColor =
-                          prod.options
-                             ?.find((o) => o.name.toLowerCase() === 'color')
-                             ?.values[0]?.toLowerCase() || '';
-                       return prodColor === (state.color ?? '').toLowerCase();
+               ? (groupProducts
+                    .find((p) => {
+                       const c = p.options
+                          ?.find((o) => o.name.toLowerCase() === 'color')
+                          ?.values?.[0]?.toLowerCase();
+                       return c === (state.color ?? '').toLowerCase();
                     })
-                    ?.options?.find((o) => o.name.toLowerCase() === 'color')?.values[0] || ''
+                    ?.options?.find((o) => o.name.toLowerCase() === 'color')?.values?.[0] ?? '')
                : productDisplayColor;
-         console.log('[VariantSelector] displayColor for matching:', displayColor);
 
-         let newVariant: Combination | undefined = variantMap.find((variant) =>
+         let newVariant = variantMap.find((v) =>
             keysToMatch.every((key) => {
-               const variantVal = variant.options[key] ? variant.options[key].toLowerCase() : '';
+               const variantVal = v.options[key] ?? '';
                const stateVal = (state[key] ?? '').toLowerCase();
                return key === 'color'
                   ? displayColor.toLowerCase() === variantVal
@@ -202,52 +246,43 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
          );
 
          if (!newVariant && variantMap.length > 0) {
-            console.warn('[VariantSelector] No matching variant found. Falling back.');
-            newVariant = { ...variantMap[0]!, spec: variantMap[0]!.spec ?? '' };
+            // Fallback variant
+            newVariant = {
+               ...variantMap[0],
+               id: variantMap[0]?.id || '', // ensure a string
+               spec: variantMap[0]?.spec ?? '',
+               availableForSale: variantMap[0]?.availableForSale ?? false,
+               options: variantMap[0]?.options ?? {} // must not be undefined
+            };
          }
 
-         console.log('[VariantSelector] newVariant:', newVariant);
          if (newVariant) {
             autoMatchedRef.current = true;
             startTransition(() => {
-               // Look up the matching group product based on the selected color.
                const groupProduct =
                   isGrouped && groupProducts.length > 0
-                     ? groupProducts.find((prod) => {
-                          const prodColor =
-                             prod.options
-                                ?.find((o) => o.name.toLowerCase() === 'color')
-                                ?.values[0]?.toLowerCase() || '';
-                          return prodColor === (state.color ?? '').toLowerCase();
+                     ? groupProducts.find((p) => {
+                          const c = p.options
+                             ?.find((o) => o.name.toLowerCase() === 'color')
+                             ?.values?.[0]?.toLowerCase();
+                          return c === (state.color ?? '').toLowerCase();
                        })
                      : null;
-               // If a product was selected via the collection page, use it.
-               const baseProduct = selectedProduct
-                  ? selectedProduct
-                  : groupProduct
-                    ? groupProduct
-                    : product;
+
+               const base = selectedProduct || groupProduct || product;
 
                const updatedProduct: ExtendedProduct = {
-                  ...baseProduct,
-                  availableForSale: !!newVariant!.availableForSale,
+                  ...base,
                   selectedVariant: newVariant,
-                  // Use the image fields from the matching group product if available.
+                  availableForSale: !!newVariant.availableForSale,
                   featuredImage: groupProduct ? groupProduct.featuredImage : product.featuredImage,
                   images: groupProduct ? groupProduct.images : product.images,
                   media: groupProduct ? groupProduct.media : product.media
                };
 
-               // Update state: reset the image index and update spec.
-               updateProductState({ spec: newVariant!.spec ?? '', image: '0' });
+               updateProductState({ spec: newVariant.spec ?? '', image: '0' });
                updateActiveProduct(updatedProduct);
-               console.log('[VariantSelector] Auto updated active product:', updatedProduct);
             });
-         } else {
-            console.warn(
-               '[VariantSelector] Auto variant matching found no variant for state:',
-               state
-            );
          }
       }
    }, [
@@ -257,33 +292,33 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
       groupProducts,
       productDisplayColor,
       product,
-      updateProductState,
+      selectedProduct,
       updateActiveProduct,
-      selectedProduct
+      updateProductState
    ]);
 
-   // --- Compute current color name for display ---
+   // --------------------------------------------------------------------------
+   // currentColorName for display
+   // --------------------------------------------------------------------------
    const currentColorName = useMemo(() => {
       if (!state.color) return '';
       if (isGrouped && groupProducts.length > 0) {
-         const match = groupProducts.find((prod) => {
-            const prodColor =
-               prod.options
-                  ?.find((o) => o.name.toLowerCase() === 'color')
-                  ?.values[0]?.toLowerCase() || '';
-            return prodColor === (state.color ?? '').toLowerCase();
+         const match = groupProducts.find((p) => {
+            const c = p.options
+               ?.find((opt) => opt.name.toLowerCase() === 'color')
+               ?.values?.[0]?.toLowerCase();
+            return c === (state.color ?? '').toLowerCase();
          });
-         return match?.options?.find((o) => o.name.toLowerCase() === 'color')?.values[0] || '';
+         return match?.options?.find((o) => o.name.toLowerCase() === 'color')?.values?.[0] ?? '';
       }
       return productDisplayColor;
-   }, [state.color, groupProducts, isGrouped, productDisplayColor]);
-   const displayColorName = currentColorName || '';
-   console.log('[VariantSelector] Current state:', state);
+   }, [state.color, isGrouped, groupProducts, productDisplayColor]);
 
-   // --- Handle manual option selection ---
-   const handleOptionSelect = (optionName: string, value: string) => {
+   // --------------------------------------------------------------------------
+   // handleOptionSelect
+   // --------------------------------------------------------------------------
+   function handleOptionSelect(optionName: string, value: string) {
       startTransition(() => {
-         // Reset auto-matching so that the useEffect will re-run for new selections.
          if (optionName === 'color') {
             autoMatchedRef.current = false;
          }
@@ -293,41 +328,42 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
          }
          const newState = updateProductState(updates);
          updateURL(newState);
-         console.log(`[VariantSelector] Option selected: ${optionName} = ${value}`);
-         console.log('[VariantSelector] Merged state after selection:', newState);
       });
-   };
+   }
 
+   // --------------------------------------------------------------------------
+   // Render
+   // --------------------------------------------------------------------------
    return (
       <>
          {filteredOptions.map((option) => {
             const isColorOption = option.name.toLowerCase() === 'color';
+
             return (
                <form key={option.id}>
                   <dl className="mx-auto mb-5">
                      <dt className="mb-2 text-sm uppercase tracking-wide">
                         {isColorOption
-                           ? `COLOR - ${displayColorName || 'N/A'}`
+                           ? `COLOR - ${currentColorName || 'N/A'}`
                            : option.name.toUpperCase()}
                      </dt>
                      <dd className="flex flex-wrap gap-3">
                         {isColorOption
-                           ? isGrouped
-                              ? // Render grouped swatches.
+                           ? // color swatches
+                             isGrouped
+                              ? // grouped color swatches
                                 availableColors.map((colorId) => {
-                                   // Look for a product in the group with the matching metaobject ID.
                                    const matchedProduct = groupProducts.find(
-                                      (prod) =>
-                                         normalizeMetaobjectId(
-                                            getColorPatternMetaobjectId(prod)
-                                         ) === colorId
+                                      (p) =>
+                                         normalizeMetaobjectId(getColorPatternMetaobjectId(p)) ===
+                                         colorId
                                    );
-                                   // Retrieve the actual color name.
                                    const colorName =
                                       matchedProduct?.options
                                          ?.find((o) => o.name.toLowerCase() === 'color')
-                                         ?.values[0]?.toLowerCase() || '';
+                                         ?.values?.[0]?.toLowerCase() ?? '';
                                    const isActive = colorName === (state.color ?? '').toLowerCase();
+
                                    return (
                                       <button
                                          key={colorId}
@@ -346,41 +382,37 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
                                       </button>
                                    );
                                 })
-                              : // Render non‑grouped swatches.
-                                option.values.map((value) => {
-                                   const optName = option.name.toLowerCase();
+                              : // Non-grouped color
+                                option.values.map((val) => {
                                    const isActive =
-                                      (state[optName] ?? '').toLowerCase() === value.toLowerCase();
+                                      (state.color ?? '').toLowerCase() === val.toLowerCase();
+
+                                   // Attempt to parse metafield
                                    let metaobjectId: string | undefined;
-                                   let metafieldValue: string | undefined;
+                                   let parsedValue: string | undefined;
                                    if (product?.metafield) {
+                                      // cSpell: disable-next-line
+                                      // 'metafield' should be in cSpell config
                                       const mf = product.metafield as any;
-                                      metafieldValue = Array.isArray(mf) ? mf[0]?.value : mf.value;
+                                      parsedValue = Array.isArray(mf) ? mf[0]?.value : mf.value;
                                    }
-                                   if (metafieldValue) {
+                                   if (parsedValue) {
                                       try {
-                                         const metaobjectIds = JSON.parse(
-                                            metafieldValue
-                                         ) as string[];
-                                         if (
-                                            Array.isArray(metaobjectIds) &&
-                                            metaobjectIds.length > 0
-                                         ) {
-                                            metaobjectId = metaobjectIds[0];
+                                         const arr = JSON.parse(parsedValue) as string[];
+                                         if (arr.length) {
+                                            metaobjectId = arr[0];
                                          }
-                                      } catch (error) {
-                                         console.error(
-                                            '[VariantSelector] Error parsing metafield value:',
-                                            error
-                                         );
+                                      } catch {
+                                         // ignore parse error
                                       }
                                    }
+
                                    return (
                                       <button
-                                         key={value}
+                                         key={val}
                                          type="button"
                                          onClick={() =>
-                                            handleOptionSelect(optName, value.toLowerCase())
+                                            handleOptionSelect('color', val.toLowerCase())
                                          }
                                          className={clsx(
                                             'relative flex items-center justify-center rounded border p-2 transition-all',
@@ -394,12 +426,12 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
                                          {metaobjectId ? (
                                             <ColorSwatch
                                                metaobjectId={metaobjectId}
-                                               fallbackColor={value.toLowerCase()}
+                                               fallbackColor={val.toLowerCase()}
                                             />
                                          ) : (
                                             <div
                                                style={{
-                                                  backgroundColor: value.toLowerCase(),
+                                                  backgroundColor: val.toLowerCase(),
                                                   width: '18px',
                                                   height: '18px',
                                                   borderRadius: '9999px'
@@ -409,24 +441,23 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
                                       </button>
                                    );
                                 })
-                           : // Render non‑color options (like size) as buttons.
-                             option.values.map((value) => {
+                           : // Non-color (like size)
+                             option.values.map((val) => {
                                 const optName = option.name.toLowerCase();
                                 const isActive =
-                                   (state[optName] ?? '').toLowerCase() === value.toLowerCase();
+                                   (state[optName] ?? '').toLowerCase() === val.toLowerCase();
                                 const isAvailable = variantMap.some(
-                                   (variant) =>
-                                      (variant.options[optName] ?? '').toLowerCase() ===
-                                         value.toLowerCase() && Boolean(variant.availableForSale)
+                                   (v) =>
+                                      (v.options[optName] ?? '').toLowerCase() ===
+                                         val.toLowerCase() && v.availableForSale
                                 );
+
                                 return (
                                    <button
-                                      key={value}
+                                      key={val}
                                       type="button"
                                       disabled={!isAvailable}
-                                      onClick={() =>
-                                         handleOptionSelect(optName, value.toLowerCase())
-                                      }
+                                      onClick={() => handleOptionSelect(optName, val.toLowerCase())}
                                       className={clsx(
                                          'relative flex items-center justify-center rounded border p-2 transition-all',
                                          {
@@ -437,7 +468,7 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
                                          }
                                       )}
                                    >
-                                      <span className="text-sm font-medium">{value}</span>
+                                      <span className="text-sm font-medium">{val}</span>
                                    </button>
                                 );
                              })}
