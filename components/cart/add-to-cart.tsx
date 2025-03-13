@@ -1,4 +1,6 @@
 // AddToCart.tsx
+'use client';
+
 import { PlusIcon } from '@heroicons/react/24/outline';
 import clsx from 'clsx';
 import { addItem } from 'components/cart/actions';
@@ -57,19 +59,20 @@ export function AddToCart({ product }: { product: Product }) {
    const { state } = useProduct();
    const [message, formAction] = useActionState(addItem, null);
 
-   // Create a default state from the first variant's options.
+   // Build a default state from the first variant's options (ignoring "spec")
    let defaultState: { [key: string]: string } = {};
    if (variants.length > 0) {
       variants[0]?.selectedOptions.forEach((option) => {
-         // Lowercase the default values for consistency.
-         defaultState[option.name.toLowerCase()] = option.value.toLowerCase();
+         if (option.name.toLowerCase() !== 'spec') {
+            defaultState[option.name.toLowerCase()] = option.value.toLowerCase();
+         }
       });
    }
 
    // Merge the default state with the current state.
    const mergedState = { ...defaultState, ...state } as Record<string, string>;
 
-   // For the color option, if the state has a metaobject id (starts with "gid://")
+   // For the color option, if the state has a metaobject id (e.g. starts with "gid://")
    // then use the human‑readable product color instead.
    const colorKey = 'color';
    const productDisplayColor =
@@ -83,22 +86,26 @@ export function AddToCart({ product }: { product: Product }) {
             : mergedState[colorKey] || productDisplayColor
    };
 
-   // Find the matching variant using the normalized state.
+   // Find the matching variant using the normalized state (ignoring "spec")
    const variant = variants.find((variant: ProductVariant) =>
-      variant.selectedOptions.every(
-         (option) =>
-            option.value.toLowerCase() ===
-            String(normalizedState[option.name.toLowerCase()]).toLowerCase()
-      )
+      variant.selectedOptions
+         .filter((option) => option.name.toLowerCase() !== 'spec')
+         .every(
+            (option) =>
+               option.value.toLowerCase() ===
+               (normalizedState[option.name.toLowerCase()] || '').toLowerCase()
+         )
    );
 
-   // If only one variant exists, or if a variant is found via state or defaults, select it.
+   // If there's only one variant or if one is found, use its id.
    const defaultVariantId = variants.length === 1 ? variants[0]?.id : undefined;
    const selectedVariantId = variant?.id || defaultVariantId;
 
-   // Make sure selectedVariantId is a string before using it.
-   const finalVariant = variants.find((variant) => variant.id === selectedVariantId)!;
-   console.log('finalVariant:::::::::', finalVariant);
+   // Ensure we have a final variant. We assert that at least one variant exists.
+   const finalVariant: ProductVariant =
+      variants.find((variant) => variant.id === selectedVariantId) ?? variants[0]!;
+
+   // console.log('finalVariant:::::::::', finalVariant);
 
    const actionWithVariant = formAction.bind(null, selectedVariantId);
    const handleSubmit = async () => {

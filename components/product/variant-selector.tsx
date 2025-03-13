@@ -35,7 +35,7 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
 
    // Filter out unwanted options.
    const filteredOptions = useMemo(
-      () => options.filter((opt) => !['material'].includes(opt.name.toLowerCase())),
+      () => options.filter((opt) => !['material', 'spec'].includes(opt.name.toLowerCase())),
       [options]
    );
    if (!filteredOptions.length) return null;
