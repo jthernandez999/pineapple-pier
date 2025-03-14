@@ -132,7 +132,9 @@ export default function HeroBanner({ banners, interval = 4000 }: BannerProps) {
 
                   <div className="relative z-[65] p-4 text-center text-white">
                      {banner.title && (
-                        <h2 className="text-xl font-bold md:text-3xl">{banner.title}</h2>
+                        <h2 className="font-poppins text-6xl font-light md:text-9xl">
+                           {banner.title}
+                        </h2>
                      )}
                      {banner.description && (
                         <p className="text-sm md:text-lg">{banner.description}</p>
@@ -140,7 +142,7 @@ export default function HeroBanner({ banners, interval = 4000 }: BannerProps) {
                      {banner.buttonText && banner.buttonLink && (
                         <Link
                            href={banner.buttonLink}
-                           className="ease-custom mt-4 inline-block bg-white px-6 py-2 text-sm font-medium text-black transition-all duration-1000 ease-in-out hover:scale-95"
+                           className="ease-custom white mt-4 inline-block border bg-transparent px-6 py-2 text-sm font-medium text-white transition-all duration-1000 ease-in-out hover:scale-95 hover:bg-white hover:text-black"
                         >
                            {banner.buttonText}
                         </Link>
