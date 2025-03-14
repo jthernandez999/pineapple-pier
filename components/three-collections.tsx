@@ -91,7 +91,7 @@ export default function ThreeCollections({ collectionImages }: CollectionImagePr
       return (
          <div className="mx-auto w-full overflow-hidden bg-white p-4">
             {collectionImages.map((image, index) => (
-               <section key={`mobile-${index}`} className="mb-6">
+               <section key={`mobile-${index}`} className="mb-4">
                   {renderImage(image, `mobile-${index}`)}
                </section>
             ))}
@@ -108,7 +108,7 @@ export default function ThreeCollections({ collectionImages }: CollectionImagePr
          </section>
 
          {/* Bottom row: 2 images */}
-         <section className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
+         <section className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
             {bottomImages.map((image, index) => renderImage(image, `bottom-${index}`))}
          </section>
       </div>
