@@ -65,7 +65,7 @@ export async function shopifyCustomerFetch<T>({
          //the statuses here could be different, a 401 means
          //https://shopify.dev/docs/api/customer#endpoints
          //401 means the token is bad
-         console.log('Error in Customer Fetch Status', body.errors);
+         // console.log('Error in Customer Fetch Status', body.errors);
          if (result.status === 401) {
             // clear session because current access token is invalid
             const errorMessage = 'unauthorized';
@@ -83,7 +83,7 @@ export async function shopifyCustomerFetch<T>({
       //this just throws an error and the error boundary is called
       if (body.errors) {
          //throw 'Error'
-         console.log('Error in Customer Fetch', body.errors[0]);
+         // console.log('Error in Customer Fetch', body.errors[0]);
          throw body.errors[0];
       }
 
@@ -128,7 +128,7 @@ export async function isLoggedIn(request: NextRequest, origin: string) {
 
    // If neither token exists, you're basically a stranger.
    if (!customerToken && !refreshToken) {
-      console.log('No tokens found. Redirecting to origin and clearing cookies.');
+      // console.log('No tokens found. Redirecting to origin and clearing cookies.');
       const redirectUrl = new URL(origin);
       const response = NextResponse.redirect(redirectUrl);
       return removeAllCookies(response);
@@ -136,7 +136,7 @@ export async function isLoggedIn(request: NextRequest, origin: string) {
 
    // If there's no expiration info, how is the bouncer supposed to know when to kick you out?
    if (!expiresToken) {
-      console.log('No expiration info found. Redirecting and clearing cookies.');
+      // console.log('No expiration info found. Redirecting and clearing cookies.');
       const redirectUrl = new URL(origin);
       const response = NextResponse.redirect(redirectUrl);
       return removeAllCookies(response);
@@ -149,13 +149,13 @@ export async function isLoggedIn(request: NextRequest, origin: string) {
       expiresAt: expiresToken.value,
       origin
    })) as CheckExpiresResponse;
-   console.log('isExpired result:', isExpired);
+   // console.log('isExpired result:', isExpired);
 
    // If a refresh was attempted...
    if (isExpired.ranRefresh) {
       // ...and it failed, then you're not getting in.
       if (!isExpired.refresh || !isExpired.refresh.success) {
-         console.log('Token refresh failed. Redirecting and clearing cookies.');
+         // console.log('Token refresh failed. Redirecting and clearing cookies.');
          const redirectUrl = new URL(origin);
          const response = NextResponse.redirect(redirectUrl);
          return removeAllCookies(response);
@@ -166,7 +166,7 @@ export async function isLoggedIn(request: NextRequest, origin: string) {
          const expires_in = refreshData.expires_in;
          // Set a new expiration timestamp, giving a 120-second grace period.
          const expiresAt = (new Date().getTime() + (expires_in - 120) * 1000).toString();
-         console.log('Token refreshed successfully. Resetting cookies with new token.');
+         // console.log('Token refreshed successfully. Resetting cookies with new token.');
          newHeaders.set('x-shop-customer-token', newCustomerAccessToken);
          const resetCookieResponse = NextResponse.next({
             request: {
@@ -184,7 +184,7 @@ export async function isLoggedIn(request: NextRequest, origin: string) {
    }
 
    // If not expired (or no refresh was needed), just let you pass.
-   console.log('Token is still valid. Proceeding with existing token.');
+   // console.log('Token is still valid. Proceeding with existing token.');
    // Since we already checked the existence of the token above, we can assert it's defined.
    newHeaders.set('x-shop-customer-token', customerToken!.value);
    return NextResponse.next({

@@ -14,7 +14,7 @@ interface ProductGroupsProps {
 }
 
 const ProductGroups: React.FC<ProductGroupsProps> = ({ products }) => {
-   console.log('ProductGroups component mounted with products:', products);
+   // console.log('ProductGroups component mounted with products:', products);
    const [groupsMap, setGroupsMap] = useState<{ [key: string]: Group }>({});
 
    useEffect(() => {
@@ -33,7 +33,7 @@ const ProductGroups: React.FC<ProductGroupsProps> = ({ products }) => {
                console.log(`Product ${product.handle} has no parent product group metaobject.`);
             }
          }
-         console.log('Grouped products (parent grouping):', map);
+         // console.log('Grouped products (parent grouping):', map);
          setGroupsMap(map);
       }
       groupProducts();

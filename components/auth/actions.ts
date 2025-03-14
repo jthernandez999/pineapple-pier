@@ -21,8 +21,8 @@ export async function doLogin(prevState: any) {
 
    // Log the base URL for debugging
 
-   console.log('customerAccountApiUrl:', customerAccountApiUrl);
-   console.log('origin:', origin);
+   // console.log('customerAccountApiUrl:', customerAccountApiUrl);
+   // console.log('origin:', origin);
 
    const loginUrl = new URL(`${customerAccountApiUrl}/oauth/authorize`);
    //console.log ("previous", prevState)
