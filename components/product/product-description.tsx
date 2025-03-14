@@ -18,7 +18,7 @@ interface ProductDescriptionProps {
 export function ProductDescription({ product, groupColorMetaobjectIds }: ProductDescriptionProps) {
    const { activeProduct } = useProduct();
    const currentProduct = activeProduct || product;
-   console.log('Product metafields::::::::', product.metafield);
+   // console.log('Product metafields::::::::', product.metafield);
 
    // Remove the color word from the title for display if possible.
    const filteredTitle = currentProduct.title
@@ -37,7 +37,7 @@ export function ProductDescription({ product, groupColorMetaobjectIds }: Product
       : 'N/A';
 
    const [isDescriptionOpen, setIsDescriptionOpen] = useState(true);
-   console.log('currentProduct tags', currentProduct.tags);
+   // console.log('currentProduct tags', currentProduct.tags);
 
    return (
       <div className="mx-auto flex flex-col justify-start border-b px-2 pb-6 dark:border-neutral-700 md:px-4 2xl:mx-auto">

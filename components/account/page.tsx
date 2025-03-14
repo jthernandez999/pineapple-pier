@@ -15,15 +15,15 @@ export default async function AccountPage() {
    // Get headers synchronously
    const headersList = await headers();
    const access = headersList.get('x-shop-customer-token');
-   console.log('x-shop-customer-token header:', access);
+   // console.log('x-shop-customer-token header:', access);
 
    // Get cookie value asynchronously
    const shopCustomerToken = (await cookies()).get('shop_customer_token')?.value;
-   console.log('shop_customer_token cookie:', shopCustomerToken);
+   // console.log('shop_customer_token cookie:', shopCustomerToken);
 
    // Use header if available, otherwise fall back to the cookie
    const customerAccessToken = access || shopCustomerToken;
-   console.log('Using customerAccessToken:', customerAccessToken);
+   // console.log('Using customerAccessToken:', customerAccessToken);
 
    if (!customerAccessToken || customerAccessToken === 'denied') {
       console.error('No valid customerAccessToken found. Redirecting to logout.');
@@ -47,7 +47,7 @@ export default async function AccountPage() {
          query: CUSTOMER_DETAILS_QUERY,
          tags: [TAGS.customer]
       });
-      console.log('Customer details response:', responseCustomerDetails);
+      // console.log('Customer details response:', responseCustomerDetails);
 
       const userDetails = responseCustomerDetails.body as { data: { customer: any } };
       if (!userDetails) {
@@ -56,8 +56,8 @@ export default async function AccountPage() {
       customerData = userDetails.data?.customer;
       orders = customerData?.orders?.edges;
 
-      console.log('Customer Data:', customerData);
-      console.log('Orders:', orders);
+      // console.log('Customer Data:', customerData);
+      // console.log('Orders:', orders);
    } catch (e: any) {
       errorMessage = e?.error?.toString() ?? 'Unknown Error';
       console.error('Error fetching customer data on Account page:', e);

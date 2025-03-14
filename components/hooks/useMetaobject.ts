@@ -43,7 +43,7 @@ export function useMetaobject(metaobjectId: string): MetaobjectData | null {
                next: { revalidate: 60 }
             });
             const data = await res.json();
-            console.log('Metaobject response:', data);
+            // console.log('Metaobject response:', data);
             setMetaobject(data.data.metaobject);
          } catch (error) {
             console.error('Error fetching metaobject:', error);
@@ -54,6 +54,6 @@ export function useMetaobject(metaobjectId: string): MetaobjectData | null {
       }
    }, [metaobjectId]);
 
-   console.log('metaobject', metaobject);
+   // console.log('metaobject', metaobject);
    return metaobject;
 }

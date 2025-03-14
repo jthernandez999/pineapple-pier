@@ -10,7 +10,7 @@ export default async function LoginPage() {
    const refreshToken = cookieStore.get('shop_refresh_token')?.value;
    const isLoggedIn = Boolean(customerToken || refreshToken);
 
-   console.log('LoggedIn:', isLoggedIn);
+   // console.log('LoggedIn:', isLoggedIn);
 
    // Optionally, if the user is already logged in, redirect them.
    if (isLoggedIn) {

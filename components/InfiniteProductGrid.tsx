@@ -31,7 +31,7 @@ export default function InfiniteScrollProductGrid({
    const loadMoreProducts = useCallback(async () => {
       if (!hasNextPage || isLoading) return;
       setIsLoading(true);
-      console.log('Load More triggered. Current cursor:', cursor);
+      // console.log('Load More triggered. Current cursor:', cursor);
 
       const variables = {
          handle: collectionHandle,
@@ -39,7 +39,7 @@ export default function InfiniteScrollProductGrid({
          reverse,
          cursor: cursor ?? undefined
       };
-      console.log('VARIABLES::::::', variables);
+      // console.log('VARIABLES::::::', variables);
       try {
          // Call our API route instead of the Shopify endpoint directly.
          const res = await fetch('/api/collection-products', {
@@ -51,7 +51,7 @@ export default function InfiniteScrollProductGrid({
          });
 
          const json = await res.json();
-         console.log('Fetch response:', json);
+         // console.log('Fetch response:', json);
 
          if (!json.data || !json.data.collection) {
             console.error('No collection found in response:', json);
@@ -62,7 +62,7 @@ export default function InfiniteScrollProductGrid({
 
          const newEdges = json.data.collection.products.edges;
          if (!newEdges || newEdges.length === 0) {
-            console.log('No new products returned.');
+            // console.log('No new products returned.');
             setHasNextPage(false);
          } else {
             const newProducts = newEdges.map((edge: any) => edge.node);
@@ -70,7 +70,7 @@ export default function InfiniteScrollProductGrid({
             const pageInfo = json.data.collection.products.pageInfo;
             setCursor(pageInfo.endCursor);
             setHasNextPage(pageInfo.hasNextPage);
-            console.log('New pageInfo:', pageInfo);
+            // console.log('New pageInfo:', pageInfo);
          }
       } catch (error) {
          console.error('Error loading more products:', error);

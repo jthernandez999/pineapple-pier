@@ -17,7 +17,7 @@ function groupProductsByParent(products: ParentProduct[]): Record<string, Parent
    return products.reduce(
       (groups, product) => {
          const groupLabel = getParentGroup(product);
-         console.log('groupLabel:', groupLabel);
+         // console.log('groupLabel:', groupLabel);
          if (!groups[groupLabel]) {
             groups[groupLabel] = [];
          }
@@ -34,7 +34,7 @@ interface ProductGroupsByParentProps {
 
 const ProductGroupsByParent: React.FC<ProductGroupsByParentProps> = ({ products }) => {
    const groups = groupProductsByParent(products);
-   console.log('Grouped Products by Parent:', groups);
+   // console.log('Grouped Products by Parent:', groups);
    return (
       <div>
          {Object.entries(groups).map(([groupTitle, groupProducts]) => (

@@ -271,7 +271,7 @@ export async function refreshToken({ request, origin }: { request: NextRequest; 
       return NextResponse.json({ success: false, message: 'failed_refresh' }, { status: 401 });
    }
    const data = await response.json();
-   console.log('data response from refresh', data);
+   // console.log('data response from refresh', data);
    const { access_token, expires_in, refresh_token } = data;
 
    const customerAccessToken = await exchangeAccessToken(
@@ -399,21 +399,21 @@ export async function checkExpires({
 }) {
    const tokenExpires = parseInt(expiresAt, 10);
    const now = Date.now();
-   console.log(`DEBUG: Token expires at: ${tokenExpires} (ms)`);
-   console.log(`DEBUG: Current time: ${now} (ms)`);
-   console.log(`DEBUG: Time difference: ${tokenExpires - now} ms`);
+   // console.log(`DEBUG: Token expires at: ${tokenExpires} (ms)`);
+   // console.log(`DEBUG: Current time: ${now} (ms)`);
+   // console.log(`DEBUG: Time difference: ${tokenExpires - now} ms`);
 
    let isExpired = false;
    // Use a larger buffer if needed (e.g., 120 seconds)
    const bufferMs = 120 * 1000;
    if (tokenExpires - bufferMs < now) {
       isExpired = true;
-      console.log('DEBUG: Token is expired or about to expire. Initiating refresh.');
+      // console.log('DEBUG: Token is expired or about to expire. Initiating refresh.');
       const refresh = await refreshToken({ request, origin });
-      console.log('DEBUG: Refresh result:', refresh);
+      // console.log('DEBUG: Refresh result:', refresh);
       return { ranRefresh: isExpired, refresh };
    }
-   console.log('DEBUG: Token is still valid. No refresh needed.');
+   // console.log('DEBUG: Token is still valid. No refresh needed.');
    return { ranRefresh: isExpired, success: true };
    // let isExpired = false;
    // if (parseInt(expiresAt, 10) - 120 * 1000 < Date.now()) {

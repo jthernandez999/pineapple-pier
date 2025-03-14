@@ -11,7 +11,7 @@ export default async function OrderPage(props: any): Promise<React.ReactElement>
 
    // Retrieve the token from cookies (server-side)
    const token = (await cookies()).get('shop_customer_token')?.value ?? '';
-   console.log('OrderPage: Retrieved token:', token);
+   //  console.log('OrderPage: Retrieved token:', token);
 
    if (!token || token === 'denied') {
       console.error('OrderPage: No valid customer token found, redirecting to /logout');
@@ -75,6 +75,6 @@ export default async function OrderPage(props: any): Promise<React.ReactElement>
    }
 
    const order = json.data.order;
-   console.log('OrderPage: Fetched order details successfully.');
+   //  console.log('OrderPage: Fetched order details successfully.');
    return <OrderDetails order={order} />;
 }

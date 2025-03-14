@@ -15,6 +15,6 @@ export default async function Login() {
    } else {
       isLoggedIn = true;
    }
-   console.log('LoggedIn', isLoggedIn);
+   // console.log('LoggedIn', isLoggedIn);
    return isLoggedIn ? <UserIcon /> : <LoginShopify />;
 }

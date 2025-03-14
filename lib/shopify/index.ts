@@ -74,8 +74,8 @@ export async function shopifyFetch<T>({
    variables?: ExtractVariables<T>;
 }): Promise<{ status: number; body: T } | never> {
    try {
-      console.log('Fetching collection products with variables:', variables);
-      console.log('Using cache tags:', tags);
+      // console.log('Fetching collection products with variables:', variables);
+      // console.log('Using cache tags:', tags);
 
       const result = await fetch(endpoint, {
          method: 'POST',
@@ -376,7 +376,7 @@ export async function getCollectionProducts({
       variables.reverse = reverse;
    }
 
-   console.log('Using variables:', variables);
+   // console.log('Using variables:', variables);
 
    const res = await shopifyFetch<ShopifyCollectionProductsOperation>({
       query: getCollectionProductsQuery,
@@ -385,7 +385,7 @@ export async function getCollectionProducts({
    });
 
    if (!res.body.data.collection) {
-      console.log(`No collection found for \`${collection}\``);
+      // console.log(`No collection found for \`${collection}\``);
       return { products: [], pageInfo: { endCursor: null, hasNextPage: false } };
    }
    const productsData = res.body.data.collection.products as any;
