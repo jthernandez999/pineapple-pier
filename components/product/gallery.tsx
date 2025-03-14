@@ -204,28 +204,37 @@ export function Gallery({ images }: { images: { src: string; altText: string }[]
 
                   {/* Mobile Navigation Arrows */}
                   {effectiveImages.length > 1 && (
-                     <div className="absolute bottom-[15%] flex w-full justify-center md:hidden">
-                        <div className="mx-auto flex h-11 items-center rounded-full border border-white bg-neutral-50/80 text-neutral-500 backdrop-blur dark:border-black dark:bg-neutral-900/80">
-                           <button
-                              onClick={(e) => {
-                                 e.preventDefault();
-                                 sliderRef.current?.slickPrev();
-                              }}
-                              aria-label="Previous product image"
-                              className="flex h-full items-center justify-center px-6 transition-all ease-in-out hover:scale-110 hover:text-black dark:hover:text-white"
-                           >
-                              <ArrowLeftIcon className="h-5" />
-                           </button>
-                           <button
-                              onClick={(e) => {
-                                 e.preventDefault();
-                                 sliderRef.current?.slickNext();
-                              }}
-                              aria-label="Next product image"
-                              className="flex h-full items-center justify-center px-6 transition-all ease-in-out hover:scale-110 hover:text-black dark:hover:text-white"
-                           >
-                              <ArrowRightIcon className="h-5" />
-                           </button>
+                     <div>
+                        {/* Left Arrow */}
+                        <div className="absolute left-4 top-1/2 -translate-y-1/2 md:hidden">
+                           <div className="mx-auto flex h-11 items-center rounded-full border border-white bg-neutral-50/80 text-neutral-500 backdrop-blur dark:border-black dark:bg-neutral-900/80">
+                              <button
+                                 onClick={(e) => {
+                                    e.preventDefault();
+                                    sliderRef.current?.slickPrev();
+                                 }}
+                                 aria-label="Previous product image"
+                                 className="flex h-full items-center justify-center px-6 transition-all ease-in-out hover:scale-110 hover:text-black dark:hover:text-white"
+                              >
+                                 <ArrowLeftIcon className="h-5" />
+                              </button>
+                           </div>
+                        </div>
+
+                        {/* Right Arrow */}
+                        <div className="absolute right-4 top-1/2 -translate-y-1/2 md:hidden">
+                           <div className="mx-auto flex h-11 items-center rounded-full border border-white bg-neutral-50/80 text-neutral-500 backdrop-blur dark:border-black dark:bg-neutral-900/80">
+                              <button
+                                 onClick={(e) => {
+                                    e.preventDefault();
+                                    sliderRef.current?.slickNext();
+                                 }}
+                                 aria-label="Next product image"
+                                 className="flex h-full items-center justify-center px-6 transition-all ease-in-out hover:scale-110 hover:text-black dark:hover:text-white"
+                              >
+                                 <ArrowRightIcon className="h-5" />
+                              </button>
+                           </div>
                         </div>
                      </div>
                   )}
