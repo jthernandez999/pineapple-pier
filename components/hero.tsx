@@ -19,10 +19,12 @@ interface BannerProps {
 export default function HeroBanner({ banners, interval = 4000 }: BannerProps) {
    const [currentBanner, setCurrentBanner] = useState(0);
    const [isLoading, setIsLoading] = useState(true);
+   const [textVisible, setTextVisible] = useState(false);
    const touchStartX = useRef<number | null>(null);
    const touchEndX = useRef<number | null>(null);
    const bannerRef = useRef<HTMLDivElement>(null);
 
+   // Rotate banners automatically.
    useEffect(() => {
       const timer = setInterval(() => {
          setCurrentBanner((prev) => (prev + 1) % banners.length);
@@ -30,10 +32,21 @@ export default function HeroBanner({ banners, interval = 4000 }: BannerProps) {
       return () => clearInterval(timer);
    }, [banners.length, interval]);
 
-   // Check if mobile by window width (e.g., less than 768px)
+   // Listen to window scroll and reveal text after user scrolls down a bit.
+   useEffect(() => {
+      const handleScroll = () => {
+         if (window.scrollY > 75) {
+            setTextVisible(true);
+         }
+      };
+      window.addEventListener('scroll', handleScroll);
+      return () => window.removeEventListener('scroll', handleScroll);
+   }, []);
+
+   // Check if mobile by window width.
    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
 
-   // Handle swipe gestures (touch and mouse events)
+   // Handle swipe gestures.
    const handleTouchStart = (e: React.TouchEvent | React.MouseEvent) => {
       if ('touches' in e && e.touches[0]) {
          touchStartX.current = e.touches[0].clientX;
@@ -51,7 +64,6 @@ export default function HeroBanner({ banners, interval = 4000 }: BannerProps) {
    };
 
    const handleTouchEnd = () => {
-      // If mobile, don't change the banner on swipe.
       if (isMobile) {
          touchStartX.current = null;
          touchEndX.current = null;
@@ -72,11 +84,10 @@ export default function HeroBanner({ banners, interval = 4000 }: BannerProps) {
 
    return (
       // Outer container uses h-screen for full viewport height.
-      <div className="relative h-screen w-full overflow-hidden">
+      <div className="relative h-screen w-full overflow-hidden" ref={bannerRef}>
          {/* Inner section fills the container */}
          <section
             className="relative h-full w-full overflow-hidden"
-            ref={bannerRef}
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
             onTouchEnd={handleTouchEnd}
@@ -101,9 +112,7 @@ export default function HeroBanner({ banners, interval = 4000 }: BannerProps) {
                         alt={banner.title || 'Banner'}
                         priority={index === 0}
                         fill
-                        style={{
-                           objectPosition: 'center'
-                        }}
+                        style={{ objectPosition: 'center' }}
                         onLoad={() => setIsLoading(false)}
                         className={`${
                            isLoading ? 'scale-110' : 'scale-100'
@@ -118,9 +127,7 @@ export default function HeroBanner({ banners, interval = 4000 }: BannerProps) {
                         alt={banner.title || 'Banner'}
                         priority={index === 0}
                         fill
-                        style={{
-                           objectPosition: 'center'
-                        }}
+                        style={{ objectPosition: 'center' }}
                         onLoad={() => setIsLoading(false)}
                         className={`${
                            isLoading ? 'scale-110' : 'scale-100'
@@ -130,19 +137,27 @@ export default function HeroBanner({ banners, interval = 4000 }: BannerProps) {
 
                   <div className="bg-black/01 absolute inset-0"></div>
 
-                  <div className="relative z-[65] p-4 text-center text-white">
+                  <div
+                     className={`relative z-[65] transform p-4 text-center text-white transition-all duration-1000 ${
+                        index === 0
+                           ? textVisible
+                              ? 'translate-y-0 opacity-100'
+                              : 'translate-y-6 opacity-0'
+                           : 'opacity-100'
+                     }`}
+                  >
                      {banner.title && (
-                        <h2 className="font-poppins text-6xl font-light md:text-9xl">
+                        <h2 className="font-poppins text-6xl font-light tracking-wide md:text-9xl">
                            {banner.title}
                         </h2>
                      )}
                      {banner.description && (
-                        <p className="text-sm md:text-lg">{banner.description}</p>
+                        <p className="mt-2 text-sm md:text-lg">{banner.description}</p>
                      )}
                      {banner.buttonText && banner.buttonLink && (
                         <Link
                            href={banner.buttonLink}
-                           className="ease-custom white mt-4 inline-block border bg-transparent px-6 py-2 text-sm font-medium text-white transition-all duration-1000 ease-in-out hover:scale-95 hover:bg-white hover:text-black"
+                           className="mt-4 inline-block border border-white bg-transparent px-6 py-2 text-sm font-medium text-white transition-all duration-1000 ease-in-out hover:scale-95 hover:bg-white hover:text-black"
                         >
                            {banner.buttonText}
                         </Link>
