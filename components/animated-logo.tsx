@@ -38,7 +38,8 @@ export default function AnimatedLogo() {
    const scaleClasses = isHome && !scrolled ? 'md:scale-[4]' : 'scale-100';
 
    // The image source: white logo when not scrolled on homepage; black logo otherwise.
-   const imageSrc = isHome && !scrolled ? '/dj_white_logo.png' : '/dj_black_logo.png';
+   const imageSrc =
+      isHome && !scrolled ? '/public/assets/dj_white_logo.png' : '/public/assets/dj_black_logo.png';
 
    // Use a 3000ms transition for transform changes.
    const transitionClasses = 'transition-all duration-[1600ms] ease-in-out';
