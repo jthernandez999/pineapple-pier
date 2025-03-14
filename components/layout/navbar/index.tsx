@@ -1,7 +1,6 @@
 import CartModal from 'components/cart/modal';
 import { getMenu } from 'lib/shopify';
 import { Menu, MenuItem } from 'lib/shopify/types';
-import NextImage from 'next/image'; // Renamed import
 import Link from 'next/link';
 import { Suspense } from 'react';
 import AnimatedLogo from '../../../components/animated-logo';
@@ -130,14 +129,14 @@ const MegaMenuComponent: React.FC<MegaMenuComponentProps> = ({ item }) => {
                         </li>
                      ))}
                   </ul>
-                  <div className="flex flex-col-reverse">
+                  {/* <div className="flex flex-col-reverse">
                      <NextImage
                         alt="Essential Tees"
                         src="https://cdn.shopify.com/s/files/1/1024/2207/files/essentialTees.jpg?v=1737503628"
                         width={200}
                         height={200}
                      />
-                  </div>
+                  </div> */}
                </div>
             </div>
          )}
