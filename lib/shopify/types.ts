@@ -134,6 +134,7 @@ export type ProductOption = {
 };
 
 export type ProductVariant = {
+   metafield?: any;
    spec: string;
    id: string;
    title: string;
