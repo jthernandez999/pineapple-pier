@@ -48,7 +48,7 @@ export default function AnimatedLogo() {
          // href="/"
          className={`absolute ${containerClasses} ${scaleClasses} ${transitionClasses}`}
       >
-         <div className="relative top-[0] z-[40] mx-auto h-[22rem] w-[22rem] md:h-80 md:w-80">
+         <div className="relative top-[0] z-[40] mx-auto h-[18rem] w-[18rem] sm:h-[22rem] sm:w-[22rem] md:h-80 md:w-80">
             <Image
                draggable={false}
                src={imageSrc}
