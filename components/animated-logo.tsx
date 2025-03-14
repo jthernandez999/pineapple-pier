@@ -22,7 +22,7 @@ export default function AnimatedLogo() {
    // When not scrolled on the homepage, we want the container to be:
    // - On mobile: centered horizontally, positioned at about 25% from the top.
    // - On desktop: the same, but the inner image scales to 2.5×.
-   const notScrolledClasses = 'left-1/2 top-1/4 -translate-x-1/2';
+   const notScrolledClasses = 'left-1/2 top-[.001em] -translate-x-1/2';
    // When scrolled (or on non-home pages), we want:
    // - On mobile: centered horizontally and vertically.
    // - On desktop: aligned to the left with a margin.
@@ -41,14 +41,14 @@ export default function AnimatedLogo() {
    const imageSrc = isHome && !scrolled ? '/dj_white_logo.png' : '/dj_black_logo.png';
 
    // Use a 3000ms transition for transform changes.
-   const transitionClasses = 'transition-all duration-[100ms] ease-in-out';
+   const transitionClasses = 'transition-all duration-[1100ms] ease-in-out';
 
    return (
       <div
          // href="/"
          className={`absolute ${containerClasses} ${scaleClasses} ${transitionClasses}`}
       >
-         <div className="relative z-[40] h-64 w-64 md:h-80 md:w-80">
+         <div className="relative top-[0] z-[40] mx-auto h-[22rem] w-[22rem] md:h-80 md:w-80">
             <Image
                draggable={false}
                src={imageSrc}
