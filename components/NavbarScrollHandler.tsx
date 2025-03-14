@@ -89,8 +89,8 @@ const NavbarScrollHandler = () => {
                   'bg-opacity-100',
                   'transition-none'
                );
-               desktopMenuId.classList.remove('md:hidden');
-               desktopMenuId.classList.add('md:block');
+               desktopMenuId.classList.remove('md:hidden', 'lg:hidden');
+               desktopMenuId.classList.add('md:block', 'lg:block');
             }
          }
       };

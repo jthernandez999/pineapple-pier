@@ -1,4 +1,5 @@
 // lib/helpers/metafieldHelpers.ts
+import { SHOPIFY_GRAPHQL_ENDPOINT } from '../constants';
 
 export type Metafield = {
    key: string;
@@ -63,7 +64,7 @@ export async function fetchMetaobjectData(metaobjectId: string) {
    const variables = { id: metaobjectId };
 
    try {
-      const res = await fetch(process.env.NEXT_PUBLIC_SHOPIFY_GRAPHQL_ENDPOINT || '', {
+      const res = await fetch(SHOPIFY_GRAPHQL_ENDPOINT || '', {
          method: 'POST',
          headers: {
             'Content-Type': 'application/json',
