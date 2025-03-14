@@ -33,7 +33,7 @@ export async function Navbar() {
             </div>
 
             {/* Center Section: Desktop Menu Items */}
-            <div id="desktop-menu" className="hidden md:block lg:block">
+            <div id="desktop-menu" className="hidden md:hidden lg:hidden">
                <DesktopMenu menu={menu} />
             </div>
 

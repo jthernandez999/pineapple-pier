@@ -37,7 +37,7 @@ const NavbarScrollHandler = () => {
                      'top-10',
                      'bg-white-opacity-0'
                   );
-                  desktopMenuId.classList.remove('md:hidden');
+                  desktopMenuId.classList.remove('md:hidden', 'lg:hidden');
                   navElement.classList.add(
                      'sticky',
                      'top-0',

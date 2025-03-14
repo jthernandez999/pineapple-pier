@@ -41,7 +41,7 @@ export default function AnimatedLogo() {
    const imageSrc = isHome && !scrolled ? '/dj_white_logo.png' : '/dj_black_logo.png';
 
    // Use a 3000ms transition for transform changes.
-   const transitionClasses = 'transition-all duration-[1600ms] ease-in-out';
+   const transitionClasses = 'transition-all duration-[100ms] ease-in-out';
 
    return (
       <div
