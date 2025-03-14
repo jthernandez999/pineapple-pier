@@ -1,7 +1,7 @@
 {
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev --turbopack, NODE_OPTIONS='--inspect' next dev",
     "build": "next build",
     "start": "next start",
     "prettier": "prettier --write --ignore-unknown .",
@@ -12,7 +12,7 @@
     "@headlessui/react": "^2.2.0",
     "@heroicons/react": "^2.2.0",
     "@next/font": "^14.2.15",
-    "@next/third-parties": "^15.1.7",
+    "@next/third-parties": "15.2.2",
     "@types/next": "^9.0.0",
     "@vercel/analytics": "^1.5.0",
     "@vercel/speed-insights": "^1.2.0",
@@ -22,7 +22,7 @@
     "graphql-request": "^7.1.2",
     "js-cookie": "^3.0.5",
     "jsonwebtoken": "^9.0.2",
-    "next": "15.1.7",
+    "next": "15.2.2",
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "react-infinite-scroll-component": "^6.1.0",
@@ -38,8 +38,8 @@
     "@types/js-cookie": "^3.0.6",
     "@types/jsonwebtoken": "^9.0.9",
     "@types/node": "22.10.1",
-    "@types/react": "19.0.0",
-    "@types/react-dom": "19.0.1",
+    "@types/react": "19.0.10",
+    "@types/react-dom": "19.0.4",
     "@types/react-slick": "^0.23.13",
     "autoprefixer": "^10.4.20",
     "postcss": "^8.5.1",
@@ -47,5 +47,11 @@
     "prettier-plugin-tailwindcss": "^0.6.11",
     "tailwindcss": "^3.4.17",
     "typescript": "5.7.2"
+  },
+  "pnpm": {
+    "overrides": {
+      "@types/react": "19.0.10",
+      "@types/react-dom": "19.0.4"
+    }
   }
 }
