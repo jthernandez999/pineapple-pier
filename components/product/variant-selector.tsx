@@ -4,7 +4,7 @@ import clsx from 'clsx';
 import { ProductState, useProduct, useUpdateURL } from 'components/product/product-context';
 import { getColorPatternMetaobjectId, normalizeMetaobjectId } from 'lib/helpers/metafieldHelpers';
 import { Product, ProductOption, ProductVariant } from 'lib/shopify/types';
-import { startTransition, useEffect, useMemo, useRef } from 'react';
+import { Key, startTransition, useEffect, useMemo, useRef } from 'react';
 import { ColorSwatch } from '../../components/ColorSwatch';
 import { useProductGroups } from './ProductGroupsContext';
 
@@ -49,7 +49,7 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
 
    const activeProductGroup = useMemo(() => {
       const groupKey = Object.keys(groups ?? {}).find((key) =>
-         groups[key]?.some((p) => p.id === product.id)
+         groups[key]?.some((p: { id: string }) => p.id === product.id)
       );
       return groupKey && groupKey.toLowerCase() !== 'uncategorized' ? groupKey : undefined;
    }, [product, groups]);
@@ -64,7 +64,7 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
       if (isGrouped && groupProducts.length > 0) {
          return (
             groupProducts[0]?.options
-               ?.find((o) => o.name.toLowerCase() === 'color')
+               ?.find((o: { name: string }) => o.name.toLowerCase() === 'color')
                ?.values?.[0]?.toLowerCase() ?? productDisplayColor.toLowerCase()
          );
       }
@@ -92,8 +92,8 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
          return Array.from(
             new Set(
                groupProducts
-                  .map((prod) => normalizeMetaobjectId(getColorPatternMetaobjectId(prod)))
-                  .filter((id): id is string => !!id)
+                  .map((prod: any) => normalizeMetaobjectId(getColorPatternMetaobjectId(prod)))
+                  .filter((id: any): id is string => !!id)
             )
          );
       }
@@ -112,10 +112,12 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
          // We haven't auto-matched a variant for this product yet
          autoMatchedRef.current = false;
 
-         const sizeOpt = filteredOptions.find((o) => o.name.toLowerCase() === 'size');
+         const sizeOpt = filteredOptions.find(
+            (o: { name: string }) => o.name.toLowerCase() === 'size'
+         );
          let defaultSize = '';
          if (sizeOpt) {
-            const foundSize = sizeOpt.values.find((val) =>
+            const foundSize = sizeOpt.values.find((val: string) =>
                variantMap.some((v) => v.options.size === val.toLowerCase() && v.availableForSale)
             );
             defaultSize = foundSize || sizeOpt.values[0] || '';
@@ -150,7 +152,9 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
    // --------------------------------------------------------------------------
    useEffect(() => {
       // Check if there is a size option at all
-      const hasSizeOption = filteredOptions.some((o) => o.name.toLowerCase() === 'size');
+      const hasSizeOption = filteredOptions.some(
+         (o: { name: string }) => o.name.toLowerCase() === 'size'
+      );
       // If there's a size option, we need both color & size. Otherwise, just color.
       const canMatch = hasSizeOption ? state.color && state.size : state.color;
 
@@ -160,19 +164,20 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
          const displayColor =
             isGrouped && groupProducts.length > 0
                ? (groupProducts
-                    .find((p) => {
+                    .find((p: { options: any[] }) => {
                        const c = p.options
-                          ?.find((o) => o.name.toLowerCase() === 'color')
+                          ?.find((o: { name: string }) => o.name.toLowerCase() === 'color')
                           ?.values?.[0]?.toLowerCase();
                        return c === (state.color ?? '').toLowerCase();
                     })
-                    ?.options?.find((o) => o.name.toLowerCase() === 'color')?.values?.[0] ?? '')
+                    ?.options?.find((o: { name: string }) => o.name.toLowerCase() === 'color')
+                    ?.values?.[0] ?? '')
                : productDisplayColor;
 
          // Only match keys that appear in variantMap options
          const keysToMatch: Array<'color' | 'size'> = [];
 
-         if (filteredOptions.some((o) => o.name.toLowerCase() === 'color')) {
+         if (filteredOptions.some((o: { name: string }) => o.name.toLowerCase() === 'color')) {
             keysToMatch.push('color');
          }
          if (hasSizeOption) {
@@ -202,9 +207,9 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
                // If grouped, find the matching product for that color
                const groupProduct =
                   isGrouped && groupProducts.length > 0
-                     ? groupProducts.find((p) => {
+                     ? groupProducts.find((p: { options: any[] }) => {
                           const c = p.options
-                             ?.find((o) => o.name.toLowerCase() === 'color')
+                             ?.find((o: { name: string }) => o.name.toLowerCase() === 'color')
                              ?.values?.[0]?.toLowerCase();
                           return c === (state.color ?? '').toLowerCase();
                        })
@@ -272,13 +277,16 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
    const currentColorName = useMemo(() => {
       if (!state.color) return '';
       if (isGrouped && groupProducts.length > 0) {
-         const match = groupProducts.find((p) => {
+         const match = groupProducts.find((p: { options: any[] }) => {
             const c = p.options
-               ?.find((opt) => opt.name.toLowerCase() === 'color')
+               ?.find((opt: { name: string }) => opt.name.toLowerCase() === 'color')
                ?.values?.[0]?.toLowerCase();
             return c === (state.color ?? '').toLowerCase();
          });
-         return match?.options?.find((o) => o.name.toLowerCase() === 'color')?.values?.[0] ?? '';
+         return (
+            match?.options?.find((o: { name: string }) => o.name.toLowerCase() === 'color')
+               ?.values?.[0] ?? ''
+         );
       }
       return productDisplayColor;
    }, [state.color, isGrouped, groupProducts, productDisplayColor]);
@@ -306,19 +314,22 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
                               ? // GROUPED color swatches
                                 availableColors.map((colorId) => {
                                    const matchedProduct = groupProducts.find(
-                                      (p) =>
+                                      (p: any) =>
                                          normalizeMetaobjectId(getColorPatternMetaobjectId(p)) ===
                                          colorId
                                    );
                                    const colorName =
                                       matchedProduct?.options
-                                         ?.find((o) => o.name.toLowerCase() === 'color')
+                                         ?.find(
+                                            (o: { name: string }) =>
+                                               o.name.toLowerCase() === 'color'
+                                         )
                                          ?.values?.[0]?.toLowerCase() ?? '';
                                    const isActive = colorName === (state.color ?? '').toLowerCase();
 
                                    return (
                                       <button
-                                         key={colorId}
+                                         key={colorId as Key}
                                          type="button"
                                          onClick={() => handleOptionSelect('color', colorName)}
                                          className={clsx(
