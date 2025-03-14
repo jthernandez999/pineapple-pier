@@ -138,7 +138,7 @@ export default function HeroBanner({ banners, interval = 4000 }: BannerProps) {
                   <div className="bg-black/01 absolute inset-0"></div>
 
                   <div
-                     className={`relative z-[65] transform p-4 text-center text-white transition-all duration-1000 ${
+                     className={`relative bottom-40 z-[65] transform p-4 text-center text-white transition-all duration-1000 ${
                         index === 0
                            ? textVisible
                               ? 'translate-y-0 opacity-100'
