@@ -16,6 +16,7 @@ const NavbarScrollHandler = () => {
          const isHomepage = currentPath === '/';
          const isCollectionPage = currentPath.includes('/collections/');
          const isProductPage = currentPath.includes('/product/');
+         const isProductsPage = currentPath.includes('/products/');
          const isSearchPage = currentPath.includes('/search');
          const isCartPage = currentPath.includes('/cart');
          const isAccountPage = currentPath.includes('/account');
@@ -25,6 +26,7 @@ const NavbarScrollHandler = () => {
                isHomepage &&
                !isCollectionPage &&
                !isProductPage &&
+               !isProductsPage &&
                !isSearchPage &&
                !isCartPage &&
                !isAccountPage

@@ -87,7 +87,7 @@ async function RelatedProducts({ id }: { id: string }) {
                   >
                      <Grid.Item key={product.handle} className="animate-fadeIn">
                         <Link
-                           href={`/product/${product.handle}`}
+                           href={`/products/${product.handle}`}
                            prefetch={true}
                            className="flex h-full w-full flex-col"
                         >
