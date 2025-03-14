@@ -25,7 +25,10 @@ function useInView(threshold = 0.1) {
       if (!ref.current) return;
 
       const observer = new IntersectionObserver(
-         ([entry]) => {
+         (entries) => {
+            const entry = entries[0];
+            // Because apparently we have to coddle TS:
+            if (!entry) return;
             setInView(entry.isIntersecting);
          },
          { threshold }
