@@ -37,7 +37,7 @@ export default function FooterMenu({ menu }: { menu: Menu[] }) {
    return (
       <nav>
          {/* Use a grid with even columns and centered items */}
-         <ul className="md:just grid grid-cols-1 justify-items-center gap-6 font-normal uppercase md:grid-cols-3 md:justify-items-start lg:grid-cols-3 lg:justify-items-start">
+         <ul className="md:just grid grid-cols-1 justify-items-center gap-6 font-light uppercase md:grid-cols-3 md:justify-items-start lg:grid-cols-3 lg:justify-items-start">
             {menu.map((item: Menu) => (
                <FooterMenuItem key={item.title} item={item} />
             ))}
