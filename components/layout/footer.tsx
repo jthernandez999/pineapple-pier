@@ -83,7 +83,7 @@ export default async function Footer() {
          {/* Top row: Logo, Footer Menu, Social Icons */}
          <div className="mx-auto flex w-full max-w-7xl flex-col gap-4 border-t border-neutral-200 px-6 py-12 dark:border-neutral-700 md:flex-row md:gap-12 md:px-4 min-[1320px]:px-0">
             {/* Left: Logo */}
-            {/* Left: Logo */}
+
             <div className="flex flex-col gap-4 md:w-1/4">
                <Link
                   className="flex items-center gap-2 text-black dark:text-white md:pt-1"
