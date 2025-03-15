@@ -19,7 +19,7 @@ export function FooterMenuItem({ item }: { item: Menu }) {
          <Link
             href={item.path}
             className={clsx(
-               'block p-2 text-lg text-black underline-offset-4 hover:text-black hover:underline dark:hover:text-neutral-300 md:text-sm',
+               'lg:text:lg md:text-md block p-2 text-sm text-black underline-offset-4 hover:text-black hover:underline dark:hover:text-neutral-300',
                {
                   'text-black dark:text-neutral-300': active
                }
@@ -37,7 +37,7 @@ export default function FooterMenu({ menu }: { menu: Menu[] }) {
    return (
       <nav>
          {/* Use a grid with even columns and centered items */}
-         <ul className="md:just grid grid-cols-1 justify-items-center gap-6 font-semibold uppercase md:grid-cols-3 md:justify-items-start lg:grid-cols-3 lg:justify-items-start">
+         <ul className="md:just grid grid-cols-1 justify-items-center gap-6 font-normal uppercase md:grid-cols-3 md:justify-items-start lg:grid-cols-3 lg:justify-items-start">
             {menu.map((item: Menu) => (
                <FooterMenuItem key={item.title} item={item} />
             ))}
