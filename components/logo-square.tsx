@@ -17,8 +17,6 @@ export default function LogoSquare({ size }: { size?: 'sm' | undefined }) {
                'h-[16px] w-[16px]': !size,
                'h-[10px] w-[10px]': size === 'sm'
             })}
-            src={''}
-            alt={''}
          />
       </div>
    );
