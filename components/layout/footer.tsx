@@ -1,5 +1,4 @@
 import FooterMenu from 'components/layout/footer-menu';
-import LogoSquare from 'components/logo-square';
 // import PaymentIcons from 'components/PaymentIcons';
 import { getMenu } from 'lib/shopify';
 import Image from 'next/image';
@@ -90,8 +89,10 @@ export default async function Footer() {
                   className="flex items-center gap-2 text-black dark:text-white md:pt-1"
                   href="/"
                >
-                  <LogoSquare size="sm" />
-                  <span className="uppercase">{SITE_NAME}</span>
+                  {/* <LogoSquare size="sm" /> */}
+                  <span className="flex h-16 w-16 transform items-center justify-center rounded-full border-2 border-white bg-black text-2xl uppercase text-white shadow-xl transition-transform duration-300 hover:scale-105">
+                     DJ
+                  </span>
                </Link>
             </div>
             {/* Center: Footer Menu in an even grid layout */}
