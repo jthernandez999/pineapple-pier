@@ -81,7 +81,7 @@ export default async function Footer() {
    return (
       <footer className="text-sm text-neutral-500 dark:text-neutral-400">
          {/* Top row: Logo, Footer Menu, Social Icons */}
-         <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 border-t border-neutral-200 px-6 py-12 dark:border-neutral-700 md:flex-row md:gap-12 md:px-4 min-[1320px]:px-0">
+         <div className="mx-auto flex w-full max-w-7xl flex-col gap-4 border-t border-neutral-200 px-6 py-12 dark:border-neutral-700 md:flex-row md:gap-12 md:px-4 min-[1320px]:px-0">
             {/* Left: Logo */}
             {/* Left: Logo */}
             <div className="flex flex-col gap-4 md:w-1/4">
@@ -96,7 +96,7 @@ export default async function Footer() {
                </Link>
             </div>
             {/* Center: Footer Menu */}
-            <div className="md:w-1/2">
+            <div className="md:w-full">
                <Suspense
                   fallback={
                      <div className="grid h-[188px] w-[200px] grid-cols-2 gap-2">
