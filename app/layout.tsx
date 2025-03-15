@@ -11,6 +11,7 @@ import { ensureStartsWith } from 'lib/utils';
 import { cookies } from 'next/headers';
 import { ReactNode } from 'react';
 import { Toaster } from 'sonner';
+import ArrowUpCircleIcon from '../components/BackToTopButton';
 import JudgeMeIntegration from '../components/judgeme/JudgeMeIntegration';
 import Navbar from '../components/layout/navbar';
 import NavbarScrollHandler from '../components/NavbarScrollHandler';
@@ -66,6 +67,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
                <SpeedInsights />
                <Analytics />
                <GoogleAnalytics gaId="G-STZJVRZBTL" />
+               <ArrowUpCircleIcon />
             </ProductGroupsProvider>
          </body>
       </html>
