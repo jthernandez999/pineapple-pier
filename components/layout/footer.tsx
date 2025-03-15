@@ -1,5 +1,4 @@
 import FooterMenu from 'components/layout/footer-menu';
-// import PaymentIcons from 'components/PaymentIcons';
 import { getMenu } from 'lib/shopify';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -84,6 +83,7 @@ export default async function Footer() {
          {/* Top row: Logo, Footer Menu, Social Icons */}
          <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 border-t border-neutral-200 px-6 py-12 dark:border-neutral-700 md:flex-row md:gap-12 md:px-4 min-[1320px]:px-0">
             {/* Left: Logo */}
+            {/* Left: Logo */}
             <div className="flex flex-col gap-4 md:w-1/4">
                <Link
                   className="flex items-center gap-2 text-black dark:text-white md:pt-1"
@@ -95,7 +95,7 @@ export default async function Footer() {
                   </span>
                </Link>
             </div>
-            {/* Center: Footer Menu in an even grid layout */}
+            {/* Center: Footer Menu */}
             <div className="md:w-1/2">
                <Suspense
                   fallback={
@@ -109,13 +109,11 @@ export default async function Footer() {
                      </div>
                   }
                >
-                  <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
-                     <FooterMenu menu={menu} />
-                  </div>
+                  <FooterMenu menu={menu} />
                </Suspense>
             </div>
             {/* Right: Social Icons */}
-            <div className="flex items-start justify-center md:w-1/4 md:justify-end">
+            <div className="flex items-center justify-center md:w-1/4 md:justify-end">
                <SocialIcons />
             </div>
          </div>
@@ -127,7 +125,7 @@ export default async function Footer() {
                   {copyrightName.length && !copyrightName.endsWith('.') ? '.' : ''} All rights
                   reserved.
                </p>
-               {/* <PaymentIcons paymentMethods={enabledPaymentTypes} /> */}
+               {/* Payment icons can be added here */}
             </div>
          </div>
       </footer>
