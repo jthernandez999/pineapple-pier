@@ -60,9 +60,9 @@ function SocialIcons() {
                   src={social.icon}
                   alt={social.name}
                   unoptimized
-                  className="h-5 w-5 object-contain brightness-0 filter"
-                  width={20}
-                  height={20}
+                  className="h-7 w-7 object-contain brightness-0 filter"
+                  width={35}
+                  height={35}
                />
                <span className="sr-only">{social.name}</span>
             </Link>
@@ -113,7 +113,7 @@ export default async function Footer() {
                </Suspense>
             </div>
             {/* Right: Social Icons */}
-            <div className="flex items-center justify-center md:w-1/4 md:justify-end">
+            <div className="mt-4 flex items-center justify-center md:w-1/4 md:justify-end">
                <SocialIcons />
             </div>
          </div>
