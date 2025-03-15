@@ -82,7 +82,7 @@ const HighlightCollection: FC<HighlightCollectionProps> = ({ highlightCollection
                            objectFit: 'cover',
                            objectPosition: 'center'
                         }}
-                        onLoadingComplete={() => setIsLoading(false)}
+                        onLoad={() => setIsLoading(false)}
                         className={` ${
                            !isLoading && hasScrolled ? 'scale-100' : 'scale-110'
                         } ease-custom transition-transform duration-1200`}
@@ -120,7 +120,7 @@ const HighlightCollection: FC<HighlightCollectionProps> = ({ highlightCollection
                            objectFit: 'cover',
                            objectPosition: 'center'
                         }}
-                        onLoadingComplete={() => setIsLoading(false)}
+                        onLoad={() => setIsLoading(false)}
                         className={` ${
                            !isLoading && hasScrolled ? 'scale-100' : 'scale-110'
                         } ease-custom transition-transform duration-1200`}
