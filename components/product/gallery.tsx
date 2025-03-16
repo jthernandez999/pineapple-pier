@@ -173,7 +173,8 @@ export function Gallery({ images }: { images: { src: string; altText: string }[]
                                  (image) => image.src === img.src
                               );
                               return (
-                                 <button
+                                 <div
+                                    role="button"
                                     key={img.src}
                                     onClick={(e) => {
                                        e.preventDefault();
@@ -195,7 +196,7 @@ export function Gallery({ images }: { images: { src: string; altText: string }[]
                                           unoptimized={true}
                                        />
                                     </figure>
-                                 </button>
+                                 </div>
                               );
                            })}
                         </div>

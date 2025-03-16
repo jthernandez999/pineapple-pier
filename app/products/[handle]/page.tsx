@@ -81,7 +81,7 @@ async function RelatedProducts({ id }: { id: string }) {
                   rawSwatch && rawSwatch.startsWith('#') ? rawSwatch : fallbackColor;
 
                return (
-                  <li
+                  <ul
                      key={product.handle}
                      className="aspect-[2/3] w-full flex-none min-[475px]:w-1/2 sm:w-1/3 md:w-1/4 lg:w-1/5"
                   >
@@ -123,7 +123,7 @@ async function RelatedProducts({ id }: { id: string }) {
                            </div>
                         </Link>
                      </Grid.Item>
-                  </li>
+                  </ul>
                );
             })}
          </ul>

@@ -165,7 +165,7 @@ export function ProductGridItemsComponent({ products, groupHandle }: ProductGrid
                return (
                   <Grid.Item key={group} className="animate-fadeIn">
                      <Link
-                        href={`/product/${activeProduct.handle}`}
+                        href={`/products/${activeProduct.handle}`}
                         prefetch={true}
                         className="flex h-full w-full flex-col"
                      >

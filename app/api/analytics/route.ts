@@ -1,7 +1,7 @@
 // app/api/analytics/route.ts
+'use strict';
 import {
    AnalyticsEventName,
-   getClientBrowserParameters,
    sendShopifyAnalytics,
    ShopifyPageViewPayload
 } from '@shopify/hydrogen';
@@ -19,7 +19,7 @@ export async function POST(request: Request) {
 
       // Merge client parameters with your data and assert it as a ShopifyPageViewPayload.
       const payload = {
-         ...getClientBrowserParameters(),
+         // ...getClientBrowserParameters(),
          ...data
       } as ShopifyPageViewPayload;
 
