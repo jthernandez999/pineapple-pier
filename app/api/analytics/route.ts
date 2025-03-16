@@ -19,7 +19,7 @@ export async function POST(request: Request) {
 
       // Merge client parameters with your data and assert it as a ShopifyPageViewPayload.
       const payload = {
-         // ...getClientBrowserParameters(),
+         ...getClientBrowserParameters(),
          ...data
       } as ShopifyPageViewPayload;
 
@@ -37,4 +37,7 @@ export async function POST(request: Request) {
          { status: 500 }
       );
    }
+}
+function getClientBrowserParameters(): ShopifyPageViewPayload {
+   throw new Error('Function not implemented.');
 }
