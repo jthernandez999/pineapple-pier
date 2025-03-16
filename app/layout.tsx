@@ -16,7 +16,7 @@ import { ensureStartsWith } from 'lib/utils';
 import { cookies } from 'next/headers';
 import { ReactNode } from 'react';
 import { Toaster } from 'sonner';
-import AnalyticsProvider from './AnalyticsProvider';
+
 import './globals.css';
 
 const { TWITTER_CREATOR, TWITTER_SITE, SITE_NAME } = process.env;
@@ -54,25 +54,23 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
       <html lang="en" className={GeistSans.variable}>
          <head />
          <body className="bg-neutral-50 text-black selection:bg-teal-300 dark:bg-neutral-900 dark:text-white dark:selection:bg-pink-500 dark:selection:text-white">
-            <AnalyticsProvider>
-               <ProductGroupsProvider>
-                  <AnnouncementBar />
-                  <CartProvider cartPromise={cart}>
-                     <Navbar />
-                     <NavbarScrollHandler />
-                     <main>
-                        {children}
-                        <Toaster closeButton />
-                        <WelcomeToast />
-                        <JudgeMeIntegration />
-                     </main>
-                  </CartProvider>
-                  <SpeedInsights />
-                  <Analytics />
-                  <GoogleAnalytics gaId="G-STZJVRZBTL" />
-                  <ArrowUpCircleIcon />
-               </ProductGroupsProvider>
-            </AnalyticsProvider>
+            <ProductGroupsProvider>
+               <AnnouncementBar />
+               <CartProvider cartPromise={cart}>
+                  <Navbar />
+                  <NavbarScrollHandler />
+                  <main>
+                     {children}
+                     <Toaster closeButton />
+                     <WelcomeToast />
+                     <JudgeMeIntegration />
+                  </main>
+               </CartProvider>
+               <SpeedInsights />
+               <Analytics />
+               <GoogleAnalytics gaId="G-STZJVRZBTL" />
+               <ArrowUpCircleIcon />
+            </ProductGroupsProvider>
          </body>
       </html>
    );
