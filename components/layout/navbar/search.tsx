@@ -1,22 +1,24 @@
 'use client';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
-import Form from 'next/form';
-import { useSearchParams } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { FormEvent, useEffect, useRef, useState } from 'react';
 
 export default function Search() {
    const searchParams = useSearchParams();
+   const router = useRouter();
    const [isPopupOpen, setIsPopupOpen] = useState(false);
-   const [popularSearches, setPopularSearches] = useState([]);
+   // Expecting an array of objects with { query, score }
+   const [popularSearches, setPopularSearches] = useState<{ query: string; score: number }[]>([]);
    const popupInputRef = useRef<HTMLInputElement>(null);
    const popupRef = useRef<HTMLDivElement>(null);
 
+   // Fetch the top popular searches from our API.
    useEffect(() => {
       async function fetchPopularSearches() {
          try {
             const response = await fetch('/api/popular-searches');
             const data = await response.json();
-            setPopularSearches(data.searches);
+            setPopularSearches(data.searches || []);
          } catch (error) {
             console.error('Failed to fetch popular searches:', error);
          }
@@ -24,14 +26,14 @@ export default function Search() {
       fetchPopularSearches();
    }, []);
 
-   // Focus the input when the popup opens
+   // Focus the input when the popup opens.
    useEffect(() => {
       if (isPopupOpen && popupInputRef.current) {
          popupInputRef.current.focus();
       }
    }, [isPopupOpen]);
 
-   // Close the popup when clicking outside of it
+   // Close the popup when clicking outside.
    useEffect(() => {
       function handleClickOutside(event: MouseEvent) {
          if (isPopupOpen && popupRef.current && !popupRef.current.contains(event.target as Node)) {
@@ -44,23 +46,39 @@ export default function Search() {
 
    const togglePopup = () => setIsPopupOpen((prev) => !prev);
 
-   // When search is submitted, close the popup
-   const handleSearchSubmit = () => {
+   // Handles search submission: record the search and navigate.
+   const handleSearchSubmit = async (e: FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      const form = e.currentTarget;
+      const formData = new FormData(form);
+      const q = formData.get('q')?.toString() || '';
+      if (!q.trim()) return;
+      try {
+         // Record the search in Redis
+         await fetch('/api/popular-searches', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ query: q })
+         });
+      } catch (error) {
+         console.error('Error recording search:', error);
+      }
       setIsPopupOpen(false);
+      router.push(`/search?q=${encodeURIComponent(q)}`);
    };
 
    return (
       <div className="relative">
-         {/* Desktop: Magnifying glass next to the cart */}
+         {/* Desktop: Magnifying glass button */}
          <div className="ml-auto hidden items-center lg:flex">
             <button onClick={togglePopup} className="p-2">
                <MagnifyingGlassIcon className="h-5 w-5" />
             </button>
          </div>
 
-         {/* Mobile: Show full search form */}
+         {/* Mobile: Full search form */}
          <div className="block lg:hidden">
-            <Form action="/search" className="relative w-full">
+            <form onSubmit={handleSearchSubmit} className="relative w-full">
                <input
                   key={searchParams?.get('q')}
                   type="text"
@@ -76,10 +94,10 @@ export default function Search() {
                >
                   <MagnifyingGlassIcon className="h-4" />
                </button>
-            </Form>
+            </form>
          </div>
 
-         {/* Desktop Full-Width Pop-up */}
+         {/* Desktop Full-Width Popup */}
          {isPopupOpen && (
             <div ref={popupRef} className="fixed left-0 top-16 z-50 w-full bg-white shadow-lg">
                <div className="mx-auto max-w-screen-xl px-4 py-6">
@@ -93,12 +111,16 @@ export default function Search() {
                      <p className="mb-2 text-sm font-medium text-gray-700">POPULAR SEARCHES:</p>
                      <ul className="flex flex-wrap gap-4">
                         {popularSearches.length > 0 ? (
-                           popularSearches.map((search) => (
+                           popularSearches.map((item) => (
                               <li
-                                 key={search}
+                                 key={item.query}
                                  className="cursor-pointer text-blue-500 hover:underline"
+                                 onClick={() => {
+                                    setIsPopupOpen(false);
+                                    router.push(`/search?q=${encodeURIComponent(item.query)}`);
+                                 }}
                               >
-                                 {search}
+                                 {item.query} ({item.score})
                               </li>
                            ))
                         ) : (
@@ -106,7 +128,7 @@ export default function Search() {
                         )}
                      </ul>
                   </div>
-                  <Form action="/search" className="relative mt-4" onSubmit={handleSearchSubmit}>
+                  <form onSubmit={handleSearchSubmit} className="relative mt-4">
                      <input
                         ref={popupInputRef}
                         key={searchParams?.get('q')}
@@ -123,7 +145,7 @@ export default function Search() {
                      >
                         <MagnifyingGlassIcon className="m-0 h-4 p-0" />
                      </button>
-                  </Form>
+                  </form>
                </div>
             </div>
          )}
