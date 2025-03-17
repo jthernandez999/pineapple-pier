@@ -107,10 +107,11 @@ export default function HeroBanner({ banners, interval = 4000 }: BannerProps) {
                   {/* Desktop Image */}
                   <div className="hidden md:block">
                      <Image
+                        priority
                         unoptimized
                         src={banner.image}
                         alt={banner.title || 'Banner'}
-                        priority={index === 0}
+                        // priority={index === 0}
                         fill
                         style={{ objectPosition: 'center' }}
                         onLoad={() => setIsLoading(false)}
