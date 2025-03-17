@@ -85,7 +85,7 @@ export function Carousel({ data }: CarouselProps) {
 
    const settings = {
       infinite: true,
-      slidesToShow: 4.5, // 4 full products plus half of the next one
+      slidesToShow: 5, // 4 full products plus half of the next one
       slidesToScroll: 1,
       arrows: true,
       swipe: true,
