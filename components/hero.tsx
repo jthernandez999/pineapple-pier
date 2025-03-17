@@ -126,7 +126,8 @@ export default function HeroBanner({ banners, interval = 4000 }: BannerProps) {
                         unoptimized
                         src={banner.mobileImage || banner.image}
                         alt={banner.title || 'Banner'}
-                        priority={index === 0}
+                        priority
+                        // priority={index === 0}
                         fill
                         style={{ objectPosition: 'center' }}
                         onLoad={() => setIsLoading(false)}
