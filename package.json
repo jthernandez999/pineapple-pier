@@ -16,6 +16,7 @@
     "@shopify/hydrogen": "^2025.1.2",
     "@types/next": "^9.0.0",
     "@vercel/analytics": "^1.5.0",
+    "@vercel/edge-config": "^1.4.0",
     "@vercel/speed-insights": "^1.2.0",
     "clsx": "^2.1.1",
     "flowbite-react": "^0.10.2",

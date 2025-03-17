@@ -1,6 +1,6 @@
 // app/layout.tsx
 import { GoogleAnalytics } from '@next/third-parties/google';
-import { Analytics } from '@vercel/analytics/react';
+import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import AnnouncementBar from 'components/AnnouncementBar';
 import ArrowUpCircleIcon from 'components/BackToTopButton';

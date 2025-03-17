@@ -80,85 +80,6 @@ export async function initialAccessToken(
    return { success: true, data };
 }
 
-// export async function initialAccessToken(
-//    request: NextRequest,
-//    newOrigin: string,
-//    customerAccountApiUrl: string,
-//    clientId: string
-// ) {
-//    const code = request.nextUrl.searchParams.get('code');
-//    const state = request.nextUrl.searchParams.get('state');
-//    /*
-//   STEP 1: Check for all necessary cookies and other information
-//   */
-//    if (!code) {
-//       console.log('Error: No Code Auth');
-//       return { success: false, message: `No Code` };
-//    }
-//    if (!state) {
-//       console.log('Error: No State Auth');
-//       return { success: false, message: `No State` };
-//    }
-//    const shopState = request.cookies.get('shop_state');
-//    const shopStateValue = shopState?.value;
-//    if (!shopStateValue) {
-//       console.log('Error: No Shop State Value');
-//       return { success: false, message: `No Shop State` };
-//    }
-//    if (state !== shopStateValue) {
-//       console.log('Error: Shop state mismatch');
-//       return { success: false, message: `No Shop State Mismatch` };
-//    }
-//    const codeVerifier = request.cookies.get('shop_verifier');
-//    const codeVerifierValue = codeVerifier?.value;
-//    if (!codeVerifierValue) {
-//       console.log('No Code Verifier');
-//       return { success: false, message: `No Code Verifier` };
-//    }
-//    /*
-//   STEP 2: GET ACCESS TOKEN
-//   */
-//    const body = new URLSearchParams();
-//    body.append('grant_type', 'authorization_code');
-//    body.append('client_id', clientId);
-//    body.append('redirect_uri', `${newOrigin}/authorize`);
-//    body.append('code', code);
-//    body.append('code_verifier', codeVerifier?.value);
-//    const userAgent = '*';
-//    const headersNew = new Headers();
-//    headersNew.append('Content-Type', 'application/x-www-form-urlencoded');
-//    headersNew.append('User-Agent', userAgent);
-//    headersNew.append('Origin', newOrigin || '');
-//    const tokenRequestUrl = `${customerAccountApiUrl}/oauth/token`;
-//    const response = await fetch(tokenRequestUrl, {
-//       method: 'POST',
-//       headers: headersNew,
-//       body
-//    });
-//    const data = await response.json();
-//    console.log('data initial access token', data);
-//    if (!response.ok) {
-//       console.log('data response error auth', data.error);
-//       console.log('response auth', response.status);
-//       return { success: false, message: `Response error auth` };
-//    }
-//    if (data?.errors) {
-//       const errorMessage = data?.errors?.[0]?.message ?? 'Unknown error auth';
-//       return { success: false, message: `${errorMessage}` };
-//    }
-//    const nonce = await getNonce(data?.id_token || '');
-//    const shopNonce = request.cookies.get('shop_nonce');
-//    const shopNonceValue = shopNonce?.value;
-//    console.log('sent nonce', nonce);
-//    console.log('original nonce', shopNonceValue);
-//    if (nonce !== shopNonceValue) {
-//       //make equal === to force error for testing
-//       console.log('Error nonce match');
-//       return { success: false, message: `Error: Nonce mismatch` };
-//    }
-//    return { success: true, data };
-// }
-
 export async function exchangeAccessToken(
    token: string,
    customerAccountId: string,
@@ -197,45 +118,6 @@ export async function exchangeAccessToken(
    }
    return { success: true, data };
 }
-
-// export async function exchangeAccessToken(
-//    token: string,
-//    customerAccountId: string,
-//    customerAccountApiUrl: string,
-//    origin: string
-// ) {
-//    const clientId = customerAccountId;
-//    //this is a constant - see the docs. https://shopify.dev/docs/api/customer#useaccesstoken-propertydetail-audience
-//    const customerApiClientId = '30243aa5-17c1-465a-8493-944bcc4e88aa';
-//    const accessToken = token;
-//    const body = new URLSearchParams();
-//    body.append('grant_type', 'urn:ietf:params:oauth:grant-type:token-exchange');
-//    body.append('client_id', clientId);
-//    body.append('audience', customerApiClientId);
-//    body.append('subject_token', accessToken);
-//    body.append('subject_token_type', 'urn:ietf:params:oauth:token-type:access_token');
-//    body.append('scopes', 'https://api.customers.com/auth/customer.graphql');
-
-//    const userAgent = '*';
-
-//    const headers = new Headers();
-//    headers.append('Content-Type', 'application/x-www-form-urlencoded');
-//    headers.append('User-Agent', userAgent);
-//    headers.append('Origin', origin);
-
-//    // Token Endpoint goes here
-//    const response = await fetch(`${customerAccountApiUrl}/oauth/token`, {
-//       method: 'POST',
-//       headers,
-//       body
-//    });
-
-//    const data = await response.json();
-//    if (data.error) {
-//       return { success: false, data: data?.error_description };
-//    }
-//    return { success: true, data };
-// }
 
 import { NextResponse } from 'next/server';
 
@@ -325,68 +207,6 @@ export async function refreshToken({ request, origin }: { request: NextRequest; 
    console.log('Refresh token flow successful. Updated cookies.');
    return res;
 }
-
-// export async function refreshToken({ request, origin }: { request: NextRequest; origin: string }) {
-//    // Retrieve the refresh token from cookies.
-//    const refreshTokenCookie = request.cookies.get('shop_refresh_token');
-//    const refreshTokenValue = refreshTokenCookie?.value;
-//    if (!refreshTokenValue) {
-//       console.log('Error: No Refresh Token');
-//       return { success: false, message: 'no_refresh_token' };
-//    }
-//    const clientId = SHOPIFY_CLIENT_ID;
-//    // Build the request body per docs.
-//    const body = new URLSearchParams();
-//    body.append('grant_type', 'refresh_token');
-//    // Use non-null assertion if you're sure clientId is defined.
-//    body.append('client_id', clientId!);
-//    body.append('refresh_token', refreshTokenValue);
-
-//    // For public clients, the Authorization header is not needed.
-//    const headers = {
-//       'content-type': 'application/x-www-form-urlencoded'
-//       // For confidential clients, include the Authorization header if needed:
-//       // 'Authorization': 'Basic <credentials>'
-//    };
-
-//    const tokenRequestUrl = `${SHOPIFY_CUSTOMER_ACCOUNT_API_URL}/oauth/token`;
-//    const response = await fetch(tokenRequestUrl, {
-//       method: 'POST',
-//       headers,
-//       body
-//    });
-
-//    if (!response.ok) {
-//       const text = await response.text();
-//       console.log('response error in refresh token', text);
-//       return { success: false, message: 'no_refresh_token' };
-//    }
-//    const data = await response.json();
-//    console.log('data response from refresh', data);
-//    const { access_token, expires_in, refresh_token } = data;
-
-//    // Optionally, if your flow requires converting the access token into a customer-scoped token,
-//    // call exchangeAccessToken. If not, simply return the tokens.
-//    const customerAccessToken = await exchangeAccessToken(
-//       access_token,
-//       clientId!,
-//       SHOPIFY_CUSTOMER_ACCOUNT_API_URL,
-//       origin
-//    );
-//    if (!customerAccessToken.success) {
-//       return { success: false, message: 'no_refresh_token' };
-//    }
-
-//    console.log('isExpired is false - just sending back success', false);
-//    return {
-//       success: true,
-//       data: {
-//          customerAccessToken: customerAccessToken.data.access_token,
-//          expires_in,
-//          refresh_token
-//       }
-//    };
-// }
 
 export async function checkExpires({
    request,

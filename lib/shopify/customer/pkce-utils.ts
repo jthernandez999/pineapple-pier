@@ -29,10 +29,11 @@ function convertBufferToString(buffer: ArrayBuffer): string {
    return String.fromCharCode(...new Uint8Array(buffer));
 }
 
-export async function generateRandomString(): Promise<string> {
-   return Date.now().toString() + Math.random().toString(36).substring(2);
+export async function generateRandomString() {
+   const timestamp = Date.now().toString();
+   const randomString = Math.random().toString(36).substring(2);
+   return timestamp + randomString;
 }
-
 export async function generateState(): Promise<string> {
    return generateRandomString();
 }

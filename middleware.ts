@@ -80,81 +80,13 @@ export const config = {
    matcher: ['/', '/authorize', '/logout', '/account']
 };
 
-// import { authorizeFn, getOrigin, isLoggedIn, logoutFn } from 'lib/shopify/customer';
-// import { NextRequest, NextResponse } from 'next/server';
+// import { get } from '@vercel/edge-config';
 
-// // Helper function to extract account number from the customer token.
-// async function getCustomerAccountNumber(request: NextRequest): Promise<string | null> {
-//    const token = request.cookies.get('shop_customer_token')?.value;
-//    console.log('DEBUG: shop_customer_token:', token);
-//    if (!token) return null;
+// export const config = { matcher: '/welcome' };
 
-//    try {
-//       const parts = token.split('.');
-//       if (parts.length < 2) {
-//          console.log("DEBUG: Token split doesn't have enough parts:", parts);
-//          return null;
-//       }
-//       const payloadBase64 = parts[1]!;
-//       // In Node.js (Edge runtime), you might want to use Buffer instead of atob:
-//       const payloadJson = Buffer.from(payloadBase64, 'base64').toString('utf-8');
-//       console.log('DEBUG: Decoded payload JSON:', payloadJson);
-//       const payload = JSON.parse(payloadJson);
-//       console.log('DEBUG: Parsed payload:', payload);
-//       // Return payload.accountNumber if exists, otherwise fallback to payload.sub.
-//       return payload.accountNumber || payload.sub || null;
-//    } catch (error) {
-//       console.error('DEBUG: Failed to extract account number:', error);
-//       return null;
-//    }
+// export async function middleware() {
+//    const greeting = await get('greeting');
+//    // NextResponse.json requires at least Next v13.1 or
+//    // enabling experimental.allowMiddlewareResponseBody in next.config.js
+//    return NextResponse.json(greeting);
 // }
-
-// export async function middleware(request: NextRequest) {
-//    const url = request.nextUrl.clone();
-//    const origin = getOrigin(request) as string;
-//    console.log('DEBUG: URL pathname:', url.pathname);
-//    console.log('DEBUG: Origin:', origin);
-
-//    // --- Dynamic Homepage Redirect Logic ---
-//    if (url.pathname === '/' && !url.searchParams.has('accountNumber')) {
-//       const accountNumber = await getCustomerAccountNumber(request);
-//       if (accountNumber) {
-//          url.searchParams.set('accountNumber', accountNumber);
-//          console.log(`DEBUG: Redirecting to homepage with account number: ${accountNumber}`);
-//          return NextResponse.redirect(url);
-//       } else {
-//          console.log('DEBUG: No account number found; not redirecting homepage');
-//       }
-//    }
-
-//    // --- Authorize Middleware ---
-//    if (url.pathname.startsWith('/authorize')) {
-//       console.log('DEBUG: Running Initial Authorization Middleware');
-//       const authResponse = await authorizeFn(request, origin);
-//       console.log('DEBUG: authorizeFn response:', authResponse);
-//       return authResponse;
-//    }
-
-//    // --- Logout Middleware ---
-//    if (url.pathname.startsWith('/logout')) {
-//       console.log('DEBUG: Running Logout Middleware');
-//       const logoutResponse = await logoutFn(request, origin);
-//       console.log('DEBUG: logoutFn response:', logoutResponse);
-//       return logoutResponse;
-//    }
-
-//    // --- Account Middleware ---
-//    if (url.pathname.startsWith('/account')) {
-//       console.log('DEBUG: Running Account Middleware');
-//       const loggedInResponse = await isLoggedIn(request, origin);
-//       console.log('DEBUG: isLoggedIn response:', loggedInResponse);
-//       return loggedInResponse;
-//    }
-
-//    console.log('DEBUG: No matching route; proceeding normally.');
-//    return NextResponse.next();
-// }
-
-// export const config = {
-//    matcher: ['/', '/authorize', '/logout', '/account']
-// };
