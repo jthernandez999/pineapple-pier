@@ -1,4 +1,5 @@
 import FooterMenu from 'components/layout/footer-menu';
+import NewsletterSignUpForm from 'components/NewsletterSignUpForm';
 import { getMenu } from 'lib/shopify';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -114,7 +115,12 @@ export default async function Footer() {
             </div>
             {/* Right: Social Icons */}
             <div className="mt-4 flex items-center justify-center md:w-1/4 md:justify-end">
-               <SocialIcons />
+               <div>
+                  <NewsletterSignUpForm />
+               </div>
+               <div>
+                  <SocialIcons />
+               </div>
             </div>
          </div>
          {/* Bottom row: Copyright and Payment Icons */}

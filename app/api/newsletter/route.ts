@@ -2,7 +2,7 @@
 import { NextResponse } from 'next/server';
 import invariant from 'tiny-invariant';
 
-// Define a Subscriber type.
+/** Subscriber type used for our newsletter. */
 type Subscriber = {
    id: string;
    email: string;
@@ -25,37 +25,34 @@ type CustomerMutationError = {
 
 type CustomerMutation = CustomerMutationSuccess | CustomerMutationError;
 
-// GraphQL fragment for customer fields.
-const CUSTOMER_FRAGMENT = `#graphql
-  fragment CustomerFragment on Customer {
-    id
-    email
-    emailMarketingConsent {
-      consentUpdatedAt
-      marketingOptInLevel
-      marketingState
-    }
-  }
+/** GraphQL fragment for customer fields.
+ * For the Storefront API, we inline the fields directly in the mutation.
+ */
+const CUSTOMER_FRAGMENT = `
+fragment CustomerFragment on Customer {
+  id
+  email
+}
 `;
 
 /**
- * Helper: Performs a Shopify Admin GraphQL API call.
+ * Helper: Performs a Shopify Storefront GraphQL API call.
  */
-async function shopifyAdminFetch(query: string, variables: Record<string, any>): Promise<any> {
-   const endpoint = process.env.NEXT_PUBLIC_SHOPIFY_GRAPHQL_ADMIN_API_URL;
-   const accessToken = process.env.NEXT_PUBLIC_SHOPIFY_PRIVATE_ACCESS_TOKEN;
+async function shopifyStorefrontFetch(query: string, variables: Record<string, any>): Promise<any> {
+   const endpoint = process.env.NEXT_PUBLIC_SHOPIFY_GRAPHQL_ENDPOINT;
+   const accessToken = process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_TOKEN;
    if (!endpoint || !accessToken) {
       throw new Error('Required environment variables are not defined');
    }
-   // If endpoint already starts with http, use it directly; otherwise, prepend https://
+   // If endpoint already starts with http, use it; otherwise, prepend https://
    const url = endpoint.startsWith('http') ? endpoint : `https://${endpoint}`;
-   console.log('Using endpoint:', url);
+   console.log('Using storefront endpoint:', url);
 
    const response = await fetch(url, {
       method: 'POST',
       headers: {
          'Content-Type': 'application/json',
-         'X-Shopify-Access-Token': accessToken
+         'X-Shopify-Storefront-Access-Token': accessToken
       },
       body: JSON.stringify({ query, variables })
    });
@@ -64,108 +61,63 @@ async function shopifyAdminFetch(query: string, variables: Record<string, any>):
 
 /**
  * Searches for a customer by email.
+ * Note: The Storefront API does not allow querying customers by email.
+ * So we simply return null.
  */
 async function getCustomerConsent({
    email
 }: {
    email: string;
 }): Promise<{ customer: Subscriber | null; error: null }> {
-   const query = `#graphql
-    ${CUSTOMER_FRAGMENT}
-    query getCustomerByEmail($query: String!) {
-      customers(first: 1, query: $query) {
-        edges {
-          node {
-            ...CustomerFragment
-          }
-        }
-      }
-    }
-  `;
-   const variables = { query: `email:${email}` };
-   const result = await shopifyAdminFetch(query, variables);
-   const customer = result.data?.customers?.edges?.[0]?.node || null;
-   return { customer, error: null };
+   return { customer: null, error: null };
 }
 
 /**
  * Updates a customer's email marketing consent.
+ * Note: This is not supported via the Storefront API.
  */
 async function updateCustomerMarketingConsent({
    customerId
 }: {
    customerId: string;
 }): Promise<CustomerMutation> {
-   const consentUpdatedAt = new Date(
-      Date.now() - new Date().getTimezoneOffset() * 60000
-   ).toISOString();
-   const query = `#graphql
-    ${CUSTOMER_FRAGMENT}
-    mutation ($input: CustomerEmailMarketingConsentUpdateInput!) {
-      customerEmailMarketingConsentUpdate(input: $input) {
-        customer {
-          ...CustomerFragment
-        }
-        userErrors {
-          field
-          message
-        }
-      }
-    }
-  `;
-   const input = {
-      customerId,
-      emailMarketingConsent: {
-         consentUpdatedAt,
-         marketingOptInLevel: 'SINGLE_OPT_IN',
-         marketingState: 'SUBSCRIBED'
-      }
-   };
-   const variables = { input };
-   const result = await shopifyAdminFetch(query, variables);
-   if (result.data?.customerEmailMarketingConsentUpdate?.userErrors?.length > 0) {
-      const [{ field, message }] = result.data.customerEmailMarketingConsentUpdate.userErrors;
-      return { error: { field, message }, customer: null };
-   }
    return {
-      customer: result.data?.customerEmailMarketingConsentUpdate?.customer,
-      error: null
+      error: {
+         field: null,
+         message: 'Updating customer marketing consent is not supported via the Storefront API.'
+      },
+      customer: null
    };
 }
 
 /**
- * Creates a new subscriber.
+ * Creates a new subscriber using the Storefront API's customerCreate mutation.
+ * Note: The mutation requires both an email and a password.
  */
 async function createSubscriber({ email }: { email: string }): Promise<CustomerMutation> {
    const query = `#graphql
-    ${CUSTOMER_FRAGMENT}
-    mutation newCustomerLead($input: CustomerInput!) {
-      customerCreate(input: $input) {
-        customer {
-          ...CustomerFragment
-        }
-        userErrors {
-          field
-          message
-        }
-      }
+mutation CustomerCreate($input: CustomerCreateInput!) {
+  customerCreate(input: $input) {
+    customer {
+      id
+      email
     }
-  `;
-   const consentUpdatedAt = new Date(
-      Date.now() - new Date().getTimezoneOffset() * 60000
-   ).toISOString();
-   // Note: Do not include "acceptsMarketing" if it's not supported.
+    customerUserErrors {
+      code
+      field
+      message
+    }
+  }
+}
+`;
+   // Generate a pseudo-random password for newsletter signup.
+   const password = 'newsletter-' + Date.now().toString();
    const input = {
       email,
-      emailMarketingConsent: {
-         consentUpdatedAt,
-         marketingOptInLevel: 'SINGLE_OPT_IN',
-         marketingState: 'SUBSCRIBED'
-      },
-      tags: ['newsletter']
+      password
    };
    const variables = { input };
-   const result = await shopifyAdminFetch(query, variables);
+   const result = await shopifyStorefrontFetch(query, variables);
    console.log('Customer Create Result:', result);
    if (!result.data || !result.data.customerCreate) {
       return {
@@ -173,12 +125,26 @@ async function createSubscriber({ email }: { email: string }): Promise<CustomerM
          customer: null
       };
    }
-   if (result.data.customerCreate.userErrors && result.data.customerCreate.userErrors.length > 0) {
-      const [{ field, message }] = result.data.customerCreate.userErrors;
+   if (
+      result.data.customerCreate.customerUserErrors &&
+      result.data.customerCreate.customerUserErrors.length > 0
+   ) {
+      const [{ field, message }] = result.data.customerCreate.customerUserErrors;
       return { error: { field, message }, customer: null };
    }
    if (result.data.customerCreate.customer) {
-      return { customer: result.data.customerCreate.customer, error: null };
+      // Construct a Subscriber object.
+      const customer = result.data.customerCreate.customer;
+      const subscriber: Subscriber = {
+         id: customer.id,
+         email: customer.email,
+         emailMarketingConsent: {
+            consentUpdatedAt: new Date().toISOString(),
+            marketingOptInLevel: 'SINGLE_OPT_IN',
+            marketingState: 'SUBSCRIBED'
+         }
+      };
+      return { customer: subscriber, error: null };
    }
    return { error: { field: null, message: 'Customer creation failed.' }, customer: null };
 }
@@ -203,33 +169,23 @@ function returnError({ error }: { error: { message: string } }) {
  */
 export async function POST(request: Request) {
    try {
-      // Use JSON since the newsletter form sends JSON.
+      // Parse the JSON body (assuming the newsletter form sends JSON).
       const { email } = await request.json();
       invariant(email, 'Email is required');
 
-      // Step 1: Check if customer already exists.
+      // Step 1: Check if customer already exists (Storefront API does not support this, so we assume null).
       const existing = await getCustomerConsent({ email });
-      const alreadySubscribed =
-         existing.customer?.emailMarketingConsent?.marketingState === 'SUBSCRIBED';
+      const alreadySubscribed = !!existing.customer;
 
       if (alreadySubscribed) {
          return returnSuccess({ subscriber: existing.customer });
       }
 
-      // Step 2: Create or update the customer.
-      let customerMutation: CustomerMutation;
-      if (!existing.customer) {
-         customerMutation = await createSubscriber({ email });
-      } else {
-         customerMutation = await updateCustomerMarketingConsent({
-            customerId: existing.customer.id
-         });
-      }
-
+      // Step 2: Since we can't update marketing consent via the Storefront API, always create a new customer.
+      const customerMutation = await createSubscriber({ email });
       if (customerMutation.error) {
          return returnError({ error: customerMutation.error });
       }
-
       return returnSuccess({ subscriber: customerMutation.customer! });
    } catch (error: any) {
       console.error('Newsletter subscription error:', error);

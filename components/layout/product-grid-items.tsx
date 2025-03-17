@@ -116,7 +116,7 @@ export function ProductGridItemsComponent({ products, groupHandle }: ProductGrid
    return (
       <>
          {/* Render interactive group cards */}
-         {/* <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3">
+         <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3">
             {interactiveGroups.map(({ group, fallbackColor, groupProducts, metaobjectId }) => {
                const activeProduct = activeProducts[group] || groupProducts[0]!;
                const parentPrice = extractPrice(activeProduct);
@@ -217,7 +217,7 @@ export function ProductGridItemsComponent({ products, groupHandle }: ProductGrid
                   </Grid.Item>
                );
             })}
-         </div> */}
+         </div>
 
          {/* Render individual product cards */}
          <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3">
