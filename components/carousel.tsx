@@ -95,19 +95,19 @@ export function Carousel({ data }: CarouselProps) {
          {
             breakpoint: 1024,
             settings: {
-               slidesToShow: 4.5
+               slidesToShow: 5
             }
          },
          {
             breakpoint: 768,
             settings: {
-               slidesToShow: 2.5
+               slidesToShow: 3
             }
          },
          {
             breakpoint: 480,
             settings: {
-               slidesToShow: 1.5
+               slidesToShow: 2
             }
          }
       ]
