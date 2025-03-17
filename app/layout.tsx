@@ -52,6 +52,13 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
 
    return (
       <html lang="en" className={GeistSans.variable}>
+         <link
+            rel="preload"
+            as="font"
+            href="/fonts/GeistSans.woff2"
+            type="font/woff2"
+            crossOrigin="anonymous"
+         />
          <head />
          <body className="bg-neutral-50 text-black selection:bg-teal-300 dark:bg-neutral-900">
             <ProductGroupsProvider>
