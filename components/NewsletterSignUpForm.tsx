@@ -1,4 +1,3 @@
-// components/NewsletterSignUpForm.tsx
 'use client';
 
 import { FormEvent, useState } from 'react';
@@ -20,12 +19,25 @@ const NewsletterSignUpForm: React.FC = () => {
             body: JSON.stringify({ email })
          });
          const data = await res.json();
-         if (!res.ok || !data.success) {
-            throw new Error(data.error || 'Subscription failed');
+
+         // If there's an error from the API, show it.
+         if (data.error) {
+            setStatus('error');
+            setMessage(data.error.message);
+            return;
          }
-         setStatus('success');
-         setMessage('Thank you for subscribing!');
-         setEmail('');
+         // If subscriber exists, display the success message.
+         if (data.subscriber) {
+            setStatus('success');
+            setMessage(
+               `We have sent an email to ${email}, please click the link included to verify your email address.`
+            );
+            setEmail('');
+            return;
+         }
+         // Fallback if neither error nor subscriber is returned.
+         setStatus('error');
+         setMessage('Subscription failed.');
       } catch (error: any) {
          setStatus('error');
          setMessage(error.message || 'Something went wrong');
@@ -55,7 +67,9 @@ const NewsletterSignUpForm: React.FC = () => {
          </button>
          {message && (
             <p
-               className={`text-center text-sm ${status === 'error' ? 'text-red-500' : 'text-green-600'}`}
+               className={`text-center text-sm ${
+                  status === 'error' ? 'text-red-500' : 'text-green-600'
+               }`}
             >
                {message}
             </p>
