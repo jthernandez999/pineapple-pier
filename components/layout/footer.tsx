@@ -1,3 +1,4 @@
+// components/Footer.tsx
 import FooterMenu from 'components/layout/footer-menu';
 import NewsletterSignUpForm from 'components/NewsletterSignUpForm';
 import { getMenu } from 'lib/shopify';
@@ -75,63 +76,61 @@ function SocialIcons() {
 export default async function Footer() {
    const currentYear = new Date().getFullYear();
    const copyrightDate = 2023 + (currentYear > 2023 ? `-${currentYear}` : '');
-   const skeleton = 'w-full h-6 animate-pulse rounded bg-neutral-200 dark:bg-neutral-700';
    const menu = await getMenu('next-js-frontend-footer-menu');
    const copyrightName = COMPANY_NAME || SITE_NAME || '';
 
    return (
-      <footer className="text-sm text-neutral-500 dark:text-neutral-400">
-         {/* Top row: Logo, Footer Menu, Social Icons */}
-         <div className="mx-auto flex w-full max-w-7xl flex-col gap-4 border-t border-neutral-200 px-6 py-12 dark:border-neutral-700 md:flex-row md:gap-12 md:px-4 min-[1320px]:px-0">
-            {/* Left: Logo */}
-
-            <div className="flex flex-col gap-4 md:w-1/4">
-               <Link
-                  className="flex items-center gap-2 text-black dark:text-white md:pt-1"
-                  href="/"
-               >
-                  {/* <LogoSquare size="sm" /> */}
-                  <span className="flex h-16 w-16 transform items-center justify-center rounded-full border-2 border-white bg-black text-2xl uppercase text-white shadow-xl transition-transform duration-300 hover:scale-105">
+      <footer className="bg-white text-black">
+         {/* Main Footer Section */}
+         <div className="container mx-auto flex flex-col gap-8 px-6 py-12 md:flex-row md:justify-between">
+            {/* Left Column: Logo + Mobile Newsletter */}
+            <div className="flex flex-col items-center md:items-start">
+               <Link href="/" className="flex items-center gap-3">
+                  <span className="flex h-20 w-20 items-center justify-center rounded-full border-2 border-black bg-white text-4xl uppercase shadow-2xl transition-transform duration-300 hover:scale-105">
                      DJ
                   </span>
+                  <span className="hidden text-2xl font-light md:inline-block">{SITE_NAME}</span>
                </Link>
+               {/* Mobile newsletter: visible only on mobile */}
+               <div className="mt-6 block md:hidden">
+                  <NewsletterSignUpForm />
+               </div>
             </div>
-            {/* Center: Footer Menu */}
-            <div className="md:w-full">
+
+            {/* Center Column: Footer Menu */}
+            <div className="flex flex-col items-center">
                <Suspense
                   fallback={
-                     <div className="grid h-[188px] w-[200px] grid-cols-2 gap-2">
-                        <div className={skeleton} />
-                        <div className={skeleton} />
-                        <div className={skeleton} />
-                        <div className={skeleton} />
-                        <div className={skeleton} />
-                        <div className={skeleton} />
+                     <div className="grid grid-cols-2 gap-4">
+                        <div className="h-6 w-full animate-pulse rounded bg-neutral-700" />
+                        <div className="h-6 w-full animate-pulse rounded bg-neutral-700" />
+                        <div className="h-6 w-full animate-pulse rounded bg-neutral-700" />
+                        <div className="h-6 w-full animate-pulse rounded bg-neutral-700" />
                      </div>
                   }
                >
                   <FooterMenu menu={menu} />
                </Suspense>
             </div>
-            {/* Right: Social Icons */}
-            <div className="mt-4 flex items-center justify-center md:w-1/4 md:justify-end">
-               <div>
+
+            {/* Right Column: Desktop Newsletter + Social Icons */}
+            <div className="flex flex-col items-center md:items-end">
+               {/* Desktop newsletter: visible only on desktop */}
+               <div className="mb-6 hidden md:block">
                   <NewsletterSignUpForm />
                </div>
-               <div>
-                  <SocialIcons />
-               </div>
+               <SocialIcons />
             </div>
          </div>
-         {/* Bottom row: Copyright and Payment Icons */}
-         <div className="border-t border-neutral-200 py-6 dark:border-neutral-700">
-            <div className="mx-auto flex w-full max-w-7xl flex-col items-center gap-4 px-4 md:flex-row md:justify-between md:px-4 min-[1320px]:px-0">
+
+         {/* Bottom Section: Copyright */}
+         <div className="border-t border-neutral-700 py-6">
+            <div className="container mx-auto text-center text-sm">
                <p>
                   &copy; {copyrightDate} {copyrightName}
                   {copyrightName.length && !copyrightName.endsWith('.') ? '.' : ''} All rights
                   reserved.
                </p>
-               {/* Payment icons can be added here */}
             </div>
          </div>
       </footer>
