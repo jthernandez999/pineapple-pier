@@ -52,7 +52,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
    return (
       <html lang="en" className={GeistSans.variable}>
          <head />
-         <body className="w-full bg-neutral-50 text-black selection:bg-teal-300 dark:bg-neutral-900">
+         <body className="w-full bg-white text-black selection:bg-teal-300 dark:bg-neutral-900">
             <ProductGroupsProvider>
                <AnnouncementBar />
                <CartProvider cartPromise={cart}>

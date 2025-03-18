@@ -43,7 +43,7 @@ const HighlightCollection: FC<HighlightCollectionProps> = ({ highlightCollection
 
    return (
       // Gotta keep that absolute positioning for your fade transitions
-      <div className="relative my-4 h-[60vh] w-full overflow-x-hidden p-4 md:h-screen">
+      <div className="relative mb-24 mt-1 h-[60vh] w-full overflow-x-hidden p-1 md:h-screen">
          {highlightCollectionImages?.map((banner, index) => (
             <div
                key={index}

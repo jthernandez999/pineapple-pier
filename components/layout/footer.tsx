@@ -81,7 +81,7 @@ export default async function Footer() {
    const copyrightName = COMPANY_NAME || SITE_NAME || '';
 
    return (
-      <footer className="bg-white text-black">
+      <footer className="mt-6 border-t-[0.5px] border-gray-400 bg-white pt-6 text-black">
          {/* Main Footer Section */}
          <div className="mx-auto flex flex-col gap-12 px-6 py-12 md:flex-row md:justify-between">
             {/* Left Column: Logo + Mobile Newsletter */}
@@ -125,7 +125,7 @@ export default async function Footer() {
          </div>
 
          {/* Bottom Section: Copyright */}
-         <div className="mx-auto flex flex-col items-center justify-center border-t border-neutral-700 py-6">
+         <div className="mx-auto flex flex-col items-center justify-center border-b-[0.5px] border-gray-400 py-6">
             <div className="flex items-center space-x-4">
                <PaymentIcons name={''} icon={''} />
             </div>
