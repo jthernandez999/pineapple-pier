@@ -1,23 +1,64 @@
-// import React from 'react';
-// import PaymentIcon from 'react-payment-icons';
+import Image from 'next/image';
+import React from 'react';
 
-// export interface PaymentIconsProps {
-//    paymentMethods: string[];
-// }
+export interface paymentIcons {
+   name: string;
+   icon: string;
+}
 
-// const PaymentIcons: React.FC<PaymentIconsProps> = ({ paymentMethods }) => {
-//    return (
-//       <div className="flex items-center space-x-4">
-//          {paymentMethods.map((method) => (
-//             <PaymentIcon
-//                key={method}
-//                id={method}
-//                style={{ margin: 5, width: 40 }} // Adjust margin and width as needed
-//                className="payment-icon"
-//             />
-//          ))}
-//       </div>
-//    );
-// };
+const paymentIcons = [
+   {
+      name: 'American Express',
+      icon: '/assets/amex.svg'
+   },
+   {
+      name: 'Apple Pay',
+      icon: '/assets/applepay.svg'
+   },
+   {
+      name: 'Discover',
+      icon: '/assets/discover.svg'
+   },
+   {
+      name: 'Google Pay',
+      icon: '/assets/googlepay.svg'
+   },
 
-// export default PaymentIcons;
+   {
+      name: 'MasterCard',
+      icon: '/assets/mastercard.svg'
+   },
+
+   {
+      name: 'PayPal',
+      icon: '/assets/paypal.svg'
+   },
+
+   {
+      name: 'Shopify Pay',
+      icon: '/assets/shopifypay.svg'
+   },
+   {
+      name: 'Visa',
+      icon: '/assets/visa.svg'
+   }
+];
+
+const PaymentIcons: React.FC<paymentIcons> = () => {
+   return (
+      <div className="flex items-center space-x-4">
+         {paymentIcons.map((payment) => (
+            <Image
+               key={payment.name}
+               src={payment.icon}
+               alt={payment.name}
+               unoptimized
+               width={40}
+               height={40}
+            />
+         ))}
+      </div>
+   );
+};
+
+export default PaymentIcons;

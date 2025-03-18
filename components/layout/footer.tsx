@@ -1,6 +1,7 @@
 // components/Footer.tsx
 import FooterMenu from 'components/layout/footer-menu';
 import NewsletterSignUpForm from 'components/NewsletterSignUpForm';
+import PaymentIcons from 'components/PaymentIcons';
 import { getMenu } from 'lib/shopify';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -124,8 +125,12 @@ export default async function Footer() {
          </div>
 
          {/* Bottom Section: Copyright */}
-         <div className="border-t border-neutral-700 py-6">
-            <div className="container mx-auto text-center text-sm">
+         <div className="mx-auto flex flex-col items-center justify-center border-t border-neutral-700 py-6">
+            <div className="flex items-center space-x-4">
+               <PaymentIcons name={''} icon={''} />
+            </div>
+
+            <div className="mx-auto flex justify-center text-center text-sm">
                <p>
                   &copy; {copyrightDate} {copyrightName}
                   {copyrightName.length && !copyrightName.endsWith('.') ? '.' : ''} All rights
