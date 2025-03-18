@@ -109,7 +109,7 @@ export function AddToCart({ product }: { product: Product }) {
 
    const actionWithVariant = formAction.bind(null, selectedVariantId);
    const handleSubmit = async () => {
-      // console.log('selectedVariantID', selectedVariantId);
+      console.log('selectedVariantID', selectedVariantId);
       addCartItem(finalVariant, product);
       await actionWithVariant();
    };
