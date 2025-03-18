@@ -82,7 +82,7 @@ export default async function Footer() {
    return (
       <footer className="bg-white text-black">
          {/* Main Footer Section */}
-         <div className="container mx-auto flex flex-col gap-12 px-6 py-12 md:flex-row md:justify-between">
+         <div className="mx-auto flex flex-col gap-12 px-6 py-12 md:flex-row md:justify-between">
             {/* Left Column: Logo + Mobile Newsletter */}
             <div className="flex flex-col items-center md:items-start">
                <Link href="/" className="flex items-center gap-3">
@@ -98,7 +98,7 @@ export default async function Footer() {
             </div>
 
             {/* Center Column: Footer Menu */}
-            <div className="flex flex-col items-center">
+            <div className="flex flex-col items-center md:items-start">
                <Suspense
                   fallback={
                      <div className="grid grid-cols-2 gap-4">
@@ -114,9 +114,9 @@ export default async function Footer() {
             </div>
 
             {/* Right Column: Desktop Newsletter + Social Icons */}
-            <div className="flex flex-col items-center md:items-center">
+            <div className="flex flex-col items-center md:items-start">
                {/* Desktop newsletter: visible only on desktop */}
-               <div className="mb-6 hidden md:block">
+               <div className="mb-6 hidden md:block md:items-start">
                   <NewsletterSignUpForm />
                </div>
                <SocialIcons />
