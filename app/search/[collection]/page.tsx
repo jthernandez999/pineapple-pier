@@ -48,7 +48,7 @@ export default async function CategoryPage(props: {
                <h1 className="border-b-2 border-gray-200 bg-gray-100 py-4 pl-4 text-left font-poppins text-xl uppercase tracking-wider">
                   {collectionTitle}
                </h1>
-               <Grid className="container mx-auto w-full px-0 md:px-4 lg:px-4">
+               <Grid className="container mx-auto w-full max-w-[100vw] px-0 md:px-4 lg:px-4">
                   <InfiniteScrollProductGrid
                      initialProducts={products}
                      initialPageInfo={pageInfo}
