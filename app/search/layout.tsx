@@ -5,16 +5,16 @@ import ChildrenWrapper from './children-wrapper';
 export default function SearchLayout({ children }: { children: React.ReactNode }) {
    return (
       <>
-         <div className="mx-auto flex max-w-screen-2xl flex-col gap-8 px-4 pb-4 text-black dark:text-white md:flex-row">
-            <div className="order-first w-full flex-none md:max-w-[125px]">
+         <div className="max-w-screen-3xl mx-auto flex flex-col gap-6 px-0 pb-4 text-black dark:text-white md:flex-row md:gap-4 md:px-4">
+            <div className="order-first w-full flex-none md:max-w-[150px]">
                <Collections />
             </div>
             <div className="order-last min-h-screen w-full md:order-none">
                <ChildrenWrapper>{children}</ChildrenWrapper>
             </div>
-            <div className="order-none flex-none md:order-last md:w-[125px]">
-               {/* <FilterList title="Sort by" /> */}
-            </div>
+            {/* <div className="order-none flex-none md:order-last md:w-[150px]"> */}
+            {/* <FilterList title="Sort by" /> */}
+            {/* </div> */}
          </div>
          <Footer />
       </>

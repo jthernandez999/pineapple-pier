@@ -77,7 +77,7 @@ type OrdersProps = {
 
 function Orders({ orders, onSelectOrder }: OrdersProps) {
    return (
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-[0.20rem] sm:grid-cols-2 md:gap-2 lg:grid-cols-4">
          {orders.map((orderEdge) => (
             <OrderCard
                key={orderEdge.node.id}

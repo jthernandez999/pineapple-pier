@@ -29,7 +29,7 @@ export default async function SearchPage(props: {
             </p>
          ) : null}
          {products.length > 0 ? (
-            <Grid className="grid-cols-2 sm:grid-cols-2 lg:grid-cols-3">
+            <Grid className="mx-auto w-full max-w-3xl grid-cols-2 px-0 sm:grid-cols-2 lg:grid-cols-4">
                <ProductGridItems
                   products={products}
                   // groupHandle={collectionHandle}
