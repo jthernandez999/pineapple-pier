@@ -9,7 +9,10 @@ const config: Config = {
       extend: {
          fontFamily: {
             poppins: ['var(--font-poppins)'],
-            sans: ['var(--font-geist-sans)']
+            sans: ['var(--font-geist-sans)'],
+            serif: ['var(--font-geist-serif)'],
+            mono: ['var(--font-geist-mono)'],
+            helvetica: ['var(--font-helvetica)']
          },
          keyframes: {
             fadeIn: {

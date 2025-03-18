@@ -47,12 +47,12 @@ const NewsletterSignUpForm: React.FC = () => {
    return (
       <form
          onSubmit={handleSubmit}
-         className="black mx-auto w-full max-w-full items-start space-y-4 bg-white p-6 md:max-w-xl md:pl-0 lg:pl-0"
+         className="black mx-auto w-full max-w-full items-start bg-white p-6 pb-4 md:max-w-xl md:pl-0 lg:pl-0 lg:pt-0"
       >
-         <h2 className="items-start text-2xl font-semibold text-gray-800 md:text-start">
+         <h2 className="text-md items-start pb-2 font-semibold text-gray-800 md:text-start">
             Join Our Newsletter
          </h2>
-         <p className="text-start text-gray-600 md:text-start">
+         <p className="pb-4 text-start text-sm text-gray-600 md:text-start">
             Subscribe to receive updates and exclusive offers
          </p>
          <input
@@ -61,12 +61,12 @@ const NewsletterSignUpForm: React.FC = () => {
             placeholder="Enter your email address"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-teal-500"
+            className="w-full border border-gray-300 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
          />
          <button
             type="submit"
             disabled={status === 'loading'}
-            className="w-full bg-black py-3 text-white transition-colors hover:bg-gray-800"
+            className="w-full bg-black py-3 text-sm text-white transition-colors hover:bg-gray-800"
          >
             {status === 'loading' ? 'Subscribing...' : 'Subscribe'}
          </button>

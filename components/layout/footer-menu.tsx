@@ -19,7 +19,7 @@ export function FooterMenuItem({ item }: { item: Menu }) {
          <Link
             href={item.path}
             className={clsx(
-               'block p-2 text-sm uppercase transition-colors duration-300',
+               'block p-2 text-xs uppercase transition-colors duration-300',
                active ? 'text-black' : 'text-black hover:text-gray-400'
             )}
          >
@@ -36,7 +36,7 @@ export default function FooterMenu({ menu }: { menu: Menu[] }) {
       <nav>
          <ul
             className={clsx(
-               'grid grid-cols-1 justify-items-center gap-6 font-light uppercase',
+               'grid grid-cols-1 justify-items-center gap-6 font-poppins font-light uppercase',
                'md:grid-cols-3 md:justify-items-start'
             )}
          >

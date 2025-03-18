@@ -63,7 +63,7 @@ function SocialIcons() {
                   src={social.icon}
                   alt={social.name}
                   unoptimized
-                  className="h-7 w-7 object-contain brightness-0 filter"
+                  className="h-6 w-6 object-contain brightness-0 filter"
                   width={35}
                   height={35}
                />
@@ -86,14 +86,14 @@ export default async function Footer() {
          <div className="mx-auto flex flex-col gap-12 px-6 py-12 md:flex-row md:justify-between">
             {/* Left Column: Logo + Mobile Newsletter */}
             <div className="flex flex-col items-center md:items-start">
-               <Link href="/" className="flex items-center gap-3">
+               <Link href="/" className="flex items-center gap-3 pb-6">
                   <span className="flex h-20 w-20 items-center justify-center rounded-full border-2 border-black bg-white text-4xl uppercase shadow-xl transition-transform duration-300 hover:scale-105">
                      DJ
                   </span>
                   <span className="hidden text-2xl font-light md:inline-block">{SITE_NAME}</span>
                </Link>
                {/* Mobile newsletter: visible only on mobile */}
-               <div className="mt-6 block md:hidden">
+               <div className="block md:hidden lg:mt-0">
                   <NewsletterSignUpForm />
                </div>
             </div>
@@ -130,7 +130,7 @@ export default async function Footer() {
                <PaymentIcons name={''} icon={''} />
             </div>
 
-            <div className="mx-auto flex justify-center text-center text-sm">
+            <div className="mx-auto flex justify-center text-center text-xs font-light tracking-wider">
                <p>
                   &copy; {copyrightDate} {copyrightName}
                   {copyrightName.length && !copyrightName.endsWith('.') ? '.' : ''} All rights
