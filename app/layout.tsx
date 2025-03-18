@@ -9,7 +9,7 @@ import JudgeMeIntegration from 'components/judgeme/JudgeMeIntegration';
 import Navbar from 'components/layout/navbar';
 import NavbarScrollHandler from 'components/NavbarScrollHandler';
 import { ProductGroupsProvider } from 'components/product/ProductGroupsContext';
-import { WelcomeToast } from 'components/welcome-toast';
+// import { WelcomeToast } from 'components/welcome-toast';
 import { GeistSans } from 'geist/font/sans';
 import { getCart } from 'lib/shopify';
 import { ensureStartsWith } from 'lib/utils';
@@ -61,7 +61,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
                   <main>
                      {children}
                      <Toaster closeButton />
-                     <WelcomeToast />
+                     {/* <WelcomeToast /> */}
                      <JudgeMeIntegration />
                   </main>
                </CartProvider>
