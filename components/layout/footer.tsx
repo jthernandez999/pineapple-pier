@@ -82,7 +82,7 @@ export default async function Footer() {
    return (
       <footer className="bg-white text-black">
          {/* Main Footer Section */}
-         <div className="container mx-auto flex flex-col gap-8 px-6 py-12 md:flex-row md:justify-between">
+         <div className="container mx-auto flex flex-col gap-12 px-6 py-12 md:flex-row md:justify-between">
             {/* Left Column: Logo + Mobile Newsletter */}
             <div className="flex flex-col items-center md:items-start">
                <Link href="/" className="flex items-center gap-3">

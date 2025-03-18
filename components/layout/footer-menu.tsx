@@ -34,7 +34,12 @@ export default function FooterMenu({ menu }: { menu: Menu[] }) {
 
    return (
       <nav>
-         <ul className="grid grid-cols-1 justify-items-center gap-6 font-light uppercase md:grid-cols-2 md:justify-items-start">
+         <ul
+            className={clsx(
+               'grid grid-cols-1 justify-items-center gap-6 font-light uppercase',
+               'md:grid-cols-3 md:justify-items-start'
+            )}
+         >
             {menu.map((item: Menu) => (
                <FooterMenuItem key={item.title} item={item} />
             ))}
