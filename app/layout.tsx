@@ -55,12 +55,12 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
          <link
             rel="preload"
             as="font"
-            href="/fonts/GeistSans.woff2"
+            href="geist/font/sans/regular.woff2"
             type="font/woff2"
             crossOrigin="anonymous"
          />
          <head />
-         <body className="bg-neutral-50 text-black selection:bg-teal-300 dark:bg-neutral-900">
+         <body className="w-full bg-neutral-50 text-black selection:bg-teal-300 dark:bg-neutral-900">
             <ProductGroupsProvider>
                <AnnouncementBar />
                <CartProvider cartPromise={cart}>

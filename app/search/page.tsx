@@ -30,7 +30,7 @@ export default async function SearchPage(props: {
             </p>
          ) : null}
          {products.length > 0 ? (
-            <Grid className="m-auto w-full">
+            <Grid className="m-auto mx-auto w-[100vw] max-w-3xl grid-cols-2 px-0 sm:grid-cols-2 lg:grid-cols-4">
                <InfiniteScrollProductGrid
                   initialProducts={products}
                   initialPageInfo={{ endCursor: null, hasNextPage: false }}
