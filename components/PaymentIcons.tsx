@@ -46,7 +46,7 @@ const paymentIcons = [
 
 const PaymentIcons: React.FC<paymentIcons> = () => {
    return (
-      <div className="flex items-center space-x-4">
+      <div className="mx-auto flex w-full max-w-xs flex-row flex-wrap items-center justify-center space-x-4 pb-4 md:max-w-2xl">
          {paymentIcons.map((payment) => (
             <Image
                key={payment.name}
