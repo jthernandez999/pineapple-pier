@@ -117,7 +117,7 @@ export function Carousel({ data }: CarouselProps) {
       <div className="relative">
          <Slider {...settings}>
             {products.map((product, i) => (
-               <div key={`${product.handle}${i}`} className="px-2">
+               <div key={`${product.handle}${i}`} className="px-[0.10rem] md:px-[0.20rem]">
                   <Link href={`/products/${product.handle}`} className="block">
                      <div className="relative aspect-[2/3]">
                         <GridTileImage
