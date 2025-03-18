@@ -47,7 +47,7 @@ const NewsletterSignUpForm: React.FC = () => {
    return (
       <form
          onSubmit={handleSubmit}
-         className="black mx-auto w-[115rem] max-w-md items-start space-y-4 bg-white p-6 md:max-w-xl md:pl-0 lg:pl-0"
+         className="black mx-auto w-full max-w-full items-start space-y-4 bg-white p-6 md:max-w-xl md:pl-0 lg:pl-0"
       >
          <h2 className="items-start text-2xl font-semibold text-gray-800 md:text-start">
             Join Our Newsletter
