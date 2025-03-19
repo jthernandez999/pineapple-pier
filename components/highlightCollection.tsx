@@ -43,7 +43,7 @@ const HighlightCollection: FC<HighlightCollectionProps> = ({ highlightCollection
 
    return (
       // Gotta keep that absolute positioning for your fade transitions
-      <div className="relative mb-24 mt-1 h-[60vh] w-full overflow-x-hidden p-1 md:h-screen">
+      <div className="relative mb-24 mt-1 aspect-square h-full w-full overflow-x-hidden p-1 md:h-screen">
          {highlightCollectionImages?.map((banner, index) => (
             <div
                key={index}
@@ -85,14 +85,14 @@ const HighlightCollection: FC<HighlightCollectionProps> = ({ highlightCollection
                         }}
                         onLoad={() => setIsLoading(false)}
                         className={` ${
-                           !isLoading && hasScrolled ? 'scale-100' : 'scale-110'
-                        } ease-custom transition-transform duration-1200`}
+                           !isLoading && hasScrolled ? 'scale-110' : 'scale-100'
+                        } ease-custom object-cover transition-transform duration-1200`}
                      />
                   )}
                </div>
 
                {/* Mobile Media */}
-               <div className="block md:hidden">
+               <div className="block aspect-auto h-full w-full md:hidden">
                   {banner.mobileVideo ? (
                      <video
                         autoPlay
@@ -100,7 +100,6 @@ const HighlightCollection: FC<HighlightCollectionProps> = ({ highlightCollection
                         muted
                         playsInline
                         style={{
-                           objectFit: 'cover',
                            width: '100%',
                            height: '100%'
                         }}
@@ -118,13 +117,12 @@ const HighlightCollection: FC<HighlightCollectionProps> = ({ highlightCollection
                         priority={index === 0}
                         fill
                         style={{
-                           objectFit: 'cover',
                            objectPosition: 'center'
                         }}
                         onLoad={() => setIsLoading(false)}
                         className={` ${
-                           !isLoading && hasScrolled ? 'scale-100' : 'scale-110'
-                        } ease-custom transition-transform duration-1200`}
+                           !isLoading && hasScrolled ? 'scale-110' : 'scale-100'
+                        } ease-custom object-contain transition-transform duration-1200`}
                      />
                   )}
                </div>
