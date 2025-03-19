@@ -1,7 +1,7 @@
 'use client';
 
 import type { Product } from 'lib/shopify/types';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { ReadonlyURLSearchParams, usePathname, useRouter, useSearchParams } from 'next/navigation';
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { useProductGroups } from './ProductGroupsContext';
 
@@ -105,6 +105,7 @@ export function useProduct() {
 
 export function useUpdateURL() {
    const router = useRouter();
+   const pathname = usePathname();
    return (state: ProductState) => {
       const newParams = new URLSearchParams(window.location.search);
       Object.entries(state).forEach(([key, value]) => {
@@ -112,9 +113,16 @@ export function useUpdateURL() {
             newParams.set(key, value);
          }
       });
-      router.push(`?${newParams.toString()}`, { scroll: false });
+      const newUrl = createUrl(pathname, newParams);
+      router.push(newUrl, { scroll: false });
    };
 }
+
+export const createUrl = (pathname: string, params: URLSearchParams | ReadonlyURLSearchParams) => {
+   const paramsString = params.toString();
+   const queryString = paramsString.length ? `?${paramsString}` : '';
+   return `${pathname}${queryString}`;
+};
 
 export function useUpdateSpec() {
    const { state, updateOption } = useProduct();

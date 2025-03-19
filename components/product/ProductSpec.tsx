@@ -5,46 +5,32 @@ import { useEffect, useState } from 'react';
 import { useProduct, useUpdateSpec } from '../../components/product/product-context';
 
 //
-// Helper: finds the first comma that's not inside parentheses and splits the string into two parts.
-// If no comma is found, the entire string is returned as the "material" part.
-function splitAtFirstComma(specs: string): { firstPart: string; rest: string } {
-   let level = 0;
-   for (let i = 0; i < specs.length; i++) {
-      const char = specs[i];
-      if (char === '(') level++;
-      else if (char === ')') level--;
-      else if (char === ',' && level === 0) {
-         return {
-            firstPart: specs.substring(0, i).trim(),
-            rest: specs.substring(i + 1).trim()
-         };
-      }
-   }
-   return { firstPart: specs.trim(), rest: '' };
-}
-
-//
-// Helper: extract the first parenthesized group from a string.
-// Returns an object with the text outside the first parentheses (trimmed)
-// and the content of the first parentheses (including the parentheses).
-// If no parentheses found, returns the original text and an empty care.
-function extractFirstParenthesis(text: string): { withoutParen: string; care: string } {
-   const start = text.indexOf('(');
-   if (start !== -1) {
-      const end = text.indexOf(')', start);
-      if (end !== -1) {
-         const care = text.substring(start, end + 1).trim();
-         const withoutParen = (text.substring(0, start) + text.substring(end + 1)).trim();
-         return { withoutParen, care };
-      }
-   }
-   return { withoutParen: text.trim(), care: '' };
-}
-
-//
 // Helper: Remove a leading "Material:" prefix (case-insensitive)
 function removeMaterialPrefix(text: string): string {
    return text.replace(/^material:\s*/i, '').trim();
+}
+
+//
+// Helper: Split specifications into tokens by commas that are not inside parentheses.
+function splitSpecifications(spec: string): string[] {
+   const result: string[] = [];
+   let current = '';
+   let level = 0;
+   for (let i = 0; i < spec.length; i++) {
+      const char = spec[i];
+      if (char === '(') level++;
+      else if (char === ')') level--;
+      if (char === ',' && level === 0) {
+         result.push(current.trim());
+         current = '';
+      } else {
+         current += char;
+      }
+   }
+   if (current.trim() !== '') {
+      result.push(current.trim());
+   }
+   return result;
 }
 
 export function ProductSpec({ product }: { product: Product }) {
@@ -73,49 +59,50 @@ export function ProductSpec({ product }: { product: Product }) {
    let safeSpec = (currentSpec ?? 'n/a').trim();
    // Remove any trailing commas.
    safeSpec = safeSpec.replace(/,\s*$/, '');
+   // Remove any "Material:" prefix.
+   safeSpec = removeMaterialPrefix(safeSpec);
 
+   //
    // --- Materials & Care Parsing ---
+   //
+   // We now try to detect a care instructions group in parentheses.
+   let materialText = 'n/a';
+   let careText = 'n/a';
+   let specsPart = '';
 
-   // Split at the first comma that is outside of any parentheses.
-   const { firstPart, rest } = splitAtFirstComma(safeSpec);
-
-   // Remove any "Material:" prefix from the first part.
-   const cleanedFirst = removeMaterialPrefix(firstPart);
-
-   // Extract the first parenthesis group as care.
-   const { withoutParen: materialTextRaw, care: careTextRaw } =
-      extractFirstParenthesis(cleanedFirst);
-
-   // Material text is what remains (or the whole text if no parenthesis was found).
-   const materialText = materialTextRaw || 'n/a';
-   // Use the extracted care text if found; if not, default to 'n/a'.
-   const careText = careTextRaw || 'n/a';
-
-   // --- Specifications Parsing ---
-   // Use the rest of the string (after the first comma) for specifications.
-   // Split on commas that are not inside parentheses.
-   function splitSpecifications(spec: string): string[] {
-      const result: string[] = [];
-      let current = '';
-      let level = 0;
-      for (let i = 0; i < spec.length; i++) {
-         const char = spec[i];
-         if (char === '(') level++;
-         else if (char === ')') level--;
-         if (char === ',' && level === 0) {
-            result.push(current.trim());
-            current = '';
-         } else {
-            current += char;
+   const startParen = safeSpec.indexOf('(');
+   if (startParen !== -1) {
+      const endParen = safeSpec.indexOf(')', startParen);
+      if (endParen !== -1) {
+         // Everything before the parentheses is the full materials string (even if it has commas).
+         materialText = safeSpec.substring(0, startParen).trim().replace(/,\s*$/, '');
+         // Extract the care instructions (including the parentheses).
+         careText = safeSpec.substring(startParen, endParen + 1).trim();
+         // The remainder after the closing parenthesis are additional specifications.
+         specsPart = safeSpec.substring(endParen + 1).trim();
+         if (specsPart.startsWith(',')) {
+            specsPart = specsPart.substring(1).trim();
          }
+      } else {
+         // No closing parenthesis found, treat the whole thing as materials.
+         materialText = safeSpec;
       }
-      if (current.trim() !== '') {
-         result.push(current.trim());
+   } else {
+      // No parentheses found.
+      // If there is a comma, assume it separates materials from specifications.
+      const commaIndex = safeSpec.indexOf(',');
+      if (commaIndex !== -1) {
+         materialText = safeSpec.substring(0, commaIndex).trim();
+         specsPart = safeSpec.substring(commaIndex + 1).trim();
+      } else {
+         materialText = safeSpec;
       }
-      return result;
    }
-   const specificationTokens = rest ? splitSpecifications(rest) : [];
 
+   //
+   // --- Specifications Parsing ---
+   //
+   const specificationTokens = specsPart ? splitSpecifications(specsPart) : [];
    // Optionally, you can further process each specification token (e.g., split key/value on colon)
    const specPairs = specificationTokens.map((token) => {
       const parts = token.split(':');
