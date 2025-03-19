@@ -96,7 +96,7 @@ const MegaMenuComponent: React.FC<MegaMenuComponentProps> = ({ item }) => {
       <li className="group relative">
          <Link
             href={item.url}
-            className="inline-flex w-full justify-center py-2.5 text-center text-base font-medium text-black hover:text-gray-900"
+            className="font-regular inline-flex w-full justify-center py-2.5 text-center text-sm tracking-widest text-black hover:text-gray-700"
          >
             {item.title}
          </Link>
@@ -108,7 +108,7 @@ const MegaMenuComponent: React.FC<MegaMenuComponentProps> = ({ item }) => {
                         <li key={subItem.title} className="text-left">
                            <Link
                               href={subItem.url}
-                              className="text-md block py-2 font-semibold text-gray-700 hover:text-gray-900"
+                              className="font-regular block py-2 text-sm tracking-wide text-gray-700 hover:text-gray-900"
                            >
                               {subItem.title}
                            </Link>
