@@ -74,6 +74,7 @@ const HighlightCollection: FC<HighlightCollectionProps> = ({ highlightCollection
                      </video>
                   ) : (
                      <Image
+                        unoptimized
                         src={banner.image}
                         alt={banner.title || 'Banner'}
                         priority={index === 0}

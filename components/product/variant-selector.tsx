@@ -333,7 +333,7 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
                                          type="button"
                                          onClick={() => handleOptionSelect('color', colorName)}
                                          className={clsx(
-                                            'relative flex items-center justify-center rounded border p-2 transition-all',
+                                            'relative flex items-center justify-center transition-all',
                                             {
                                                'ring-2 ring-blue-600': isActive,
                                                'ring-1 ring-transparent hover:ring-blue-600':
@@ -376,9 +376,9 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
                                             handleOptionSelect('color', val.toLowerCase())
                                          }
                                          className={clsx(
-                                            'relative flex items-center justify-center rounded border p-2 transition-all',
+                                            'relative flex items-center justify-center rounded-full border p-0 transition-all',
                                             {
-                                               'ring-2 ring-blue-600': isActive,
+                                               'ring-1 ring-black': isActive,
                                                'ring-1 ring-transparent hover:ring-blue-600':
                                                   !isActive
                                             }
@@ -420,16 +420,23 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
                                       disabled={!isAvailable}
                                       onClick={() => handleOptionSelect(optName, val.toLowerCase())}
                                       className={clsx(
-                                         'relative flex items-center justify-center rounded border p-2 transition-all',
+                                         'relative flex h-10 w-10 items-center justify-center border p-[.75rem] transition-all',
                                          {
-                                            'ring-2 ring-blue-600': isActive,
-                                            'ring-1 ring-transparent hover:ring-blue-600':
+                                            'ring-1 ring-black': isActive,
+                                            'ring-1 ring-transparent hover:bg-black hover:text-white':
                                                !isActive,
-                                            'cursor-not-allowed opacity-50': !isAvailable
+                                            'skew-45 cursor-not-allowed opacity-40': !isAvailable
                                          }
                                       )}
                                    >
-                                      <span className="text-sm font-medium">{val}</span>
+                                      <span className="relative z-10 text-sm font-medium">
+                                         {val}
+                                      </span>
+                                      {!isAvailable && (
+                                         <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                                            <div className="h-[0.5px] w-full -rotate-45 transform bg-current"></div>
+                                         </div>
+                                      )}
                                    </button>
                                 );
                              })}
