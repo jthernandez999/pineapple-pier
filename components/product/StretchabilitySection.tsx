@@ -1,16 +1,19 @@
+'use client';
 import { FC, useState } from 'react';
 
 interface StretchabilitySectionProps {
    stretchTag: string;
 }
 
-const StretchabilitySection: FC<StretchabilitySectionProps> = ({ stretchTag }) => {
+export const StretchabilitySection: FC<StretchabilitySectionProps> = ({ stretchTag }) => {
    // Only display if the stretchTag is either "Stretch" or "Rigid"
    if (stretchTag !== 'Stretch' && stretchTag !== 'Rigid') {
       return null;
    }
-
+   console.log('StretchabilitySection:', stretchTag);
    const [isOpen, setIsOpen] = useState(false);
+   const isStretch = stretchTag === 'Stretch';
+   const isRigid = stretchTag === 'Rigid';
 
    return (
       <div className="my-6 mb-4 border-b pb-2">
@@ -19,7 +22,7 @@ const StretchabilitySection: FC<StretchabilitySectionProps> = ({ stretchTag }) =
             onClick={() => setIsOpen(!isOpen)}
             className="flex w-full items-center justify-between text-left text-lg font-normal text-gray-800 hover:opacity-80"
          >
-            <span className="">Stretchability</span>
+            <span>Stretchability</span>
             {isOpen ? (
                // Minus icon when open
                <svg className="h-6 w-6" viewBox="0 0 24 24">
@@ -68,7 +71,11 @@ const StretchabilitySection: FC<StretchabilitySectionProps> = ({ stretchTag }) =
                   {/* Left side (Stretch) */}
                   <div className="relative">
                      {/* Circle pinned at the center */}
-                     <div className="absolute left-1/2 top-1/2 h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-black bg-white" />
+                     <div
+                        className={`absolute left-1/2 top-1/2 h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-black ${
+                           isStretch ? 'bg-black' : 'bg-white'
+                        }`}
+                     />
                      {/* Label below */}
                      <span className="block px-[6] pt-10 text-center text-xs">Stretch</span>
                   </div>
@@ -76,7 +83,11 @@ const StretchabilitySection: FC<StretchabilitySectionProps> = ({ stretchTag }) =
                   {/* Right side (Rigid) */}
                   <div className="relative">
                      {/* Circle pinned at the center */}
-                     <div className="absolute left-1/2 top-1/2 h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-black bg-black" />
+                     <div
+                        className={`absolute left-1/2 top-1/2 h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-black ${
+                           isRigid ? 'bg-black' : 'bg-white'
+                        }`}
+                     />
                      {/* Label below */}
                      <span className="block px-4 pt-10 text-center text-xs">Rigid</span>
                   </div>
@@ -86,5 +97,3 @@ const StretchabilitySection: FC<StretchabilitySectionProps> = ({ stretchTag }) =
       </div>
    );
 };
-
-export default StretchabilitySection;

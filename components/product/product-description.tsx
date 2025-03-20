@@ -8,7 +8,7 @@ import { Product } from 'lib/shopify/types';
 import { usePathname } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import { ProductSpec } from './ProductSpec';
-import StretchabilitySection from './StretchabilitySection';
+import { StretchabilitySection } from './StretchabilitySection';
 import { VariantSelector } from './variant-selector';
 
 interface ProductDescriptionProps {
@@ -72,14 +72,16 @@ export function ProductDescription({ product, groupColorMetaobjectIds }: Product
            .trim()
       : currentProduct.title;
 
+   const normalizedTags = currentProduct.tags
+      ? currentProduct.tags.map((tag) => tag.trim().toLowerCase())
+      : [];
+
    // Determine stretchability tag.
-   const stretchTag: string = currentProduct.tags
-      ? currentProduct.tags.some((tag) => tag.toLowerCase() === 'stretch')
-         ? 'Stretch'
-         : currentProduct.tags.some((tag) => tag.toLowerCase() === 'rigid')
-           ? 'Rigid'
-           : 'N/A'
-      : 'N/A';
+   const stretchTag: string = normalizedTags.includes('stretch')
+      ? 'Stretch'
+      : normalizedTags.includes('rigid')
+        ? 'Rigid'
+        : 'N/A';
 
    return (
       <div className="mx-auto flex flex-col justify-start border-b px-2 pb-6 dark:border-neutral-700 md:px-4 2xl:mx-auto">
