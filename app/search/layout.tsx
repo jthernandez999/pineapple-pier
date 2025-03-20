@@ -7,7 +7,7 @@ import ChildrenWrapper from './children-wrapper';
 export default function SearchLayout({ children }: { children: React.ReactNode }) {
    return (
       <>
-         <div className="max-w-screen-full mx-auto flex flex-col gap-8 px-4 pb-4 text-black dark:text-white md:flex-row">
+         <div className="max-w-screen-full mx-auto flex flex-col gap-8 px-[0.10rem] pb-4 pt-4 text-black dark:text-white md:flex-row md:px-[0.20rem] xl:p-6">
             <div className="order-first w-full flex-none md:max-w-[150px]">
                <Collections />
             </div>
