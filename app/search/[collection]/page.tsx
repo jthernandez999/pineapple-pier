@@ -54,6 +54,7 @@ export default async function CategoryPage(props: {
                      initialPageInfo={pageInfo}
                      collectionHandle={params.collection}
                      sortKey={sortKey}
+                     key={`${sortKey}-${reverse}`} // Forces remount when sort changes
                      reverse={reverse}
                   />
                </Grid>

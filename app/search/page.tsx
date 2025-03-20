@@ -31,6 +31,7 @@ export default async function SearchPage(props: {
          {products.length > 0 ? (
             <Grid className="w-full">
                <InfiniteScrollProductGrid
+                  key={`${sortKey}-${reverse}`} // Forces remount when sort changes
                   initialProducts={products}
                   initialPageInfo={{ endCursor: null, hasNextPage: false }}
                   collectionHandle="search"
