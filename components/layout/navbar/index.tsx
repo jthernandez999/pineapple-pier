@@ -69,7 +69,7 @@ function LogoArea() {
 // Helper component for the desktop menu area.
 function DesktopMenu({ menu }: { menu: Menu[] }) {
    return (
-      <ul className="flex gap-8">
+      <ul className="flex gap-12">
          {menu.map((item: MenuItem) => (
             <MegaMenuComponent key={item.title} item={item} />
          ))}
@@ -101,7 +101,8 @@ const MegaMenuComponent: React.FC<MegaMenuComponentProps> = ({ item }) => {
             {item.title}
          </Link>
          {hasSubmenu && (
-            <div className="invisible fixed left-0 top-0 z-50 min-h-[25vh] w-full translate-y-[30%] transform bg-white opacity-0 transition-all duration-300 group-hover:visible group-hover:opacity-100 md:translate-y-[29%]">
+            // The mega menu is now a fixed position element hover drop down menu.
+            <div className="pointer-events-none fixed left-0 top-[3rem] z-50 min-h-[25vh] w-full translate-y-4 transform bg-white opacity-0 transition-all duration-1200 group-hover:pointer-events-auto group-hover:translate-y-10 group-hover:opacity-100">
                <div className="flex w-full justify-around px-8 py-4">
                   <ul className="flex justify-around space-x-8">
                      {item.items?.map((subItem) => (

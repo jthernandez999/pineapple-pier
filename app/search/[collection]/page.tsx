@@ -45,7 +45,7 @@ export default async function CategoryPage(props: {
             <p className="py-3 text-lg">No products found in this collection</p>
          ) : (
             <>
-               <h1 className="border-b-2 border-gray-200 bg-gray-100 py-4 pl-4 text-left font-poppins text-xl uppercase tracking-wider">
+               <h1 className="border-b-2 bg-neutral-100/90 py-4 pl-4 text-left font-poppins text-xl uppercase tracking-wider">
                   {collectionTitle}
                </h1>
                <Grid className="container mx-auto w-full max-w-[100vw] px-0 md:px-4 lg:px-4">

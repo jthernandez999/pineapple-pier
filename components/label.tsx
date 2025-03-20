@@ -38,9 +38,9 @@ const Label: React.FC<LabelProps> = ({
             'lg:px-20 lg:pb-[35%]': position === 'center'
          })}
       >
-         <div className="text-md black mt-0 border-x-[0.5px] border-b-[0.5px] bg-white/70 p-2 font-semibold text-black backdrop-blur-md dark:border-neutral-800 dark:bg-black/70 dark:text-white">
+         <div className="text-md black mt-0 border-x-[0.5px] border-b-[0.5px] p-2 font-semibold text-black backdrop-blur-md dark:border-neutral-800 dark:bg-black/70 dark:text-white">
             <div className="mb-0 mt-0 flex items-center justify-between pb-0 pt-0 font-normal">
-               <h3 className="text-xs font-light leading-none tracking-tight md:text-sm">
+               <h5 className="text-xs font-light leading-none tracking-tight">
                   {(() => {
                      if (filteredTitle.startsWith('North Hampton')) {
                         return (
@@ -63,12 +63,16 @@ const Label: React.FC<LabelProps> = ({
                      const restOfTitle = words.slice(1).join(' ');
                      return (
                         <>
-                           <span className="font-semibold uppercase">{firstWord}</span>{' '}
-                           {restOfTitle}
+                           <span className="text-xs font-semibold uppercase tracking-wide">
+                              {firstWord}
+                           </span>{' '}
+                           <span className="text-xs font-light leading-none tracking-normal">
+                              {restOfTitle}
+                           </span>
                         </>
                      );
                   })()}
-               </h3>
+               </h5>
                <Price
                   className="text-xs text-black md:text-sm"
                   amount={amount}
@@ -76,7 +80,11 @@ const Label: React.FC<LabelProps> = ({
                   currencyCodeClassName="hidden @[275px]/label:inline"
                />
             </div>
-            {colorName && <div className="mb-2 mt-0 pt-0 text-xs font-normal">{colorName}</div>}
+            {colorName && (
+               <div className="mb-2 mt-0 pt-0 text-[.70rem] font-normal tracking-normal">
+                  {colorName}
+               </div>
+            )}
             {metaobjectIdsArray && metaobjectIdsArray.length > 1 ? (
                <div className="mt-2 flex gap-2">
                   {metaobjectIdsArray.map((id) => (
