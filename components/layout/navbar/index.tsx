@@ -102,7 +102,7 @@ const MegaMenuComponent: React.FC<MegaMenuComponentProps> = ({ item }) => {
          </Link>
          {hasSubmenu && (
             // The mega menu is now a fixed position element hover drop down menu.
-            <div className="pointer-events-none fixed left-0 top-[3rem] z-50 min-h-[25vh] w-full translate-y-4 transform bg-white opacity-0 transition-all duration-1200 group-hover:pointer-events-auto group-hover:translate-y-10 group-hover:opacity-100">
+            <div className="z-60 pointer-events-none fixed left-0 min-h-[25vh] w-full translate-y-4 transform bg-white opacity-0 transition-all delay-500 duration-1200 group-hover:pointer-events-auto group-hover:translate-y-16 group-hover:opacity-100 2xl:top-[2.2rem]">
                <div className="flex w-full justify-around px-8 py-4">
                   <ul className="flex justify-around space-x-8">
                      {item.items?.map((subItem) => (
