@@ -29,9 +29,9 @@ export default function BackToTopButton() {
             <button
                onClick={scrollToTop}
                aria-label="Back to top"
-               className="flex items-center justify-center rounded-full bg-black bg-opacity-80 p-3 text-white shadow-md backdrop-blur-sm transition-transform duration-300 hover:scale-105"
+               className="bg-opacity flex items-center justify-center rounded-full bg-black/80 p-3 text-white shadow-lg backdrop-blur-md transition-transform duration-300 hover:scale-105"
             >
-               <ArrowUpCircleIcon className="h-6 w-6" />
+               <ArrowUpCircleIcon className="h-5 w-5" />
             </button>
          )}
       </div>
