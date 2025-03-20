@@ -43,7 +43,7 @@ const HighlightCollection: FC<HighlightCollectionProps> = ({ highlightCollection
 
    return (
       // Gotta keep that absolute positioning for your fade transitions
-      <div className="relative mb-24 mt-1 aspect-square h-full w-full overflow-x-hidden p-1 md:h-screen">
+      <div className="relative mb-24 mt-1 aspect-square h-full w-full overflow-x-hidden p-1 md:aspect-auto md:h-screen">
          {highlightCollectionImages?.map((banner, index) => (
             <div
                key={index}
@@ -68,7 +68,7 @@ const HighlightCollection: FC<HighlightCollectionProps> = ({ highlightCollection
                         className={` ${
                            // If it's done loading and the user has scrolled, go to scale-100
                            !isLoading && hasScrolled ? 'scale-100' : 'scale-110'
-                        } ease-custom transition-transform duration-1200`}
+                        } ease-custom transition-transform duration-1200 hover:scale-[.99]`}
                      >
                         <source src={banner.video} type="video/mp4" />
                      </video>
@@ -85,14 +85,14 @@ const HighlightCollection: FC<HighlightCollectionProps> = ({ highlightCollection
                         }}
                         onLoad={() => setIsLoading(false)}
                         className={` ${
-                           !isLoading && hasScrolled ? 'scale-110' : 'scale-100'
-                        } ease-custom object-cover transition-transform duration-1200`}
+                           !isLoading && hasScrolled ? 'scale-100' : 'scale-110'
+                        } ease-custom object-cover transition-transform duration-1200 hover:scale-[.99]`}
                      />
                   )}
                </div>
 
                {/* Mobile Media */}
-               <div className="block aspect-auto h-full w-full md:hidden">
+               <div className="mx-auto block aspect-square h-full w-full md:hidden">
                   {banner.mobileVideo ? (
                      <video
                         autoPlay
@@ -105,7 +105,7 @@ const HighlightCollection: FC<HighlightCollectionProps> = ({ highlightCollection
                         }}
                         className={` ${
                            !isLoading && hasScrolled ? 'scale-100' : 'scale-110'
-                        } ease-custom transition-transform duration-1200`}
+                        } ease-custom transition-transform duration-1200 hover:scale-[.99]`}
                      >
                         <source src={banner.mobileVideo || banner.video} type="video/mp4" />
                      </video>
@@ -121,8 +121,8 @@ const HighlightCollection: FC<HighlightCollectionProps> = ({ highlightCollection
                         }}
                         onLoad={() => setIsLoading(false)}
                         className={` ${
-                           !isLoading && hasScrolled ? 'scale-110' : 'scale-100'
-                        } ease-custom object-contain transition-transform duration-1200`}
+                           !isLoading && hasScrolled ? 'scale-100' : 'scale-110'
+                        } ease-custom aspect-square h-full w-full object-contain transition-transform duration-1200 hover:scale-[.99]`}
                      />
                   )}
                </div>
@@ -130,7 +130,7 @@ const HighlightCollection: FC<HighlightCollectionProps> = ({ highlightCollection
                <div className="absolute inset-0 bg-black/10" />
 
                {/* Text Overlay */}
-               <div className="relative z-10 p-4 text-center text-white">
+               <div className="absolute bottom-20 z-10 p-4 text-center text-white md:bottom-20 lg:bottom-52 2xl:bottom-52">
                   {banner.title && (
                      <h2 className="text-xl font-bold md:text-3xl">{banner.title}</h2>
                   )}
