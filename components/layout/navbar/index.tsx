@@ -109,7 +109,7 @@ const MegaMenuComponent: React.FC<MegaMenuComponentProps> = ({ item }) => {
                         <li key={subItem.title} className="text-left">
                            <Link
                               href={subItem.url}
-                              className="font-regular block py-2 text-sm tracking-wide text-gray-700 hover:text-gray-900"
+                              className="font-regular block py-2 text-sm tracking-wide text-gray-900 transition-all delay-200 hover:text-gray-400"
                            >
                               {subItem.title}
                            </Link>
@@ -119,7 +119,7 @@ const MegaMenuComponent: React.FC<MegaMenuComponentProps> = ({ item }) => {
                                     <li key={nestedItem.title} className="justify-start">
                                        <Link
                                           href={nestedItem.url}
-                                          className="block text-sm text-gray-700 hover:bg-gray-100"
+                                          className="block text-sm text-gray-700 hover:bg-gray-400"
                                        >
                                           {nestedItem.title}
                                        </Link>
