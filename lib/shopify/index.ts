@@ -352,31 +352,39 @@ export async function getCollectionProducts({
    collection,
    reverse,
    sortKey,
-   cursor
+   cursor,
+   filters // e.g., { size?: string, color?: string, ... }
 }: {
    collection: string;
    reverse?: boolean;
    sortKey?: string;
    cursor?: string;
+   filters?: { [key: string]: string };
 }): Promise<{
    products: Product[];
    pageInfo: { endCursor: string | null; hasNextPage: boolean };
 }> {
    // Build variables object only with required parameters.
-   const variables: { handle: string; cursor?: string; sortKey?: string; reverse?: boolean } = {
-      handle: collection
-   };
+   const variables: {
+      handle: string;
+      cursor?: string;
+      sortKey?: string;
+      reverse?: boolean;
+      filters?: { [key: string]: string };
+   } = { handle: collection };
 
-   // Only add sortKey and reverse if they're explicitly provided.
    if (sortKey !== undefined) {
-      // If the provided sortKey is 'CREATED_AT', map it to Shopify's expected 'CREATED'
       variables.sortKey = sortKey === 'CREATED_AT' ? 'CREATED' : sortKey;
    }
    if (reverse !== undefined) {
       variables.reverse = reverse;
    }
-
-   // console.log('Using variables:', variables);
+   if (cursor) {
+      variables.cursor = cursor;
+   }
+   if (filters) {
+      variables.filters = filters;
+   }
 
    const res = await shopifyFetch<ShopifyCollectionProductsOperation>({
       query: getCollectionProductsQuery,
@@ -385,7 +393,6 @@ export async function getCollectionProducts({
    });
 
    if (!res.body.data.collection) {
-      // console.log(`No collection found for \`${collection}\``);
       return { products: [], pageInfo: { endCursor: null, hasNextPage: false } };
    }
    const productsData = res.body.data.collection.products as any;
@@ -393,6 +400,53 @@ export async function getCollectionProducts({
    const products = reshapeProducts(removeEdgesAndNodes(productsData));
    return { products, pageInfo };
 }
+
+// CURRENT WORKING CODE
+// export async function getCollectionProducts({
+//    collection,
+//    reverse,
+//    sortKey,
+//    cursor
+// }: {
+//    collection: string;
+//    reverse?: boolean;
+//    sortKey?: string;
+//    cursor?: string;
+// }): Promise<{
+//    products: Product[];
+//    pageInfo: { endCursor: string | null; hasNextPage: boolean };
+// }> {
+//    // Build variables object only with required parameters.
+//    const variables: { handle: string; cursor?: string; sortKey?: string; reverse?: boolean } = {
+//       handle: collection
+//    };
+
+//    // Only add sortKey and reverse if they're explicitly provided.
+//    if (sortKey !== undefined) {
+//       // If the provided sortKey is 'CREATED_AT', map it to Shopify's expected 'CREATED'
+//       variables.sortKey = sortKey === 'CREATED_AT' ? 'CREATED' : sortKey;
+//    }
+//    if (reverse !== undefined) {
+//       variables.reverse = reverse;
+//    }
+
+//    // console.log('Using variables:', variables);
+
+//    const res = await shopifyFetch<ShopifyCollectionProductsOperation>({
+//       query: getCollectionProductsQuery,
+//       tags: [TAGS.collections, TAGS.products],
+//       variables
+//    });
+
+//    if (!res.body.data.collection) {
+//       // console.log(`No collection found for \`${collection}\``);
+//       return { products: [], pageInfo: { endCursor: null, hasNextPage: false } };
+//    }
+//    const productsData = res.body.data.collection.products as any;
+//    const pageInfo = productsData.pageInfo as { hasNextPage: boolean; endCursor: string | null };
+//    const products = reshapeProducts(removeEdgesAndNodes(productsData));
+//    return { products, pageInfo };
+// }
 
 // export async function getCollectionProducts({
 //    collection,

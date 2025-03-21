@@ -78,7 +78,7 @@ export default function ThreeCollections({ collectionImages }: CollectionImagePr
                   onLoad={() => setIsLoading(false)}
                   className={` ${!isLoading && inView ? 'scale-100' : 'scale-110'} ease-custom object-cover shadow-md transition-all duration-1200 hover:scale-[.99]`}
                />
-               <h3 className="font-regular absolute bottom-0 left-0 w-full p-4 text-xl text-white md:text-2xl lg:text-3xl">
+               <h3 className="text-md hover: absolute bottom-0 left-0 w-full p-4 font-serif text-white md:text-2xl lg:text-3xl">
                   {image.title}
                </h3>
             </Link>

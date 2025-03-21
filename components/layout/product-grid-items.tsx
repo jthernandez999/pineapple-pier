@@ -100,7 +100,6 @@ export function ProductGridItemsComponent({ products, groupHandle }: ProductGrid
          (mapping) => mapping.group !== 'Uncategorized' && mapping.groupProducts.length > 0
       );
    }, [groupMetaobjectMapping]);
-   // console.log('interactiveGroups:::::!::!:!:!:', interactiveGroups);
 
    // State: active product per group.
    const [activeProducts, setActiveProducts] = useState<{ [group: string]: Product }>(() => {
@@ -112,7 +111,6 @@ export function ProductGridItemsComponent({ products, groupHandle }: ProductGrid
       });
       return initial;
    });
-
    return (
       <>
          {/* Render interactive group cards */}
