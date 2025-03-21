@@ -81,3 +81,9 @@ export const announcements = [
    //    linkUrl: '/shipping-info'
    // }
 ];
+
+// assets/index.tsx
+export const scrollingTextData = {
+   text: 'BOGO 50% OFF ALL DENIM, NOW THROUGH 2/24',
+   link: '/collections/spotlight'
+};

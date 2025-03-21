@@ -12,7 +12,7 @@ interface CollectionsLayoutProps {
    children: React.ReactNode;
 }
 
-export default function CollectionsLayout({ products, children }: CollectionsLayoutProps) {
+function CollectionsLayout({ products, children }: CollectionsLayoutProps) {
    const { letters, numerics } = getAvailableSizes(products);
 
    return (
@@ -34,3 +34,5 @@ export default function CollectionsLayout({ products, children }: CollectionsLay
       </>
    );
 }
+
+export default CollectionsLayout;
