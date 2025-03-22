@@ -79,7 +79,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
                   <Navbar />
                   <NavbarScrollHandler />
                   <main>
-                     {/* <ScrollingText />    */}
+                     {/* <ScrollingText /> */}
                      {children}
                      <Toaster closeButton />
                      {/* <WelcomeToast /> */}

@@ -84,6 +84,6 @@ export const announcements = [
 
 // assets/index.tsx
 export const scrollingTextData = {
-   text: 'BOGO 50% OFF ALL DENIM, NOW THROUGH 2/24',
+   text: 'BOGO 50% OFF ALL DENIM! NOW THROUGH 3/24/25',
    link: '/collections/spotlight'
 };
