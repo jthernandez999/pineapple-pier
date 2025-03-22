@@ -7,7 +7,7 @@ const ScrollingText: React.FC = () => {
    const repeats = 15; // Duplicate text for continuous scroll
 
    return (
-      <div className="w-full overflow-hidden bg-gradient-to-r from-gray-900 to-gray-800 py-2">
+      <div className="z-[41] w-full overflow-hidden bg-gradient-to-r from-gray-900 to-gray-800 py-2">
          <div className="animate-marquee flex whitespace-nowrap">
             {Array.from({ length: repeats }).map((_, i) => (
                <Link
