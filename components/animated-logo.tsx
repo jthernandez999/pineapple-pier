@@ -22,11 +22,11 @@ export default function AnimatedLogo() {
    // When not scrolled on the homepage, we want the container to be:
    // - On mobile: centered horizontally, positioned at about 25% from the top.
    // - On desktop: the same, but the inner image scales to 2.5×.
-   const notScrolledClasses = 'left-1/2 top-[.001em] -translate-x-1/2';
+   const notScrolledClasses = 'left-1/2 top-[.001em] -translate-x-1/2 translate-y-[15rem]';
    // When scrolled (or on non-home pages), we want:
    // - On mobile: centered horizontally and vertically.
    // - On desktop: aligned to the left with a margin.
-   const scrolledMobile = 'left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2';
+   const scrolledMobile = 'left-1/2 top-1/2 -translate-x-1/2 -translate-y-1 md:-translate-y-1/2';
    const scrolledDesktop = 'md:left-0 md:ml-4 md:-translate-x-0';
 
    // Pick the transform classes based on state:
@@ -48,16 +48,17 @@ export default function AnimatedLogo() {
          // href="/"
          className={`absolute ${containerClasses} ${scaleClasses} ${transitionClasses}`}
       >
-         <div className="relative top-[0] z-[40] mx-auto h-[18rem] w-[18rem] sm:h-[22rem] sm:w-[22rem] md:h-80 md:w-80">
-            <Image
-               draggable={false}
-               src={imageSrc}
-               alt="DJ Logo"
-               fill
-               style={{ objectFit: 'contain', objectPosition: 'center' }}
-               unoptimized
-            />
-         </div>
+         {/* <div className="relative top-[0] z-[40] mx-auto h-[18rem] w-[18rem] sm:h-[22rem] sm:w-[22rem] md:h-80 md:w-80"> */}
+         <Image
+            draggable={false}
+            src={imageSrc}
+            alt="DJ Logo"
+            width={500}
+            height={200}
+            style={{ objectFit: 'contain', objectPosition: 'center' }}
+            unoptimized
+         />
+         {/* </div> */}
       </div>
    );
 }
