@@ -9,7 +9,7 @@ import Navbar from 'components/layout/navbar';
 import NavbarScrollHandler from 'components/NavbarScrollHandler';
 import { ProductGroupsProvider } from 'components/product/ProductGroupsContext';
 // import { WelcomeToast } from 'components/welcome-toast';
-// import ScrollingText from 'components/ScrollingText';
+import ScrollingText from 'components/ScrollingText';
 import { GeistSans } from 'geist/font/sans';
 import { getCart } from 'lib/shopify';
 import { ensureStartsWith } from 'lib/utils';
@@ -79,7 +79,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
                   <Navbar />
                   <NavbarScrollHandler />
                   <main>
-                     {/* <ScrollingText /> */}
+                     <ScrollingText />
                      {children}
                      <Toaster closeButton />
                      {/* <WelcomeToast /> */}

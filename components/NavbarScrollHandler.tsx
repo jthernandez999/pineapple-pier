@@ -56,7 +56,7 @@ const NavbarScrollHandler = () => {
                   navElement.classList.add(
                      'absolute',
                      'lg:top-20',
-                     'top-10',
+                     'top-0',
                      'bg-transparent',
                      'bg-opacity-0', // Transparent background when not sticky
                      'transition-all',
