@@ -81,7 +81,8 @@ const NavbarScrollHandler = () => {
                   'lg:top-20',
                   'top-10',
                   'bg-transparent',
-                  'bg-opacity-0'
+                  'bg-opacity-0',
+                  'mt-5'
                );
                navElement.classList.add(
                   'sticky',

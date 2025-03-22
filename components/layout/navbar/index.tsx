@@ -19,7 +19,7 @@ export async function Navbar() {
 
    return (
       // <nav className="sticky top-0 z-30 w-full border-gray-200 bg-white shadow-md dark:border-gray-600 dark:bg-gray-900">
-      <nav className="bg-white-opacity-0 absolute top-10 z-[66] w-full border-gray-200 dark:border-gray-600 dark:bg-gray-900 lg:top-20">
+      <nav className="bg-white-opacity-0 absolute top-10 z-[66] mt-5 w-full border-gray-200 dark:border-gray-600 dark:bg-gray-900 lg:top-20">
          <div className="mx-auto flex w-full items-center justify-between p-4">
             {/* Left Section: Logo (and mobile menu icon) */}
             <div className="flex items-center">
