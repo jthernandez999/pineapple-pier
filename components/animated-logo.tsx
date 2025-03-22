@@ -35,7 +35,10 @@ export default function AnimatedLogo() {
 
    // For scaling:
    // When not scrolled on homepage, on desktop we scale up by 2.5x; otherwise scale is 1.
-   const scaleClasses = isHome && !scrolled ? 'md:scale-[4]' : 'scale-100';
+   const scaleClasses =
+      isHome && !scrolled
+         ? 'scale-[2] md:scale-[3.3] lg:scale-[3.3] xl:scale-[3.3] 2xl:scale-[5]'
+         : 'scale-100';
 
    // The image source: white logo when not scrolled on homepage; black logo otherwise.
    const imageSrc = isHome && !scrolled ? '/dj_white_logo.png' : '/dj_black_logo.png';
