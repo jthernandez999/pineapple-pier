@@ -37,6 +37,7 @@ const NavbarScrollHandler = () => {
                      'absolute',
                      'lg:top-20',
                      'top-10',
+                     'mt-5',
                      'bg-white-opacity-0'
                   );
                   desktopMenuId.classList.remove('md:hidden', 'lg:hidden');
