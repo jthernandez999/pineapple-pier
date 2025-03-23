@@ -28,6 +28,7 @@
     "next": "15.2.2",
     "react": "19.0.0",
     "react-dom": "19.0.0",
+    "react-facebook-pixel": "^1.0.4",
     "react-infinite-scroll-component": "^6.1.0",
     "react-medium-image-zoom": "^5.2.14",
     "react-slick": "^0.30.3",

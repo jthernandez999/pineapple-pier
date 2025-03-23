@@ -18,6 +18,7 @@ import Script from 'next/script';
 import { ReactNode } from 'react';
 import { Toaster } from 'sonner';
 import './globals.css';
+import MetaPixelEvents from './MetaPixelEvents.tsx';
 
 const { TWITTER_CREATOR, TWITTER_SITE, SITE_NAME } = process.env;
 const baseUrl = process.env.NEXT_PUBLIC_VERCEL_URL
@@ -79,6 +80,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
                   <Navbar />
                   <NavbarScrollHandler />
                   <main>
+                     <MetaPixelEvents />
                      <ScrollingText />
                      {children}
                      <Toaster closeButton />
