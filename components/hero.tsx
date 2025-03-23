@@ -149,7 +149,7 @@ export default function HeroBanner({ banners, interval = 4000 }: BannerProps) {
                      }`}
                   >
                      {banner.title && (
-                        <h2 className="font-poppins text-6xl font-light tracking-wide md:text-9xl">
+                        <h2 className="font-poppins text-4xl font-light tracking-wide md:text-4xl lg:text-6xl xl:text-8xl">
                            {banner.title}
                         </h2>
                      )}
