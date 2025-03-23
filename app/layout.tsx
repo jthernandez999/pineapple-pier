@@ -18,7 +18,7 @@ import Script from 'next/script';
 import { ReactNode } from 'react';
 import { Toaster } from 'sonner';
 import './globals.css';
-import MetaPixelEvents from './MetaPixelEvents.tsx';
+import MetaPixelEvents from './MetaPixelEvents';
 
 const { TWITTER_CREATOR, TWITTER_SITE, SITE_NAME } = process.env;
 const baseUrl = process.env.NEXT_PUBLIC_VERCEL_URL
