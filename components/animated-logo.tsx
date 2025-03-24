@@ -5,7 +5,16 @@ import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 function useScrolled(threshold: number = 100) {
+   const pathname = usePathname();
    const [scrolled, setScrolled] = useState(false);
+
+   // When navigating back to the homepage, force the default (non-scrolled) state
+   useEffect(() => {
+      if (pathname === '/') {
+         setScrolled(false);
+      }
+   }, [pathname]);
+
    useEffect(() => {
       const onScroll = () => setScrolled(window.scrollY > threshold);
       window.addEventListener('scroll', onScroll);
@@ -47,11 +56,7 @@ export default function AnimatedLogo() {
    const transitionClasses = 'transition-all duration-[1100ms] ease-in-out';
 
    return (
-      <div
-         // href="/"
-         className={`absolute ${containerClasses} ${scaleClasses} ${transitionClasses}`}
-      >
-         {/* <div className="relative top-[0] z-[40] mx-auto h-[18rem] w-[18rem] sm:h-[22rem] sm:w-[22rem] md:h-80 md:w-80"> */}
+      <div className={`absolute ${containerClasses} ${scaleClasses} ${transitionClasses}`}>
          <Image
             draggable={false}
             src={imageSrc}
@@ -61,7 +66,6 @@ export default function AnimatedLogo() {
             style={{ objectFit: 'contain', objectPosition: 'center' }}
             unoptimized
          />
-         {/* </div> */}
       </div>
    );
 }
