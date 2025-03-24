@@ -31,12 +31,14 @@ export default function AnimatedLogo() {
    // When not scrolled on the homepage, we want the container to be:
    // - On mobile: centered horizontally, positioned at about 25% from the top.
    // - On desktop: the same, but the inner image scales to 2.5×.
-   const notScrolledClasses = 'left-1/2 top-[.001em] -translate-x-1/2 translate-y-[15rem]';
+   const notScrolledClasses =
+      'left-1/2 top-[.001em] -translate-x-1/2 translate-y-[15rem] scale-[1]';
    // When scrolled (or on non-home pages), we want:
    // - On mobile: centered horizontally and vertically.
    // - On desktop: aligned to the left with a margin.
    const scrolledMobile = 'left-1/2 top-1/2 -translate-x-1/2 -translate-y-1 md:-translate-y-1/2';
-   const scrolledDesktop = 'md:left-0 md:ml-4 md:-translate-x-0';
+   const scrolledDesktop =
+      'md:left-0 md:ml-4 md:-translate-x-0 md:top-1/2 md:-translate-y-1/2 md:scale-[.85] lg:scale-[.9] 3xl:scale-[1]';
 
    // Pick the transform classes based on state:
    const containerClasses =
