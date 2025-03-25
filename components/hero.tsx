@@ -168,7 +168,7 @@ export default function HeroBanner({ banners, interval = 4000 }: BannerProps) {
                </div>
             ))}
 
-            {/* Navigation Arrows */}
+            {/* Navigation Arrows!! */}
             <div className="absolute bottom-4 right-4 flex gap-3">
                {banners.map((_, index) => (
                   <button
