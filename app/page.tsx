@@ -14,7 +14,7 @@ export const metadata = {
 };
 
 export default async function HomePage() {
-   const collection = 'whats-hot';
+   const collection = 'shop-new-arrivals';
    // Let Shopify return the default ordering by omitting sortKey and reverse:
    const data = await getCollectionProducts({ collection });
    return (

@@ -49,7 +49,7 @@ function CarouselSlide({ product }: { product: Product }) {
    const { ref, inView } = useInView(0.15);
 
    return (
-      <div ref={ref} className="relative aspect-[2/3] overflow-hidden">
+      <div ref={ref} className="overflow-auto-hidden relative aspect-[2/3]">
          <Link href={`/products/${product.handle}`} className="block">
             <GridTileImage
                alt={product.title}
@@ -102,12 +102,12 @@ const NextArrow = (props: any) => {
       >
          <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="h-8 w-8 text-gray-700"
+            className="h-8 w-8 text-black"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 5l7 7-7 7" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5l7 7-7 7" />
          </svg>
       </div>
    );
@@ -129,7 +129,7 @@ const PrevArrow = (props: any) => {
       >
          <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="h-8 w-8 text-gray-700"
+            className="h-8 w-8 text-black"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -137,7 +137,7 @@ const PrevArrow = (props: any) => {
             <path
                strokeLinecap="round"
                strokeLinejoin="round"
-               strokeWidth={1}
+               strokeWidth={1.5}
                d="M15 19l-7-7 7-7"
             />
          </svg>
