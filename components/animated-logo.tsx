@@ -38,7 +38,7 @@ export default function AnimatedLogo() {
    // - On desktop: aligned to the left with a margin.
    const scrolledMobile = 'left-1/2 top-1/2 -translate-x-1/2 -translate-y-1 md:-translate-y-1/2';
    const scrolledDesktop =
-      'md:left-0 md:ml-4 md:-translate-x-0 md:top-1/2 md:-translate-y-1/2  scale-[1.3] md:scale-[.75] lg:scale-[.9] 3xl:scale-[1]';
+      'md:left-0 md:ml-4 md:-translate-x-0 md:top-1/2 md:-translate-y-1/2  scale-[1.3] md:scale-[.75]  lg:scale-[.25] lg:-translate-x-[12rem] xl:scale-[.38] xl:-translate-x-[9rem]  2xl:scale-[.5] 2xl:-translate-x-[7rem] 2xl:ml-0 2xl:pl-1';
 
    // Pick the transform classes based on state:
    const containerClasses =
