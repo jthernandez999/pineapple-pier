@@ -4,28 +4,28 @@ export const banners = [
       image: 'https://cdn.shopify.com/s/files/1/1024/2207/files/DSC_3060_Hero_lp.jpg?v=1742947887',
       mobileImage:
          'https://cdn.shopify.com/s/files/1/1024/2207/files/DSC_3060_copyheroMobile.jpg?v=1742947886',
-      title: 'Spring Overdrive',
-      // description: 'SIMPLE, CHIC, EFFORTLESS',
-      buttonText: 'Shop New Arrivals',
+      title: 'New Arrivals: Elevate Your Wardrobe',
+      description: 'Pieces that bring sophistication to every look.',
+      buttonText: 'Explore New Arrivals',
       buttonLink: '/collections/shop-new-arrivals'
    },
    {
       image: 'https://cdn.shopify.com/s/files/1/1024/2207/files/Untitled_design_a9ffdcfb-a27b-4477-a732-c02b77e6e891.png?v=1743003993',
       mobileImage:
          'https://cdn.shopify.com/s/files/1/1024/2207/files/DSC_1680_Hero_1_2.jpg?v=1742947887',
-      title: 'Spring Overdrive',
-      // description: 'SIMPLE, CHIC, EFFORTLESS',
-      buttonText: 'Shop New Arrivals',
-      buttonLink: '/collections/shop-new-arrivals'
+      title: 'Timeless Tops for Every Occasion',
+      description: 'Where classic design meets modern elegance.',
+      buttonText: 'Shop Tops',
+      buttonLink: '/collections/shop-all-tops'
    },
    {
       image: 'https://cdn.shopify.com/s/files/1/1024/2207/files/DSC_2485_Hero_3.jpg?v=1742947886',
       mobileImage:
          'https://cdn.shopify.com/s/files/1/1024/2207/files/DSC_3060_copyheroMobile.jpg?v=1742947886',
-      title: 'Spring Overdrive',
-      // description: 'SIMPLE, CHIC, EFFORTLESS',
-      buttonText: 'Shop New Arrivals',
-      buttonLink: '/collections/shop-new-arrivals'
+      title: 'Bottoms That Define Confidence',
+      description: 'Step into comfort and style that stand the test of time.',
+      buttonText: 'Discover Bottoms',
+      buttonLink: '/collections/bottoms'
    }
    // Add more banners as needed
 ];
