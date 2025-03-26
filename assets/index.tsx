@@ -10,9 +10,9 @@ export const banners = [
       buttonLink: '/collections/shop-new-arrivals'
    },
    {
-      image: 'https://cdn.shopify.com/s/files/1/1024/2207/files/mb_1_lp.jpg?v=1739941270',
+      image: 'https://cdn.shopify.com/s/files/1/1024/2207/files/Untitled_design_a9ffdcfb-a27b-4477-a732-c02b77e6e891.png?v=1743003993',
       mobileImage:
-         'https://cdn.shopify.com/s/files/1/1024/2207/files/hero_mobile_banner.jpg?v=1739939932',
+         'https://cdn.shopify.com/s/files/1/1024/2207/files/DSC_1680_Hero_1_2.jpg?v=1742947887',
       title: 'Spring Overdrive',
       // description: 'SIMPLE, CHIC, EFFORTLESS',
       buttonText: 'Shop New Arrivals',
