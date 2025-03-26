@@ -47,24 +47,24 @@ export const collectionImages = [
    },
    {
       image: 'https://cdn.shopify.com/s/files/1/1024/2207/files/DSC_2846_Essentials.jpg?v=1742947886',
-      title: 'Essential Tees',
+      title: 'Essentials',
       //   description: 'SIMPLE, CHIC, EFFORTLESS',
       //   buttonText: 'Shop Now New Arrivals',
-      buttonLink: '/collections/basics'
+      buttonLink: '/collections/shirts-1'
    },
    {
       image: 'https://cdn.shopify.com/s/files/1/1024/2207/files/DSC_2371_Jumpsuits_Dresses.jpg?v=1742947887',
+      title: 'Jumpsuits + Dresses',
+      //   description: 'SIMPLE, CHIC, EFFORTLESS',
+      //   buttonText: 'Shop Now New Arrivals',
+      buttonLink: '/collections/dresses-jumpsuits'
+   },
+   {
+      image: 'https://cdn.shopify.com/s/files/1/1024/2207/files/DSC_2924_Shorts.jpg?v=1742947887',
       title: 'Shorts',
       //   description: 'SIMPLE, CHIC, EFFORTLESS',
       //   buttonText: 'Shop Now New Arrivals',
       buttonLink: '/collections/shop-all-shorts'
-   },
-   {
-      image: 'https://cdn.shopify.com/s/files/1/1024/2207/files/DSC_2924_Shorts.jpg?v=1742947887',
-      title: 'Bootcut',
-      //   description: 'SIMPLE, CHIC, EFFORTLESS',
-      //   buttonText: 'Shop Now New Arrivals',
-      buttonLink: '/collections/shop-bootcut-flare'
    }
 ];
 
