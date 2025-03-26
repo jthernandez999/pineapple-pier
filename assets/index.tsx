@@ -1,9 +1,27 @@
 // assets.js
 export const banners = [
    {
+      image: 'https://cdn.shopify.com/s/files/1/1024/2207/files/DSC_3060_Hero_lp.jpg?v=1742947887',
+      mobileImage:
+         'https://cdn.shopify.com/s/files/1/1024/2207/files/DSC_3060_copyheroMobile.jpg?v=1742947886',
+      title: 'Spring Overdrive',
+      // description: 'SIMPLE, CHIC, EFFORTLESS',
+      buttonText: 'Shop New Arrivals',
+      buttonLink: '/collections/shop-new-arrivals'
+   },
+   {
       image: 'https://cdn.shopify.com/s/files/1/1024/2207/files/mb_1_lp.jpg?v=1739941270',
       mobileImage:
          'https://cdn.shopify.com/s/files/1/1024/2207/files/hero_mobile_banner.jpg?v=1739939932',
+      title: 'Spring Overdrive',
+      // description: 'SIMPLE, CHIC, EFFORTLESS',
+      buttonText: 'Shop New Arrivals',
+      buttonLink: '/collections/shop-new-arrivals'
+   },
+   {
+      image: 'https://cdn.shopify.com/s/files/1/1024/2207/files/DSC_2485_Hero_3.jpg?v=1742947886',
+      mobileImage:
+         'https://cdn.shopify.com/s/files/1/1024/2207/files/DSC_3060_copyheroMobile.jpg?v=1742947886',
       title: 'Spring Overdrive',
       // description: 'SIMPLE, CHIC, EFFORTLESS',
       buttonText: 'Shop New Arrivals',
