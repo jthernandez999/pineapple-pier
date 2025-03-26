@@ -32,35 +32,35 @@ export const banners = [
 
 export const collectionImages = [
    {
-      image: 'https://cdn.shopify.com/s/files/1/1024/2207/files/DSC_3020-2_1080.jpg?v=1739908794',
+      image: 'https://cdn.shopify.com/s/files/1/1024/2207/files/DSC_2290_Denim.jpg?v=1742947887',
       title: 'Denim',
       //   description: 'SIMPLE, CHIC, EFFORTLESS',
       //   buttonText: 'Shop Now New Arrivals',
       buttonLink: '/collections/shop-all-denim'
    },
    {
-      image: 'https://cdn.shopify.com/s/files/1/1024/2207/files/DSC_1884-2_1080_96903282-fb37-4ee4-a09c-9d500e534b53.jpg?v=1740597867',
+      image: 'https://cdn.shopify.com/s/files/1/1024/2207/files/DSC_2756_Shirts.jpg?v=1742947886',
       title: 'Tops & Shirts',
       //   description: 'SIMPLE, CHIC, EFFORTLESS',
       //   buttonText: 'Shop Now New Arrivals',
       buttonLink: '/collections/shop-all-tops'
    },
    {
-      image: 'https://cdn.shopify.com/s/files/1/1024/2207/files/DSC_2120_copy.jpg?v=1740590912',
+      image: 'https://cdn.shopify.com/s/files/1/1024/2207/files/DSC_2846_Essentials.jpg?v=1742947886',
       title: 'Essential Tees',
       //   description: 'SIMPLE, CHIC, EFFORTLESS',
       //   buttonText: 'Shop Now New Arrivals',
       buttonLink: '/collections/basics'
    },
    {
-      image: 'https://cdn.shopify.com/s/files/1/1024/2207/files/DSC_1797-2_1080.jpg?v=1739908726',
+      image: 'https://cdn.shopify.com/s/files/1/1024/2207/files/DSC_2371_Jumpsuits_Dresses.jpg?v=1742947887',
       title: 'Shorts',
       //   description: 'SIMPLE, CHIC, EFFORTLESS',
       //   buttonText: 'Shop Now New Arrivals',
       buttonLink: '/collections/shop-all-shorts'
    },
    {
-      image: 'https://cdn.shopify.com/s/files/1/1024/2207/files/DSC_2041_1080.jpg?v=1739908785',
+      image: 'https://cdn.shopify.com/s/files/1/1024/2207/files/DSC_2924_Shorts.jpg?v=1742947887',
       title: 'Bootcut',
       //   description: 'SIMPLE, CHIC, EFFORTLESS',
       //   buttonText: 'Shop Now New Arrivals',

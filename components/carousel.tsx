@@ -1,6 +1,7 @@
 'use client';
 import { dynamicMetaobjectId, getColorPatternMetaobjectId } from 'lib/helpers/metafieldHelpers';
 import Link from 'next/link';
+import { useEffect, useRef, useState } from 'react';
 import Slider from 'react-slick';
 import 'slick-carousel/slick/slick-theme.css';
 import 'slick-carousel/slick/slick.css';
@@ -18,6 +19,71 @@ export interface CarouselData {
 
 export interface CarouselProps {
    data: CarouselData;
+}
+
+// Because your images deserve the spotlight, here’s a custom hook to check if they’re in view.
+function useInView(threshold = 0.1) {
+   const [inView, setInView] = useState(false);
+   const ref = useRef<HTMLDivElement | null>(null);
+
+   useEffect(() => {
+      if (!ref.current) return;
+      const observer = new IntersectionObserver(
+         (entries) => {
+            const entry = entries[0];
+            if (!entry) return;
+            setInView(entry.isIntersecting);
+         },
+         { threshold }
+      );
+      observer.observe(ref.current);
+      return () => observer.disconnect();
+   }, [threshold]);
+
+   return { ref, inView };
+}
+
+// Introducing the CarouselSlide component – because each image gets its moment to shine.
+function CarouselSlide({ product }: { product: Product }) {
+   const [isLoading, setIsLoading] = useState(true);
+   const { ref, inView } = useInView(0.15);
+
+   return (
+      <div ref={ref} className="relative aspect-[2/3] overflow-hidden">
+         <Link href={`/products/${product.handle}`} className="block">
+            <GridTileImage
+               alt={product.title}
+               src={product.featuredImage?.url}
+               secondarySrc={product.images[1]?.url}
+               fill
+               sizes="100vw, (min-width: 768px) 20vw"
+               onLoad={() => setIsLoading(false)}
+               className={`object-cover shadow-md transition-all duration-1200 ${
+                  !isLoading && inView ? 'scale-100' : 'scale-110'
+               } hover:scale-[.99]`}
+               swatchMetaobjectId={dynamicMetaobjectId(product)}
+               swatchFallbackColor={product.options
+                  ?.find((o) => o.name.toLowerCase() === 'color')
+                  ?.values[0]?.toLowerCase()}
+            />
+            <div className="mt-2">
+               <Label
+                  title={product.title}
+                  amount={product.priceRange.maxVariantPrice.amount}
+                  currencyCode={product.priceRange.maxVariantPrice.currencyCode}
+                  colorName={
+                     product.options?.find((o) => o.name.toLowerCase() === 'color')?.values[0]
+                  }
+                  metaobjectId={getColorPatternMetaobjectId(product)}
+                  fallbackColor={product.options
+                     ?.find((o) => o.name.toLowerCase() === 'color')
+                     ?.values[0]?.toLowerCase()}
+                  position="bottom"
+               />
+            </div>
+         </Link>
+      </div>
+   );
 }
 
 const NextArrow = (props: any) => {
@@ -85,7 +151,7 @@ export function Carousel({ data }: CarouselProps) {
 
    const settings = {
       infinite: true,
-      slidesToShow: 5, // 4 full products plus half of the next one
+      slidesToShow: 5,
       slidesToScroll: 1,
       arrows: true,
       swipe: true,
@@ -118,38 +184,7 @@ export function Carousel({ data }: CarouselProps) {
          <Slider {...settings}>
             {products.map((product, i) => (
                <div key={`${product.handle}${i}`} className="px-[0.10rem] md:px-[0.20rem]">
-                  <Link href={`/products/${product.handle}`} className="block">
-                     <div className="relative aspect-[2/3]">
-                        <GridTileImage
-                           alt={product.title}
-                           src={product.featuredImage?.url}
-                           secondarySrc={product.images[1]?.url}
-                           fill
-                           sizes="100vw, (min-width: 768px) 20vw"
-                           className="object-cover"
-                           swatchMetaobjectId={dynamicMetaobjectId(product)}
-                           swatchFallbackColor={product.options
-                              ?.find((o) => o.name.toLowerCase() === 'color')
-                              ?.values[0]?.toLowerCase()}
-                        />
-                     </div>
-                     <div className="mt-2">
-                        <Label
-                           title={product.title}
-                           amount={product.priceRange.maxVariantPrice.amount}
-                           currencyCode={product.priceRange.maxVariantPrice.currencyCode}
-                           colorName={
-                              product.options?.find((o) => o.name.toLowerCase() === 'color')
-                                 ?.values[0]
-                           }
-                           metaobjectId={getColorPatternMetaobjectId(product)}
-                           fallbackColor={product.options
-                              ?.find((o) => o.name.toLowerCase() === 'color')
-                              ?.values[0]?.toLowerCase()}
-                           position="bottom"
-                        />
-                     </div>
-                  </Link>
+                  <CarouselSlide product={product} />
                </div>
             ))}
          </Slider>
