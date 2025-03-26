@@ -181,6 +181,9 @@ export function Carousel({ data }: CarouselProps) {
 
    return (
       <div className="relative">
+         <h3 className="mb-4 mt-2 bg-white p-2 text-start text-2xl">
+            Just In... Spring New Arrivals, Pieces that bring sophistication to every look.
+         </h3>
          <Slider {...settings}>
             {products.map((product, i) => (
                <div key={`${product.handle}${i}`} className="px-[0.10rem] md:px-[0.20rem]">
