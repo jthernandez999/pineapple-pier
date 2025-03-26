@@ -21,7 +21,7 @@ export const banners = [
    {
       image: 'https://cdn.shopify.com/s/files/1/1024/2207/files/DSC_2485_Hero_3.jpg?v=1742947886',
       mobileImage:
-         'https://cdn.shopify.com/s/files/1/1024/2207/files/DSC_3060_copyheroMobile.jpg?v=1742947886',
+         'https://cdn.shopify.com/s/files/1/1024/2207/files/DSC_2485_copyhero3mobile.jpg?v=1742947886',
       title: 'Timeless Tops for Every Occasion',
       description: 'Where classic design meets modern elegance.',
       buttonText: 'Shop Tops',
