@@ -181,7 +181,7 @@ export function Carousel({ data }: CarouselProps) {
 
    return (
       <div className="relative">
-         <h3 className="mb-4 mt-2 bg-white p-2 text-start text-2xl">
+         <h3 className="mb-4 mt-2 bg-white p-2 text-start text-sm md:text-xl">
             Just In... Spring New Arrivals, Pieces that bring sophistication to every look.
          </h3>
          <Slider {...settings}>
