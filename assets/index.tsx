@@ -4,8 +4,8 @@ export const banners = [
       image: 'https://cdn.shopify.com/s/files/1/1024/2207/files/DSC_3060_Hero_lp.jpg?v=1742947887',
       mobileImage:
          'https://cdn.shopify.com/s/files/1/1024/2207/files/DSC_3060_copyheroMobile.jpg?v=1742947886',
-      title: ' Spring New Arrivals: Elevate Your Wardrobe',
-      description: 'Pieces that bring sophistication to every look.',
+      title: ' Spring New Arrivals',
+      // description: 'Pieces that bring sophistication to every look.',
       buttonText: 'Explore New Arrivals',
       buttonLink: '/collections/shop-new-arrivals'
    },
@@ -14,8 +14,8 @@ export const banners = [
       mobileImage:
          'https://cdn.shopify.com/s/files/1/1024/2207/files/DSC_1680_Hero_1_2.jpg?v=1742947887',
       title: 'Bottoms That Define Confidence',
-      description: 'Step into comfort and style that stand the test of time.',
-      buttonText: 'Discover Bottoms',
+      // description: 'Step into comfort and style',
+      buttonText: 'Shop Bottoms',
       buttonLink: '/collections/bottoms'
    },
    {
@@ -23,7 +23,7 @@ export const banners = [
       mobileImage:
          'https://cdn.shopify.com/s/files/1/1024/2207/files/DSC_2485_copyhero3mobile.jpg?v=1742947886',
       title: 'Timeless Tops for Every Occasion',
-      description: 'Where classic design meets modern elegance.',
+      // description: 'Where classic design meets modern elegance.',
       buttonText: 'Shop Tops',
       buttonLink: '/collections/shop-all-tops'
    }

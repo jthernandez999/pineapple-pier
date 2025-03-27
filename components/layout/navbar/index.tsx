@@ -24,7 +24,7 @@ export async function Navbar() {
             {/* Left Section: Logo (and mobile menu icon) */}
             <div className="flex items-center">
                {/* Mobile Menu icon only shows on mobile */}
-               <div className="block md:hidden">
+               <div id="mobile-menu" className="hidden md:hidden">
                   <MobileMenu menu={menu} />
                </div>
                {/* Logo area */}
@@ -37,7 +37,7 @@ export async function Navbar() {
             </div>
 
             {/* Right Section: Search and Cart */}
-            <div className="flex items-center gap-4">
+            <div id="search-cart" className="hidden items-center gap-4">
                <div className="hidden md:block">
                   <Suspense fallback={<SearchSkeleton />}>
                      <Search />

@@ -32,7 +32,7 @@ export default function AnimatedLogo() {
    // - On mobile: centered horizontally, positioned at about 25% from the top.
    // - On desktop: the same, but the inner image scales to 2.5×.
    const notScrolledClasses =
-      'left-1/2 -top-[10em] -translate-x-1/2 translate-y-[15rem] scale-[1] 2xl:scale-[3] 2xl:translate-y-[11rem] xl:translate-y-[11rem] xl:scale-[2] lg:translate-y-[11rem] lg:scale-[1.5] md:translate-y-[15rem] md:scale-[1.25]';
+      'left-1/2 -top-[13.25rem] -translate-x-1/2 translate-y-[15rem] scale-[2] 2xl:scale-[3] 2xl:translate-y-[15rem] xl:translate-y-[15rem] xl:scale-[2] lg:translate-y-[15rem] lg:scale-[1.5] md:translate-y-[15rem] md:scale-[1.25]';
    // When scrolled (or on non-home pages), we want:
    // - On mobile: centered horizontally and vertically.
    // - On desktop: aligned to the left with a margin.

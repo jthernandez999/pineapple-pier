@@ -3,11 +3,13 @@
 import { useEffect } from 'react';
 
 const NavbarScrollHandler = () => {
-   const navbarHeight = 104; // Adjust to your navbar's height in pixels
+   const navbarHeight = 100; // Adjust to your navbar's height in pixels
 
    useEffect(() => {
       const navElement = document.querySelector('nav'); // Select the nav element
       const desktopMenuId = document.getElementById('desktop-menu'); // ID of the desktop menu
+      const mobileMenuId = document.getElementById('mobile-menu'); // ID of the mobile menu
+      const searchCartId = document.getElementById('search-cart'); // ID of the search and cart area
 
       // Function to handle scroll and change classes
       const handleScroll = () => {
@@ -21,7 +23,7 @@ const NavbarScrollHandler = () => {
          const isCartPage = currentPath.includes('/cart');
          const isAccountPage = currentPath.includes('/account');
 
-         if (navElement && desktopMenuId) {
+         if (navElement && desktopMenuId && mobileMenuId && searchCartId) {
             if (
                isHomepage &&
                !isCollectionPage &&
@@ -41,6 +43,10 @@ const NavbarScrollHandler = () => {
                      'bg-white-opacity-0'
                   );
                   desktopMenuId.classList.remove('md:hidden', 'lg:hidden');
+                  mobileMenuId.classList.remove('hidden');
+                  searchCartId.classList.remove('hidden');
+                  mobileMenuId.classList.add('block');
+                  searchCartId.classList.add('flex');
                   navElement.classList.add(
                      'sticky',
                      'top-0',
@@ -54,19 +60,24 @@ const NavbarScrollHandler = () => {
                   );
                   desktopMenuId.classList.add('md:block');
                } else {
+                  // Reset to default not scrolled classes
                   navElement.classList.add(
                      'absolute',
                      'lg:top-20',
-                     'top-0',
-                     'bg-transparent',
-                     'bg-opacity-0', // Transparent background when not sticky
+                     'top-10',
+                     'mt-5',
+                     'bg-white-opacity-0',
                      'transition-all',
                      'duration-[2000ms]',
-                     'ease-in-out',
-                     `bottom-[-${navbarHeight}px]`
+                     'ease-in-out'
                   );
                   desktopMenuId.classList.add('md:hidden');
                   desktopMenuId.classList.remove('md:block');
+                  // Optionally hide the mobile menu and search/cart if needed
+                  mobileMenuId.classList.remove('block');
+                  mobileMenuId.classList.add('hidden');
+                  searchCartId.classList.remove('flex');
+                  searchCartId.classList.add('hidden');
                   navElement.classList.remove(
                      'sticky',
                      'bg-white',
