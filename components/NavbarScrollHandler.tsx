@@ -6,14 +6,17 @@ const NavbarScrollHandler = () => {
    const navbarHeight = 100; // Adjust to your navbar's height in pixels
 
    useEffect(() => {
-      const navElement = document.querySelector('nav'); // Select the nav element
-      const desktopMenuId = document.getElementById('desktop-menu'); // ID of the desktop menu
-      const mobileMenuId = document.getElementById('mobile-menu'); // ID of the mobile menu
-      const searchCartId = document.getElementById('search-cart'); // ID of the search and cart area
+      // If we're on the homepage, force scroll to the top
+      if (window.location.pathname === '/') {
+         window.scrollTo(0, 0);
+      }
 
-      // Function to handle scroll and change classes
+      const navElement = document.querySelector('nav');
+      const desktopMenuId = document.getElementById('desktop-menu');
+      const mobileMenuId = document.getElementById('mobile-menu');
+      const searchCartId = document.getElementById('search-cart');
+
       const handleScroll = () => {
-         // Always re-check the current path. Because the world changes, apparently.
          const currentPath = window.location.pathname;
          const isHomepage = currentPath === '/';
          const isCollectionPage = currentPath.includes('/collections/');
@@ -33,8 +36,8 @@ const NavbarScrollHandler = () => {
                !isCartPage &&
                !isAccountPage
             ) {
-               // Homepage behavior: transition effects based on scroll position
                if (window.scrollY > navbarHeight) {
+                  // Scrolled state on homepage
                   navElement.classList.remove(
                      'absolute',
                      'lg:top-20',
@@ -53,14 +56,14 @@ const NavbarScrollHandler = () => {
                      'lg:top-0',
                      'shadow-md',
                      'bg-white',
-                     'bg-opacity-100', // Full opacity when sticky
+                     'bg-opacity-100',
                      'transition-all',
                      'duration-[2000ms]',
                      'ease-in-out'
                   );
                   desktopMenuId.classList.add('md:block');
                } else {
-                  // Reset to default not scrolled classes
+                  // Default homepage state: apply initial classes
                   navElement.classList.add(
                      'absolute',
                      'lg:top-20',
@@ -73,7 +76,6 @@ const NavbarScrollHandler = () => {
                   );
                   desktopMenuId.classList.add('md:hidden');
                   desktopMenuId.classList.remove('md:block');
-                  // Optionally hide the mobile menu and search/cart if needed
                   mobileMenuId.classList.remove('block');
                   mobileMenuId.classList.add('hidden');
                   searchCartId.classList.remove('flex');
@@ -87,7 +89,7 @@ const NavbarScrollHandler = () => {
                   );
                }
             } else {
-               // Other pages: always sticky without fancy transitions
+               // Other pages: always sticky with full menu visible
                navElement.classList.remove(
                   'absolute',
                   'lg:top-20',
@@ -106,23 +108,21 @@ const NavbarScrollHandler = () => {
                );
                desktopMenuId.classList.remove('md:hidden', 'lg:hidden');
                desktopMenuId.classList.add('md:block', 'lg:block');
+               searchCartId.classList.remove('hidden');
+               searchCartId.classList.add('flex');
             }
          }
       };
 
-      // Listen for scroll event
       window.addEventListener('scroll', handleScroll);
-
-      // Initial check for the navbar behavior on page load
       handleScroll();
 
-      // Cleanup the event listener when the component is unmounted
       return () => {
          window.removeEventListener('scroll', handleScroll);
       };
    }, [navbarHeight]);
 
-   return null; // This component doesn't render anything
+   return null;
 };
 
 export default NavbarScrollHandler;
