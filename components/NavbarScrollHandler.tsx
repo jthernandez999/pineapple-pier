@@ -81,7 +81,7 @@ const NavbarScrollHandler = () => {
                   mobileMenuId.classList.remove('hidden');
                   searchCartId.classList.remove('hidden');
                   mobileMenuId.classList.add('block');
-                  searchCartId.classList.add('flex');
+                  searchCartId.classList.add('flex', 'items-center', 'gap-4');
                   navElement.classList.add(
                      'sticky',
                      'top-0',
