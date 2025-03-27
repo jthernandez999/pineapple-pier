@@ -91,7 +91,8 @@ const NavbarScrollHandler = () => {
                      'bg-opacity-100',
                      'transition-all',
                      'duration-[2000ms]',
-                     'ease-in-out'
+                     'ease-in-out',
+                     'items-center gap-4'
                   );
                   desktopMenuId.classList.add('md:block');
                } else {
