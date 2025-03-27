@@ -88,7 +88,6 @@ function BannerItem({
                   priority
                   fill
                   style={{
-                     objectFit: 'cover',
                      objectPosition: 'center'
                   }}
                   onLoad={() => setIsLoading(false)}
@@ -130,7 +129,7 @@ function BannerItem({
                   onLoad={() => setIsLoading(false)}
                   className={`${
                      !isLoading && inView ? 'scale-100' : 'scale-110'
-                  } ease-custom aspect-square h-full w-full object-contain transition-transform duration-1200 hover:scale-[.99]`}
+                  } ease-custom h-full w-full object-contain transition-transform duration-1200 hover:scale-[.99]`}
                />
             )}
          </div>
@@ -138,13 +137,15 @@ function BannerItem({
          <div className="absolute inset-0 bg-black/10" />
 
          {/* Text Overlay */}
-         <div className="absolute bottom-20 z-10 p-4 text-center text-white md:bottom-20 lg:bottom-52 2xl:bottom-52">
-            {banner.title && <h2 className="text-xl font-bold md:text-3xl">{banner.title}</h2>}
-            {banner.description && <p className="text-sm md:text-lg">{banner.description}</p>}
+         <div className="2xl:bottom-50 absolute bottom-20 left-0 z-10 flex-col p-6 text-center text-white sm:bottom-[20%] md:top-[50%] md:mx-auto md:items-center lg:bottom-[50%] lg:place-items-start lg:items-start lg:justify-start lg:px-4">
+            {banner.title && (
+               <h2 className="font-regular hidden text-xl md:flex md:text-6xl">{banner.title}</h2>
+            )}
+            {banner.description && <p className="flex text-sm md:text-lg">{banner.description}</p>}
             {banner.buttonText && banner.buttonLink && (
                <a
                   href={banner.buttonLink}
-                  className="ease-custom mt-4 inline-block bg-white px-6 py-2 text-sm font-medium text-black transition-all duration-1000 ease-in-out hover:scale-95"
+                  className="ease-custom font-regular mt-4 inline-block bg-white px-6 py-2 text-lg text-black transition-all duration-1000 ease-in-out hover:scale-95 md:mt-6 md:text-2xl lg:mt-6 2xl:mt-6"
                >
                   {banner.buttonText}
                </a>

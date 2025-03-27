@@ -71,13 +71,13 @@ export const collectionImages = [
 //   This can take an image or video, a title, a description, a button text, and a button link. The button text and button link are optional. Here is an example of a highlight collection image:
 export const highlightCollectionImages = [
    {
-      image: 'https://cdn.shopify.com/s/files/1/1024/2207/files/3_7ba4558d-8811-4311-9bd2-e706bc9112b5.png?v=1740593932',
+      image: 'https://cdn.shopify.com/s/files/1/1024/2207/files/Untitled_design_26.jpg?v=1743096266',
       mobileImage:
-         'https://cdn.shopify.com/s/files/1/1024/2207/files/3_07ac5935-afc9-4a5b-ba91-1bb409aa5ef4.png?v=1740593926',
-      // title: 'Spring 2025 Collection',
+         'https://cdn.shopify.com/s/files/1/1024/2207/files/Heading_1080_x_1080_px.jpg?v=1743095343',
+      title: 'Keeping it short and chic',
       // description: 'SIMPLE, CHIC, EFFORTLESS',
-      buttonText: 'Shop The Collection',
-      buttonLink: '/collections/fiona'
+      buttonText: 'Shop Shorts',
+      buttonLink: '/collections/shorts'
    }
 ];
 
