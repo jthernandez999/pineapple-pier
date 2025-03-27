@@ -32,13 +32,13 @@ export default function AnimatedLogo() {
    // - On mobile: centered horizontally, positioned at about 25% from the top.
    // - On desktop: the same, but the inner image scales to 2.5×.
    const notScrolledClasses =
-      'left-1/2 -top-[10em] -translate-x-1/2 translate-y-[15rem] scale-[1] 2xl:scale-[3]';
+      'left-1/2 -top-[10em] -translate-x-1/2 translate-y-[15rem] scale-[1] 2xl:scale-[3] 2xl:translate-y-[11rem] xl:translate-y-[11rem] xl:scale-[2] lg:translate-y-[11rem] lg:scale-[1.5] md:translate-y-[15rem] md:scale-[1.25]';
    // When scrolled (or on non-home pages), we want:
    // - On mobile: centered horizontally and vertically.
    // - On desktop: aligned to the left with a margin.
    const scrolledMobile = 'left-1/2 top-1/2 -translate-x-1/2 -translate-y-1 md:-translate-y-1/2';
    const scrolledDesktop =
-      'md:hidden lg:hidden xl:block xl:left-[4rem] xl:ml-4 xl:-translate-x-0 xl:top-1/2 xl:-translate-y-1/2  scale-[1.3] xl:scale-[.5]  xl:scale-[.25] xl:-translate-x-[12rem] xl:scale-[.38] xl:-translate-x-[9rem]  2xl:scale-[.5] 2xl:-translate-x-[10.5rem] 2xl:ml-0 2xl:pl-0';
+      'md:hidden lg:hidden xl:block xl:left-[4rem] xl:ml-4 xl:-translate-x-0 xl:top-1/2 xl:-translate-y-1/2  scale-[1.3] xl:scale-[.50]  xl:scale-[.25] xl:-translate-x-[12rem] xl:scale-[.38] xl:-translate-x-[9rem]  2xl:scale-[.5] 2xl:-translate-x-[10.5rem] 2xl:ml-0 2xl:pl-0';
 
    // Pick the transform classes based on state:
    const containerClasses =
