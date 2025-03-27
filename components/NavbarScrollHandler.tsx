@@ -15,7 +15,7 @@ const resetNavbarClasses = () => {
          'bg-white-opacity-0 absolute top-0 z-[66] mt-5 w-full border-gray-200 dark:border-gray-600 dark:bg-gray-900 lg:top-20';
       // Reset the desktop menu to default (hidden)
       desktopMenuId.className = 'hidden md:hidden lg:hidden';
-      // Reset the mobile menu to default (hidden)
+      // Reset the mobile menu to default (hidden) for homepage
       mobileMenuId.className = 'hidden md:hidden';
       // Reset the search/cart to default (hidden)
       searchCartId.className = 'hidden';
@@ -32,9 +32,9 @@ const NavbarScrollHandler = () => {
       setIsMounted(true);
    }, []);
 
+   // When navigating to the homepage, reset classes and scroll to top
    useEffect(() => {
       if (!isMounted) return;
-      // When the route changes to the homepage, reset the classes and scroll to the top
       if (pathname === '/') {
          resetNavbarClasses();
          window.scrollTo(0, 0);
@@ -69,7 +69,7 @@ const NavbarScrollHandler = () => {
                !isAccountPage
             ) {
                if (window.scrollY > navbarHeight) {
-                  // Scrolled state on homepage
+                  // Scrolled state on homepage: show mobile menu
                   navElement.classList.remove(
                      'absolute',
                      'lg:top-20',
@@ -95,7 +95,7 @@ const NavbarScrollHandler = () => {
                   );
                   desktopMenuId.classList.add('md:block');
                } else {
-                  // Default homepage state
+                  // Default homepage state: mobile menu hidden
                   navElement.classList.add(
                      'absolute',
                      'lg:top-20',
@@ -121,7 +121,7 @@ const NavbarScrollHandler = () => {
                   );
                }
             } else {
-               // Other pages: always sticky with full menu visible
+               // Other pages (like collections, products, etc.): always sticky with full menu visible
                navElement.classList.remove(
                   'absolute',
                   'lg:top-20',
@@ -140,6 +140,9 @@ const NavbarScrollHandler = () => {
                );
                desktopMenuId.classList.remove('md:hidden', 'lg:hidden');
                desktopMenuId.classList.add('md:block', 'lg:block');
+               // Make sure the mobile menu is visible on non-homepage routes
+               mobileMenuId.classList.remove('hidden');
+               mobileMenuId.classList.add('block');
                searchCartId.classList.remove('hidden');
                searchCartId.classList.add('flex');
             }
