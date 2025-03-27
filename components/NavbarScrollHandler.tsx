@@ -1,16 +1,48 @@
 'use client';
 
-import { useEffect } from 'react';
+import { usePathname } from 'next/navigation';
+import { useEffect, useState } from 'react';
+
+const resetNavbarClasses = () => {
+   const navElement = document.querySelector('nav');
+   const desktopMenuId = document.getElementById('desktop-menu');
+   const mobileMenuId = document.getElementById('mobile-menu');
+   const searchCartId = document.getElementById('search-cart');
+
+   if (navElement && desktopMenuId && mobileMenuId && searchCartId) {
+      // Reset nav to its default homepage classes
+      navElement.className =
+         'bg-white-opacity-0 absolute top-0 z-[66] mt-5 w-full border-gray-200 dark:border-gray-600 dark:bg-gray-900 lg:top-20';
+      // Reset the desktop menu to default (hidden)
+      desktopMenuId.className = 'hidden md:hidden lg:hidden';
+      // Reset the mobile menu to default (hidden)
+      mobileMenuId.className = 'hidden md:hidden';
+      // Reset the search/cart to default (hidden)
+      searchCartId.className = 'hidden';
+   }
+};
 
 const NavbarScrollHandler = () => {
    const navbarHeight = 100; // Adjust to your navbar's height in pixels
+   const pathname = usePathname();
+   const [isMounted, setIsMounted] = useState(false);
+
+   // Ensure the component is mounted before using routing info
+   useEffect(() => {
+      setIsMounted(true);
+   }, []);
 
    useEffect(() => {
-      // If we're on the homepage, force scroll to the top
-      if (window.location.pathname === '/') {
+      if (!isMounted) return;
+      // When the route changes to the homepage, reset the classes and scroll to the top
+      if (pathname === '/') {
+         resetNavbarClasses();
          window.scrollTo(0, 0);
       }
+   }, [pathname, isMounted]);
 
+   useEffect(() => {
+      if (!isMounted) return;
       const navElement = document.querySelector('nav');
       const desktopMenuId = document.getElementById('desktop-menu');
       const mobileMenuId = document.getElementById('mobile-menu');
@@ -63,7 +95,7 @@ const NavbarScrollHandler = () => {
                   );
                   desktopMenuId.classList.add('md:block');
                } else {
-                  // Default homepage state: apply initial classes
+                  // Default homepage state
                   navElement.classList.add(
                      'absolute',
                      'lg:top-20',
@@ -120,7 +152,7 @@ const NavbarScrollHandler = () => {
       return () => {
          window.removeEventListener('scroll', handleScroll);
       };
-   }, [navbarHeight]);
+   }, [navbarHeight, isMounted]);
 
    return null;
 };
