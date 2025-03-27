@@ -87,10 +87,10 @@ export default async function Footer() {
             {/* Left Column: Logo + Mobile Newsletter */}
             <div className="flex flex-col items-center md:items-start">
                <Link href="/" className="flex items-center gap-3 pb-6">
-                  <span className="flex h-20 w-20 items-center justify-center rounded-full border-2 border-black bg-white text-4xl uppercase shadow-xl transition-transform duration-300 hover:scale-105">
+                  <span className="flex h-14 w-14 items-center justify-center rounded-full border-2 border-black bg-white text-2xl uppercase shadow-xl transition-transform duration-300 hover:scale-105">
                      DJ
                   </span>
-                  <span className="hidden text-2xl font-light md:inline-block">{SITE_NAME}</span>
+                  {/* <span className="hidden text-2xl font-light md:inline-block">{SITE_NAME}</span> */}
                </Link>
                {/* Mobile newsletter: visible only on mobile */}
                <div className="block md:hidden lg:mt-0">
