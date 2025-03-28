@@ -23,7 +23,7 @@ const resetNavbarClasses = () => {
 };
 
 const NavbarScrollHandler = () => {
-   const navbarHeight = 100; // Adjust to your navbar's height in pixels
+   const navbarHeight = 25; // Adjust to your navbar's height in pixels
    const pathname = usePathname();
    const [isMounted, setIsMounted] = useState(false);
 

@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
-function useScrolled(threshold: number = 100) {
+function useScrolled(threshold: number = 25) {
    const pathname = usePathname();
    const [scrolled, setScrolled] = useState(false);
 
@@ -26,13 +26,13 @@ function useScrolled(threshold: number = 100) {
 export default function AnimatedLogo() {
    const pathname = usePathname();
    const isHome = pathname === '/';
-   const scrolled = useScrolled(100);
+   const scrolled = useScrolled(25);
 
    // When not scrolled on the homepage, we want the container to be:
    // - On mobile: centered horizontally, positioned at about 25% from the top.
    // - On desktop: the same, but the inner image scales to 2.5×.
    const notScrolledClasses =
-      'left-1/2 -top-[13.25rem] -translate-x-1/2 translate-y-[15rem] scale-[2] 2xl:scale-[3] 2xl:translate-y-[15rem] xl:translate-y-[15rem] xl:scale-[2] lg:translate-y-[15rem] lg:scale-[1.5] md:translate-y-[15rem] md:scale-[1.25]';
+      'left-1/2 top-[4rem] -translate-x-1/2 translate-y-[15rem] scale-[2] 2xl:scale-[3.2] 2xl:translate-y-[20rem] xl:translate-y-[15rem] xl:scale-[2.5] lg:translate-y-[15rem] lg:scale-[2.2] md:translate-y-[15rem] md:scale-[1.9]';
    // When scrolled (or on non-home pages), we want:
    // - On mobile: centered horizontally and vertically.
    // - On desktop: aligned to the left with a margin.
