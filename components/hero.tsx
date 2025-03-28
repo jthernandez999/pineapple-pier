@@ -140,7 +140,7 @@ export default function HeroBanner({ banners, interval = 4000 }: BannerProps) {
                   <div className="bg-black/01 absolute inset-0"></div>
 
                   <div
-                     className={`lg:bottom-45 relative bottom-40 z-[65] transform p-4 text-center text-white transition-transform duration-700 md:bottom-40 ${
+                     className={`lg:bottom-45 relative bottom-40 z-[65] transform p-4 text-center text-white transition-transform duration-700 md:bottom-40 2xl:translate-y-[2.5rem] ${
                         index === 0
                            ? textVisible
                               ? 'duration-1500 translate-y-0 opacity-100 transition-transform'
@@ -149,7 +149,7 @@ export default function HeroBanner({ banners, interval = 4000 }: BannerProps) {
                      }`}
                   >
                      {banner.title && (
-                        <h2 className="py-2 font-poppins text-4xl font-light tracking-wide md:text-4xl lg:text-5xl xl:text-5xl 2xl:text-5xl">
+                        <h2 className="py-2 font-poppins text-4xl font-light tracking-wide md:text-4xl lg:text-5xl xl:text-5xl 2xl:text-7xl">
                            {banner.title}
                         </h2>
                      )}
@@ -161,7 +161,7 @@ export default function HeroBanner({ banners, interval = 4000 }: BannerProps) {
                      {banner.buttonText && banner.buttonLink && (
                         <Link
                            href={banner.buttonLink}
-                           className="duration-1100 mt-4 inline-block border border-white bg-transparent px-6 py-2 text-sm font-medium text-white transition-all ease-in-out hover:scale-95 hover:bg-white hover:text-black md:ml-4 md:-translate-x-0"
+                           className="duration-1100 text-md mt-4 inline-block border border-white bg-transparent px-6 py-2 font-medium text-white transition-all ease-in-out hover:scale-95 hover:bg-white hover:text-black md:ml-4 md:-translate-x-0"
                         >
                            {banner.buttonText}
                         </Link>
