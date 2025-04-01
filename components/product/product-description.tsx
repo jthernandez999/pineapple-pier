@@ -52,7 +52,7 @@ export function ProductDescription({ product, groupColorMetaobjectIds }: Product
    // Get the SKU from the first variant and remove everything from the colon (":") onward.
    let baseSku = '';
    if (currentProduct.variants && currentProduct.variants.length > 0) {
-      const sku = currentProduct.variants[0].sku || '';
+      const sku = currentProduct.variants[0]?.sku ?? '';
       const colonIndex = sku.indexOf(':');
       baseSku = colonIndex !== -1 ? sku.substring(0, colonIndex) : sku;
    }
