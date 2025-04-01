@@ -237,12 +237,20 @@ const reshapeProducts = (products: ShopifyProduct[]) => {
    return reshapedProducts;
 };
 
+// export async function createCart(cartId: string): Promise<Cart> {
+//    const res = await shopifyFetch<ShopifyCreateCartOperation>({
+//       query: createCartMutation,
+//       cache: 'no-store'
+//    });
+
+//    return reshapeCart(res.body.data.cartCreate.cart);
+// }
+
 export async function createCart(): Promise<Cart> {
    const res = await shopifyFetch<ShopifyCreateCartOperation>({
       query: createCartMutation,
       cache: 'no-store'
    });
-
    return reshapeCart(res.body.data.cartCreate.cart);
 }
 
