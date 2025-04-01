@@ -97,11 +97,60 @@ export async function updateItemQuantity(
 }
 
 // export async function redirectToCheckout() {
+//    let cartId = (await cookies()).get('cartId')?.value;
+//    if (!cartId) {
+//       throw new Error('Missing cartId cookie');
+//    }
+
+//    let cart = await getCart(cartId);
+//    if (!cart) {
+//       throw new Error('Cart not found');
+//    }
+
+//    let checkoutUrl = cart.checkoutUrl;
+//    console.log('Original checkoutUrl:', checkoutUrl);
+
+//    // Parse the URL to check its host
+//    const parsedUrl = new URL(checkoutUrl);
+
+//    // If the URL is pointing to our front end, we need to transform it.
+//    if (parsedUrl.hostname === 'dearjohndenim.com' && parsedUrl.pathname.startsWith('/cart/c/')) {
+//       // Get the encoded part after "/cart/c/"
+//       const encodedPart = parsedUrl.pathname.replace('/cart/c/', '');
+
+//       // Try to extract the checkout ID from the encoded part (assumes it contains a sequence of digits)
+//       const match = encodedPart.match(/(\d+)/);
+//       let checkoutId = match ? match[1] : 'default';
+
+//       // Build the new checkout URL in Shopify's expected format.
+//       // Note: 'shop.app' is used as an example; Shopify might use a different domain.
+//       let newUrl = `https://shop.app/checkout/${checkoutId}/cn/${encodedPart}/shoppay?redirect_source=checkout_automatic_redirect`;
+
+//       // Append original query string parameters if any exist.
+//       if (parsedUrl.search) {
+//          newUrl += '&' + parsedUrl.search.substring(1);
+//       }
+
+//       checkoutUrl = newUrl;
+//    }
+
+//    console.log('Transformed checkoutUrl:', checkoutUrl);
+//    redirect(checkoutUrl);
+// }
+
+// export async function redirectToCheckout() {
 //   let cartId = (await cookies()).get('cartId')?.value;
 //   let cart = await getCart(cartId);
 
 //   redirect(cart!.checkoutUrl);
 // }
+
+export async function createCartAndSetCookie() {
+   let cart = await createCart();
+   (await cookies()).set('cartId', cart.id!);
+}
+
+import { createCart as createCartMutation } from 'lib/shopify';
 
 export async function redirectToCheckout() {
    let cartId = (await cookies()).get('cartId')?.value;
@@ -109,43 +158,12 @@ export async function redirectToCheckout() {
       throw new Error('Missing cartId cookie');
    }
 
-   let cart = await getCart(cartId);
-   if (!cart) {
-      throw new Error('Cart not found');
+   // Instead of getCart, call checkoutCreate with the cart details
+   const checkout = await createCartMutation(cartId);
+   if (!checkout || !checkout.checkoutUrl) {
+      throw new Error('Checkout creation failed');
    }
 
-   let checkoutUrl = cart.checkoutUrl;
-   console.log('Original checkoutUrl:', checkoutUrl);
-
-   // Parse the URL to check its host
-   const parsedUrl = new URL(checkoutUrl);
-
-   // If the URL is pointing to our front end, we need to transform it.
-   if (parsedUrl.hostname === 'dearjohndenim.com' && parsedUrl.pathname.startsWith('/cart/c/')) {
-      // Get the encoded part after "/cart/c/"
-      const encodedPart = parsedUrl.pathname.replace('/cart/c/', '');
-
-      // Try to extract the checkout ID from the encoded part (assumes it contains a sequence of digits)
-      const match = encodedPart.match(/(\d+)/);
-      let checkoutId = match ? match[1] : 'default';
-
-      // Build the new checkout URL in Shopify's expected format.
-      // Note: 'shop.app' is used as an example; Shopify might use a different domain.
-      let newUrl = `https://shop.app/checkout/${checkoutId}/cn/${encodedPart}/shoppay?redirect_source=checkout_automatic_redirect`;
-
-      // Append original query string parameters if any exist.
-      if (parsedUrl.search) {
-         newUrl += '&' + parsedUrl.search.substring(1);
-      }
-
-      checkoutUrl = newUrl;
-   }
-
-   console.log('Transformed checkoutUrl:', checkoutUrl);
-   redirect(checkoutUrl);
-}
-
-export async function createCartAndSetCookie() {
-   let cart = await createCart();
-   (await cookies()).set('cartId', cart.id!);
+   console.log('Checkout URL:', checkout.checkoutUrl);
+   redirect(checkout.checkoutUrl);
 }
