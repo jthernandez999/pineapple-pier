@@ -106,11 +106,26 @@ export async function updateItemQuantity(
 export async function redirectToCheckout() {
    let cartId = (await cookies()).get('cartId')?.value;
    let cart = await getCart(cartId);
-
    let checkoutUrl = cart!.checkoutUrl;
-   // If the checkout URL is relative, convert it to an absolute URL
-   if (checkoutUrl.startsWith('/')) {
-      checkoutUrl = `https://shop.app${checkoutUrl}`;
+
+   // If checkoutUrl is relative, transform it
+   if (checkoutUrl.startsWith('/cart/c/')) {
+      // Split the URL into path and query string
+      const [pathPart, queryString] = checkoutUrl.split('?');
+      // Remove the prefix to get the encoded part
+      const encodedPart = pathPart?.replace('/cart/c/', '');
+
+      // Attempt to extract the checkout ID using a regex.
+      // Adjust the regex based on the actual structure of the encoded string.
+      const match = encodedPart?.match(/(\d+)/);
+      if (match) {
+         const checkoutId = match[1];
+         // Build the absolute checkout URL using the extracted checkoutId and encodedPart.
+         checkoutUrl = `https://shop.app/checkout/${checkoutId}/cn/${encodedPart}/shoppay?redirect_source=checkout_automatic_redirect${queryString ? '&' + queryString : ''}`;
+      } else {
+         // If no checkout ID could be extracted, fallback by prepending shop.app
+         checkoutUrl = `https://shop.app${checkoutUrl}`;
+      }
    }
 
    redirect(checkoutUrl);
