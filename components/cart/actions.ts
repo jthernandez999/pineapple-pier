@@ -1,7 +1,7 @@
 'use server';
 
 import { TAGS } from 'lib/constants';
-import { addToCart, createCart, getCart, removeFromCart, updateCart } from 'lib/shopify';
+import { addToCart, getCart, removeFromCart, updateCart } from 'lib/shopify';
 import { revalidateTag } from 'next/cache';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
@@ -119,50 +119,27 @@ export async function redirectToCheckout(): Promise<void> {
    const cart = await getCart(cartId);
    if (!cart) throw new Error('Cart not found');
 
-   // Use the checkoutUrl from the cart query.
+   // Use the checkoutUrl from the cart query as provided.
    let checkoutUrl = cart.checkoutUrl;
    console.log('Original checkoutUrl:', checkoutUrl);
 
-   // If checkoutUrl still points to your front end, transform it to Shopify's checkout domain.
+   // If the URL is not absolute (or does not begin with the correct checkout path), log a warning.
    try {
       const parsedUrl = new URL(checkoutUrl, 'https://dearjohndenim.com');
+      // If the checkoutUrl's hostname is your front-end domain, that's a sign it wasn't set up correctly.
       if (parsedUrl.hostname === 'dearjohndenim.com') {
-         // Replace your front end domain with Shopify's checkout domain.
-         checkoutUrl = checkoutUrl.replace('https://dearjohndenim.com', 'https://shop.app');
+         console.error(
+            'Checkout URL appears to be relative; please check your Shopify domain settings.'
+         );
+         // Optionally, you might try to manually build the URL here if you know the expected format.
+         // However, without a reliable way to extract the dynamic checkoutId, this is fragile.
       }
    } catch (error) {
       console.error('Error parsing checkoutUrl:', error);
    }
 
-   console.log('Transformed checkoutUrl:', checkoutUrl);
+   // Redirect using the URL provided by Shopify.
    redirect(checkoutUrl);
-}
-
-/**
- * Creates a new cart if one doesn't exist and sets the cartId cookie.
- */
-export async function createCartAndSetCookie(): Promise<void> {
-   const cookieStore = await cookies();
-   let cartId = cookieStore.get('cartId')?.value;
-
-   if (!cartId) {
-      // Create a new cart if no cart exists.
-      const cart = await createCart();
-      if (!cart || !cart.id) {
-         throw new Error('Failed to create cart');
-      }
-      cookieStore.set('cartId', cart.id);
-   } else {
-      // Optionally verify if the cart exists; if not, create a new one.
-      const cart = await getCart(cartId);
-      if (!cart) {
-         const newCart = await createCart();
-         if (!newCart || !newCart.id) {
-            throw new Error('Failed to create cart');
-         }
-         cookieStore.set('cartId', newCart.id);
-      }
-   }
 }
 
 // 'use server';
