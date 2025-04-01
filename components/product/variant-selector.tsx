@@ -34,7 +34,7 @@ export function VariantSelector({ options, variants, product }: VariantSelectorP
    const { groups, selectedProduct, updateSelectedProduct } = useProductGroups();
    const autoMatchedRef = useRef(false);
 
-   // Track the last product ID we handled so we only do “initialization” once
+   // Track the last product ID we handled so we only do “initialization” once.
    const lastProductIdRef = useRef<string | null>(null);
 
    // --------------------------------------------------------------------------
