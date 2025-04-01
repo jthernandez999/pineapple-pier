@@ -1,7 +1,7 @@
 'use server';
 
 import { TAGS } from 'lib/constants';
-import { addToCart, getCart, removeFromCart, updateCart } from 'lib/shopify';
+import { addToCart, createCart, getCart, removeFromCart, updateCart } from 'lib/shopify';
 import { revalidateTag } from 'next/cache';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
@@ -140,6 +140,31 @@ export async function redirectToCheckout(): Promise<void> {
 
    // Redirect using the URL provided by Shopify.
    redirect(checkoutUrl);
+}
+
+// At the bottom (or appropriate location) of components/cart/actions.ts
+export async function createCartAndSetCookie(): Promise<void> {
+   const cookieStore = await cookies();
+   let cartId = cookieStore.get('cartId')?.value;
+
+   if (!cartId) {
+      // Create a new cart if none exists.
+      const cart = await createCart();
+      if (!cart || !cart.id) {
+         throw new Error('Failed to create cart');
+      }
+      cookieStore.set('cartId', cart.id);
+   } else {
+      // Optionally, verify the cart exists; if not, create a new one.
+      const cart = await getCart(cartId);
+      if (!cart) {
+         const newCart = await createCart();
+         if (!newCart || !newCart.id) {
+            throw new Error('Failed to create cart');
+         }
+         cookieStore.set('cartId', newCart.id);
+      }
+   }
 }
 
 // 'use server';
