@@ -118,7 +118,7 @@ export function AddToCart({ product }: { product: Product }) {
       <form action={handleSubmit}>
          <SubmitButton availableForSale={availableForSale} selectedVariantId={selectedVariantId} />
          <p aria-live="polite" className="sr-only" role="status">
-            {message}
+            {message ?? ''}
          </p>
       </form>
    );
