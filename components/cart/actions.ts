@@ -6,8 +6,6 @@ import { revalidateTag } from 'next/cache';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
-import { checkoutCreateMutation } from 'lib/shopify/mutations/cart';
-
 export async function addItem(prevState: any, selectedVariantId: string | undefined) {
    let cartId = (await cookies()).get('cartId')?.value;
 
@@ -98,55 +96,6 @@ export async function updateItemQuantity(
    }
 }
 
-// export async function redirectToCheckout() {
-//    let cartId = (await cookies()).get('cartId')?.value;
-//    if (!cartId) {
-//       throw new Error('Missing cartId cookie');
-//    }
-
-//    let cart = await getCart(cartId);
-//    if (!cart) {
-//       throw new Error('Cart not found');
-//    }
-
-//    let checkoutUrl = cart.checkoutUrl;
-//    console.log('Original checkoutUrl:', checkoutUrl);
-
-//    // Parse the URL to check its host
-//    const parsedUrl = new URL(checkoutUrl);
-
-//    // If the URL is pointing to our front end, we need to transform it.
-//    if (parsedUrl.hostname === 'dearjohndenim.com' && parsedUrl.pathname.startsWith('/cart/c/')) {
-//       // Get the encoded part after "/cart/c/"
-//       const encodedPart = parsedUrl.pathname.replace('/cart/c/', '');
-
-//       // Try to extract the checkout ID from the encoded part (assumes it contains a sequence of digits)
-//       const match = encodedPart.match(/(\d+)/);
-//       let checkoutId = match ? match[1] : 'default';
-
-//       // Build the new checkout URL in Shopify's expected format.
-//       // Note: 'shop.app' is used as an example; Shopify might use a different domain.
-//       let newUrl = `https://shop.app/checkout/${checkoutId}/cn/${encodedPart}/shoppay?redirect_source=checkout_automatic_redirect`;
-
-//       // Append original query string parameters if any exist.
-//       if (parsedUrl.search) {
-//          newUrl += '&' + parsedUrl.search.substring(1);
-//       }
-
-//       checkoutUrl = newUrl;
-//    }
-
-//    console.log('Transformed checkoutUrl:', checkoutUrl);
-//    redirect(checkoutUrl);
-// }
-
-// export async function redirectToCheckout() {
-//   let cartId = (await cookies()).get('cartId')?.value;
-//   let cart = await getCart(cartId);
-
-//   redirect(cart!.checkoutUrl);
-// }
-
 // Ensure you have a proper type for your cart line.
 interface CartLine {
    quantity: number;
@@ -156,61 +105,88 @@ interface CartLine {
    };
 }
 
+// export async function redirectToCheckout() {
+//    let cartId = (await cookies()).get('cartId')?.value;
+//    if (!cartId) {
+//       throw new Error('Missing cartId cookie');
+//    }
+
+//    const cart = await getCart(cartId);
+//    if (!cart) {
+//       throw new Error('Cart not found');
+//    }
+
+//    // Adjust based on your actual data shape:
+//    // If cart.lines is an array:
+//    const lineItems = cart.lines.map((line: CartLine) => ({
+//       variantId: line.merchandise.id,
+//       quantity: line.quantity
+//    }));
+
+//    // If your API expects a different shape, adjust accordingly.
+//    const input = { lineItems };
+
+//    const storefrontAccessToken = process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN;
+//    if (!storefrontAccessToken) {
+//       throw new Error('SHOPIFY_STOREFRONT_ACCESS_TOKEN is not defined');
+//    }
+
+//    const response = await fetch(
+//       'https://dear-john-denim-headquarters.myshopify.com/api/2023-01/graphql.json',
+//       {
+//          method: 'POST',
+//          headers: {
+//             'Content-Type': 'application/json',
+//             'X-Shopify-Storefront-Access-Token': storefrontAccessToken
+//          },
+//          body: JSON.stringify({
+//             query: checkoutCreateMutation,
+//             variables: { input }
+//          })
+//       }
+//    );
+
+//    const json = await response.json();
+//    if (json.errors) {
+//       console.error('CheckoutCreate errors:', json.errors);
+//       throw new Error('CheckoutCreate mutation failed');
+//    }
+
+//    const { checkout, checkoutUserErrors } = json.data.checkoutCreate;
+//    if (checkoutUserErrors && checkoutUserErrors.length > 0) {
+//       console.error('Checkout user errors:', checkoutUserErrors);
+//       throw new Error('Checkout creation encountered errors');
+//    }
+
+//    console.log('Checkout URL:', checkout.webUrl);
+//    redirect(checkout.webUrl);
+// }
+
 export async function redirectToCheckout() {
    let cartId = (await cookies()).get('cartId')?.value;
-   if (!cartId) {
-      throw new Error('Missing cartId cookie');
-   }
+   if (!cartId) throw new Error('Missing cartId cookie');
 
    const cart = await getCart(cartId);
-   if (!cart) {
-      throw new Error('Cart not found');
-   }
+   if (!cart) throw new Error('Cart not found');
 
-   // Adjust based on your actual data shape:
-   // If cart.lines is an array:
-   const lineItems = cart.lines.map((line: CartLine) => ({
-      variantId: line.merchandise.id,
-      quantity: line.quantity
-   }));
+   // Use the checkoutUrl from the cart query
+   let checkoutUrl = cart.checkoutUrl;
+   console.log('Original checkoutUrl:', checkoutUrl);
 
-   // If your API expects a different shape, adjust accordingly.
-   const input = { lineItems };
-
-   const storefrontAccessToken = process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN;
-   if (!storefrontAccessToken) {
-      throw new Error('SHOPIFY_STOREFRONT_ACCESS_TOKEN is not defined');
-   }
-
-   const response = await fetch(
-      'https://dear-john-denim-headquarters.myshopify.com/api/2023-01/graphql.json',
-      {
-         method: 'POST',
-         headers: {
-            'Content-Type': 'application/json',
-            'X-Shopify-Storefront-Access-Token': storefrontAccessToken
-         },
-         body: JSON.stringify({
-            query: checkoutCreateMutation,
-            variables: { input }
-         })
+   // If checkoutUrl is relative or still points to your front end, transform it:
+   try {
+      const parsedUrl = new URL(checkoutUrl, 'https://dearjohndenim.com');
+      if (parsedUrl.hostname === 'dearjohndenim.com') {
+         // Replace your front end domain with Shopify's checkout domain.
+         // Update 'shop.app' to your store's correct checkout domain if different.
+         checkoutUrl = checkoutUrl.replace('https://dearjohndenim.com', 'https://shop.app');
       }
-   );
-
-   const json = await response.json();
-   if (json.errors) {
-      console.error('CheckoutCreate errors:', json.errors);
-      throw new Error('CheckoutCreate mutation failed');
+   } catch (error) {
+      console.error('Error parsing checkoutUrl', error);
    }
 
-   const { checkout, checkoutUserErrors } = json.data.checkoutCreate;
-   if (checkoutUserErrors && checkoutUserErrors.length > 0) {
-      console.error('Checkout user errors:', checkoutUserErrors);
-      throw new Error('Checkout creation encountered errors');
-   }
-
-   console.log('Checkout URL:', checkout.webUrl);
-   redirect(checkout.webUrl);
+   console.log('Transformed checkoutUrl:', checkoutUrl);
+   redirect(checkoutUrl);
 }
 
 export async function createCartAndSetCookie() {
@@ -218,5 +194,10 @@ export async function createCartAndSetCookie() {
    if (!cartId) {
       throw new Error('Missing cartId cookie');
    }
-   const cart = await getCart(cartId); // Correct: cartId is provided
+   let cart = await getCart(cartId); // Correct: cartId is provided
 }
+
+// export async function createCartAndSetCookie() {
+//   let cart = await createCart();
+//   (await cookies()).set('cartId', cart.id!);
+// }
