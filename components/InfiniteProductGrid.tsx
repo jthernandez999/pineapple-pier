@@ -41,7 +41,8 @@ export default function InfiniteScrollProductGrid({
       };
       // console.log('VARIABLES::::::', variables);
       try {
-         const res = await fetch(`/api/collection-products?cursor=${cursor}`, {
+         // const res = await fetch(`/api/collection-products?cursor=${cursor}`, {
+         const res = await fetch('/api/collection-products', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ query: getCollectionProductsQuery, variables }),
