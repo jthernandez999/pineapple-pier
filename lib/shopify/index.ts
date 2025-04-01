@@ -11,7 +11,11 @@ import {
    removeFromCartMutation
 } from './mutations/cart';
 import { getCartQuery } from './queries/cart';
-import { getCollectionProductsQuery, getCollectionsQuery } from './queries/collection';
+import {
+   getCollectionProductsQuery,
+   getCollectionQuery,
+   getCollectionsQuery
+} from './queries/collection';
 import { getMenuQuery } from './queries/menu';
 import { getPageQuery, getPagesQuery } from './queries/page';
 import {
@@ -32,6 +36,7 @@ import {
    ShopifyCart,
    ShopifyCartOperation,
    ShopifyCollection,
+   ShopifyCollectionOperation,
    ShopifyCollectionProductsOperation,
    ShopifyCollectionsOperation,
    ShopifyCreateCartOperation,
@@ -383,17 +388,17 @@ export async function getCart(cartId: string | undefined): Promise<Cart | undefi
 //    return reshapeCart(res.body.data.cart);
 // }
 
-// export async function getCollection(handle: string): Promise<Collection | undefined> {
-//    const res = await shopifyFetch<ShopifyCollectionOperation>({
-//       query: getCollectionQuery,
-//       tags: [TAGS.collections],
-//       variables: {
-//          handle
-//       }
-//    });
+export async function getCollection(handle: string): Promise<Collection | undefined> {
+   const res = await shopifyFetch<ShopifyCollectionOperation>({
+      query: getCollectionQuery,
+      tags: [TAGS.collections],
+      variables: {
+         handle
+      }
+   });
 
-//    return reshapeCollection(res.body.data.collection);
-// }
+   return reshapeCollection(res.body.data.collection);
+}
 
 // export async function getCollectionProducts({
 //    collection,
