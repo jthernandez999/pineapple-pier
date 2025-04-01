@@ -65,7 +65,8 @@ export default function AnimatedLogo() {
             alt="DJ Logo"
             width={500}
             height={200}
-            style={{ objectFit: 'contain', objectPosition: 'center' }}
+            // style={{ objectFit: 'contain', objectPosition: 'center' }}
+            className="object-contain, object-center"
             unoptimized
          />
       </div>

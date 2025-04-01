@@ -41,14 +41,22 @@ export default function InfiniteScrollProductGrid({
       };
       // console.log('VARIABLES::::::', variables);
       try {
-         // Call our API route instead of the Shopify endpoint directly.
+         // const res = await fetch(`/api/collection-products?cursor=${cursor}`, {
          const res = await fetch('/api/collection-products', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ query: getCollectionProductsQuery, variables }),
-            // This instructs Next.js to cache the response at the edge and revalidate every 60 seconds.
             next: { revalidate: 60 }
          });
+
+         // Call our API route instead of the Shopify endpoint directly.
+         // const res = await fetch('/api/collection-products', {
+         //    method: 'POST',
+         //    headers: { 'Content-Type': 'application/json' },
+         //    body: JSON.stringify({ query: getCollectionProductsQuery, variables }),
+         //    // This instructs Next.js to cache the response at the edge and revalidate every 60 seconds.
+         //    next: { revalidate: 60 }
+         // });
 
          const json = await res.json();
          // console.log('Fetch response:', json);

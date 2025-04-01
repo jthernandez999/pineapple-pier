@@ -29,6 +29,7 @@ const productFragment = /* GraphQL */ `
          edges {
             node {
                id
+               sku
                title
                availableForSale
                selectedOptions {

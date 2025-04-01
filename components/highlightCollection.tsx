@@ -70,13 +70,13 @@ function BannerItem({
                   muted
                   playsInline
                   style={{
-                     objectFit: 'cover',
+                     // objectFit: 'cover',
                      width: '100%',
                      height: '100%'
                   }}
                   className={`${
                      !isLoading && inView ? 'scale-100' : 'scale-110'
-                  } ease-custom transition-transform duration-1200 hover:scale-[.99]`}
+                  } ease-custom object-cover transition-transform duration-1200 hover:scale-[.99]`}
                >
                   <source src={banner.video} type="video/mp4" />
                </video>

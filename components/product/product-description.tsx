@@ -49,6 +49,15 @@ export function ProductDescription({ product, groupColorMetaobjectIds }: Product
    // Use usePathname to detect route changes (client-side navigation).
    const pathname = usePathname();
 
+   // Get the SKU from the first variant and remove everything from the colon (":") onward.
+   let baseSku = '';
+   if (currentProduct.variants && currentProduct.variants.length > 0) {
+      // Cast the first variant to a type that has an optional sku property
+      const sku = (currentProduct.variants[0] as { sku?: string }).sku ?? '';
+      const colonIndex = sku.indexOf(':');
+      baseSku = colonIndex !== -1 ? sku.substring(0, colonIndex) : sku;
+   }
+
    // Use widgetKey to force re-mounting of the widget container.
    const [widgetKey, setWidgetKey] = useState<string>(`judge-me-${numericProductId}`);
    useEffect(() => {
@@ -87,9 +96,15 @@ export function ProductDescription({ product, groupColorMetaobjectIds }: Product
       <div className="mx-auto flex flex-col justify-start border-b px-2 pb-6 dark:border-neutral-700 md:px-4 2xl:mx-auto">
          <div className="mx-4 mt-2 text-start text-sm text-black dark:text-white">
             <div className="flex flex-col items-start justify-start">
-               <h1 className="mb-0 flex justify-start text-start font-sans text-xl md:mb-4 lg:mb-4 2xl:text-3xl">
+               <h1 className="mb-0 flex justify-start text-start font-sans text-xl md:mb-2 lg:mb-2 2xl:text-3xl">
                   {filteredTitle}
                </h1>
+               <p
+                  data-sku
+                  className="mb-2 text-xs font-light text-black dark:text-white md:text-xs lg:text-xs 2xl:text-sm"
+               >
+                  {baseSku || 'No SKU available'}
+               </p>
                {/* Judge.me Preview Badge */}
                <div>
                   {numericProductId !== null && (

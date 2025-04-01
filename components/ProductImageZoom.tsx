@@ -37,9 +37,9 @@ export default function ProductImageZoom({
                alt={alt}
                width={width}
                height={height}
-               objectFit="cover"
+               // objectFit="cover"
                unoptimized={unoptimized}
-               loading="lazy"
+               // loading="lazy"
                sizes={sizes}
                className={className}
                priority={priority}
