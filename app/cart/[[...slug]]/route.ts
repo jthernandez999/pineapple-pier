@@ -4,22 +4,20 @@ import { NextResponse } from 'next/server';
 
 export async function GET(
    request: NextRequest,
-   context: { params: { slug?: string[] } }
+   { params }: { params: { slug: string[] } }
 ): Promise<Response> {
-   const { slug } = context.params;
-   if (!slug || slug.length === 0) {
+   if (params.slug.length === 0) {
       return NextResponse.json({ message: 'Cart root endpoint' });
    }
-   return NextResponse.json({ message: `Cart nested endpoint: ${slug.join('/')}` });
+   return NextResponse.json({ message: `Cart nested endpoint: ${params.slug.join('/')}` });
 }
 
 export async function POST(
    request: NextRequest,
-   context: { params: { slug?: string[] } }
+   { params }: { params: { slug: string[] } }
 ): Promise<Response> {
-   const { slug } = context.params;
-   if (!slug || slug.length === 0) {
+   if (params.slug.length === 0) {
       return NextResponse.json({ message: 'Cart root endpoint (POST)' });
    }
-   return NextResponse.json({ message: `Cart nested endpoint (POST): ${slug.join('/')}` });
+   return NextResponse.json({ message: `Cart nested endpoint (POST): ${params.slug.join('/')}` });
 }
