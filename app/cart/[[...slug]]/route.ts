@@ -2,11 +2,11 @@
 import { NextResponse } from 'next/server';
 
 export function GET(request: Request, { params }: { params: { slug?: string[] } }) {
-   // When slug is undefined or empty, this is the `/cart` route
+   // If no slug is provided, this is the root /cart route.
    if (!params.slug || params.slug.length === 0) {
       return NextResponse.json({ message: 'Cart root endpoint' });
    }
-   // For any nested route, handle accordingly
+   // Handle nested routes like /cart/c/...
    return NextResponse.json({
       message: `Cart nested endpoint: ${params.slug.join('/')}`
    });
