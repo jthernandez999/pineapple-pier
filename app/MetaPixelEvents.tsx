@@ -27,4 +27,4 @@ export default MetaPixelEvents;
 //  The  useEffect  hook will trigger the Facebook Pixel page view event when the component is mounted and when the pathname or search parameters change.
 //  The  ReactPixel.init  method initializes the Facebook Pixel with the provided pixel ID.
 //  The  ReactPixel.pageView  method triggers the page view event.
-//  The  return null  statement will render nothing to the DOM.
+//  The  return null  statement will render nothing to the DOM..
