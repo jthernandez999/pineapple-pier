@@ -1,45 +1,69 @@
 import cartFragment from '../fragments/cart';
 
 export const addToCartMutation = /* GraphQL */ `
-  mutation addToCart($cartId: ID!, $lines: [CartLineInput!]!) {
-    cartLinesAdd(cartId: $cartId, lines: $lines) {
-      cart {
-        ...cart
+   mutation addToCart($cartId: ID!, $lines: [CartLineInput!]!) {
+      cartLinesAdd(cartId: $cartId, lines: $lines) {
+         cart {
+            ...cart
+         }
       }
-    }
-  }
-  ${cartFragment}
+   }
+   ${cartFragment}
 `;
 
 export const createCartMutation = /* GraphQL */ `
-  mutation createCart($lineItems: [CartLineInput!]) {
-    cartCreate(input: { lines: $lineItems }) {
-      cart {
-        ...cart
+   mutation createCart($lineItems: [CartLineInput!]) {
+      cartCreate(input: { lines: $lineItems }) {
+         cart {
+            ...cart
+         }
       }
-    }
-  }
-  ${cartFragment}
+   }
+   ${cartFragment}
 `;
 
 export const editCartItemsMutation = /* GraphQL */ `
-  mutation editCartItems($cartId: ID!, $lines: [CartLineUpdateInput!]!) {
-    cartLinesUpdate(cartId: $cartId, lines: $lines) {
-      cart {
-        ...cart
+   mutation editCartItems($cartId: ID!, $lines: [CartLineUpdateInput!]!) {
+      cartLinesUpdate(cartId: $cartId, lines: $lines) {
+         cart {
+            ...cart
+         }
       }
-    }
-  }
-  ${cartFragment}
+   }
+   ${cartFragment}
 `;
 
 export const removeFromCartMutation = /* GraphQL */ `
-  mutation removeFromCart($cartId: ID!, $lineIds: [ID!]!) {
-    cartLinesRemove(cartId: $cartId, lineIds: $lineIds) {
-      cart {
-        ...cart
+   mutation removeFromCart($cartId: ID!, $lineIds: [ID!]!) {
+      cartLinesRemove(cartId: $cartId, lineIds: $lineIds) {
+         cart {
+            ...cart
+         }
       }
-    }
-  }
-  ${cartFragment}
+   }
+   ${cartFragment}
+`;
+
+// checkout.js
+export const checkoutCreateMutation = /* GraphQL */ `
+   mutation checkoutCreate($input: CheckoutCreateInput!) {
+      checkoutCreate(input: $input) {
+         checkout {
+            id
+            webUrl
+            subtotalPriceV2 {
+               amount
+               currencyCode
+            }
+            totalPriceV2 {
+               amount
+               currencyCode
+            }
+         }
+         checkoutUserErrors {
+            field
+            message
+         }
+      }
+   }
 `;

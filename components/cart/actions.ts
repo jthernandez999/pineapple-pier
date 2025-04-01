@@ -1,10 +1,12 @@
 'use server';
 
 import { TAGS } from 'lib/constants';
-import { addToCart, createCart, getCart, removeFromCart, updateCart } from 'lib/shopify';
+import { addToCart, getCart, removeFromCart, updateCart } from 'lib/shopify';
 import { revalidateTag } from 'next/cache';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
+
+import { checkoutCreateMutation } from 'lib/shopify/mutations/cart';
 
 export async function addItem(prevState: any, selectedVariantId: string | undefined) {
    let cartId = (await cookies()).get('cartId')?.value;
@@ -145,12 +147,14 @@ export async function updateItemQuantity(
 //   redirect(cart!.checkoutUrl);
 // }
 
-export async function createCartAndSetCookie() {
-   let cart = await createCart();
-   (await cookies()).set('cartId', cart.id!);
+// Ensure you have a proper type for your cart line.
+interface CartLine {
+   quantity: number;
+   merchandise: {
+      id: string;
+      // ...other properties as needed.
+   };
 }
-
-import { createCart as createCartMutation } from 'lib/shopify';
 
 export async function redirectToCheckout() {
    let cartId = (await cookies()).get('cartId')?.value;
@@ -158,12 +162,61 @@ export async function redirectToCheckout() {
       throw new Error('Missing cartId cookie');
    }
 
-   // Instead of getCart, call checkoutCreate with the cart details
-   const checkout = await createCartMutation(cartId);
-   if (!checkout || !checkout.checkoutUrl) {
-      throw new Error('Checkout creation failed');
+   const cart = await getCart(cartId);
+   if (!cart) {
+      throw new Error('Cart not found');
    }
 
-   console.log('Checkout URL:', checkout.checkoutUrl);
-   redirect(checkout.checkoutUrl);
+   // Adjust based on your actual data shape:
+   // If cart.lines is an array:
+   const lineItems = cart.lines.map((line: CartLine) => ({
+      variantId: line.merchandise.id,
+      quantity: line.quantity
+   }));
+
+   // If your API expects a different shape, adjust accordingly.
+   const input = { lineItems };
+
+   const storefrontAccessToken = process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN;
+   if (!storefrontAccessToken) {
+      throw new Error('SHOPIFY_STOREFRONT_ACCESS_TOKEN is not defined');
+   }
+
+   const response = await fetch(
+      'https://dear-john-denim-headquarters.myshopify.com/api/2023-01/graphql.json',
+      {
+         method: 'POST',
+         headers: {
+            'Content-Type': 'application/json',
+            'X-Shopify-Storefront-Access-Token': storefrontAccessToken
+         },
+         body: JSON.stringify({
+            query: checkoutCreateMutation,
+            variables: { input }
+         })
+      }
+   );
+
+   const json = await response.json();
+   if (json.errors) {
+      console.error('CheckoutCreate errors:', json.errors);
+      throw new Error('CheckoutCreate mutation failed');
+   }
+
+   const { checkout, checkoutUserErrors } = json.data.checkoutCreate;
+   if (checkoutUserErrors && checkoutUserErrors.length > 0) {
+      console.error('Checkout user errors:', checkoutUserErrors);
+      throw new Error('Checkout creation encountered errors');
+   }
+
+   console.log('Checkout URL:', checkout.webUrl);
+   redirect(checkout.webUrl);
+}
+
+export async function createCartAndSetCookie() {
+   let cartId = (await cookies()).get('cartId')?.value;
+   if (!cartId) {
+      throw new Error('Missing cartId cookie');
+   }
+   const cart = await getCart(cartId); // Correct: cartId is provided
 }
