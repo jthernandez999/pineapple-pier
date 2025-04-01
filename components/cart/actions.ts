@@ -117,17 +117,28 @@ export async function redirectToCheckout() {
    let checkoutUrl = cart.checkoutUrl;
    console.log('Original checkoutUrl:', checkoutUrl);
 
-   // Transform relative URL into absolute URL if needed
-   if (checkoutUrl.startsWith('/cart/c/')) {
-      const [pathPart, queryString] = checkoutUrl.split('?');
-      const encodedPart = pathPart?.replace('/cart/c/', '');
-      const match = encodedPart?.match(/(\d+)/);
-      if (match) {
-         const checkoutId = match[1];
-         checkoutUrl = `https://shop.app/checkout/${checkoutId}/cn/${encodedPart}/shoppay?redirect_source=checkout_automatic_redirect${queryString ? '&' + queryString : ''}`;
-      } else {
-         checkoutUrl = `https://shop.app${checkoutUrl}`;
+   // Parse the URL to check its host
+   const parsedUrl = new URL(checkoutUrl);
+
+   // If the URL is pointing to our front end, we need to transform it.
+   if (parsedUrl.hostname === 'dearjohndenim.com' && parsedUrl.pathname.startsWith('/cart/c/')) {
+      // Get the encoded part after "/cart/c/"
+      const encodedPart = parsedUrl.pathname.replace('/cart/c/', '');
+
+      // Try to extract the checkout ID from the encoded part (assumes it contains a sequence of digits)
+      const match = encodedPart.match(/(\d+)/);
+      let checkoutId = match ? match[1] : 'default';
+
+      // Build the new checkout URL in Shopify's expected format.
+      // Note: 'shop.app' is used as an example; Shopify might use a different domain.
+      let newUrl = `https://shop.app/checkout/${checkoutId}/cn/${encodedPart}/shoppay?redirect_source=checkout_automatic_redirect`;
+
+      // Append original query string parameters if any exist.
+      if (parsedUrl.search) {
+         newUrl += '&' + parsedUrl.search.substring(1);
       }
+
+      checkoutUrl = newUrl;
    }
 
    console.log('Transformed checkoutUrl:', checkoutUrl);
