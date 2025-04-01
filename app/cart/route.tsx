@@ -2,6 +2,6 @@
 import { NextResponse } from 'next/server';
 
 export function GET() {
-   // Return a simple JSON response or a redirect if needed.
+   // You can return JSON or any other response you need.
    return NextResponse.json({ message: 'Cart endpoint is not implemented' });
 }
