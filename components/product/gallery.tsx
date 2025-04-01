@@ -139,6 +139,7 @@ export function Gallery({ images }: { images: { src: string; altText: string }[]
                                  fill
                                  sizes="100vw"
                                  className="aspect-[2/3] object-contain"
+                                 priority
                                  unoptimized
                               />
                            </div>
@@ -161,7 +162,7 @@ export function Gallery({ images }: { images: { src: string; altText: string }[]
                                  fill={true}
                                  sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
                                  className="zoom-image"
-                                 priority={false}
+                                 priority
                                  unoptimized={true}
                               />
                            </figure>
