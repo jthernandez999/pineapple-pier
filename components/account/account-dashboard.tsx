@@ -118,7 +118,7 @@ export default function AccountDashboard({
             </div>
             <nav>
                <ul>
-                  {['welcome', 'orders', 'personal', 'address', 'manage'].map((menu) => (
+                  {['welcome', 'orders', 'personal', 'manage'].map((menu) => (
                      <li key={menu} className="mb-2 border-b border-gray-200">
                         <button
                            onClick={() =>
