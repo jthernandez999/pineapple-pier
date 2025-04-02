@@ -5,7 +5,6 @@ import LoadingDots from 'components/loading-dots';
 import Link from 'next/link';
 import { useState } from 'react';
 import { useFormStatus } from 'react-dom';
-import { AccountAddressInfo } from './account-address-info';
 import { AccountOrdersHistory } from './account-orders-history';
 import { AccountPersonalInfo } from './account-personal-info';
 import { AccountProfile } from './account-profile';
@@ -81,13 +80,13 @@ export default function AccountDashboard({
                   customerAccessToken={customerAccessToken}
                />
             );
-         case 'address':
-            return (
-               <AccountAddressInfo
-                  addressData={customerData?.defaultAddress}
-                  customerAccessToken={customerAccessToken}
-               />
-            );
+         // case 'address':
+         //    return (
+         //       <AccountAddressInfo
+         //          addressData={customerData?.defaultAddress}
+         //          customerAccessToken={customerAccessToken}
+         //       />
+         //    );
          case 'welcome':
          default:
             return (
