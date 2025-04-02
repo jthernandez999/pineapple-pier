@@ -6,10 +6,5 @@ export default function CollectionProductPage({
 }: {
    params: { collection: string; handle: string };
 }) {
-   // Wrap the plain object in a Promise and cast to the expected type.
-   return (
-      <ProductPage
-         params={Promise.resolve(params) as Promise<{ collection: string; handle: string }>}
-      />
-   );
+   return <ProductPage params={params} />;
 }
