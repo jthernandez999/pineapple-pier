@@ -30,13 +30,12 @@ const fallbackImg = {
 };
 
 // Accept params as either a plain object or a promise.
-export async function generateMetadata({
-   params
-}: {
-   params: RouteParams | Promise<RouteParams>;
+export async function generateMetadata(props: {
+   params: Promise<{ handle: string }>;
 }): Promise<Metadata> {
-   const { handle } = await Promise.resolve(params);
-   const product = await getProduct(handle);
+   const params = await props.params;
+   const product = await getProduct(params.handle);
+
    if (!product) return notFound();
 
    const featuredImage = product.featuredImage || fallbackImg;
@@ -140,15 +139,12 @@ async function RelatedProducts({ id }: { id: string }) {
    );
 }
 
-export default async function ProductPage({
-   params
-}: {
-   params: RouteParams | Promise<RouteParams>;
-}) {
-   // Await params whether they're a promise or a plain object.
-   const { handle, collection } = await Promise.resolve(params);
-   const product = await getProduct(handle);
+export default async function ProductPage(props: { params: Promise<{ handle: string }> }) {
+   const params = await props.params;
+   const product = await getProduct(params.handle);
+
    if (!product) return notFound();
+
    const featuredImage = product.featuredImage || fallbackImg;
 
    const productJsonLd = {
