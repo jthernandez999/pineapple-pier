@@ -6,6 +6,9 @@ export default function CollectionProductPage({
 }: {
    params: { collection: string; handle: string };
 }) {
-   // Wrap the plain params object in a promise:
-   return <ProductPage params={Promise.resolve(params)} />;
+   return (
+      <ProductPage
+         params={Promise.resolve(params) as Promise<{ collection: string; handle: string }>}
+      />
+   );
 }

@@ -17,11 +17,6 @@ import Label from '../../../components/label';
 
 type RouteParams = { handle: string; collection?: string };
 
-// Helper to check if a value is a promise
-function isPromise<T>(value: T | Promise<T>): value is Promise<T> {
-   return typeof (value as any)?.then === 'function';
-}
-
 const fallbackImg = {
    url: 'https://cdn.shopify.com/s/files/1/1024/2207/files/default_logo_dear_john_denim.jpg?v=1739228110',
    width: 1000,
@@ -138,7 +133,6 @@ async function RelatedProducts({ id }: { id: string }) {
       </div>
    );
 }
-
 export default async function ProductPage({ params }: { params: Promise<RouteParams> }) {
    const { handle, collection } = await params;
    const product = await getProduct(handle);
