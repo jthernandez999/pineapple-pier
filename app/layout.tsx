@@ -10,6 +10,7 @@ import NavbarScrollHandler from 'components/NavbarScrollHandler';
 import { ProductGroupsProvider } from 'components/product/ProductGroupsContext';
 // import { WelcomeToast } from 'components/welcome-toast';
 // import ScrollingText from 'components/ScrollingText';
+import PixelTracker from 'components/PixelTracker';
 import { GeistSans } from 'geist/font/sans';
 import { getCart } from 'lib/shopify';
 import { ensureStartsWith } from 'lib/utils';
@@ -82,6 +83,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
                   <main>
                      <MetaPixelEvents />
                      {/* <ScrollingText /> */}
+                     <PixelTracker />
                      {children}
                      <Toaster closeButton />
                      {/* <WelcomeToast /> */}
