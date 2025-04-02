@@ -29,12 +29,8 @@ const fallbackImg = {
    altText: 'Default product image'
 };
 
-export async function generateMetadata({
-   params
-}: {
-   params: Promise<RouteParams>;
-}): Promise<Metadata> {
-   const { handle } = await params;
+export async function generateMetadata({ params }: { params: RouteParams }): Promise<Metadata> {
+   const { handle } = params;
    const product = await getProduct(handle);
    if (!product) return notFound();
 
@@ -139,8 +135,9 @@ async function RelatedProducts({ id }: { id: string }) {
    );
 }
 
-export default async function ProductPage({ params }: { params: Promise<RouteParams> }) {
-   const { handle, collection } = await params;
+export default async function ProductPage({ params }: { params: RouteParams }) {
+   // Destructure directly from params (no need to await)
+   const { handle, collection } = params;
    const product = await getProduct(handle);
    if (!product) return notFound();
 
