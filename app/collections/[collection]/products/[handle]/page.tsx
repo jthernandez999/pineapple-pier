@@ -6,6 +6,5 @@ export default function CollectionProductPage({
 }: {
    params: { collection: string; handle: string };
 }) {
-   // Pass params directly (as a plain object) to ProductPage.
    return <ProductPage params={params} />;
 }
