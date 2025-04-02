@@ -18,13 +18,17 @@ declare global {
 
 const PixelTracker: React.FC = () => {
    useEffect(() => {
+      // Check that we're running in the browser and the Shopify script is loaded
       if (typeof window !== 'undefined' && window.shopify) {
-         register(({ analytics, browser, init, settings }) => {
+         register(({ analytics, browser, settings }) => {
+            // Use the actual browser location to override the default Shopify context
+            const { href, origin } = window.location;
+
             if (window.my_pixel) {
                window.my_pixel.configure({
                   pixelId: settings.pixelId,
-                  href: init.context.window.location.href,
-                  origin: init.context.window.location.origin
+                  href,
+                  origin
                });
             }
 
@@ -32,9 +36,10 @@ const PixelTracker: React.FC = () => {
                const cookieValue = await browser.cookie.get('my_pixel_cookie');
 
                if (window.my_pixel) {
+                  // Publish the event using the actual browser location
                   window.my_pixel.publish('page_viewed', {
-                     href: event.context.window.location.href,
-                     origin: event.context.window.location.origin,
+                     href,
+                     origin,
                      cookie: cookieValue
                   });
                }
@@ -48,7 +53,7 @@ const PixelTracker: React.FC = () => {
    }, []);
 
    return (
-      // Hidden because pixels are shy
+      // This element is hidden because the pixel does all the work behind the scenes
       <div className="hidden">{/* Pixel Tracker is active */}</div>
    );
 };
