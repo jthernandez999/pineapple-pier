@@ -6,7 +6,7 @@ class MyDocument extends Document {
       return (
          <Html>
             <Head>
-               {/* Replace the src URL with the correct one from Shopify's docs */}
+               {/* Include the Shopify Web Pixel script */}
                <script src="https://cdn.shopify.com/s/shopify-web-pixels-extension.js" async />
             </Head>
             <body>
