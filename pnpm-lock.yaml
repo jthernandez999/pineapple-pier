@@ -24,6 +24,9 @@ dependencies:
   '@shopify/hydrogen':
     specifier: ^2025.1.2
     version: 2025.1.2(@remix-run/react@2.16.0)(@remix-run/server-runtime@2.16.0)(@types/react@19.0.10)(react-dom@19.0.0)(react@19.0.0)
+  '@shopify/web-pixels-extension':
+    specifier: ^2.18.0
+    version: 2.18.0
   '@types/next':
     specifier: ^9.0.0
     version: 9.0.0(react-dom@19.0.0)(react@19.0.0)
@@ -859,6 +862,10 @@ packages:
       - '@types/react'
       - react-dom
       - xstate
+    dev: false
+
+  /@shopify/web-pixels-extension@2.18.0:
+    resolution: {integrity: sha512-qHp93QKdxJ8UREzkYOje6343An2wvXLUF71uduahiTjBfYXQ7VqIAXoHCwzCnP3Kss1AXLpz7XPaKCRC0ONOTw==}
     dev: false
 
   /@sinclair/typebox@0.25.24:
