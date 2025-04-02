@@ -15,6 +15,13 @@ import ActiveGallery from '../../../components/ActiveGallery';
 import Grid from '../../../components/grid';
 import Label from '../../../components/label';
 
+type RouteParams = { handle: string; collection?: string };
+
+// Helper to check if a value is a promise
+function isPromise<T>(value: T | Promise<T>): value is Promise<T> {
+   return typeof (value as any)?.then === 'function';
+}
+
 const fallbackImg = {
    url: 'https://cdn.shopify.com/s/files/1/1024/2207/files/default_logo_dear_john_denim.jpg?v=1739228110',
    width: 1000,
@@ -22,12 +29,14 @@ const fallbackImg = {
    altText: 'Default product image'
 };
 
-export async function generateMetadata(props: {
-   params: Promise<{ handle: string }>;
+export async function generateMetadata({
+   params
+}: {
+   params: RouteParams | Promise<RouteParams>;
 }): Promise<Metadata> {
-   const params = await props.params;
-   const product = await getProduct(params.handle);
-
+   const resolvedParams = isPromise(params) ? await params : params;
+   const { handle } = resolvedParams;
+   const product = await getProduct(handle);
    if (!product) return notFound();
 
    const featuredImage = product.featuredImage || fallbackImg;
@@ -131,10 +140,13 @@ async function RelatedProducts({ id }: { id: string }) {
    );
 }
 
-export default async function ProductPage(props: {
-   params: { handle: string; collection?: string };
+export default async function ProductPage({
+   params
+}: {
+   params: RouteParams | Promise<RouteParams>;
 }) {
-   const { handle, collection } = await props.params;
+   const resolvedParams = isPromise(params) ? await params : params;
+   const { handle, collection } = resolvedParams;
    const product = await getProduct(handle);
    if (!product) return notFound();
 
