@@ -131,10 +131,11 @@ async function RelatedProducts({ id }: { id: string }) {
    );
 }
 
-export default async function ProductPage(props: { params: Promise<{ handle: string }> }) {
-   const params = await props.params;
-   const product = await getProduct(params.handle);
-
+export default async function ProductPage(props: {
+   params: { handle: string; collection?: string };
+}) {
+   const { handle, collection } = await props.params;
+   const product = await getProduct(handle);
    if (!product) return notFound();
 
    const featuredImage = product.featuredImage || fallbackImg;

@@ -126,6 +126,12 @@ export type Product = Omit<ShopifyProduct, 'variants' | 'images'> & {
       nodes: Collection[];
    };
 };
+export type ProductPageProps = {
+   params: {
+      handle: string;
+      collection?: string;
+   };
+};
 
 export type ProductOption = {
    id: string;

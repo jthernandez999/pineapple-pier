@@ -11,7 +11,7 @@ import {
 import { Product } from 'lib/shopify/types';
 import Link from 'next/link';
 import React, { useEffect, useMemo, useState } from 'react';
-
+import { useCollectionSlug } from '../hooks/useCollectionSlug';
 // Helper to extract the parent group value.
 function getParentGroup(product: Product): string {
    const fields: Metafield[] = flattenMetafields(product);
@@ -45,7 +45,9 @@ interface ProductGridItemsProps {
 }
 
 export function ProductGridItemsComponent({ products, groupHandle }: ProductGridItemsProps) {
+   const collectionSlug = useCollectionSlug();
    // Memoize groupsMap so it only recalculates when products change.
+
    const groupsMap = useMemo(() => {
       const map: { [groupKey: string]: Product[] } = {};
       products.forEach((product) => {
@@ -224,7 +226,11 @@ export function ProductGridItemsComponent({ products, groupHandle }: ProductGrid
                return (
                   <Grid.Item key={product.handle} className="animate-fadeIn">
                      <Link
-                        href={`/products/${product.handle}`}
+                        href={
+                           collectionSlug
+                              ? `/collections/${collectionSlug}/products/${product.handle}`
+                              : `/products/${product.handle}`
+                        }
                         prefetch={true}
                         className="flex h-full w-full flex-col"
                      >
