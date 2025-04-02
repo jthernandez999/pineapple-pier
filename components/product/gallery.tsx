@@ -162,7 +162,7 @@ export function Gallery({ images }: { images: { src: string; altText: string }[]
                                  fill={true}
                                  sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
                                  className="zoom-image"
-                                 priority
+                                 // priority
                                  unoptimized={true}
                               />
                            </figure>
@@ -194,7 +194,7 @@ export function Gallery({ images }: { images: { src: string; altText: string }[]
                                           sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
                                           className="zoom-image"
                                           priority={false}
-                                          unoptimized={true}
+                                          unoptimized
                                        />
                                     </figure>
                                  </div>
