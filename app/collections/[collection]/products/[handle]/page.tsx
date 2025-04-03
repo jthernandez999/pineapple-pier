@@ -6,5 +6,5 @@ export default function CollectionProductPage({
 }: {
    params: { collection: string; handle: string };
 }) {
-   return <ProductPage params={Promise.resolve(params)} />;
+   return <ProductPage params={params} />;
 }

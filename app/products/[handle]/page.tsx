@@ -135,8 +135,13 @@ async function RelatedProducts({ id }: { id: string }) {
    );
 }
 
-export default async function ProductPage({ params }: { params: Promise<RouteParams> }) {
-   const { handle, collection } = await params;
+export default async function ProductPage({
+   params
+}: {
+   params: { handle: string; collection?: string };
+}) {
+   // You can still use:
+   const { handle, collection } = params;
    const product = await getProduct(handle);
    if (!product) return notFound();
 
