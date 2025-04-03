@@ -27,9 +27,10 @@ const fallbackImg = {
 export async function generateMetadata({
    params
 }: {
-   params: Promise<RouteParams>;
+   params: RouteParams | Promise<RouteParams>;
 }): Promise<Metadata> {
-   const { handle } = await params;
+   // Await params regardless of whether it's a promise or a plain object
+   const { handle } = await Promise.resolve(params);
    const product = await getProduct(handle);
    if (!product) return notFound();
 
@@ -133,8 +134,12 @@ async function RelatedProducts({ id }: { id: string }) {
       </div>
    );
 }
-export default async function ProductPage({ params }: { params: Promise<RouteParams> }) {
-   const { handle, collection } = await params;
+export default async function ProductPage({
+   params
+}: {
+   params: RouteParams | Promise<RouteParams>;
+}) {
+   const { handle, collection } = await Promise.resolve(params);
    const product = await getProduct(handle);
    if (!product) return notFound();
 
