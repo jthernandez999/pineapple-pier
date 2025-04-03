@@ -55,17 +55,22 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
    return (
       <html lang="en" className={GeistSans.variable}>
          <head>
-            <Script id="mcjs" strategy="afterInteractive">
-               {`
-                !function(c,h,i,m,p){
-                  m = c.createElement(h),
-                  p = c.getElementsByTagName(h)[0],
-                  m.async = 1,
-                  m.src = i,
-                  p.parentNode.insertBefore(m,p)
-                }(document,"script","https://chimpstatic.com/mcjs-connected/js/users/221485751e2991d442b1d2019/1aaa21e8b2256fc0e6b38305d.js");
-              `}
-            </Script>
+            <Script
+               id="mcjs"
+               strategy="afterInteractive"
+               dangerouslySetInnerHTML={{
+                  __html: `
+      !function(c,h,i,m,p){
+        m = c.createElement(h),
+        p = c.getElementsByTagName(h)[0],
+        m.async = 1,
+        m.src = i,
+        p.parentNode.insertBefore(m, p)
+      }(document, "script", "https://chimpstatic.com/mcjs-connected/js/users/221485751e2991d442b1d2019/1aaa21e8b2256fc0e6b38305d.js");
+    `
+               }}
+            />
+
             <Script
                id="jdgm-inline"
                strategy="afterInteractive"
