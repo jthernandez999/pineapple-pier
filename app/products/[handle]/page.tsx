@@ -134,12 +134,8 @@ async function RelatedProducts({ id }: { id: string }) {
    );
 }
 
-export default async function ProductPage({
-   params
-}: {
-   params: RouteParams; // Use plain object
-}) {
-   const { handle, collection } = params;
+export default async function ProductPage({ params }: { params: Promise<RouteParams> }) {
+   const { handle, collection } = await params;
    const product = await getProduct(handle);
    if (!product) return notFound();
    const featuredImage = product.featuredImage || fallbackImg;
