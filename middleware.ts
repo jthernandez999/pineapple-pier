@@ -31,13 +31,16 @@ export async function middleware(request: NextRequest) {
    const url = request.nextUrl.clone();
 
    // --- Return Label Redirect Logic ---
-   // If the request is for a return label URL on dearjohndenim.com, redirect to dearjohndenim.co.
-   if (url.hostname === 'dearjohndenim.com' && url.pathname.includes('/return_labels/')) {
+   // Check for either "dearjohndenim.com" or "www.dearjohndenim.com"
+   if (
+      (url.hostname === 'dearjohndenim.com' || url.hostname === 'www.dearjohndenim.com') &&
+      url.pathname.includes('/return_labels/')
+   ) {
       console.log('DEBUG: Return label URL detected, redirecting to dearjohndenim.co');
-      url.hostname = 'dearjohndenim.co';
+      // Set the hostname to your working domain—using "www" if desired
+      url.hostname = 'www.dearjohndenim.co';
       return NextResponse.redirect(url);
    }
-
    const origin = getOrigin(request) as string;
    console.log('DEBUG: URL pathname:', url.pathname);
    console.log('DEBUG: Origin:', origin);
