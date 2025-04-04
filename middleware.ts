@@ -89,5 +89,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-   matcher: ['/', '/authorize', '/logout', '/account']
+   matcher: ['/', '/authorize', '/logout', '/account/:path*']
 };
