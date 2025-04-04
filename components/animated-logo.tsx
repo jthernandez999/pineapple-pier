@@ -68,6 +68,7 @@ export default function AnimatedLogo() {
             // style={{ objectFit: 'contain', objectPosition: 'center' }}
             className="object-contain, object-center"
             unoptimized
+            priority
          />
       </div>
    );
