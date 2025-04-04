@@ -42,7 +42,7 @@ export default function LoyaltyLion({ token, customer, auth }: LoyaltyLionProps)
          config.auth = auth;
       }
 
-      console.log('[LoyaltyLion] Initializing with config:', config);
+      console.log('[LoyaltyLion] Initializing with config');
       window.loyaltylion.init(config);
       window.loyaltylion._initialized = true;
       console.log('[LoyaltyLion] Initialization complete.');
