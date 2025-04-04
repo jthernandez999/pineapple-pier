@@ -9,7 +9,7 @@ declare global {
    }
 }
 
-interface LoyaltyLionProps {
+export interface LoyaltyLionProps {
    token: string;
    customer?: { id: string; email: string };
    auth?: { date: string; token: string };

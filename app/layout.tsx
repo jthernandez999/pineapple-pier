@@ -12,7 +12,7 @@ import PixelTracker from 'components/PixelTracker';
 import { ProductGroupsProvider } from 'components/product/ProductGroupsContext';
 import { GeistSans } from 'geist/font/sans';
 import { getCart } from 'lib/shopify';
-import { getAuthenticatedUser, getAuthToken } from 'lib/shopify/customer';
+import { getAuthenticatedUser } from 'lib/shopify/customer';
 import { ensureStartsWith } from 'lib/utils';
 import { cookies } from 'next/headers';
 import Script from 'next/script';
@@ -20,8 +20,19 @@ import { ReactNode } from 'react';
 import { Toaster } from 'sonner';
 import './globals.css';
 import MetaPixelEvents from './MetaPixelEvents';
+interface LoyaltyLionProps {
+   token: string;
+   customer?: { id: string; email: string };
+   auth?: { date: string; token: string };
+}
 
-const { TWITTER_CREATOR, TWITTER_SITE, SITE_NAME, NEXT_PUBLIC_LOYALTY_LION_API } = process.env;
+const {
+   TWITTER_CREATOR,
+   TWITTER_SITE,
+   SITE_NAME,
+   NEXT_PUBLIC_LOYALTY_LION_API,
+   NEXT_PUBLIC_APP_URL
+} = process.env;
 
 const baseUrl = process.env.NEXT_PUBLIC_VERCEL_URL
    ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`
@@ -49,27 +60,42 @@ export const metadata = {
          }
       })
 };
-
+let loyaltyLionProps: LoyaltyLionProps = {
+   token: process.env.NEXT_PUBLIC_LOYALTY_LION_API!
+};
 export default async function RootLayout({ children }: { children: ReactNode }) {
+   // 1) Check if user is logged in
    const user = await getAuthenticatedUser();
-   const siteToken = NEXT_PUBLIC_LOYALTY_LION_API;
 
-   if (!siteToken) throw new Error('Missing NEXT_PUBLIC_LOYALTY_LION_API env variable');
+   // 2) Set default loyaltyLionProps with site token only
 
-   const loyaltyLionProps = user
-      ? {
-           token: siteToken,
-           customer: {
-              id: user.id,
-              email: user.email
-           },
-           auth: {
-              date: new Date().toISOString(),
-              token: await getAuthToken(user.id)
-           }
-        }
-      : { token: siteToken };
+   // If user is logged in, get a fresh date + SHA-1 token from your /api/generate-loyaltylion-auth-token
+   if (user && loyaltyLionProps.token) {
+      try {
+         const res = await fetch(`${baseUrl}/api/generate-loyaltylion-auth-token`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ customerId: user.id, email: user.email }),
+            cache: 'no-store'
+         });
 
+         if (res.ok) {
+            const { date, token } = await res.json();
+
+            loyaltyLionProps = {
+               ...loyaltyLionProps,
+               customer: { id: user.id, email: user.email },
+               auth: { date, token }
+            };
+         } else {
+            console.error('Failed to fetch LoyaltyLion token:', await res.text());
+         }
+      } catch (err) {
+         console.error('Error calling /api/generate-loyaltylion-auth-token:', err);
+      }
+   }
+
+   // 3) Retrieve cart
    const cartId = (await cookies()).get('cartId')?.value;
    const cart = getCart(cartId);
 
@@ -153,27 +179,26 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
                strategy="afterInteractive"
                dangerouslySetInnerHTML={{
                   __html: `
-      !function(c,h,i,m,p){
-        m = c.createElement(h),
-        p = c.getElementsByTagName(h)[0],
-        m.async = 1,
-        m.src = i,
-        p.parentNode.insertBefore(m, p)
-      }(document, "script", "https://chimpstatic.com/mcjs-connected/js/users/221485751e2991d442b1d2019/1aaa21e8b2256fc0e6b38305d.js");
-    `
+              !function(c,h,i,m,p){
+                m = c.createElement(h),
+                p = c.getElementsByTagName(h)[0],
+                m.async = 1,
+                m.src = i,
+                p.parentNode.insertBefore(m, p)
+              }(document, "script", "https://chimpstatic.com/mcjs-connected/js/users/221485751e2991d442b1d2019/1aaa21e8b2256fc0e6b38305d.js");
+            `
                }}
             />
-
             <Script
                id="jdgm-inline"
                strategy="afterInteractive"
                dangerouslySetInnerHTML={{
                   __html: `
-                     jdgm = window.jdgm || {};
-                     jdgm.SHOP_DOMAIN = 'dear-john-denim-headquarters.myshopify.com';
-                     jdgm.PLATFORM = 'shopify';
-                     jdgm.PUBLIC_TOKEN = '4bhqSL9lbxv604n2xX8QgdGFxQQ';
-                  `
+              jdgm = window.jdgm || {};
+              jdgm.SHOP_DOMAIN = 'dear-john-denim-headquarters.myshopify.com';
+              jdgm.PLATFORM = 'shopify';
+              jdgm.PUBLIC_TOKEN = '4bhqSL9lbxv604n2xX8QgdGFxQQ';
+            `
                }}
             />
             <Script
@@ -194,6 +219,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
                      <PixelTracker />
                      {children}
                      <Toaster closeButton />
+                     {/* This calls loyaltylion.init(...) exactly once */}
                      <LoyaltyLion {...loyaltyLionProps} />
                   </main>
                </CartProvider>
