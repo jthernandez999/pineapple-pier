@@ -17,6 +17,38 @@ import {
    SHOPIFY_USER_AGENT
 } from './constants';
 
+import jwt from 'jsonwebtoken';
+import { cookies } from 'next/headers';
+
+export async function getAuthToken(customerId: string): Promise<string> {
+   const date = new Date().toISOString();
+   const response = await fetch(
+      `${process.env.NEXT_PUBLIC_SHOPIFY_ORIGIN_URL}/api/generate-loyaltylion-auth-token`,
+      {
+         method: 'POST',
+         headers: { 'Content-Type': 'application/json' },
+         body: JSON.stringify({ customerId, date })
+      }
+   );
+
+   if (!response.ok) throw new Error('Failed to generate auth token');
+
+   const { token } = await response.json();
+   return token;
+}
+
+export async function getAuthenticatedUser() {
+   const token = (await cookies()).get('shop_customer_token')?.value;
+   if (!token) return null;
+
+   try {
+      const payload = jwt.decode(token) as { id: string; email: string };
+      return payload;
+   } catch {
+      return null;
+   }
+}
+
 type ExtractVariables<T> = T extends { variables: object } ? T['variables'] : never;
 const customerAccountApiUrl = SHOPIFY_CUSTOMER_ACCOUNT_API_URL;
 const apiVersion = SHOPIFY_CUSTOMER_API_VERSION;

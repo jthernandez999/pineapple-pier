@@ -6,13 +6,13 @@ import AnnouncementBar from 'components/AnnouncementBar';
 import ArrowUpCircleIcon from 'components/BackToTopButton';
 import { CartProvider } from 'components/cart/cart-context';
 import Navbar from 'components/layout/navbar';
+import LoyaltyLion from 'components/LoyaltyLion';
 import NavbarScrollHandler from 'components/NavbarScrollHandler';
-import { ProductGroupsProvider } from 'components/product/ProductGroupsContext';
-// import { WelcomeToast } from 'components/welcome-toast';
-// import ScrollingText from 'components/ScrollingText';
 import PixelTracker from 'components/PixelTracker';
+import { ProductGroupsProvider } from 'components/product/ProductGroupsContext';
 import { GeistSans } from 'geist/font/sans';
 import { getCart } from 'lib/shopify';
+import { getAuthenticatedUser, getAuthToken } from 'lib/shopify/customer';
 import { ensureStartsWith } from 'lib/utils';
 import { cookies } from 'next/headers';
 import Script from 'next/script';
@@ -21,10 +21,12 @@ import { Toaster } from 'sonner';
 import './globals.css';
 import MetaPixelEvents from './MetaPixelEvents';
 
-const { TWITTER_CREATOR, TWITTER_SITE, SITE_NAME } = process.env;
+const { TWITTER_CREATOR, TWITTER_SITE, SITE_NAME, NEXT_PUBLIC_LOYALTY_LION_API } = process.env;
+
 const baseUrl = process.env.NEXT_PUBLIC_VERCEL_URL
    ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`
    : 'http://localhost:3000';
+
 const twitterCreator = TWITTER_CREATOR ? ensureStartsWith(TWITTER_CREATOR, '@') : undefined;
 const twitterSite = TWITTER_SITE ? ensureStartsWith(TWITTER_SITE, 'https://') : undefined;
 
@@ -49,12 +51,103 @@ export const metadata = {
 };
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
+   const user = await getAuthenticatedUser();
+   const siteToken = NEXT_PUBLIC_LOYALTY_LION_API;
+
+   if (!siteToken) throw new Error('Missing NEXT_PUBLIC_LOYALTY_LION_API env variable');
+
+   const loyaltyLionProps = user
+      ? {
+           token: siteToken,
+           customer: {
+              id: user.id,
+              email: user.email
+           },
+           auth: {
+              date: new Date().toISOString(),
+              token: await getAuthToken(user.id)
+           }
+        }
+      : { token: siteToken };
+
    const cartId = (await cookies()).get('cartId')?.value;
    const cart = getCart(cartId);
 
    return (
       <html lang="en" className={GeistSans.variable}>
          <head>
+            {/* LoyaltyLion SDK script */}
+            <Script
+               id="loyaltylion-sdk"
+               strategy="afterInteractive"
+               dangerouslySetInnerHTML={{
+                  __html: `
+              !(function (t, n) {
+                var e = n.loyaltylion || []
+                if (!e.isLoyaltyLion) {
+                  ;(n.loyaltylion = e),
+                    void 0 === n.lion && (n.lion = e),
+                    (e.version = 2),
+                    (e.isLoyaltyLion = !0)
+                  var o = n.URLSearchParams,
+                    i = n.sessionStorage,
+                    r = 'll_loader_revision',
+                    a = new Date().toISOString().replace(/-/g, ''),
+                    s =
+                      'function' == typeof o
+                        ? (function () {
+                            try {
+                              var t = new o(n.location.search).get(r)
+                              return t && i.setItem(r, t), i.getItem(r)
+                            } catch (t) {
+                              return ''
+                            }
+                          })()
+                        : null
+                  c(
+                    'https://sdk.loyaltylion.net/static/2/' +
+                      a.slice(0, 8) +
+                      '/loader' +
+                      (s ? '-' + s : '') +
+                      '.js',
+                  )
+                  var l = !1
+                  e.init = function (t) {
+                    if (l) throw new Error('Cannot call lion.init more than once')
+                    l = !0
+                    var n = (e._token = t.token)
+                    if (!n) throw new Error('Token must be supplied to lion.init')
+                    var o = []
+                    function i(t, n) {
+                      t[n] = function () {
+                        o.push([n, Array.prototype.slice.call(arguments, 0)])
+                      }
+                    }
+                    '_push configure bootstrap shutdown on removeListener authenticateCustomer'
+                      .split(' ')
+                      .forEach(function (t) {
+                        i(e, t)
+                      }),
+                      c(
+                        'https://sdk.loyaltylion.net/sdk/start/' +
+                          a.slice(0, 11) +
+                          '/' +
+                          n +
+                          '.js',
+                      ),
+                      (e._initData = t),
+                      (e._buffer = o)
+                  }
+                }
+                function c(n) {
+                  var e = t.getElementsByTagName('script')[0],
+                    o = t.createElement('script')
+                  ;(o.src = n), (o.crossOrigin = ''), e.parentNode.insertBefore(o, e)
+                }
+              })(document, window);
+            `
+               }}
+            />
             <Script
                id="mcjs"
                strategy="afterInteractive"
@@ -98,11 +191,10 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
                   <NavbarScrollHandler />
                   <main>
                      <MetaPixelEvents />
-                     {/* <ScrollingText /> */}
                      <PixelTracker />
                      {children}
                      <Toaster closeButton />
-                     {/* <WelcomeToast /> */}
+                     <LoyaltyLion {...loyaltyLionProps} />
                   </main>
                </CartProvider>
                <SpeedInsights />
