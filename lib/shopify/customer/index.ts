@@ -16,11 +16,12 @@ import {
    SHOPIFY_ORIGIN,
    SHOPIFY_USER_AGENT
 } from './constants';
-
-import jwt from 'jsonwebtoken';
+// lib/shopify/customer/index.ts
+import { jwtVerify } from 'jose';
 import { cookies } from 'next/headers';
 
 export async function getAuthToken(customerId: string): Promise<string> {
+   // This fetch obtains the LoyaltyLion token from your server route
    const date = new Date().toISOString();
    const response = await fetch(
       `${process.env.NEXT_PUBLIC_SHOPIFY_ORIGIN_URL}/api/generate-loyaltylion-auth-token`,
@@ -31,7 +32,9 @@ export async function getAuthToken(customerId: string): Promise<string> {
       }
    );
 
-   if (!response.ok) throw new Error('Failed to generate auth token');
+   if (!response.ok) {
+      throw new Error('Failed to generate loyaltylion auth token');
+   }
 
    const { token } = await response.json();
    return token;
@@ -42,9 +45,16 @@ export async function getAuthenticatedUser() {
    if (!token) return null;
 
    try {
-      const payload = jwt.decode(token) as { id: string; email: string };
-      return payload;
+      const secret = new TextEncoder().encode(process.env.JWT_SECRET!);
+      const { payload } = await jwtVerify(token, secret);
+
+      // Adjust field names based on how your token is structured
+      return {
+         id: payload.id as string,
+         email: payload.email as string
+      };
    } catch {
+      // Invalid token or verification failure
       return null;
    }
 }
