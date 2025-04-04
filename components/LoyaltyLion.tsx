@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+const token = process.env.NEXT_PUBLIC_LOYALTY_LION_API;
 
 declare global {
    interface Window {
