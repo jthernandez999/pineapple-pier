@@ -6,7 +6,7 @@ import AnnouncementBar from 'components/AnnouncementBar';
 import ArrowUpCircleIcon from 'components/BackToTopButton';
 import { CartProvider } from 'components/cart/cart-context';
 import Navbar from 'components/layout/navbar';
-import LoyaltyLion from 'components/LoyaltyLion';
+import LoyaltyLion, { LoyaltyLionProps } from 'components/LoyaltyLion';
 import NavbarScrollHandler from 'components/NavbarScrollHandler';
 import PixelTracker from 'components/PixelTracker';
 import { ProductGroupsProvider } from 'components/product/ProductGroupsContext';
@@ -20,11 +20,6 @@ import { ReactNode } from 'react';
 import { Toaster } from 'sonner';
 import './globals.css';
 import MetaPixelEvents from './MetaPixelEvents';
-interface LoyaltyLionProps {
-   token: string;
-   customer?: { id: string; email: string };
-   auth?: { date: string; token: string };
-}
 
 const {
    TWITTER_CREATOR,
@@ -60,38 +55,32 @@ export const metadata = {
          }
       })
 };
-let loyaltyLionProps: LoyaltyLionProps = {
-   token: process.env.NEXT_PUBLIC_LOYALTY_LION_API!
-};
+
 export default async function RootLayout({ children }: { children: ReactNode }) {
+   let loyaltyLionProps: LoyaltyLionProps = {
+      token: process.env.NEXT_PUBLIC_LOYALTY_LION_API!
+   };
    // 1) Check if user is logged in
    const user = await getAuthenticatedUser();
 
    // 2) Set default loyaltyLionProps with site token only
 
    // If user is logged in, get a fresh date + SHA-1 token from your /api/generate-loyaltylion-auth-token
-   if (user && loyaltyLionProps.token) {
-      try {
-         const res = await fetch(`${baseUrl}/api/generate-loyaltylion-auth-token`, {
+   // route. This is required for the LoyaltyLion SDK to work.
+   if (user) {
+      // fetch date + sha1 token from your /api route
+      const res = await fetch(
+         `${process.env.NEXT_PUBLIC_APP_URL}/api/generate-loyaltylion-auth-token`,
+         {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ customerId: user.id, email: user.email }),
-            cache: 'no-store'
-         });
-
-         if (res.ok) {
-            const { date, token } = await res.json();
-
-            loyaltyLionProps = {
-               ...loyaltyLionProps,
-               customer: { id: user.id, email: user.email },
-               auth: { date, token }
-            };
-         } else {
-            console.error('Failed to fetch LoyaltyLion token:', await res.text());
+            headers: { 'Content-Type': 'application/json' }
          }
-      } catch (err) {
-         console.error('Error calling /api/generate-loyaltylion-auth-token:', err);
+      );
+      if (res.ok) {
+         const { date, token } = await res.json();
+         loyaltyLionProps.customer = { id: user.id, email: user.email };
+         loyaltyLionProps.auth = { date, token };
       }
    }
 

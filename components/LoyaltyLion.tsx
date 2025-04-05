@@ -11,8 +11,14 @@ declare global {
 
 export interface LoyaltyLionProps {
    token: string;
-   customer?: { id: string; email: string };
-   auth?: { date: string; token: string };
+   customer?: {
+      id: string;
+      email: string;
+   };
+   auth?: {
+      date: string;
+      token: string;
+   };
 }
 
 export default function LoyaltyLion({ token, customer, auth }: LoyaltyLionProps) {
