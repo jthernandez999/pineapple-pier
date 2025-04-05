@@ -6,7 +6,7 @@ export const runtime = 'edge';
 
 /**
  * LoyaltyLion requires a SHA-1 hash of:
- *   customerId + date + email + LOYALTYLION_SECRET_KEY
+ *   customerId + date + email + NEXT_PUBLIC_LOYALTY_LION_API
  * to authenticate the user.
  */
 export async function POST(req: NextRequest) {
@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
 
       // Current date (ISO 8601)
       const date = new Date().toISOString();
-      const secretKey = process.env.LOYALTYLION_SECRET_KEY!;
+      const secretKey = process.env.NEXT_PUBLIC_LOYALTY_LION_API!;
 
       // 1) Concatenate required fields
       const inputString = customerId + date + email + secretKey;
