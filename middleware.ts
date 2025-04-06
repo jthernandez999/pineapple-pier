@@ -1,16 +1,17 @@
 import { authorizeFn, getOrigin, isLoggedIn, logoutFn } from 'lib/shopify/customer';
 import { NextRequest, NextResponse } from 'next/server';
 
-// Helper function to extract account number from the customer token..
+// Helper function to extract account number from the customer token.
 async function getCustomerAccountNumber(request: NextRequest): Promise<string | null> {
    const token = request.cookies.get('shop_customer_token')?.value;
    console.log('DEBUG: shop_customer_token:', token);
+
    if (!token) return null;
 
    try {
       const parts = token.split('.');
       if (parts.length < 2) {
-         console.log("DEBUG: Token split doesn't have enough parts:", parts);
+         console.log('DEBUG: Token split doesn’t have enough parts:', parts);
          return null;
       }
       const payloadBase64 = parts[1]!;
@@ -19,7 +20,8 @@ async function getCustomerAccountNumber(request: NextRequest): Promise<string | 
       console.log('DEBUG: Decoded payload JSON:', payloadJson);
       const payload = JSON.parse(payloadJson);
       console.log('DEBUG: Parsed payload:', payload);
-      // Return payload.accountNumber if exists, otherwise fallback to payload.sub.
+
+      // Return payload.accountNumber if exists, fallback to payload.sub.
       return payload.accountNumber || payload.sub || null;
    } catch (error) {
       console.error('DEBUG: Failed to extract account number:', error);
@@ -31,23 +33,22 @@ export async function middleware(request: NextRequest) {
    const url = request.nextUrl.clone();
 
    // --- Return Label Redirect Logic ---
-   // Check for either "dearjohndenim.com" or "www.dearjohndenim.com"
    if (
       (url.hostname === 'dearjohndenim.com' || url.hostname === 'www.dearjohndenim.com') &&
       url.pathname.includes('/return_labels/')
    ) {
       console.log('DEBUG: Return label URL detected, redirecting to dearjohndenim.co');
-      // Set the hostname to your working domain—using "www" if desired
       url.hostname = 'www.dearjohndenim.co';
       return NextResponse.redirect(url);
    }
+
    const origin = getOrigin(request) as string;
    console.log('DEBUG: URL pathname:', url.pathname);
    console.log('DEBUG: Origin:', origin);
 
-   // --- Homepage Redirect Logic (only for exactly "/") ---
+   // --- Homepage Redirect Logic (exactly '/') ---
    if (url.pathname === '/') {
-      // Only redirect if the homepage URL does NOT already have the accountNumber query param.
+      // Only redirect if no accountNumber param is present
       if (!url.searchParams.has('accountNumber')) {
          const accountNumber = await getCustomerAccountNumber(request);
          if (accountNumber) {
@@ -81,6 +82,36 @@ export async function middleware(request: NextRequest) {
       console.log('DEBUG: Running Account Middleware');
       const loggedInResponse = await isLoggedIn(request, origin);
       console.log('DEBUG: isLoggedIn response:', loggedInResponse);
+
+      // If isLoggedIn recognized the user, it might set special headers
+      // e.g., 'x-shop-customer-id', 'x-shop-customer-email'
+      const userId = loggedInResponse.headers.get('x-shop-customer-id');
+      const userEmail = loggedInResponse.headers.get('x-shop-customer-email');
+
+      if (userId && userEmail) {
+         console.log('DEBUG: Setting user data cookies for loyalty usage:', userId, userEmail);
+
+         // We wrap the returned response so we can set two cookies:
+         // loyalty_lion_id, loyalty_lion_email
+         // (Your layout can read these to build the LoyaltyLion auth.)
+         const newResponse = NextResponse.next({
+            request: { headers: loggedInResponse.headers }
+         });
+         newResponse.cookies.set('loyalty_lion_id', userId, {
+            path: '/',
+            httpOnly: true,
+            sameSite: 'lax'
+         });
+         newResponse.cookies.set('loyalty_lion_email', userEmail, {
+            path: '/',
+            httpOnly: true,
+            sameSite: 'lax'
+         });
+
+         return newResponse;
+      }
+
+      // If no user, just return the original response
       return loggedInResponse;
    }
 
