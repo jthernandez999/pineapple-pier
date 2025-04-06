@@ -79,8 +79,16 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
       );
       if (res.ok) {
          const { date, token } = await res.json();
+         const data = await res.json();
+         console.log('[LL Debug] data from /generate-loyaltylion-auth-token:', data);
          loyaltyLionProps.customer = { id: user.id, email: user.email };
          loyaltyLionProps.auth = { date, token };
+      } else {
+         console.error(
+            '[LL Debug] Error fetching /generate-loyaltylion-auth-token:',
+            res.status,
+            res.statusText
+         );
       }
    }
 
