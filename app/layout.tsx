@@ -62,6 +62,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
    };
    // 1) Check if user is logged in
    const user = await getAuthenticatedUser();
+   console.log('[LL Debug] user from getAuthenticatedUser():', user);
 
    // 2) Set default loyaltyLionProps with site token only
 
