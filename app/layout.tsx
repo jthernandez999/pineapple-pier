@@ -26,7 +26,7 @@ const {
    TWITTER_SITE,
    SITE_NAME,
    NEXT_PUBLIC_LOYALTY_LION_API,
-   NEXT_PUBLIC_APP_URL,
+   NEXT_PUBLIC_SHOPIFY_ORIGIN_URL,
    NEXT_PUBLIC_VERCEL_URL
 } = process.env;
 
@@ -75,7 +75,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
    // If user is present, fetch date + token from /api/generate-loyaltylion-auth-token
    if (user && user.id && user.email) {
       try {
-         const url = `${NEXT_PUBLIC_APP_URL}/api/generate-loyaltylion-auth-token`;
+         const url = `${NEXT_PUBLIC_SHOPIFY_ORIGIN_URL}/api/generate-loyaltylion-auth-token`;
          const res = await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
