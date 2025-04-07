@@ -60,7 +60,7 @@ export async function getAuthToken(
 export async function getAuthenticatedUser() {
    const cookieStore = await cookies();
 
-   // Check for middleware-set cookies first.
+   // First, try to get user data from middleware-set cookies.
    const loyaltyIdCookie = cookieStore.get('loyalty_lion_id');
    const loyaltyEmailCookie = cookieStore.get('loyalty_lion_email');
    if (loyaltyIdCookie && loyaltyEmailCookie) {
@@ -83,24 +83,25 @@ export async function getAuthenticatedUser() {
       const payloadJson = Buffer.from(payloadBase64, 'base64').toString('utf-8');
       const payload = JSON.parse(payloadJson);
 
-      // Extract the account number (unique id) from the token.
+      // Extract the account number and email from the token payload.
       const accountNumber = payload.accountNumber || payload.sub;
       let email = payload.email;
       if (!accountNumber) return null;
 
-      // If email isn't in the token, query Shopify to fetch it.
+      // If email is missing, query Shopify for it.
       if (!email) {
-         // Ensure the customer ID is in the Shopify global ID format.
-         const customerGid = accountNumber.startsWith('gid://')
-            ? accountNumber
-            : `gid://shopify/Customer/${accountNumber}`;
+         // Ensure accountNumber is a string before checking for the gid prefix.
+         const accountStr = String(accountNumber);
+         const customerGid = accountStr.startsWith('gid://')
+            ? accountStr
+            : `gid://shopify/Customer/${accountStr}`;
          const query = `
-         query GetCustomerEmail($id: ID!) {
-           customer(id: $id) {
-             email
-           }
-         }
-       `;
+        query GetCustomerEmail($id: ID!) {
+          customer(id: $id) {
+            email
+          }
+        }
+      `;
          try {
             const result = await shopifyCustomerFetch<
                { customer: { email: string } },
@@ -118,7 +119,7 @@ export async function getAuthenticatedUser() {
       }
 
       if (!email) return null;
-      return { id: accountNumber, email };
+      return { id: String(accountNumber), email };
    } catch (error) {
       console.error('DEBUG: Failed to decode token or fetch email:', error);
       return null;
