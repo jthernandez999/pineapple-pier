@@ -81,8 +81,8 @@ export async function getAuthenticatedUser() {
          const payloadJson = Buffer.from(payloadBase64, 'base64').toString('utf-8');
          const payload = JSON.parse(payloadJson);
          // If the token payload includes an email, use it.
-         if (payload.email) {
-            return { id: payload.accountNumber || payload.sub, email: payload.email };
+         if (payload.emailAddress) {
+            return { id: payload.accountNumber || payload.sub, email: payload.emailAddress };
          }
       }
    } catch (e) {
@@ -93,20 +93,22 @@ export async function getAuthenticatedUser() {
    // If email wasn't available in the token, query Shopify.
    // The token is already sent in the header, so no argument is needed.
    const query = `
-   query GetCustomer {
-     customer {
-       id
-       emailAddress
-     }
-   }
- `;
+    query GetCustomer {
+      customer {
+        id
+        emailAddress
+      }
+    }
+  `;
    try {
-      const result = await shopifyCustomerFetch<{ customer: { id: string; email: string } }>({
-         customerToken: customerAccessToken,
-         query
-      });
-      if (result.body?.customer?.email) {
-         return { id: result.body.customer.id, email: result.body.customer.email };
+      const result = await shopifyCustomerFetch<{ customer: { id: string; emailAddress: string } }>(
+         {
+            customerToken: customerAccessToken,
+            query
+         }
+      );
+      if (result.body?.customer?.emailAddress) {
+         return { id: result.body.customer.id, email: result.body.customer.emailAddress };
       }
       return null;
    } catch (error) {
