@@ -48,31 +48,23 @@ export async function getAuthToken(
    return token;
 }
 
-/**
- * Retrieve the authenticated user.
- *
- * First, it checks for cookies set by your middleware (loyalty_lion_id and loyalty_lion_email).
- * If not found, it decodes the shop_customer_token and, if necessary, queries Shopify for the customer details.
- *
- * @returns An object with { id, email } or null if not found.
- */
 export async function getAuthenticatedUser() {
    const cookieStore = await cookies();
 
-   // 1. Check if middleware set the cookies.
+   // Check for middleware-set cookies first.
    const loyaltyIdCookie = cookieStore.get('loyalty_lion_id');
    const loyaltyEmailCookie = cookieStore.get('loyalty_lion_email');
    if (loyaltyIdCookie && loyaltyEmailCookie) {
       return { id: loyaltyIdCookie.value, email: loyaltyEmailCookie.value };
    }
 
-   // 2. Use shop_customer_token from the cookies.
+   // Fallback: use shop_customer_token as the Shopify customer access token.
    const tokenCookie = cookieStore.get('shop_customer_token');
    if (!tokenCookie) return null;
    const customerAccessToken = tokenCookie.value;
    if (!customerAccessToken) return null;
 
-   // 3. Try to decode the token in case it contains an email already.
+   // Optional: try decoding the token if it contains email information.
    try {
       const parts = customerAccessToken.split('.');
       if (parts.length >= 2 && parts[1]) {
@@ -85,30 +77,32 @@ export async function getAuthenticatedUser() {
       }
    } catch (e) {
       console.error('DEBUG: Failed to decode token:', e);
-      // Fall back to querying Shopify.
    }
 
-   // 4. If the token doesn't include the email, query Shopify.
-   // Note: We do not pass any argument in the query; the customer token is already sent in the HTTP header.
+   // If email wasn't available in the token, query Shopify.
    const query = `
     query GetCustomer {
       customer {
-         id
-         emailAddress
-       }
+        id
+        emailAddress {
+          ... on CustomerEmailAddress {
+            displayValue
+          }
+        }
       }
+    }
   `;
    try {
       const result = await shopifyCustomerFetch<{
-         customer: { id: string; emailAddress: { originalValue: string } };
+         customer: { id: string; emailAddress: { displayValue: string } };
       }>({
          customerToken: customerAccessToken,
          query
       });
-      if (result.body?.customer?.emailAddress?.originalValue) {
+      if (result.body?.customer?.emailAddress?.displayValue) {
          return {
             id: result.body.customer.id,
-            email: result.body.customer.emailAddress.originalValue
+            email: result.body.customer.emailAddress.displayValue
          };
       }
       return null;
