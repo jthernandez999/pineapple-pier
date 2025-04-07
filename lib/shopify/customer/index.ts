@@ -60,6 +60,8 @@ export async function getAuthToken(
 export async function getAuthenticatedUser() {
    const cookieStore = await cookies();
 
+   console.log('DEBUG: Available cookies:', cookieStore);
+
    // Try middleware-set cookies first.
    const loyaltyIdCookie = cookieStore.get('loyalty_lion_id');
    const loyaltyEmailCookie = cookieStore.get('loyalty_lion_email');
