@@ -80,7 +80,7 @@ export async function getAuthenticatedUser() {
          const payloadBase64 = parts[1];
          const payloadJson = Buffer.from(payloadBase64, 'base64').toString('utf-8');
          const payload = JSON.parse(payloadJson);
-         // If the token payload includes an email, use it.
+         // If the token payload includes an emailAddress, use it.
          if (payload.emailAddress) {
             return { id: payload.accountNumber || payload.sub, email: payload.emailAddress };
          }
@@ -96,19 +96,21 @@ export async function getAuthenticatedUser() {
     query GetCustomer {
       customer {
         id
-        emailAddress
+        emailAddress {
+          value
+        }
       }
     }
   `;
    try {
-      const result = await shopifyCustomerFetch<{ customer: { id: string; emailAddress: string } }>(
-         {
-            customerToken: customerAccessToken,
-            query
-         }
-      );
-      if (result.body?.customer?.emailAddress) {
-         return { id: result.body.customer.id, email: result.body.customer.emailAddress };
+      const result = await shopifyCustomerFetch<{
+         customer: { id: string; emailAddress: { value: string } };
+      }>({
+         customerToken: customerAccessToken,
+         query
+      });
+      if (result.body?.customer?.emailAddress?.value) {
+         return { id: result.body.customer.id, email: result.body.customer.emailAddress.value };
       }
       return null;
    } catch (error) {
