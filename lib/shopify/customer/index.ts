@@ -54,10 +54,28 @@ export async function getAuthToken(
  * Since middleware is already handling user validation, we simply decode the token's payload
  * without verifying its signature.
  *
- * @returns An object with { id, email } or null if decoding fails.
+import { cookies } from 'next/headers';
+
+/**
+ * Retrieve the authenticated user.
+ *
+ * First, check for cookies set by your middleware (loyalty_lion_id and loyalty_lion_email).
+ * If they aren’t available, attempt to decode the shop_customer_token.
+ *
+ * @returns An object with { id, email } or null if user data isn’t found.
  */
 export async function getAuthenticatedUser() {
-   const tokenCookie = (await cookies()).get('shop_customer_token');
+   const cookieStore = await cookies();
+
+   // First, try to get user data from the middleware-set cookies.
+   const idCookie = cookieStore.get('loyalty_lion_id');
+   const emailCookie = cookieStore.get('loyalty_lion_email');
+   if (idCookie && emailCookie) {
+      return { id: idCookie.value, email: emailCookie.value };
+   }
+
+   // Fallback: decode the shop_customer_token cookie.
+   const tokenCookie = cookieStore.get('shop_customer_token');
    if (!tokenCookie) return null;
 
    const token = tokenCookie.value;
@@ -69,11 +87,10 @@ export async function getAuthenticatedUser() {
          console.error('DEBUG: Token split doesn’t have enough parts:', parts);
          return null;
       }
-      const payloadBase64 = parts[1]; // Guaranteed to be a string.
+      const payloadBase64 = parts[1];
       const payloadJson = Buffer.from(payloadBase64, 'base64').toString('utf-8');
       const payload = JSON.parse(payloadJson);
 
-      // Extract user data; adjust field names if necessary.
       const id = payload.id || payload.sub;
       const email = payload.email;
       if (!id || !email) return null;
