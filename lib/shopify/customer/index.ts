@@ -87,9 +87,7 @@ export async function getAuthenticatedUser() {
       customer {
         id
         emailAddress {
-          ... on CustomerEmailAddress {
-            email
-          }
+           emailAddress
         }
       }
     }
