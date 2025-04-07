@@ -93,12 +93,10 @@ export async function getAuthenticatedUser() {
    const query = `
     query GetCustomer {
       customer {
-        id
-        emailAddress {
-          originalValue
-        }
+         id
+         emailAddress
+       }
       }
-    }
   `;
    try {
       const result = await shopifyCustomerFetch<{
@@ -128,7 +126,7 @@ const customerAccountApiUrl = SHOPIFY_CUSTOMER_ACCOUNT_API_URL;
 const apiVersion = SHOPIFY_CUSTOMER_API_VERSION;
 const userAgent = SHOPIFY_USER_AGENT;
 // const customerEndpoint = `${customerAccountApiUrl}/account/customer/api/${apiVersion}/graphql`;
-const customerEndpoint = 'https://shopify.com/10242207/account/customer/api/2025-01/graphql';
+const customerEndpoint = 'https://shopify.com/10242207/account/customer/api/2025-04/graphql';
 
 //NEVER CACHE THIS! Doesn't see to be cached anyway b/c
 //https://nextjs.org/docs/app/building-your-application/data-fetching/fetching-caching-and-revalidating#opting-out-of-data-caching
