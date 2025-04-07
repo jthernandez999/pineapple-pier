@@ -49,35 +49,27 @@ export async function getAuthToken(
 }
 
 /**
- * Retrieve the authenticated user by decoding the `shop_customer_token` cookie.
- *
- * Since middleware is already handling user validation, we simply decode the token's payload
- * without verifying its signature.
- *
-import { cookies } from 'next/headers';
-
-/**
  * Retrieve the authenticated user.
  *
- * First, check for cookies set by your middleware (loyalty_lion_id and loyalty_lion_email).
- * If they aren’t available, attempt to decode the shop_customer_token.
+ * First, it checks for cookies set by middleware (loyalty_lion_id and loyalty_lion_email).
+ * If not found, it decodes the shop_customer_token.
+ * If the token doesn't include the email, it queries Shopify for it.
  *
- * @returns An object with { id, email } or null if user data isn’t found.
+ * @returns An object with { id, email } or null if not found.
  */
 export async function getAuthenticatedUser() {
    const cookieStore = await cookies();
 
-   // First, try to get user data from the middleware-set cookies.
+   // Try to get user data from middleware cookies.
    const idCookie = cookieStore.get('loyalty_lion_id');
    const emailCookie = cookieStore.get('loyalty_lion_email');
    if (idCookie && emailCookie) {
       return { id: idCookie.value, email: emailCookie.value };
    }
 
-   // Fallback: decode the shop_customer_token cookie.
+   // Fallback: decode the shop_customer_token.
    const tokenCookie = cookieStore.get('shop_customer_token');
    if (!tokenCookie) return null;
-
    const token = tokenCookie.value;
    if (!token) return null;
 
@@ -91,13 +83,34 @@ export async function getAuthenticatedUser() {
       const payloadJson = Buffer.from(payloadBase64, 'base64').toString('utf-8');
       const payload = JSON.parse(payloadJson);
 
-      const id = payload.id || payload.sub;
-      const email = payload.email;
-      if (!id || !email) return null;
+      const accountNumber = payload.accountNumber || payload.sub;
+      let email = payload.email;
+      if (!accountNumber) return null;
 
-      return { id, email };
+      // If email is missing, query Shopify to fetch it.
+      if (!email) {
+         const query = `
+         query GetCustomerEmail($id: ID!) {
+           customer(id: $id) {
+             email
+           }
+         }
+       `;
+         // Here we provide an explicit variables type.
+         const result = await shopifyCustomerFetch<{ customer: { email: string } }, { id: string }>(
+            {
+               customerToken: token,
+               query,
+               variables: { id: accountNumber }
+            }
+         );
+         email = result.body.customer.email;
+      }
+
+      if (!email) return null;
+      return { id: accountNumber, email };
    } catch (error) {
-      console.error('DEBUG: Failed to decode token:', error);
+      console.error('DEBUG: Failed to decode token or fetch email:', error);
       return null;
    }
 }
@@ -113,7 +126,7 @@ const customerEndpoint = 'https://shopify.com/10242207/account/customer/api/2025
 //https://nextjs.org/docs/app/building-your-application/data-fetching/fetching-caching-and-revalidating#opting-out-of-data-caching
 //The fetch request comes after the usage of headers or cookies.
 //and we always send this anyway after getting a cookie for the customer
-export async function shopifyCustomerFetch<T>({
+export async function shopifyCustomerFetch<T, V = {}>({
    cache = 'no-store',
    customerToken,
    query,
@@ -124,8 +137,8 @@ export async function shopifyCustomerFetch<T>({
    customerToken: string;
    query: string;
    tags?: string[];
-   variables?: ExtractVariables<T>;
-}): Promise<{ status: number; body: T } | never> {
+   variables?: V;
+}): Promise<{ status: number; body: T }> {
    try {
       const customerOrigin = SHOPIFY_ORIGIN;
       const result = await fetch(customerEndpoint, {
@@ -140,21 +153,15 @@ export async function shopifyCustomerFetch<T>({
             ...(query && { query }),
             ...(variables && { variables })
          }),
-         cache: 'no-store', //NEVER CACHE THE CUSTOMER REQUEST!!!
+         cache: 'no-store',
          ...(tags && { next: { tags } })
       });
 
       const body = await result.json();
 
       if (!result.ok) {
-         //the statuses here could be different, a 401 means
-         //https://shopify.dev/docs/api/customer#endpoints
-         //401 means the token is bad
-         // console.log('Error in Customer Fetch Status', body.errors);
          if (result.status === 401) {
-            // clear session because current access token is invalid
-            const errorMessage = 'unauthorized';
-            throw errorMessage; //this should throw in the catch below in the non-shopify catch
+            throw new Error('unauthorized');
          }
          let errors;
          try {
@@ -165,10 +172,7 @@ export async function shopifyCustomerFetch<T>({
          throw errors;
       }
 
-      //this just throws an error and the error boundary is called
       if (body.errors) {
-         //throw 'Error'
-         // console.log('Error in Customer Fetch', body.errors[0]);
          throw body.errors[0];
       }
 
@@ -185,13 +189,10 @@ export async function shopifyCustomerFetch<T>({
             query
          };
       }
-
-      throw {
-         error: e,
-         query
-      };
+      throw { error: e, query };
    }
 }
+
 // Define an interface for the expected result from checkExpires
 interface CheckExpiresResponse {
    ranRefresh: boolean;
