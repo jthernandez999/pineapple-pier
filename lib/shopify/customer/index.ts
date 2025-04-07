@@ -20,41 +20,71 @@ import {
 import { jwtVerify } from 'jose';
 import { cookies } from 'next/headers';
 
+/**
+ * Fetch a LoyaltyLion auth token for a given customer.
+ *
+ * @param customerId - The customer's Shopify ID.
+ * @returns A promise that resolves to the LoyaltyLion auth token (string).
+ */
 export async function getAuthToken(customerId: string): Promise<string> {
-   // This fetch obtains the LoyaltyLion token from your server route
+   // Prepare the POST body
    const date = new Date().toISOString();
-   const response = await fetch(
-      `${process.env.NEXT_PUBLIC_SHOPIFY_ORIGIN_URL}/api/generate-loyaltylion-auth-token`,
-      {
-         method: 'POST',
-         headers: { 'Content-Type': 'application/json' },
-         body: JSON.stringify({ customerId, date })
-      }
-   );
+   const fetchUrl = `${process.env.NEXT_PUBLIC_SHOPIFY_ORIGIN_URL}/api/generate-loyaltylion-auth-token`;
 
+   // Perform the fetch
+   const response = await fetch(fetchUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ customerId, date })
+   });
+
+   // If server responded with an error
    if (!response.ok) {
       throw new Error('Failed to generate loyaltylion auth token');
    }
 
+   // Destructure the token from the response JSON
    const { token } = await response.json();
    return token;
 }
 
+/**
+ * Retrieve the authenticated user based on the `shop_customer_token` cookie.
+ *
+ * Expects a JWT secret in `process.env.JWT_SECRET`,
+ * and a token structure with `payload.id` and `payload.email`.
+ *
+ * @returns An object with { id, email } or null if verification fails.
+ */
 export async function getAuthenticatedUser() {
-   const token = (await cookies()).get('shop_customer_token')?.value;
+   // Grab the `shop_customer_token` value
+   const tokenCookie = (await cookies()).get('shop_customer_token');
+   if (!tokenCookie) return null; // No token, no user
+
+   const token = tokenCookie.value;
    if (!token) return null;
 
    try {
-      const secret = new TextEncoder().encode(process.env.JWT_SECRET!);
+      // Ensure the JWT_SECRET is present
+      if (!process.env.JWT_SECRET) {
+         throw new Error('Missing JWT_SECRET in environment variables');
+      }
+
+      const secret = new TextEncoder().encode(process.env.JWT_SECRET);
       const { payload } = await jwtVerify(token, secret);
 
-      // Adjust field names based on how your token is structured
-      return {
-         id: payload.id as string,
-         email: payload.email as string
-      };
-   } catch {
-      // Invalid token or verification failure
+      // If your payload uses different field names, adjust here
+      const id = payload.id as string;
+      const email = payload.email as string;
+
+      // Minimal sanity check
+      if (!id || !email) {
+         return null;
+      }
+
+      return { id, email };
+   } catch (err) {
+      // Verification failure, invalid token, etc.
       return null;
    }
 }
