@@ -52,15 +52,13 @@ export async function getAuthToken(
  * Retrieve the authenticated user.
  *
  * First, it checks for cookies set by your middleware (loyalty_lion_id and loyalty_lion_email).
- * If those aren’t present, it uses the shop_customer_token (assumed to be the Shopify customerAccessToken)
- * to query Shopify for the customer’s details.
+ * If not found, it uses the shop_customer_token (assumed to be the Shopify customer access token)
+ * to query Shopify for the customer's details.
  *
  * @returns An object with { id, email } or null if not found.
  */
 export async function getAuthenticatedUser() {
    const cookieStore = await cookies();
-   // Check if the cookie store is available.
-   console.log('DEBUG: Available cookies:', cookieStore);
 
    // Try middleware-set cookies first.
    const loyaltyIdCookie = cookieStore.get('loyalty_lion_id');
@@ -75,30 +73,47 @@ export async function getAuthenticatedUser() {
    const customerAccessToken = tokenCookie.value;
    if (!customerAccessToken) return null;
 
-   // Query Shopify using the provided customerAccessToken.
-   const query = `
-     query GetCustomerByToken($token: String!) {
-       customer(customerAccessToken: $token) {
-         id
-         email
-       }
-     }
-   `;
+   // Try to decode the token for basic info.
    try {
-      const result = await shopifyCustomerFetch<
-         { customer: { id: string; email: string } },
-         { token: string }
-      >({
+      const parts = customerAccessToken.split('.');
+      if (parts.length >= 2 && parts[1]) {
+         const payloadBase64 = parts[1];
+         const payloadJson = Buffer.from(payloadBase64, 'base64').toString('utf-8');
+         const payload = JSON.parse(payloadJson);
+         // If the token payload includes an email, use it.
+         if (payload.email) {
+            return { id: payload.accountNumber || payload.sub, email: payload.email };
+         }
+      }
+   } catch (e) {
+      console.error('DEBUG: Failed to decode token:', e);
+      // Fall through to querying Shopify.
+   }
+
+   // If email wasn't available in the token, query Shopify.
+   // The token is already sent in the header, so no argument is needed.
+   const query = `
+   query GetCustomer {
+     customer {
+       id
+       email
+     }
+   }
+ `;
+   try {
+      const result = await shopifyCustomerFetch<{ customer: { id: string; email: string } }>({
          customerToken: customerAccessToken,
-         query,
-         variables: { token: customerAccessToken }
+         query
       });
       if (result.body?.customer?.email) {
          return { id: result.body.customer.id, email: result.body.customer.email };
       }
       return null;
    } catch (error) {
-      console.error('DEBUG: Shopify query error:', JSON.stringify(error, null, 2));
+      console.error(
+         'DEBUG: Failed to fetch customer details from Shopify:',
+         JSON.stringify(error, null, 2)
+      );
       return null;
    }
 }
