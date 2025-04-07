@@ -51,20 +51,20 @@ export async function getAuthToken(
 export async function getAuthenticatedUser() {
    const cookieStore = await cookies();
 
-   // Check for middleware-set cookies first.
+   // 1. Check for middleware-set cookies.
    const loyaltyIdCookie = cookieStore.get('loyalty_lion_id');
    const loyaltyEmailCookie = cookieStore.get('loyalty_lion_email');
    if (loyaltyIdCookie && loyaltyEmailCookie) {
       return { id: loyaltyIdCookie.value, email: loyaltyEmailCookie.value };
    }
 
-   // Fallback: use shop_customer_token as the Shopify customer access token.
+   // 2. Use the shop_customer_token as the Shopify customer access token.
    const tokenCookie = cookieStore.get('shop_customer_token');
    if (!tokenCookie) return null;
    const customerAccessToken = tokenCookie.value;
    if (!customerAccessToken) return null;
 
-   // Optional: try decoding the token if it contains email information.
+   // 3. Optionally, try decoding the token if it includes an emailAddress field.
    try {
       const parts = customerAccessToken.split('.');
       if (parts.length >= 2 && parts[1]) {
@@ -77,16 +77,18 @@ export async function getAuthenticatedUser() {
       }
    } catch (e) {
       console.error('DEBUG: Failed to decode token:', e);
+      // Fall through to querying Shopify.
    }
 
-   // If email wasn't available in the token, query Shopify.
+   // 4. If email wasn't in the token, query Shopify.
+   // (The customer token is already sent in the Authorization header by shopifyCustomerFetch.)
    const query = `
     query GetCustomer {
       customer {
         id
         emailAddress {
           ... on CustomerEmailAddress {
-            displayValue
+            email
           }
         }
       }
@@ -94,15 +96,15 @@ export async function getAuthenticatedUser() {
   `;
    try {
       const result = await shopifyCustomerFetch<{
-         customer: { id: string; emailAddress: { displayValue: string } };
+         customer: { id: string; emailAddress: { email: string } };
       }>({
          customerToken: customerAccessToken,
          query
       });
-      if (result.body?.customer?.emailAddress?.displayValue) {
+      if (result.body?.customer?.emailAddress?.email) {
          return {
             id: result.body.customer.id,
-            email: result.body.customer.emailAddress.displayValue
+            email: result.body.customer.emailAddress.email
          };
       }
       return null;
