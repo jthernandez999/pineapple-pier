@@ -93,14 +93,15 @@ export async function getAuthenticatedUser() {
    // If email wasn't available in the token, query Shopify.
    // The token is already sent in the header, so no argument is needed.
    const query = `
-    query GetCustomer {
-      customer {
-        id
-        emailAddress 
-        
-      }
-    }
-  `;
+   query GetCustomer {
+     customer {
+       id
+       emailAddress {
+         email
+       }
+     }
+   }
+ `;
    try {
       const result = await shopifyCustomerFetch<{
          customer: { id: string; emailAddress: { value: string } };
