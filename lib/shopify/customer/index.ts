@@ -32,7 +32,7 @@ export async function getAuthToken(
    email: string,
    date: string
 ): Promise<string> {
-   const fetchUrl = `https://dearjohndenim.co/api/generate-loyaltylion-auth-token`;
+   const fetchUrl = `https://dearjohndenim.com/api/generate-loyaltylion-auth-token`;
 
    const response = await fetch(fetchUrl, {
       method: 'POST',
