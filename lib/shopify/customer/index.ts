@@ -51,77 +51,52 @@ export async function getAuthToken(
 /**
  * Retrieve the authenticated user.
  *
- * First, it checks for cookies set by middleware (loyalty_lion_id and loyalty_lion_email).
- * If not found, it decodes the shop_customer_token.
- * If the token doesn't include the email, it queries Shopify for it.
+ * First, it checks for cookies set by your middleware (loyalty_lion_id and loyalty_lion_email).
+ * If those aren’t present, it uses the shop_customer_token (assumed to be the Shopify customerAccessToken)
+ * to query Shopify for the customer’s details.
  *
  * @returns An object with { id, email } or null if not found.
  */
 export async function getAuthenticatedUser() {
    const cookieStore = await cookies();
 
-   // First, try to get user data from middleware-set cookies.
+   // Try middleware-set cookies first.
    const loyaltyIdCookie = cookieStore.get('loyalty_lion_id');
    const loyaltyEmailCookie = cookieStore.get('loyalty_lion_email');
    if (loyaltyIdCookie && loyaltyEmailCookie) {
       return { id: loyaltyIdCookie.value, email: loyaltyEmailCookie.value };
    }
 
-   // Fallback: decode the shop_customer_token.
+   // Fallback: use shop_customer_token as the Shopify customer access token.
    const tokenCookie = cookieStore.get('shop_customer_token');
    if (!tokenCookie) return null;
-   const token = tokenCookie.value;
-   if (!token) return null;
+   const customerAccessToken = tokenCookie.value;
+   if (!customerAccessToken) return null;
 
+   // Query Shopify using the provided customerAccessToken.
+   const query = `
+     query GetCustomerByToken($token: String!) {
+       customer(customerAccessToken: $token) {
+         id
+         email
+       }
+     }
+   `;
    try {
-      const parts = token.split('.');
-      if (parts.length < 2 || !parts[1]) {
-         console.error('DEBUG: Token split doesn’t have enough parts:', parts);
-         return null;
+      const result = await shopifyCustomerFetch<
+         { customer: { id: string; email: string } },
+         { token: string }
+      >({
+         customerToken: customerAccessToken,
+         query,
+         variables: { token: customerAccessToken }
+      });
+      if (result.body?.customer?.email) {
+         return { id: result.body.customer.id, email: result.body.customer.email };
       }
-      const payloadBase64 = parts[1];
-      const payloadJson = Buffer.from(payloadBase64, 'base64').toString('utf-8');
-      const payload = JSON.parse(payloadJson);
-
-      // Extract the account number and email from the token payload.
-      const accountNumber = payload.accountNumber || payload.sub;
-      let email = payload.email;
-      if (!accountNumber) return null;
-
-      // If email is missing, query Shopify for it.
-      if (!email) {
-         // Ensure accountNumber is a string before checking for the gid prefix.
-         const accountStr = String(accountNumber);
-         const customerGid = accountStr.startsWith('gid://')
-            ? accountStr
-            : `gid://shopify/Customer/${accountStr}`;
-         const query = `
-        query GetCustomerEmail($id: ID!) {
-          customer(id: $id) {
-            email
-          }
-        }
-      `;
-         try {
-            const result = await shopifyCustomerFetch<
-               { customer: { email: string } },
-               { id: string }
-            >({
-               customerToken: token,
-               query,
-               variables: { id: customerGid }
-            });
-            email = result.body.customer.email;
-         } catch (err) {
-            console.error('DEBUG: Failed to fetch customer email from Shopify API:', err);
-            return null;
-         }
-      }
-
-      if (!email) return null;
-      return { id: String(accountNumber), email };
+      return null;
    } catch (error) {
-      console.error('DEBUG: Failed to decode token or fetch email:', error);
+      console.error('DEBUG: Failed to fetch customer details from Shopify:', error);
       return null;
    }
 }
