@@ -65,7 +65,10 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
    };
 
    // Concurrently fetch user + cart ID for performance
-   const [user, cartCookie] = await Promise.all([getAuthenticatedUser(), cookies().get('cartId')]);
+   const [user, cartCookie] = await Promise.all([
+      getAuthenticatedUser(),
+      (await cookies()).get('cartId')
+   ]);
 
    console.log('[LL Debug] user from getAuthenticatedUser():', user);
 
