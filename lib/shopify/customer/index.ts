@@ -96,9 +96,8 @@ export async function getAuthenticatedUser() {
     query GetCustomer {
       customer {
         id
-        emailAddress {
-         value
-        }
+        emailAddress 
+        
       }
     }
   `;
