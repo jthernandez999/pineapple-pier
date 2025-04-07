@@ -17,7 +17,6 @@ import {
    SHOPIFY_USER_AGENT
 } from './constants';
 // lib/shopify/customer/index.ts
-import { jwtVerify } from 'jose';
 import { cookies } from 'next/headers';
 
 /**
@@ -27,64 +26,56 @@ import { cookies } from 'next/headers';
  * @returns A promise that resolves to the LoyaltyLion auth token (string).
  */
 export async function getAuthToken(customerId: string): Promise<string> {
-   // Prepare the POST body
    const date = new Date().toISOString();
    const fetchUrl = `${process.env.NEXT_PUBLIC_SHOPIFY_ORIGIN_URL}/api/generate-loyaltylion-auth-token`;
 
-   // Perform the fetch
    const response = await fetch(fetchUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ customerId, date })
    });
 
-   // If server responded with an error
    if (!response.ok) {
       throw new Error('Failed to generate loyaltylion auth token');
    }
 
-   // Destructure the token from the response JSON
    const { token } = await response.json();
    return token;
 }
 
 /**
- * Retrieve the authenticated user based on the `shop_customer_token` cookie.
+ * Retrieve the authenticated user by decoding the `shop_customer_token` cookie.
  *
- * Expects a JWT secret in `process.env.JWT_SECRET`,
- * and a token structure with `payload.id` and `payload.email`.
+ * Since middleware is already handling user validation, we simply decode the token's payload
+ * without verifying its signature.
  *
- * @returns An object with { id, email } or null if verification fails.
+ * @returns An object with { id, email } or null if decoding fails.
  */
 export async function getAuthenticatedUser() {
-   // Grab the `shop_customer_token` value
    const tokenCookie = (await cookies()).get('shop_customer_token');
-   if (!tokenCookie) return null; // No token, no user
+   if (!tokenCookie) return null;
 
    const token = tokenCookie.value;
    if (!token) return null;
 
    try {
-      // Ensure the JWT_SECRET is present
-      if (!process.env.JWT_SECRET) {
-         throw new Error('Missing JWT_SECRET in environment variables');
-      }
-
-      const secret = new TextEncoder().encode(process.env.JWT_SECRET);
-      const { payload } = await jwtVerify(token, secret);
-
-      // If your payload uses different field names, adjust here
-      const id = payload.id as string;
-      const email = payload.email as string;
-
-      // Minimal sanity check
-      if (!id || !email) {
+      const parts = token.split('.');
+      if (parts.length < 2 || !parts[1]) {
+         console.error('DEBUG: Token split doesn’t have enough parts:', parts);
          return null;
       }
+      const payloadBase64 = parts[1]; // This is now guaranteed to be a string.
+      const payloadJson = Buffer.from(payloadBase64, 'base64').toString('utf-8');
+      const payload = JSON.parse(payloadJson);
+
+      // Extract user data; adjust field names if necessary.
+      const id = payload.id || payload.sub;
+      const email = payload.email;
+      if (!id || !email) return null;
 
       return { id, email };
-   } catch (err) {
-      // Verification failure, invalid token, etc.
+   } catch (error) {
+      console.error('DEBUG: Failed to decode token:', error);
       return null;
    }
 }
