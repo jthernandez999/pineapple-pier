@@ -11,8 +11,7 @@ import NavbarScrollHandler from 'components/NavbarScrollHandler';
 import PixelTracker from 'components/PixelTracker';
 import { ProductGroupsProvider } from 'components/product/ProductGroupsContext';
 import { GeistSans } from 'geist/font/sans';
-import { getCart } from 'lib/shopify';
-import { getAuthenticatedUser } from 'lib/shopify/customer';
+import { getAuthenticatedUser, getCart } from 'lib/shopify';
 import { ensureStartsWith } from 'lib/utils';
 import { cookies } from 'next/headers';
 import Script from 'next/script';
@@ -26,11 +25,13 @@ const {
    TWITTER_SITE,
    SITE_NAME,
    NEXT_PUBLIC_LOYALTY_LION_API,
-   NEXT_PUBLIC_APP_URL
+   NEXT_PUBLIC_APP_URL,
+   NEXT_PUBLIC_VERCEL_URL
 } = process.env;
 
-const baseUrl = process.env.NEXT_PUBLIC_VERCEL_URL
-   ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`
+// Build base URLs
+const baseUrl = NEXT_PUBLIC_VERCEL_URL
+   ? `https://${NEXT_PUBLIC_VERCEL_URL}`
    : 'http://localhost:3000';
 
 const twitterCreator = TWITTER_CREATOR ? ensureStartsWith(TWITTER_CREATOR, '@') : undefined;
@@ -57,44 +58,52 @@ export const metadata = {
 };
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
-   let loyaltyLionProps: LoyaltyLionProps = {
-      token: process.env.NEXT_PUBLIC_LOYALTY_LION_API!
+   // Prepare LoyaltyLion props
+   const loyaltyLionProps: LoyaltyLionProps = {
+      token: NEXT_PUBLIC_LOYALTY_LION_API || ''
    };
-   // 1) Check if user is logged in
-   const user = await getAuthenticatedUser();
+
+   // Concurrently fetch user + cart ID for performance
+   const [user, cartCookie] = await Promise.all([getAuthenticatedUser(), cookies().get('cartId')]);
+
    console.log('[LL Debug] user from getAuthenticatedUser():', user);
 
-   // 2) Set default loyaltyLionProps with site token only
-
-   // If user is logged in, get a fresh date + SHA-1 token from your /api/generate-loyaltylion-auth-token
-   // route. This is required for the LoyaltyLion SDK to work.
-   if (user) {
-      // fetch date + sha1 token from your /api route
-      const res = await fetch(
-         `${process.env.NEXT_PUBLIC_APP_URL}/api/generate-loyaltylion-auth-token`,
-         {
+   // If user is present, fetch date + token from /api/generate-loyaltylion-auth-token
+   if (user && user.id && user.email) {
+      try {
+         const url = `${NEXT_PUBLIC_APP_URL}/api/generate-loyaltylion-auth-token`;
+         const res = await fetch(url, {
             method: 'POST',
-            body: JSON.stringify({ customerId: user.id, email: user.email }),
-            headers: { 'Content-Type': 'application/json' }
+            headers: { 'Content-Type': 'application/json' },
+            // Provide exactly the needed data
+            body: JSON.stringify({ customerId: user.id, email: user.email })
+         });
+
+         if (res.ok) {
+            // Single res.json() call
+            const { date, token } = await res.json();
+            console.log('[LL Debug] date/token from /generate-loyaltylion-auth-token:', {
+               date,
+               token
+            });
+
+            loyaltyLionProps.customer = { id: user.id, email: user.email };
+            loyaltyLionProps.auth = { date, token };
+         } else {
+            console.error(
+               '[LL Debug] Error fetching /generate-loyaltylion-auth-token:',
+               res.status,
+               res.statusText
+            );
          }
-      );
-      if (res.ok) {
-         const { date, token } = await res.json();
-         const data = await res.json();
-         console.log('[LL Debug] data from /generate-loyaltylion-auth-token:', data);
-         loyaltyLionProps.customer = { id: user.id, email: user.email };
-         loyaltyLionProps.auth = { date, token };
-      } else {
-         console.error(
-            '[LL Debug] Error fetching /generate-loyaltylion-auth-token:',
-            res.status,
-            res.statusText
-         );
+      } catch (err) {
+         console.error('[LL Debug] Exception calling /generate-loyaltylion-auth-token:', err);
       }
    }
 
-   // 3) Retrieve cart
-   const cartId = (await cookies()).get('cartId')?.value;
+   // Use the cartId to build a cart
+   const cartId = cartCookie?.value;
+   // Potentially do concurrency with getCart if needed, e.g. in the same Promise.all above
    const cart = getCart(cartId);
 
    return (
