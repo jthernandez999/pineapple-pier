@@ -11,12 +11,13 @@ import NavbarScrollHandler from 'components/NavbarScrollHandler';
 import PixelTracker from 'components/PixelTracker';
 import { ProductGroupsProvider } from 'components/product/ProductGroupsContext';
 import { GeistSans } from 'geist/font/sans';
-import { getAuthenticatedUser, getCart } from 'lib/shopify';
+import { getCart } from 'lib/shopify';
 import { ensureStartsWith } from 'lib/utils';
 import { cookies } from 'next/headers';
 import Script from 'next/script';
 import { ReactNode } from 'react';
 import { Toaster } from 'sonner';
+import { getAuthenticatedUser } from '../lib/shopify/customer';
 import './globals.css';
 import MetaPixelEvents from './MetaPixelEvents';
 
