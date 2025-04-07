@@ -60,11 +60,11 @@ export async function getAuthToken(
 export async function getAuthenticatedUser() {
    const cookieStore = await cookies();
 
-   // Try to get user data from middleware cookies.
-   const idCookie = cookieStore.get('loyalty_lion_id');
-   const emailCookie = cookieStore.get('loyalty_lion_email');
-   if (idCookie && emailCookie) {
-      return { id: idCookie.value, email: emailCookie.value };
+   // Check for middleware-set cookies first.
+   const loyaltyIdCookie = cookieStore.get('loyalty_lion_id');
+   const loyaltyEmailCookie = cookieStore.get('loyalty_lion_email');
+   if (loyaltyIdCookie && loyaltyEmailCookie) {
+      return { id: loyaltyIdCookie.value, email: loyaltyEmailCookie.value };
    }
 
    // Fallback: decode the shop_customer_token.
@@ -83,12 +83,17 @@ export async function getAuthenticatedUser() {
       const payloadJson = Buffer.from(payloadBase64, 'base64').toString('utf-8');
       const payload = JSON.parse(payloadJson);
 
+      // Extract the account number (unique id) from the token.
       const accountNumber = payload.accountNumber || payload.sub;
       let email = payload.email;
       if (!accountNumber) return null;
 
-      // If email is missing, query Shopify to fetch it.
+      // If email isn't in the token, query Shopify to fetch it.
       if (!email) {
+         // Ensure the customer ID is in the Shopify global ID format.
+         const customerGid = accountNumber.startsWith('gid://')
+            ? accountNumber
+            : `gid://shopify/Customer/${accountNumber}`;
          const query = `
          query GetCustomerEmail($id: ID!) {
            customer(id: $id) {
@@ -96,15 +101,20 @@ export async function getAuthenticatedUser() {
            }
          }
        `;
-         // Here we provide an explicit variables type.
-         const result = await shopifyCustomerFetch<{ customer: { email: string } }, { id: string }>(
-            {
+         try {
+            const result = await shopifyCustomerFetch<
+               { customer: { email: string } },
+               { id: string }
+            >({
                customerToken: token,
                query,
-               variables: { id: accountNumber }
-            }
-         );
-         email = result.body.customer.email;
+               variables: { id: customerGid }
+            });
+            email = result.body.customer.email;
+         } catch (err) {
+            console.error('DEBUG: Failed to fetch customer email from Shopify API:', err);
+            return null;
+         }
       }
 
       if (!email) return null;
