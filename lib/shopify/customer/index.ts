@@ -59,7 +59,7 @@ export async function getAuthToken(
  */
 export async function getAuthenticatedUser() {
    const cookieStore = await cookies();
-
+   // Check if the cookie store is available.
    console.log('DEBUG: Available cookies:', cookieStore);
 
    // Try middleware-set cookies first.
@@ -98,7 +98,7 @@ export async function getAuthenticatedUser() {
       }
       return null;
    } catch (error) {
-      console.error('DEBUG: Failed to fetch customer details from Shopify:', error);
+      console.error('DEBUG: Shopify query error:', JSON.stringify(error, null, 2));
       return null;
    }
 }
