@@ -23,16 +23,21 @@ import { cookies } from 'next/headers';
  * Fetch a LoyaltyLion auth token for a given customer.
  *
  * @param customerId - The customer's Shopify ID.
+ * @param email - The customer's email address.
+ * @param date - The ISO 8601 timestamp to use for token generation.
  * @returns A promise that resolves to the LoyaltyLion auth token (string).
  */
-export async function getAuthToken(customerId: string): Promise<string> {
-   const date = new Date().toISOString();
+export async function getAuthToken(
+   customerId: string,
+   email: string,
+   date: string
+): Promise<string> {
    const fetchUrl = `${process.env.NEXT_PUBLIC_SHOPIFY_ORIGIN_URL}/api/generate-loyaltylion-auth-token`;
 
    const response = await fetch(fetchUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ customerId, date })
+      body: JSON.stringify({ customerId, email, date })
    });
 
    if (!response.ok) {
@@ -64,7 +69,7 @@ export async function getAuthenticatedUser() {
          console.error('DEBUG: Token split doesn’t have enough parts:', parts);
          return null;
       }
-      const payloadBase64 = parts[1]; // This is now guaranteed to be a string.
+      const payloadBase64 = parts[1]; // Guaranteed to be a string.
       const payloadJson = Buffer.from(payloadBase64, 'base64').toString('utf-8');
       const payload = JSON.parse(payloadJson);
 
