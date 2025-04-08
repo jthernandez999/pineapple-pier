@@ -21,6 +21,9 @@ import { getAuthenticatedUser } from '../lib/shopify/customer';
 import './globals.css';
 import MetaPixelEvents from './MetaPixelEvents';
 
+// Environment variables –
+// NEXT_PUBLIC_LOYALTY_LION_API is your public site token,
+// while your secret must be used only in server-only API routes.
 const {
    TWITTER_CREATOR,
    TWITTER_SITE,
@@ -30,7 +33,7 @@ const {
    NEXT_PUBLIC_VERCEL_URL
 } = process.env;
 
-// Build base URLs
+// Build base URL for metadata and relative paths.
 const baseUrl = NEXT_PUBLIC_VERCEL_URL
    ? `https://${NEXT_PUBLIC_VERCEL_URL}`
    : 'http://localhost:3000';
@@ -59,11 +62,12 @@ export const metadata = {
 };
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
+   // Prepare LoyaltyLion props with the public site token.
    const loyaltyLionProps: LoyaltyLionProps = {
       token: NEXT_PUBLIC_LOYALTY_LION_API || ''
    };
 
-   // Concurrently fetch user and cart cookie.
+   // Concurrently fetch the authenticated user and cartId.
    const [user, cartCookie] = await Promise.all([
       getAuthenticatedUser(),
       (await cookies()).get('cartId')
@@ -71,26 +75,29 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
 
    console.log('[LL Debug] user from getAuthenticatedUser():', user);
 
-   // If user is present, generate auth token using a client-supplied date.
+   // If the user is logged in, retrieve the SHA‑1 auth token using your private secret.
+   // The API route (/api/generate-loyaltylion-auth-token) must use your private secret to
+   // generate the token (without exposing it to the client).
    if (user && user.id && user.email) {
       try {
-         const date = new Date().toISOString();
+         // Optionally you can use a relative URL if deployed correctly.
          const url = `${NEXT_PUBLIC_SHOPIFY_ORIGIN_URL}/api/generate-loyaltylion-auth-token`;
          const res = await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ customerId: user.id, email: user.email, date })
+            body: JSON.stringify({ customerId: user.id, email: user.email })
          });
 
          if (res.ok) {
-            const { date: authDate, token } = await res.json();
+            const { date, token } = await res.json();
             console.log('[LL Debug] date/token from /generate-loyaltylion-auth-token:', {
-               authDate,
+               date,
                token
             });
 
+            // Add authenticated customer data to LoyaltyLionProps.
             loyaltyLionProps.customer = { id: user.id, email: user.email };
-            loyaltyLionProps.auth = { date: authDate, token };
+            loyaltyLionProps.auth = { date, token };
          } else {
             console.error(
                '[LL Debug] Error fetching /generate-loyaltylion-auth-token:',
@@ -103,13 +110,15 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
       }
    }
 
+   // Use the cart ID from the cookie to build the cart.
    const cartId = cartCookie?.value;
+   // Note: You can also fetch the cart concurrently if needed.
    const cart = getCart(cartId);
 
    return (
       <html lang="en" className={GeistSans.variable}>
          <head>
-            {/* LoyaltyLion SDK script */}
+            {/* LoyaltyLion SDK loader snippet */}
             <Script
                id="loyaltylion-sdk"
                strategy="afterInteractive"
@@ -118,7 +127,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
               !(function (t, n) {
                 var e = n.loyaltylion || [];
                 if (!e.isLoyaltyLion) {
-                  (n.loyaltylion = e),
+                  ;(n.loyaltylion = e),
                   void 0 === n.lion && (n.lion = e),
                   (e.version = 2),
                   (e.isLoyaltyLion = !0);
@@ -126,20 +135,23 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
                       i = n.sessionStorage,
                       r = 'll_loader_revision',
                       a = new Date().toISOString().replace(/-/g, ''),
-                      s = 'function' == typeof o ? (function () {
-                        try {
-                          var t = new o(n.location.search).get(r);
-                          return t && i.setItem(r, t), i.getItem(r);
-                        } catch (t) {
-                          return '';
-                        }
-                      })() : null;
+                      s =
+                        'function' == typeof o
+                          ? (function () {
+                              try {
+                                var t = new o(n.location.search).get(r);
+                                return t && i.setItem(r, t), i.getItem(r);
+                              } catch (t) {
+                                return '';
+                              }
+                            })()
+                          : null;
                   c(
                     'https://sdk.loyaltylion.net/static/2/' +
-                    a.slice(0, 8) +
-                    '/loader' +
-                    (s ? '-' + s : '') +
-                    '.js'
+                      a.slice(0, 8) +
+                      '/loader' +
+                      (s ? '-' + s : '') +
+                      '.js'
                   );
                   var l = !1;
                   e.init = function (t) {
@@ -160,10 +172,10 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
                       }),
                       c(
                         'https://sdk.loyaltylion.net/sdk/start/' +
-                        a.slice(0, 11) +
-                        '/' +
-                        n +
-                        '.js'
+                          a.slice(0, 11) +
+                          '/' +
+                          n +
+                          '.js'
                       ),
                       (e._initData = t),
                       (e._buffer = o);
@@ -172,12 +184,13 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
                 function c(n) {
                   var e = t.getElementsByTagName('script')[0],
                       o = t.createElement('script');
-                  o.src = n, o.crossOrigin = '', e.parentNode.insertBefore(o, e);
+                  ;(o.src = n), (o.crossOrigin = ''), e.parentNode.insertBefore(o, e);
                 }
               })(document, window);
             `
                }}
             />
+            {/* Additional third-party scripts as needed */}
             <Script
                id="mcjs"
                strategy="afterInteractive"
@@ -223,7 +236,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
                      <PixelTracker />
                      {children}
                      <Toaster closeButton />
-                     {/* This calls loyaltylion.init(...) exactly once */}
+                     {/* Initialize LoyaltyLion with the token, and customer/auth data if available */}
                      <LoyaltyLion {...loyaltyLionProps} />
                   </main>
                </CartProvider>

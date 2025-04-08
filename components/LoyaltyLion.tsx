@@ -1,14 +1,7 @@
 'use client';
-
 import { useEffect } from 'react';
-const token = process.env.NEXT_PUBLIC_LOYALTY_LION_API;
 
-declare global {
-   interface Window {
-      loyaltylion?: any;
-   }
-}
-
+// The config shape for your convenience
 export interface LoyaltyLionProps {
    token: string;
    customer?: {
@@ -21,36 +14,35 @@ export interface LoyaltyLionProps {
    };
 }
 
+declare global {
+   interface Window {
+      loyaltylion?: any;
+   }
+}
+
 export default function LoyaltyLion({ token, customer, auth }: LoyaltyLionProps) {
    useEffect(() => {
-      console.log('[LL Debug] useEffect triggered - loyaltylion object:', window.loyaltylion);
-
+      if (typeof window === 'undefined') return;
       if (!window.loyaltylion) {
-         console.log('[LL Debug] loyaltylion is undefined - SDK not loaded?');
+         console.warn('[LL Debug] loyaltylion global not found (snippet not loaded yet?)');
          return;
       }
-
       if (typeof window.loyaltylion.init !== 'function') {
-         console.log('[LL Debug] loyaltylion.init is not a function - snippet not fully loaded?');
+         console.warn('[LL Debug] loyaltylion.init is not a function (still buffering?).');
          return;
       }
-
       if (window.loyaltylion._initialized) {
-         console.log('[LL Debug] Already initialized. Skipping re-init.');
+         console.log('[LL Debug] Already initialized, skipping re-init.');
          return;
       }
 
-      const config: any = { token };
+      const config: any = { token }; // Your public site token
       if (customer && auth) {
-         // Debug: confirm that date & token match server response
-         console.log('[LL Debug] setting customer & auth:', customer, auth);
          config.customer = customer;
          config.auth = auth;
-      } else {
-         console.log('[LL Debug] no customer or auth data provided - init with site token only');
       }
 
-      console.log('[LL Debug] calling loyaltylion.init with config:', config);
+      console.log('[LL Debug] loyaltylion.init config:', config);
       window.loyaltylion.init(config);
       window.loyaltylion._initialized = true;
       console.log('[LL Debug] loyaltylion.init complete');
