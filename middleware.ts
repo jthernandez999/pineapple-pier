@@ -114,6 +114,9 @@ export async function middleware(request: NextRequest) {
       // If no user, just return the original response
       return loggedInResponse;
    }
+   logCustomerEmail(request)
+      .then(() => console.log('Customer email logged successfully'))
+      .catch((error) => console.error('Error logging customer email:', error));
 
    console.log('DEBUG: No matching route; proceeding normally.');
    return NextResponse.next();
@@ -122,3 +125,15 @@ export async function middleware(request: NextRequest) {
 export const config = {
    matcher: ['/', '/authorize', '/logout', '/account/:path*']
 };
+
+import { getAuthenticatedUser } from 'lib/shopify/customer';
+
+export async function logCustomerEmail(request: NextRequest) {
+   const user = await getAuthenticatedUser();
+   if (user && user.email) {
+      console.log('Customer email:', user.email);
+   } else {
+      console.log('No customer email available');
+   }
+}
+// Call the function to log the customer email
