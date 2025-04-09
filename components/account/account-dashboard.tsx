@@ -208,7 +208,8 @@ export default function AccountDashboard({
                            <button
                               onClick={() => setActiveMenu(menu.key)}
                               className={clsx(
-                                 'w-full rounded-md px-4 py-2 text-black transition hover:opacity-80',
+                                 'flex w-full items-center justify-between px-4 py-3 text-left text-black',
+
                                  activeMenu === menu.key ? 'underline opacity-80' : 'opacity-100'
                               )}
                            >
