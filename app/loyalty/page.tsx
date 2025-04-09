@@ -7,7 +7,7 @@ export default function LoyaltyPage() {
 
          <div className="mx-auto w-full max-w-6xl py-10">
             <h1 className="mb-5 text-2xl font-semibold">Rewards Program</h1>
-            <div data-lion-integrated-page=""></div>
+            <div data-lion-integrated-page></div>
          </div>
       </main>
    );
