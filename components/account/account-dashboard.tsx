@@ -3,8 +3,6 @@ import clsx from 'clsx';
 import Link from 'next/link';
 import { useState } from 'react';
 import { AccountOrdersHistory } from './account-orders-history';
-import { AccountPersonalInfo } from './account-personal-info';
-import { AccountProfile } from './account-profile';
 import { doLogout } from './actions';
 
 type AccountDashboardProps = {
@@ -48,7 +46,7 @@ export default function AccountDashboard({
    const menuItems: MenuItem[] = [
       { key: 'welcome', label: 'Welcome', type: 'internal' },
       { key: 'orders', label: 'Orders', type: 'internal' },
-      { key: 'personal', label: 'Personal', type: 'internal' },
+      // { key: 'personal', label: 'Personal', type: 'internal' },
       {
          key: 'loyalty',
          label: 'Loyalty Points',
@@ -61,15 +59,13 @@ export default function AccountDashboard({
       switch (menu) {
          case 'orders':
             return orders ? <AccountOrdersHistory orders={orders} /> : <p>No orders found.</p>;
-         case 'manage':
-            return <AccountProfile />;
-         case 'personal':
-            return (
-               <AccountPersonalInfo
-                  customerData={customerData}
-                  customerAccessToken={customerAccessToken}
-               />
-            );
+         // case 'personal':
+         //    return (
+         //       <AccountPersonalInfo
+         //          customerData={customerData}
+         //          customerAccessToken={customerAccessToken}
+         //       />
+         //    );
          case 'welcome':
          default:
             return (
