@@ -121,7 +121,7 @@ export default function AccountDashboard({
                                        prev === menu.key ? null : menu.key
                                     )
                                  }
-                                 className="flex w-full items-center justify-center px-4 py-3 text-left text-black"
+                                 className="flex w-full items-center justify-between px-4 py-3 text-left text-black"
                               >
                                  <span>
                                     {menu.key === 'loyalty'
