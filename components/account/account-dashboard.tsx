@@ -92,7 +92,7 @@ export default function AccountDashboard({
       <>
          {label}
          <span className="ml-2 inline-block rounded bg-gray-200 px-1 text-xs font-bold text-gray-500">
-            Beta
+            Updated
          </span>
       </>
    );
