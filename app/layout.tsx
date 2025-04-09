@@ -6,7 +6,7 @@ import AnnouncementBar from 'components/AnnouncementBar';
 import ArrowUpCircleIcon from 'components/BackToTopButton';
 import { CartProvider } from 'components/cart/cart-context';
 import Navbar from 'components/layout/navbar';
-import { LoyaltyLionProps } from 'components/LoyaltyLion';
+import LoyaltyLion, { LoyaltyLionProps } from 'components/LoyaltyLion';
 import NavbarScrollHandler from 'components/NavbarScrollHandler';
 import PixelTracker from 'components/PixelTracker';
 import { ProductGroupsProvider } from 'components/product/ProductGroupsContext';
@@ -119,7 +119,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
       <html lang="en" className={GeistSans.variable}>
          <head>
             {/* LoyaltyLion SDK loader snippet */}
-            <Script
+            {/* <Script
                id="loyaltylion-sdk"
                strategy="afterInteractive"
                dangerouslySetInnerHTML={{
@@ -189,7 +189,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
               })(document, window);
             `
                }}
-            />
+            /> */}
             {/* Additional third-party scripts as needed */}
             <Script
                id="mcjs"
@@ -237,7 +237,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
                      {children}
                      <Toaster closeButton />
                      {/* Initialize LoyaltyLion with the token, and customer/auth data if available */}
-                     {/* <LoyaltyLion {...loyaltyLionProps} /> */}
+                     <LoyaltyLion {...loyaltyLionProps} />
                   </main>
                </CartProvider>
                <SpeedInsights />
