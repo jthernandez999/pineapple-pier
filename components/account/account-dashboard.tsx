@@ -49,7 +49,6 @@ export default function AccountDashboard({
       { key: 'welcome', label: 'Welcome', type: 'internal' },
       { key: 'orders', label: 'Orders', type: 'internal' },
       { key: 'personal', label: 'Personal', type: 'internal' },
-      { key: 'manage', label: 'Manage', type: 'internal' },
       {
          key: 'loyalty',
          label: 'Loyalty Points',
