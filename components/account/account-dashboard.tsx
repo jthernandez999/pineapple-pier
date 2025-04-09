@@ -87,6 +87,16 @@ export default function AccountDashboard({
       }
    };
 
+   // A helper to render the loyalty label with the Beta badge.
+   const renderLabelWithBeta = (label: string) => (
+      <>
+         {label}
+         <span className="ml-2 inline-block rounded bg-gray-200 px-1 text-xs font-bold text-gray-500">
+            Beta
+         </span>
+      </>
+   );
+
    return (
       <div className="relative mx-auto flex max-w-screen-2xl flex-col px-4 py-8 md:flex-row">
          {/* Mobile Navigation (Accordion) */}
@@ -113,7 +123,11 @@ export default function AccountDashboard({
                                  }
                                  className="flex w-full items-center justify-between px-4 py-3 text-left text-black"
                               >
-                                 <span>{menu.label}</span>
+                                 <span>
+                                    {menu.key === 'loyalty'
+                                       ? renderLabelWithBeta(menu.label)
+                                       : menu.label}
+                                 </span>
                                  <span>
                                     {mobileActiveMenu === menu.key ? (
                                        <svg className="h-6 w-6" viewBox="0 0 24 24">
@@ -161,7 +175,9 @@ export default function AccountDashboard({
                                  className="block w-full rounded-md px-4 py-2 text-black transition hover:opacity-80"
                                  rel="noopener noreferrer"
                               >
-                                 {menu.label}
+                                 {menu.key === 'loyalty'
+                                    ? renderLabelWithBeta(menu.label)
+                                    : menu.label}
                               </p>
                            </Link>
                         )}
@@ -208,20 +224,28 @@ export default function AccountDashboard({
                            <button
                               onClick={() => setActiveMenu(menu.key)}
                               className={clsx(
-                                 'flex w-full items-center justify-between px-4 py-3 text-center text-black',
-
+                                 'flex w-full items-center justify-between px-4 py-3 text-left text-black transition hover:opacity-80',
                                  activeMenu === menu.key ? 'underline opacity-80' : 'opacity-100'
                               )}
                            >
-                              {menu.label}
+                              <span>
+                                 {menu.key === 'loyalty'
+                                    ? renderLabelWithBeta(menu.label)
+                                    : menu.label}
+                              </span>
                            </button>
                         ) : (
                            <Link href={menu.href} passHref>
                               <p
-                                 className="w-full rounded-md px-4 py-2 text-black transition hover:opacity-80"
+                                 className={clsx(
+                                    'w-full rounded-md px-4 py-2 text-black transition hover:opacity-80',
+                                    menu.key === 'loyalty' && 'mx-auto text-center'
+                                 )}
                                  rel="noopener noreferrer"
                               >
-                                 {menu.label}
+                                 {menu.key === 'loyalty'
+                                    ? renderLabelWithBeta(menu.label)
+                                    : menu.label}
                               </p>
                            </Link>
                         )}
