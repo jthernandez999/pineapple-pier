@@ -1,7 +1,6 @@
 // app/collections/[collection]/layout.tsx
 // import ClientDynamicSizeFilter from 'components/filters/ClientDynamicSizeFilter';
 // app/collections/[collection]/layout.tsx
-import Footer from 'components/layout/footer';
 import FilterList from 'components/layout/search/filter';
 import { sorting } from 'lib/constants';
 import React from 'react';
@@ -22,7 +21,7 @@ export default async function CollectionsLayout({ children }: { children: React.
                <FilterList list={sorting} title="Sort by" />
             </div>
          </div>
-         <Footer />
+         {/* <Footer /> */}
       </>
    );
 }

@@ -5,6 +5,7 @@ import { SpeedInsights } from '@vercel/speed-insights/next';
 import AnnouncementBar from 'components/AnnouncementBar';
 import ArrowUpCircleIcon from 'components/BackToTopButton';
 import { CartProvider } from 'components/cart/cart-context';
+import Footer from 'components/layout/footer';
 import Navbar from 'components/layout/navbar';
 import LoyaltyLion, { LoyaltyLionProps } from 'components/LoyaltyLion';
 import NavbarScrollHandler from 'components/NavbarScrollHandler';
@@ -219,6 +220,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
                      <MetaPixelEvents />
                      <PixelTracker />
                      {children}
+                     <Footer />
                      <Toaster closeButton />
                      {/* Initialize LoyaltyLion with the token, and customer/auth data if available */}
                      <LoyaltyLion {...loyaltyLionProps} />

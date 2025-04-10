@@ -2,7 +2,6 @@ import { banners, collectionImages, highlightCollectionImages } from 'assets/ind
 import { Carousel } from 'components/carousel';
 import HeroBanner from 'components/hero';
 import HighlightCollection from 'components/highlightCollection';
-import Footer from 'components/layout/footer';
 import ThreeImageCollections from 'components/three-collections';
 import { getCollectionProducts } from '../lib/shopify';
 
@@ -23,7 +22,7 @@ export default async function HomePage() {
          <ThreeImageCollections collectionImages={collectionImages} />
          <Carousel data={data} />
          <HighlightCollection highlightCollectionImages={highlightCollectionImages} />
-         <Footer />
+         {/* <Footer /> */}
       </>
    );
 }
