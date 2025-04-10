@@ -62,26 +62,25 @@ export const metadata = {
 };
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
+   const cartId = (await cookies()).get('cartId')?.value;
+   // Don't await the fetch, pass the Promise to the context provider.
+   const cart = getCart(cartId);
+
+   // Get your environment token
+   const siteToken = process.env.NEXT_PUBLIC_LOYALTY_LION_API || '';
+
    // Prepare LoyaltyLion props with the public site token.
    const loyaltyLionProps: LoyaltyLionProps = {
-      token: NEXT_PUBLIC_LOYALTY_LION_API || ''
+      token: siteToken
    };
 
-   // Concurrently fetch the authenticated user and cartId.
-   const [user, cartCookie] = await Promise.all([
-      getAuthenticatedUser(),
-      (await cookies()).get('cartId')
-   ]);
+   // Concurrently fetch the authenticated user.
+   const user = await getAuthenticatedUser();
 
-   console.log('[LL Debug] user from getAuthenticatedUser():', user);
-
-   // If the user is logged in, retrieve the SHA‑1 auth token using your private secret.
-   // The API route (/api/generate-loyaltylion-auth-token) must use your private secret to
-   // generate the token (without exposing it to the client).
+   // If the user is logged in, fetch the auth token from your server
    if (user && user.id && user.email) {
       try {
-         // Optionally you can use a relative URL if deployed correctly.
-         const url = `${NEXT_PUBLIC_SHOPIFY_ORIGIN_URL}/api/generate-loyaltylion-auth-token`;
+         const url = `${process.env.NEXT_PUBLIC_SHOPIFY_ORIGIN_URL}/api/generate-loyaltylion-auth-token`;
          const res = await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -90,36 +89,21 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
 
          if (res.ok) {
             const { date, token } = await res.json();
-            console.log('[LL Debug] date/token from /generate-loyaltylion-auth-token:', {
-               date,
-               token
-            });
-
-            // Add authenticated customer data to LoyaltyLionProps.
             loyaltyLionProps.customer = { id: user.id, email: user.email };
             loyaltyLionProps.auth = { date, token };
          } else {
-            console.error(
-               '[LL Debug] Error fetching /generate-loyaltylion-auth-token:',
-               res.status,
-               res.statusText
-            );
+            console.error('[LL Debug] Error fetching auth token:', res.status, res.statusText);
          }
       } catch (err) {
-         console.error('[LL Debug] Exception calling /generate-loyaltylion-auth-token:', err);
+         console.error('[LL Debug] Exception calling auth token endpoint:', err);
       }
    }
-
-   // Use the cart ID from the cookie to build the cart.
-   const cartId = cartCookie?.value;
-   // Note: You can also fetch the cart concurrently if needed.
-   const cart = getCart(cartId);
 
    return (
       <html lang="en" className={GeistSans.variable}>
          <head>
             {/* LoyaltyLion SDK loader snippet */}
-            {/* <Script
+            <Script
                id="loyaltylion-sdk"
                strategy="afterInteractive"
                dangerouslySetInnerHTML={{
@@ -189,7 +173,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
               })(document, window);
             `
                }}
-            /> */}
+            />
             {/* Additional third-party scripts as needed */}
             <Script
                id="mcjs"
