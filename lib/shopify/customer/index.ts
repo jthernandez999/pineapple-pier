@@ -31,7 +31,7 @@ export async function getAuthToken(
    customerId: string,
    email: string,
    date: string
-): Promise<string> {
+): Promise<{ token: string; date: string }> {
    const fetchUrl = `https://dearjohndenim.com/api/generate-loyaltylion-auth-token`;
 
    const response = await fetch(fetchUrl, {
@@ -45,15 +45,15 @@ export async function getAuthToken(
    }
 
    const { token } = await response.json();
-   return token;
+   return { token, date };
 }
 
 export async function getAuthenticatedUser() {
    const cookieStore = await cookies();
 
    // 1. Check for middleware-set cookies.
-   const loyaltyIdCookie = cookieStore.get('loyalty_lion_id');
-   const loyaltyEmailCookie = cookieStore.get('loyalty_lion_email');
+   const loyaltyIdCookie = cookieStore.get('id');
+   const loyaltyEmailCookie = cookieStore.get('email');
    if (loyaltyIdCookie && loyaltyEmailCookie) {
       return { id: loyaltyIdCookie.value, email: loyaltyEmailCookie.value };
    }

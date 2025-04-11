@@ -92,17 +92,17 @@ export async function middleware(request: NextRequest) {
          console.log('DEBUG: Setting user data cookies for loyalty usage:', userId, userEmail);
 
          // We wrap the returned response so we can set two cookies:
-         // loyalty_lion_id, loyalty_lion_email
+         // id, email
          // (Your layout can read these to build the LoyaltyLion auth.)
          const newResponse = NextResponse.next({
             request: { headers: loggedInResponse.headers }
          });
-         newResponse.cookies.set('loyalty_lion_id', userId, {
+         newResponse.cookies.set('id', userId, {
             path: '/',
             httpOnly: true,
             sameSite: 'lax'
          });
-         newResponse.cookies.set('loyalty_lion_email', userEmail, {
+         newResponse.cookies.set('email', userEmail, {
             path: '/',
             httpOnly: true,
             sameSite: 'lax'
