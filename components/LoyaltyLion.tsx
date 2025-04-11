@@ -1,7 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
 
-// The config shape for your convenience
 export interface LoyaltyLionProps {
    token: string;
    customer?: {
@@ -20,29 +19,41 @@ declare global {
    }
 }
 
-export default function LoyaltyLion({ token, customer }: LoyaltyLionProps) {
-   // State for storing auth data for logged-in customers.
+export default function LoyaltyLion({
+   token,
+   customer
+}: {
+   token: string;
+   customer?: { id: string; email: string };
+}) {
    const [auth, setAuth] = useState<{ date: string; token: string } | undefined>(undefined);
 
-   // If a customer is logged in, fetch the auth token using our API endpoint.
    useEffect(() => {
+      // If a customer is logged in, fetch the auth token from our server.
       if (customer) {
          (async () => {
+            // Generate the timestamp that you'll use for token generation.
+            const currentTimestamp = new Date().toISOString();
             try {
-               const res = await fetch('/api/loyaltylion', {
+               const res = await fetch('/api/generate-loyaltylion-auth-token', {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({
                      customerId: customer.id,
-                     email: customer.email
-                     // The API will generate the date if not provided.
+                     email: customer.email,
+                     date: currentTimestamp
                   })
                });
                if (res.ok) {
                   const { date, token: authToken } = await res.json();
+                  // Ideally, date should match currentTimestamp.
                   setAuth({ date, token: authToken });
                } else {
-                  console.error('[LL Debug] Failed to fetch auth token:', res.statusText);
+                  console.error(
+                     '[LL Debug] Error fetching auth token:',
+                     res.status,
+                     res.statusText
+                  );
                }
             } catch (error) {
                console.error('[LL Debug] Exception fetching auth token:', error);
@@ -51,7 +62,6 @@ export default function LoyaltyLion({ token, customer }: LoyaltyLionProps) {
       }
    }, [customer]);
 
-   // Initialize the LoyaltyLion SDK.
    useEffect(() => {
       if (typeof window === 'undefined') return;
       if (!window.loyaltylion) {
@@ -67,21 +77,11 @@ export default function LoyaltyLion({ token, customer }: LoyaltyLionProps) {
          return;
       }
 
-      // For logged-in customers, wait until auth is ready.
-      if (customer && !auth) {
-         console.log(
-            '[LL Debug] Customer logged in but auth token not available yet, waiting for auth.'
-         );
-         return;
-      }
-
-      // Build the configuration.
       const config: any = { token };
       if (customer && auth) {
          config.customer = customer;
-         config.auth = auth;
+         config.auth = auth; // auth.date will be the same as used to generate token
       }
-
       console.log('[LL Debug] loyaltylion.init config:', config);
       window.loyaltylion.init(config);
       window.loyaltylion._initialized = true;
