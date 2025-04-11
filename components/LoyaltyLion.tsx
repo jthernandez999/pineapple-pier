@@ -21,10 +21,10 @@ declare global {
 }
 
 export default function LoyaltyLion({ token, customer }: LoyaltyLionProps) {
-   // State for storing auth data if a customer is logged in.
+   // State for storing auth data for logged-in customers.
    const [auth, setAuth] = useState<{ date: string; token: string } | undefined>(undefined);
 
-   // If a customer is logged in, fetch the auth token from our server-side API.
+   // If a customer is logged in, fetch the auth token using our API endpoint.
    useEffect(() => {
       if (customer) {
          (async () => {
@@ -35,8 +35,7 @@ export default function LoyaltyLion({ token, customer }: LoyaltyLionProps) {
                   body: JSON.stringify({
                      customerId: customer.id,
                      email: customer.email
-                     // Optionally you could pass a pre-generated date, or let the API generate one.
-                     // date: new Date().toISOString(),
+                     // The API will generate the date if not provided.
                   })
                });
                if (res.ok) {
@@ -52,10 +51,9 @@ export default function LoyaltyLion({ token, customer }: LoyaltyLionProps) {
       }
    }, [customer]);
 
-   // Initialize the LoyaltyLion SDK, once per page load.
+   // Initialize the LoyaltyLion SDK.
    useEffect(() => {
       if (typeof window === 'undefined') return;
-
       if (!window.loyaltylion) {
          console.warn('[LL Debug] loyaltylion global not found (snippet not loaded yet?)');
          return;
@@ -69,14 +67,21 @@ export default function LoyaltyLion({ token, customer }: LoyaltyLionProps) {
          return;
       }
 
-      // Build the initial config with the site token.
-      const config: any = { token };
+      // For logged-in customers, wait until auth is ready.
+      if (customer && !auth) {
+         console.log(
+            '[LL Debug] Customer logged in but auth token not available yet, waiting for auth.'
+         );
+         return;
+      }
 
-      // If the customer and auth token have been fetched, add the customer info to authenticate.
+      // Build the configuration.
+      const config: any = { token };
       if (customer && auth) {
          config.customer = customer;
          config.auth = auth;
       }
+
       console.log('[LL Debug] loyaltylion.init config:', config);
       window.loyaltylion.init(config);
       window.loyaltylion._initialized = true;
