@@ -83,7 +83,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
    // If the user is logged in, fetch the auth token from your server
    if (user && user.id && user.email) {
       try {
-         const url = `${process.env.NEXT_PUBLIC_SHOPIFY_ORIGIN_URL}/api/generate-loyaltylion-auth-token`;
+         const url = `https://dearjohndenim.com/api/generate-loyaltylion-auth-token`;
          const res = await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
