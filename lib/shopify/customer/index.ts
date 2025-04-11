@@ -64,7 +64,7 @@ export async function getAuthenticatedUser() {
    const customerAccessToken = tokenCookie.value;
    if (!customerAccessToken) return null;
 
-   // 3. Optionally, try decoding the token if it includes an emailAddress field.
+   // 3. Attempt to decode the token if it includes an emailAddress field.
    try {
       const parts = customerAccessToken.split('.');
       if (parts.length >= 2 && parts[1]) {
@@ -80,29 +80,42 @@ export async function getAuthenticatedUser() {
       // Fall through to querying Shopify.
    }
 
-   // 4. If email wasn't in the token, query Shopify.
-   // (The customer token is already sent in the Authorization header by shopifyCustomerFetch.)
-   const query = `
-    query GetCustomer {
-      customer {
-        id
-        emailAddress {
-           emailAddress
-        }
-      }
-    }
-  `;
+   // 4. If email wasn't in the token, query Shopify using a direct fetch call.
+   const shopifyUrl = 'https://shopify.com/10242207/account/customer/api/2025-04/graphql';
    try {
-      const result = await shopifyCustomerFetch<{
-         customer: { id: string; emailAddress: { emailAddress: string } };
-      }>({
-         customerToken: customerAccessToken,
-         query
+      const response = await fetch(shopifyUrl, {
+         method: 'POST',
+         headers: {
+            'Content-Type': 'application/json',
+            // Adjust the format of your Authorization header as needed.
+            Authorization: `Bearer ${customerAccessToken}`
+         },
+         body: JSON.stringify({
+            operationName: 'SomeQuery',
+            query: `query GetCustomer {
+          customer {
+            id
+            emailAddress {
+              emailAddress
+            }
+          }
+        }`,
+            variables: {}
+         })
       });
-      if (result.body?.customer?.emailAddress?.emailAddress) {
+      if (!response.ok) {
+         console.error(
+            'DEBUG: Shopify query response not OK',
+            response.status,
+            response.statusText
+         );
+         return null;
+      }
+      const result = await response.json();
+      if (result?.data?.customer?.emailAddress?.emailAddress) {
          return {
-            id: result.body.customer.id,
-            email: result.body.customer.emailAddress.emailAddress
+            id: result.data.customer.id,
+            email: result.data.customer.emailAddress.emailAddress
          };
       }
       return null;
