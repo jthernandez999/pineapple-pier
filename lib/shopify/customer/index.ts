@@ -64,7 +64,7 @@ export async function getAuthenticatedUser() {
    const customerAccessToken = tokenCookie.value;
    if (!customerAccessToken) return null;
 
-   // 3. Attempt to decode the token if it includes an emailAddress field.
+   // 3. Try decoding the token in case it includes an emailAddress field.
    try {
       const parts = customerAccessToken.split('.');
       if (parts.length >= 2 && parts[1]) {
@@ -80,26 +80,28 @@ export async function getAuthenticatedUser() {
       // Fall through to querying Shopify.
    }
 
-   // 4. If email wasn't in the token, query Shopify using a direct fetch call.
-   const shopifyUrl = 'https://shopify.com/10242207/account/customer/api/2025-04/graphql';
+   // 4. If email wasn't in the token, query Shopify.
+   const shopifyUrl = 'https://shopify.com/10242207/account/customer/api/2025-04/graphql'; // Replace <shop-id> with your actual shop ID
    try {
       const response = await fetch(shopifyUrl, {
          method: 'POST',
          headers: {
             'Content-Type': 'application/json',
-            // Adjust the format of your Authorization header as needed.
-            Authorization: `Bearer ${customerAccessToken}`
+            // Pass the token directly rather than "Bearer {token}"
+            Authorization: customerAccessToken
          },
          body: JSON.stringify({
-            operationName: 'SomeQuery',
-            query: `query GetCustomer {
-          customer {
-            id
-            emailAddress {
-              emailAddress
+            operationName: 'GetCustomer',
+            query: `
+          query GetCustomer {
+            customer {
+              id
+              emailAddress {
+                emailAddress
+              }
             }
           }
-        }`,
+        `,
             variables: {}
          })
       });
