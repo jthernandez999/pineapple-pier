@@ -77,6 +77,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
 
    // Concurrently fetch the authenticated user.
    const user = await getAuthenticatedUser();
+   console.log('[DEBUG] getAuthenticatedUser result:', user);
 
    // If the user is logged in, fetch the auth token from your server
    if (user && user.id && user.email) {
