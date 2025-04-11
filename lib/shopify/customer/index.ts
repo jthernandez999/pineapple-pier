@@ -94,15 +94,15 @@ export async function getAuthenticatedUser() {
   `;
    try {
       const result = await shopifyCustomerFetch<{
-         customer: { id: string; emailAddress: { email: string } };
+         customer: { id: string; emailAddress: { emailAddress: string } };
       }>({
          customerToken: customerAccessToken,
          query
       });
-      if (result.body?.customer?.emailAddress?.email) {
+      if (result.body?.customer?.emailAddress?.emailAddress) {
          return {
             id: result.body.customer.id,
-            email: result.body.customer.emailAddress.email
+            email: result.body.customer.emailAddress.emailAddress
          };
       }
       return null;
