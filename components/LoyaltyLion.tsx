@@ -59,11 +59,11 @@ export default function LoyaltyLion({
       fetchAuth();
    }, [customer]);
 
-   // Initialize LoyaltyLion SDK.
+   // Initialize LoyaltyLion SDK once with the site token.
    useEffect(() => {
       if (typeof window === 'undefined') return;
       if (initCalled.current) {
-         console.log('[LL Debug] Initialization already executed, skipping re-init.');
+         console.log('[LL Debug] LoyaltyLion already initialized, skipping init.');
          return;
       }
       if (!window.loyaltylion) {
@@ -75,22 +75,33 @@ export default function LoyaltyLion({
          return;
       }
       if (window.loyaltylion._initialized) {
-         console.log('[LL Debug] Already initialized via window flag, skipping re-init.');
+         console.log('[LL Debug] Already initialized via window flag, skipping init.');
          initCalled.current = true;
          return;
       }
 
-      const config: any = { token };
-      if (customer && auth) {
-         config.customer = customer;
-         config.auth = auth;
-      }
-      console.log('[LL Debug] loyaltylion.init config:', config);
+      const config = { token };
+      console.log('[LL Debug] Calling loyaltylion.init with config:', config);
       window.loyaltylion.init(config);
       window.loyaltylion._initialized = true;
       initCalled.current = true;
       console.log('[LL Debug] loyaltylion.init complete');
-   }, [token, customer, auth]);
+   }, [token]);
+
+   // Authenticate the customer after initial init, if customer and auth are available.
+   useEffect(() => {
+      if (typeof window === 'undefined') return;
+      if (!customer || !auth) return;
+      if (typeof window.loyaltylion.authenticateCustomer !== 'function') {
+         console.warn('[LL Debug] loyaltylion.authenticateCustomer is not a function.');
+         return;
+      }
+      console.log('[LL Debug] Authenticating customer with config:', { customer, auth });
+      window.loyaltylion.authenticateCustomer({
+         customer,
+         auth
+      });
+   }, [customer, auth]);
 
    return null;
 }
