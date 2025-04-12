@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 export interface LoyaltyLionProps {
    token: string;
@@ -27,43 +27,45 @@ export default function LoyaltyLion({
    customer?: { id: string; email: string };
 }) {
    const [auth, setAuth] = useState<{ date: string; token: string } | undefined>(undefined);
+   const initCalled = useRef(false);
 
+   // Fetch auth token if a customer is provided.
    useEffect(() => {
-      // If a customer is logged in, fetch the auth token from our server.
-      if (customer) {
-         (async () => {
-            // Generate the timestamp that you'll use for token generation.
-            const currentTimestamp = new Date().toISOString();
-            try {
-               const res = await fetch('/api/generate-loyaltylion-auth-token', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({
-                     customerId: customer.id,
-                     email: customer.email,
-                     date: currentTimestamp
-                  })
-               });
-               if (res.ok) {
-                  const { date, token: authToken } = await res.json();
-                  // Ideally, date should match currentTimestamp.
-                  setAuth({ date, token: authToken });
-               } else {
-                  console.error(
-                     '[LL Debug] Error fetching auth token:',
-                     res.status,
-                     res.statusText
-                  );
-               }
-            } catch (error) {
-               console.error('[LL Debug] Exception fetching auth token:', error);
+      if (!customer) return;
+
+      const fetchAuth = async () => {
+         const currentTimestamp = new Date().toISOString();
+         try {
+            const res = await fetch('/api/generate-loyaltylion-auth-token', {
+               method: 'POST',
+               headers: { 'Content-Type': 'application/json' },
+               body: JSON.stringify({
+                  customerId: customer.id,
+                  email: customer.email,
+                  date: currentTimestamp
+               })
+            });
+            if (res.ok) {
+               const { date, token: authToken } = await res.json();
+               setAuth({ date, token: authToken });
+            } else {
+               console.error('[LL Debug] Error fetching auth token:', res.status, res.statusText);
             }
-         })();
-      }
+         } catch (error) {
+            console.error('[LL Debug] Exception fetching auth token:', error);
+         }
+      };
+
+      fetchAuth();
    }, [customer]);
 
+   // Initialize LoyaltyLion SDK.
    useEffect(() => {
       if (typeof window === 'undefined') return;
+      if (initCalled.current) {
+         console.log('[LL Debug] Initialization already executed, skipping re-init.');
+         return;
+      }
       if (!window.loyaltylion) {
          console.warn('[LL Debug] loyaltylion global not found (snippet not loaded yet?)');
          return;
@@ -73,18 +75,20 @@ export default function LoyaltyLion({
          return;
       }
       if (window.loyaltylion._initialized) {
-         console.log('[LL Debug] Already initialized, skipping re-init.');
+         console.log('[LL Debug] Already initialized via window flag, skipping re-init.');
+         initCalled.current = true;
          return;
       }
 
       const config: any = { token };
       if (customer && auth) {
          config.customer = customer;
-         config.auth = auth; // auth.date will be the same as used to generate token
+         config.auth = auth;
       }
       console.log('[LL Debug] loyaltylion.init config:', config);
       window.loyaltylion.init(config);
       window.loyaltylion._initialized = true;
+      initCalled.current = true;
       console.log('[LL Debug] loyaltylion.init complete');
    }, [token, customer, auth]);
 
