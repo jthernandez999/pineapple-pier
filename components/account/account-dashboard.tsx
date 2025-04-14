@@ -51,7 +51,8 @@ export default function AccountDashboard({
          key: 'loyalty',
          label: 'Loyalty Points',
          type: 'external',
-         href: 'https://shopify.com/10242207/account/pages/42026b1f-3325-417d-853a-8da8af55312b'
+         // href: 'https://shopify.com/10242207/account/pages/42026b1f-3325-417d-853a-8da8af55312b'
+         href: 'https://www.dearjohndenim.com/pages/rewards'
       }
    ];
 
