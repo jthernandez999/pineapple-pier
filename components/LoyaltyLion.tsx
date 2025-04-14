@@ -7,6 +7,10 @@ export interface LoyaltyLionProps {
       id: string;
       email: string;
    };
+   auth?: {
+      date: string;
+      token: string;
+   };
 }
 
 declare global {
