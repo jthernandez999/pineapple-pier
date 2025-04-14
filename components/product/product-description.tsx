@@ -28,7 +28,36 @@ declare global {
    }
 }
 
+// Hook to dynamically inject/reinitialize the Judge.me script on route change.
+function useJudgeMeScript() {
+   const pathname = usePathname();
+   useEffect(() => {
+      const scriptId = 'judge-me-script';
+      const existingScript = document.getElementById(scriptId);
+      if (!existingScript) {
+         const script = document.createElement('script');
+         script.src = 'https://cdn.judge.me/widget_preloader.js';
+         script.async = true;
+         script.id = scriptId;
+         script.onload = () => {
+            console.log('Judge.me script loaded');
+            if (window.jdgm && typeof window.jdgm.init === 'function') {
+               window.jdgm.init();
+            }
+         };
+         document.body.appendChild(script);
+      } else {
+         // If the script is already there, reinitialize the widget.
+         if (window.jdgm && typeof window.jdgm.init === 'function') {
+            console.log('Judge.me script already loaded, reinitializing widget');
+            window.jdgm.init();
+         }
+      }
+   }, [pathname]);
+}
+
 export function ProductDescription({ product, groupColorMetaobjectIds }: ProductDescriptionProps) {
+   useJudgeMeScript();
    const { activeProduct } = useProduct();
    const currentProduct = activeProduct || product;
    const [isDescriptionOpen, setIsDescriptionOpen] = useState(true);
@@ -39,12 +68,12 @@ export function ProductDescription({ product, groupColorMetaobjectIds }: Product
          const parts = currentProduct.id.split('/');
          const idStr = parts[parts.length - 1];
          const idNumber = Number(idStr);
-         console.log('Computed numeric product id:', idNumber);
+         // console.log('Computed numeric product id:', idNumber);
          return !isNaN(idNumber) ? idNumber : null;
       }
       return null;
    }, [currentProduct]);
-   console.log('numericProductId:', numericProductId);
+   // console.log('numericProductId:', numericProductId);
 
    // Use usePathname to detect route changes (client-side navigation).
    const pathname = usePathname();
