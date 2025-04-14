@@ -1,15 +1,11 @@
 'use client';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export interface LoyaltyLionProps {
    token: string;
    customer?: {
       id: string;
       email: string;
-   };
-   auth?: {
-      date: string;
-      token: string;
    };
 }
 
@@ -19,88 +15,76 @@ declare global {
    }
 }
 
-export default function LoyaltyLion({
-   token,
-   customer
-}: {
-   token: string;
-   customer?: { id: string; email: string };
-}) {
+export default function LoyaltyLion({ token, customer }: LoyaltyLionProps) {
+   // State to hold auth data once it is fetched.
    const [auth, setAuth] = useState<{ date: string; token: string } | undefined>(undefined);
-   const initCalled = useRef(false);
 
-   // Fetch auth token if a customer is provided.
+   // Fetch the auth token if a customer is logged in.
    useEffect(() => {
-      if (!customer) return;
-
-      const fetchAuth = async () => {
-         const currentTimestamp = new Date().toISOString();
-         try {
-            const res = await fetch('/api/generate-loyaltylion-auth-token', {
-               method: 'POST',
-               headers: { 'Content-Type': 'application/json' },
-               body: JSON.stringify({
-                  customerId: customer.id,
-                  email: customer.email,
-                  date: currentTimestamp
-               })
-            });
-            if (res.ok) {
-               const { date, token: authToken } = await res.json();
-               setAuth({ date, token: authToken });
-            } else {
-               console.error('[LL Debug] Error fetching auth token:', res.status, res.statusText);
+      if (customer) {
+         (async () => {
+            const currentTimestamp = new Date().toISOString();
+            try {
+               const res = await fetch('/api/generate-loyaltylion-auth-token', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                     customerId: customer.id,
+                     email: customer.email,
+                     date: currentTimestamp
+                  })
+               });
+               if (res.ok) {
+                  const { date, token: authToken } = await res.json();
+                  // We expect the returned "date" to match the one we sent.
+                  setAuth({ date, token: authToken });
+               } else {
+                  console.error(
+                     '[LL Debug] Error fetching auth token:',
+                     res.status,
+                     res.statusText
+                  );
+               }
+            } catch (error) {
+               console.error('[LL Debug] Exception fetching auth token:', error);
             }
-         } catch (error) {
-            console.error('[LL Debug] Exception fetching auth token:', error);
-         }
-      };
-
-      fetchAuth();
+         })();
+      }
    }, [customer]);
 
-   // Initialize LoyaltyLion SDK once with the site token.
+   // Initial SDK initialization effect.
    useEffect(() => {
-      if (typeof window === 'undefined') return;
-      if (initCalled.current) {
-         console.log('[LL Debug] LoyaltyLion already initialized, skipping init.');
-         return;
-      }
-      if (!window.loyaltylion) {
-         console.warn('[LL Debug] loyaltylion global not found (snippet not loaded yet?)');
-         return;
-      }
+      if (typeof window === 'undefined' || !window.loyaltylion) return;
       if (typeof window.loyaltylion.init !== 'function') {
          console.warn('[LL Debug] loyaltylion.init is not a function (still buffering?).');
          return;
       }
-      if (window.loyaltylion._initialized) {
-         console.log('[LL Debug] Already initialized via window flag, skipping init.');
-         initCalled.current = true;
-         return;
+      // If there is no customer or no auth data yet, initialize as a guest.
+      if (!customer || !auth) {
+         if (!window.loyaltylion._initialized) {
+            console.log('[LL Debug] Initializing LoyaltyLion for guest.');
+            window.loyaltylion.init({ token });
+            window.loyaltylion._initialized = true;
+            console.log('[LL Debug] LoyaltyLion init complete for guest.');
+         }
       }
+   }, [token, customer, auth]);
 
-      const config = { token };
-      console.log('[LL Debug] Calling loyaltylion.init with config:', config);
-      window.loyaltylion.init(config);
-      window.loyaltylion._initialized = true;
-      initCalled.current = true;
-      console.log('[LL Debug] loyaltylion.init complete');
-   }, [token]);
-
-   // Authenticate the customer after initial init, if customer and auth are available.
+   // Effect to authenticate the customer once auth data is available.
    useEffect(() => {
-      if (typeof window === 'undefined') return;
       if (!customer || !auth) return;
+      if (typeof window === 'undefined' || !window.loyaltylion) return;
       if (typeof window.loyaltylion.authenticateCustomer !== 'function') {
-         console.warn('[LL Debug] loyaltylion.authenticateCustomer is not a function.');
+         console.warn('[LL Debug] loyaltylion.authenticateCustomer not available.');
          return;
       }
-      console.log('[LL Debug] Authenticating customer with config:', { customer, auth });
+      console.log('[LL Debug] Authenticating customer with LoyaltyLion:', { customer, auth });
+      // Call authenticateCustomer to update the logged-in status.
       window.loyaltylion.authenticateCustomer({
          customer,
          auth
       });
+      console.log('[LL Debug] LoyaltyLion customer authenticated.');
    }, [customer, auth]);
 
    return null;
