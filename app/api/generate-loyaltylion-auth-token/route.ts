@@ -23,9 +23,9 @@ export async function POST(req: NextRequest) {
    }
 
    const date = clientDate || new Date().toISOString();
-   const secretKey = process.env.NEXT_PUBLIC_LOYALTY_LION_API;
+   const secretKey = process.env.NEXT_LOYALTY_LION_SECRET;
    if (!secretKey) {
-      console.error('[LL Debug] NEXT_PUBLIC_LOYALTY_LION_API is not set');
+      console.error('[LL Debug] NEXT_LOYALTY_LION_SECRET is not set');
       return NextResponse.json({ error: 'LoyaltyLion secret not configured' }, { status: 500 });
    }
 
