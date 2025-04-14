@@ -31,10 +31,10 @@ export default function LoyaltyLion({ token, customer }: LoyaltyLionProps) {
          return;
       }
       if (!window.loyaltylion._initialized) {
-         console.log('[LL Debug] Initializing LoyaltyLion for guest.');
+         // console.log('[LL Debug] Initializing LoyaltyLion for guest.');
          window.loyaltylion.init({ token });
          window.loyaltylion._initialized = true;
-         console.log('[LL Debug] LoyaltyLion init complete for guest.');
+         // console.log('[LL Debug] LoyaltyLion init complete for guest.');
       }
    }, [token]);
 
@@ -57,7 +57,7 @@ export default function LoyaltyLion({ token, customer }: LoyaltyLionProps) {
                if (res.ok) {
                   const { date, token: authToken } = await res.json();
                   // Expect the returned date to match currentTimestamp.
-                  console.log('[LL Debug] Fetched auth token with date:', date);
+                  // console.log('[LL Debug] Fetched auth token with date:', date);
                   setAuth({ date, token: authToken });
                } else {
                   console.error(
@@ -86,7 +86,7 @@ export default function LoyaltyLion({ token, customer }: LoyaltyLionProps) {
          customer,
          auth
       });
-      console.log('[LL Debug] LoyaltyLion customer authenticated.');
+      // console.log('[LL Debug] LoyaltyLion customer authenticated.');
    }, [customer, auth]);
 
    return null;
