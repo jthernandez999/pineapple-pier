@@ -1,7 +1,8 @@
 'use client';
 
 import type { Product } from 'lib/shopify/types';
-import { createContext, ReactNode, useContext, useState } from 'react';
+import localforage from 'localforage';
+import { createContext, ReactNode, useContext, useEffect, useState } from 'react';
 
 interface ProductGroups {
    [group: string]: Product[];
@@ -28,21 +29,30 @@ interface ProductGroupsProviderProps {
 }
 
 export function ProductGroupsProvider({ children }: ProductGroupsProviderProps) {
-   const [groups, setGroups] = useState<ProductGroups>(() => {
-      if (typeof window !== 'undefined') {
-         const storedGroups = localStorage.getItem('productGroups');
-         return storedGroups ? JSON.parse(storedGroups) : {};
-      }
-      return {};
-   });
-
+   // Initialize with an empty object; we'll load the stored data asynchronously
+   const [groups, setGroups] = useState<ProductGroups>({});
    const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+
+   // Load productGroups from IndexedDB (via localForage) when the component mounts
+   useEffect(() => {
+      localforage
+         .getItem<ProductGroups>('productGroups')
+         .then((storedGroups) => {
+            if (storedGroups) {
+               setGroups(storedGroups);
+            }
+         })
+         .catch((error) => {
+            console.error('Error retrieving productGroups:', error);
+         });
+   }, []);
 
    function updateGroups(newGroups: ProductGroups) {
       setGroups(newGroups);
-      if (typeof window !== 'undefined') {
-         localStorage.setItem('productGroups', JSON.stringify(newGroups));
-      }
+      // Save the newGroups object asynchronously using localForage
+      localforage
+         .setItem('productGroups', newGroups)
+         .catch((error) => console.error('Error saving productGroups:', error));
    }
 
    function updateSelectedProduct(product: Product | null) {

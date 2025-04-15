@@ -63,10 +63,11 @@ export const metadata = {
 };
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
+   // Retrieve the cartId from cookies
    const cartId = (await cookies()).get('cartId')?.value;
-
-   // Don't await the fetch, pass the Promise to the context provider.
-   const cart = getCart(cartId);
+   // Instead of awaiting getCart here, pass the promise.
+   // Ensure that if cartId is not available, we pass a valid promise resolving to undefined.
+   const cartPromise = cartId ? getCart(cartId) : Promise.resolve(undefined);
 
    // Get your environment token
    const siteToken = process.env.NEXT_PUBLIC_LOYALTY_LION_API || '';
@@ -215,7 +216,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
          <body className="w-full bg-neutral-100 text-black selection:bg-teal-300 dark:bg-neutral-900">
             <ProductGroupsProvider>
                <AnnouncementBar />
-               <CartProvider cartPromise={cart}>
+               <CartProvider cartPromise={cartPromise}>
                   <Navbar />
                   <NavbarScrollHandler />
                   <main>
