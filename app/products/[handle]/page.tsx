@@ -26,9 +26,9 @@ const fallbackImg = {
 export async function generateMetadata({
    params
 }: {
-   params: RouteParams; // Use plain object
+   params: Promise<RouteParams>;
 }): Promise<Metadata> {
-   const { handle } = params;
+   const { handle } = await params;
    const product = await getProduct(handle);
    if (!product) return notFound();
 

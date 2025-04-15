@@ -1,6 +1,7 @@
 'use client';
 
 import type { Product } from 'lib/shopify/types';
+import localforage from 'localforage';
 import { ReadonlyURLSearchParams, usePathname, useRouter, useSearchParams } from 'next/navigation';
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { useProductGroups } from './ProductGroupsContext';
@@ -30,6 +31,7 @@ interface ProductProviderProps {
 export function ProductProvider({ children, initialProduct }: ProductProviderProps) {
    const searchParams = useSearchParams();
 
+   // Derive initial state from URL search parameters.
    const getInitialState = (): ProductState => {
       const params: ProductState = {};
       for (const [key, value] of searchParams.entries()) {
@@ -38,32 +40,47 @@ export function ProductProvider({ children, initialProduct }: ProductProviderPro
       return params;
    };
 
+   // Initialize state with URL parameters; then merge any stored state.
    const [state, setState] = useState<ProductState>(getInitialState());
+
+   // On mount, load stored product state from localForage and merge it with the initial state.
+   useEffect(() => {
+      localforage
+         .getItem<ProductState>('productState')
+         .then((storedState) => {
+            if (storedState) {
+               setState((prevState) => ({ ...storedState, ...prevState }));
+            }
+         })
+         .catch((error) => {
+            console.error('Error loading product state:', error);
+         });
+   }, [searchParams]);
 
    const updateOption = (name: string, value: string): ProductState => {
       const newState: ProductState = { ...state, [name]: value };
       setState(newState);
-      if (typeof window !== 'undefined') {
-         localStorage.setItem('productState', JSON.stringify(newState));
-      }
+      localforage
+         .setItem('productState', newState)
+         .catch((error) => console.error('Error saving product state:', error));
       return newState;
    };
 
    const updateImage = (index: string): ProductState => {
       const newState: ProductState = { ...state, image: index };
       setState(newState);
-      if (typeof window !== 'undefined') {
-         localStorage.setItem('productState', JSON.stringify(newState));
-      }
+      localforage
+         .setItem('productState', newState)
+         .catch((error) => console.error('Error saving product state:', error));
       return newState;
    };
 
    const updateProductState = (updates: Partial<ProductState>): ProductState => {
       const newState: ProductState = { ...state, ...updates };
       setState(newState);
-      if (typeof window !== 'undefined') {
-         localStorage.setItem('productState', JSON.stringify(newState));
-      }
+      localforage
+         .setItem('productState', newState)
+         .catch((error) => console.error('Error saving product state:', error));
       return newState;
    };
 
