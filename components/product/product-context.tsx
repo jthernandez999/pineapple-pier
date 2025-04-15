@@ -32,10 +32,30 @@ export function ProductProvider({ children, initialProduct }: ProductProviderPro
    const searchParams = useSearchParams();
 
    // Derive initial state from URL search parameters.
+   // Additionally, if no "color" or "size" is specified, default to the first available value from initialProduct options.
    const getInitialState = (): ProductState => {
       const params: ProductState = {};
+      // Populate state from URL query parameters
       for (const [key, value] of searchParams.entries()) {
          params[key] = key === 'color' ? value.toLowerCase() : value;
+      }
+      // Set a default "color" if not provided and available in initialProduct
+      if (!params['color'] && initialProduct.options) {
+         const colorOption = initialProduct.options.find(
+            (option) => option.name.toLowerCase() === 'color'
+         );
+         if (colorOption && colorOption.values && colorOption.values.length > 0) {
+            params['color'] = colorOption.values[0]?.toLowerCase();
+         }
+      }
+      // Set a default "size" if not provided and available in initialProduct
+      if (!params['size'] && initialProduct.options) {
+         const sizeOption = initialProduct.options.find(
+            (option) => option.name.toLowerCase() === 'size'
+         );
+         if (sizeOption && sizeOption.values && sizeOption.values.length > 0) {
+            params['size'] = sizeOption.values[0]?.toLowerCase();
+         }
       }
       return params;
    };
