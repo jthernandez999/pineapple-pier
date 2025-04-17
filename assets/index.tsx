@@ -7,7 +7,7 @@ export const banners = [
       title: ' Spring New Arrivals',
       // description: 'Pieces that bring sophistication to every look.',
       buttonText: 'Explore New Arrivals',
-      buttonLink: '/collections/shop-new-arrivals'
+      buttonLink: '/collections/new-arrivals'
    },
    {
       image: 'https://cdn.shopify.com/s/files/1/1024/2207/files/Untitled_design_a9ffdcfb-a27b-4477-a732-c02b77e6e891.png?v=1743003993',
