@@ -81,7 +81,7 @@ export async function getAuthenticatedUser() {
    }
 
    // 4. If email wasn't in the token, query Shopify.
-   const shopifyUrl = 'https://shopify.com/10242207/account/customer/api/2025-04/graphql'; // Replace <shop-id> with your actual shop ID
+   const shopifyUrl = 'https://shopify.com/72708915441/account/customer/api/2025-04/graphql'; // Replace <shop-id> with your actual shop ID
    try {
       const response = await fetch(shopifyUrl, {
          method: 'POST',
