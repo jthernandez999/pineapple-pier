@@ -98,8 +98,9 @@ export const TAGS = {
 
 export const HIDDEN_PRODUCT_TAG = 'nextjs-frontend-hidden';
 export const DEFAULT_OPTION = 'Default Title';
-export const SHOPIFY_GRAPHQL_API_ENDPOINT = process.env.NEXT_PUBLIC_SHOPIFY_GRAPHQL_ENDPOINT;
-export const SHOPIFY_USER_AGENT = 'DearJohnDenim Storefront/1.0 (https://dearjohndenim.co)';
+export const SHOPIFY_GRAPHQL_API_ENDPOINT = '/api/2025-04/graphql.json';
+export const SHOPIFY_USER_AGENT =
+   'DearJohnDenim Storefront/1.0 (https://pineapple-pier.vercel.app/)';
 export const SHOPIFY_ORIGIN = process.env.NEXT_PUBLIC_SHOPIFY_ORIGIN_URL;
 
 // export const SHOPIFY_CUSTOMER_ACCOUNT_API_URL =
