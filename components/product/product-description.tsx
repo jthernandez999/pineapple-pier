@@ -38,18 +38,32 @@ export function ProductDescription({ product, groupColorMetaobjectIds }: Product
    // Helper: remove leading punctuation/whitespace after splitting.
    const clean = (s: string) => s.replace(/^[:\s,]+/, '').trim();
 
-   /** Slice the Shopify description once and cache the result. */
+   /* ─────────── add this helper just above the useMemo ─────────── */
+   const formatSentencesToParagraphs = (text: string): string => {
+      // Strip any existing <p> tags to avoid nesting issues
+      const stripped = text.replace(/<\/?p[^>]*>/gi, ' ');
+      return stripped
+         .split(/(?<=[.!?])\s+(?=[A-Z])/g) // split after . ! ? followed by a capital
+         .map((s) => s.trim())
+         .filter(Boolean)
+         .map((s) => `<p>${s}</p>`)
+         .join('');
+   };
+
+   /* ─────────── replace the descHtml assignment inside your useMemo ─────────── */
    const { descHtml, materialsCare, specString } = useMemo(() => {
       const raw = currentProduct.descriptionHtml ?? '';
 
       // Split on “Material with Care:”
-      const [beforeMaterial, afterMaterial = ''] = raw.split(/Material\s+with\s+Care:/i);
+      /* in the useMemo – just replace this single line */
+      const [beforeMaterial = '', afterMaterial = ''] = raw.split(/Material\s+with\s+Care:/i);
 
       // Split the tail on “Size”
       const [materialsBlock = '', specBlock = ''] = afterMaterial.split(/\bSize\b/i);
 
       return {
-         descHtml: beforeMaterial?.trim(),
+         // ⬇️ new line: wrap every sentence in its own <p>
+         descHtml: formatSentencesToParagraphs(beforeMaterial.trim()),
          materialsCare: clean(materialsBlock),
          specString: clean(specBlock)
       };
