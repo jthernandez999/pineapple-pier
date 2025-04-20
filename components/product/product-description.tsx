@@ -33,32 +33,53 @@ export function ProductDescription({ product, groupColorMetaobjectIds }: Product
    const currentProduct = activeProduct || product;
    const [isDescriptionOpen, setIsDescriptionOpen] = useState(true);
 
+   /* ───────────────────────────────────────── memo‑ised helpers ─── */
+
+   // Helper: remove leading punctuation/whitespace after splitting.
+   const clean = (s: string) => s.replace(/^[:\s,]+/, '').trim();
+
+   /** Slice the Shopify description once and cache the result. */
+   const { descHtml, materialsCare, specString } = useMemo(() => {
+      const raw = currentProduct.descriptionHtml ?? '';
+
+      // Split on “Material with Care:”
+      const [beforeMaterial, afterMaterial = ''] = raw.split(/Material\s+with\s+Care:/i);
+
+      // Split the tail on “Size”
+      const [materialsBlock = '', specBlock = ''] = afterMaterial.split(/\bSize\b/i);
+
+      return {
+         descHtml: beforeMaterial?.trim(),
+         materialsCare: clean(materialsBlock),
+         specString: clean(specBlock)
+      };
+   }, [currentProduct.descriptionHtml]);
+
+   /* ───────────────────────────────────────── existing logic ─── */
+
    // Compute numeric product id synchronously.
    const numericProductId = useMemo(() => {
       if (currentProduct && currentProduct.id) {
          const parts = currentProduct.id.split('/');
          const idStr = parts[parts.length - 1];
          const idNumber = Number(idStr);
-         console.log('Computed numeric product id:', idNumber);
          return !isNaN(idNumber) ? idNumber : null;
       }
       return null;
    }, [currentProduct]);
-   console.log('numericProductId:', numericProductId);
 
-   // Use usePathname to detect route changes (client-side navigation).
+   // Detect route changes (client‑side navigation).
    const pathname = usePathname();
 
-   // Get the SKU from the first variant and remove everything from the colon (":") onward.
+   // Get the SKU from the first variant and strip suffix after ":".
    let baseSku = '';
    if (currentProduct.variants && currentProduct.variants.length > 0) {
-      // Cast the first variant to a type that has an optional sku property
       const sku = (currentProduct.variants[0] as { sku?: string }).sku ?? '';
       const colonIndex = sku.indexOf(':');
       baseSku = colonIndex !== -1 ? sku.substring(0, colonIndex) : sku;
    }
 
-   // Use widgetKey to force re-mounting of the widget container.
+   // Re‑mount Judge.me widget on navigation + product change.
    const [widgetKey, setWidgetKey] = useState<string>(`judge-me-${numericProductId}`);
    useEffect(() => {
       if (numericProductId !== null) {
@@ -66,35 +87,32 @@ export function ProductDescription({ product, groupColorMetaobjectIds }: Product
       }
    }, [pathname, numericProductId]);
 
-   // Once widgetKey is updated, call Judge.me's init.
    useEffect(() => {
-      if (numericProductId !== null && window.jdgm && typeof window.jdgm.init === 'function') {
-         console.log('Reinitializing Judge.me widget after widget remount');
+      if (numericProductId !== null && window.jdgm?.init) {
          window.jdgm.init();
       }
    }, [widgetKey, numericProductId]);
 
-   // Remove the color word from the title for display if possible.
+   // Remove colour from title for display.
    const filteredTitle = currentProduct.title
       ? currentProduct.title
            .replace(new RegExp(`\\b${currentProduct.options[1]?.values[0]}\\b`, 'i'), '')
            .trim()
       : currentProduct.title;
 
-   const normalizedTags = currentProduct.tags
-      ? currentProduct.tags.map((tag) => tag.trim().toLowerCase())
-      : [];
-
-   // Determine stretchability tag.
-   const stretchTag: string = normalizedTags.includes('stretch')
+   const normalizedTags = currentProduct.tags?.map((t) => t.trim().toLowerCase()) ?? [];
+   const stretchTag = normalizedTags.includes('stretch')
       ? 'Stretch'
       : normalizedTags.includes('rigid')
         ? 'Rigid'
         : 'N/A';
 
+   /* ───────────────────────────────────────── JSX ─── */
+
    return (
       <div className="mx-auto flex flex-col justify-start border-b px-2 pb-6 dark:border-neutral-700 md:px-4 2xl:mx-auto">
          <div className="mx-4 mt-2 text-start text-sm text-black dark:text-white">
+            {/* title, SKU & price */}
             <div className="flex flex-col items-start justify-start">
                <h1 className="mb-0 flex justify-start text-start font-sans text-xl md:mb-2 lg:mb-2 2xl:text-3xl">
                   {filteredTitle}
@@ -105,15 +123,16 @@ export function ProductDescription({ product, groupColorMetaobjectIds }: Product
                >
                   {baseSku || 'No SKU available'}
                </p>
-               {/* Judge.me Preview Badge */}
-               <div>
-                  {numericProductId !== null && (
-                     <div
-                        className="jdgm-widget jdgm-preview-badge"
-                        data-id={numericProductId}
-                     ></div>
-                  )}
-               </div>
+
+               {/* Judge.me badge */}
+               {numericProductId !== null && (
+                  <div
+                     key={widgetKey}
+                     className="jdgm-widget jdgm-preview-badge"
+                     data-id={numericProductId}
+                  />
+               )}
+
                <div className="mr-auto w-auto pb-3 text-start text-lg text-black">
                   <Price
                      amount={currentProduct.priceRange.maxVariantPrice.amount}
@@ -122,6 +141,7 @@ export function ProductDescription({ product, groupColorMetaobjectIds }: Product
                </div>
             </div>
 
+            {/* variant selector & cart */}
             <VariantSelector
                options={currentProduct.options}
                variants={currentProduct.variants}
@@ -130,6 +150,7 @@ export function ProductDescription({ product, groupColorMetaobjectIds }: Product
             />
             <AddToCart product={currentProduct} />
 
+            {/* description dropdown */}
             {currentProduct.descriptionHtml && (
                <div className="my-6 mb-4 border-b pb-2">
                   <button
@@ -172,18 +193,25 @@ export function ProductDescription({ product, groupColorMetaobjectIds }: Product
                         </svg>
                      )}
                   </button>
-                  {isDescriptionOpen && (
+
+                  {isDescriptionOpen && descHtml && (
                      <div className="mt-4">
                         <Prose
                            className="text-justify text-sm font-light leading-tight dark:text-white/[60%]"
-                           html={currentProduct.descriptionHtml}
+                           html={descHtml}
                         />
                      </div>
                   )}
                </div>
             )}
 
-            <ProductSpec product={currentProduct} />
+            {/* materials / specs */}
+            <ProductSpec
+               product={currentProduct}
+               materialsCare={materialsCare}
+               specifications={specString}
+            />
+
             <StretchabilitySection stretchTag={stretchTag} />
          </div>
       </div>

@@ -1,17 +1,15 @@
 'use client';
 
 import { Product } from 'lib/shopify/types';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useProduct, useUpdateSpec } from '../../components/product/product-context';
 
-//
-// Helper: Remove a leading "Material:" prefix (case-insensitive)
+/* ───────────── helpers (all existing) ───────────── */
+
 function removeMaterialPrefix(text: string): string {
    return text.replace(/^material:\s*/i, '').trim();
 }
 
-//
-// Helper: Split specifications into tokens by commas that are not inside parentheses.
 function splitSpecifications(spec: string): string[] {
    const result: string[] = [];
    let current = '';
@@ -27,45 +25,48 @@ function splitSpecifications(spec: string): string[] {
          current += char;
       }
    }
-   if (current.trim() !== '') {
-      result.push(current.trim());
-   }
+   if (current.trim() !== '') result.push(current.trim());
    return result;
 }
 
-export function ProductSpec({ product }: { product: Product }) {
+/* ───────────── component ───────────── */
+
+export function ProductSpec({
+   product,
+   materialsCare = '',
+   specifications = ''
+}: {
+   product: Product;
+   materialsCare?: string;
+   specifications?: string;
+}) {
    const { state } = useProduct();
    const updateSpec = useUpdateSpec();
-   // Initialize with a default spec string.
-   const [currentSpec, setCurrentSpec] = useState<string>('n/a');
 
-   // Dropdown states for Materials & Care and Specifications
+   const [currentSpec, setCurrentSpec] = useState<string>('n/a');
    const [materialsOpen, setMaterialsOpen] = useState<boolean>(false);
    const [specsOpen, setSpecsOpen] = useState<boolean>(false);
 
+   /* pull spec from context if needed */
    useEffect(() => {
-      if (state && typeof state.spec === 'string' && state.spec.trim() !== '') {
+      if (state?.spec?.trim()) {
          setCurrentSpec(state.spec);
       } else {
-         console.warn('No "spec" found in state, using fallback from product options.');
-         const fallbackSpec: string =
-            product?.options?.find((opt) => opt.name.toLowerCase() === 'spec')?.values?.[0] ??
-            'n/a';
-         setCurrentSpec(fallbackSpec);
+         const fallback =
+            product?.options?.find((o) => o.name.toLowerCase() === 'spec')?.values?.[0] ?? 'n/a';
+         setCurrentSpec(fallback);
       }
    }, [state, product]);
 
-   // Work with a safe string:
-   let safeSpec = (currentSpec ?? 'n/a').trim();
-   // Remove any trailing commas.
-   safeSpec = safeSpec.replace(/,\s*$/, '');
-   // Remove any "Material:" prefix.
-   safeSpec = removeMaterialPrefix(safeSpec);
+   /* choose the best source: newly‑split > context > fallback */
+   const safeSpec = useMemo(() => {
+      const merged = [materialsCare, specifications].filter(Boolean).join(', ').trim();
+      const raw = merged || currentSpec;
+      return removeMaterialPrefix(raw.replace(/,\s*$/, '').trim());
+   }, [materialsCare, specifications, currentSpec]);
 
-   //
-   // --- Materials & Care Parsing ---
-   //
-   // We now try to detect a care instructions group in parentheses.
+   /* ───── Materials & Care parsing (unchanged logic) ───── */
+
    let materialText = 'n/a';
    let careText = 'n/a';
    let specsPart = '';
@@ -74,22 +75,17 @@ export function ProductSpec({ product }: { product: Product }) {
    if (startParen !== -1) {
       const endParen = safeSpec.indexOf(')', startParen);
       if (endParen !== -1) {
-         // Everything before the parentheses is the full materials string (even if it has commas).
          materialText = safeSpec.substring(0, startParen).trim().replace(/,\s*$/, '');
-         // Extract the care instructions (including the parentheses).
          careText = safeSpec.substring(startParen, endParen + 1).trim();
-         // The remainder after the closing parenthesis are additional specifications.
-         specsPart = safeSpec.substring(endParen + 1).trim();
-         if (specsPart.startsWith(',')) {
-            specsPart = specsPart.substring(1).trim();
-         }
+         specsPart = safeSpec
+            .substring(endParen + 1)
+            .trim()
+            .replace(/^,/, '')
+            .trim();
       } else {
-         // No closing parenthesis found, treat the whole thing as materials.
          materialText = safeSpec;
       }
    } else {
-      // No parentheses found.
-      // If there is a comma, assume it separates materials from specifications.
       const commaIndex = safeSpec.indexOf(',');
       if (commaIndex !== -1) {
          materialText = safeSpec.substring(0, commaIndex).trim();
@@ -99,21 +95,14 @@ export function ProductSpec({ product }: { product: Product }) {
       }
    }
 
-   //
-   // --- Specifications Parsing ---
-   //
-   const specificationTokens = specsPart ? splitSpecifications(specsPart) : [];
-   // Optionally, you can further process each specification token (e.g., split key/value on colon)
-   const specPairs = specificationTokens.map((token) => {
-      const parts = token.split(':');
-      const key = parts[0]?.trim() || '';
-      const value = parts.slice(1).join(':').trim();
-      return { key, value };
-   });
+   /* ───── Specifications parsing (unchanged logic) ───── */
+   const specTokens = specsPart ? splitSpecifications(specsPart) : [];
+
+   /* ───────────── JSX ───────────── */
 
    return (
       <div className="mb-6">
-         {/* Materials & Care Dropdown */}
+         {/* Materials & Care */}
          <div className="mb-4 border-b pb-2">
             <button
                onClick={() => setMaterialsOpen(!materialsOpen)}
@@ -155,6 +144,7 @@ export function ProductSpec({ product }: { product: Product }) {
                   </svg>
                )}
             </button>
+
             {materialsOpen && (
                <div className="mt-2 pl-4 text-gray-700">
                   <p>
@@ -167,13 +157,13 @@ export function ProductSpec({ product }: { product: Product }) {
             )}
          </div>
 
-         {/* Specifications Dropdown */}
+         {/* Fit & Features */}
          <div className="mb-4 border-b pb-2">
             <button
                onClick={() => setSpecsOpen(!specsOpen)}
                className="flex w-full items-center justify-between text-left text-lg font-normal text-gray-800 hover:opacity-80"
             >
-               <span>Specifications</span>
+               <span>Fit & Features</span>
                {specsOpen ? (
                   <svg className="h-6 w-6" viewBox="0 0 24 24">
                      <line
@@ -211,19 +201,71 @@ export function ProductSpec({ product }: { product: Product }) {
             </button>
             {specsOpen && (
                <div className="mt-2 pl-4 text-gray-700">
-                  {specificationTokens.length > 0 ? (
-                     specificationTokens.map((spec, index) => (
-                        <p key={index}>
-                           {spec.includes(':') ? (
-                              <>
-                                 <strong>{spec.split(':')[0]?.trim()}:</strong>{' '}
-                                 {spec.split(':').slice(1).join(':').trim()}
-                              </>
-                           ) : (
-                              spec
-                           )}
-                        </p>
-                     ))
+                  {specTokens.length ? (
+                     (() => {
+                        // collect resulting JSX nodes here
+                        const elements: React.ReactNode[] = [];
+
+                        let i = 0;
+                        let firstKeyHandled = false;
+
+                        while (i < specTokens.length) {
+                           // guard against undefined just to keep TS happy
+                           const token = specTokens[i] ?? '';
+
+                           // ── FIRST key/value pair becomes bullet parent ──
+                           if (!firstKeyHandled && token.includes(':')) {
+                              const [keyPart, ...valueRest] = token.split(':');
+                              const bullets: string[] = [];
+
+                              const firstVal = valueRest.join(':').trim();
+                              if (firstVal) bullets.push(firstVal);
+
+                              // gather every following non‑key token
+                              let j = i + 1;
+                              while (j < specTokens.length && !specTokens[j]?.includes(':')) {
+                                 const nextToken = specTokens[j];
+                                 if (nextToken) bullets.push(nextToken.trim());
+                                 j++;
+                              }
+
+                              elements.push(
+                                 <div key={`first-${keyPart?.trim()}`} className="mb-2">
+                                    <p className="font-semibold">{keyPart?.trim()}:</p>
+                                    {bullets.length > 0 && (
+                                       <ul className="ml-4 list-inside list-disc space-y-1">
+                                          {bullets.map((b, idx) => (
+                                             <li key={idx}>{b}</li>
+                                          ))}
+                                       </ul>
+                                    )}
+                                 </div>
+                              );
+
+                              i = j; // jump past the bullet tokens
+                              firstKeyHandled = true;
+                              continue;
+                           }
+
+                           // ── every other token renders exactly like before ──
+                           elements.push(
+                              <p key={i}>
+                                 {token.includes(':') ? (
+                                    <>
+                                       <strong>{token.split(':')[0]?.trim()}:</strong>{' '}
+                                       {token.split(':').slice(1).join(':').trim()}
+                                    </>
+                                 ) : (
+                                    token
+                                 )}
+                              </p>
+                           );
+
+                           i++;
+                        }
+
+                        return <>{elements}</>;
+                     })()
                   ) : (
                      <p>No specifications available.</p>
                   )}
