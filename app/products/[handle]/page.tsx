@@ -1,14 +1,14 @@
-import type { Metadata } from 'next';
-import { notFound } from 'next/navigation';
-
 import { GridTileImage } from 'components/grid/tile';
+import FabricInfo from 'components/product/FabricInfo';
 import { ProductProvider } from 'components/product/product-context';
 import { ProductDescription } from 'components/product/product-description';
 import { HIDDEN_PRODUCT_TAG } from 'lib/constants';
 import { getColorPatternMetaobjectId } from 'lib/helpers/metafieldHelpers';
 import { getProduct, getProductRecommendations } from 'lib/shopify';
 import type { Product } from 'lib/shopify/types';
+import type { Metadata } from 'next';
 import Link from 'next/link';
+import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
 import ActiveGallery from '../../../components/ActiveGallery';
 import Grid from '../../../components/grid';
@@ -178,6 +178,7 @@ export default async function ProductPage({ params }: { params: Promise<RoutePar
                   </Suspense>
                </div>
             </div>
+            <FabricInfo tags={product.tags} />
             <RelatedProducts id={product.id} />
          </div>
          {/* <Footer /> */}
