@@ -133,7 +133,7 @@ const NavbarScrollHandler = () => {
                navElement.classList.add(
                   'sticky',
                   'top-0',
-                  'z-30',
+                  'z-[66]', // keep this above the mega‑menu’s z‑index
                   'bg-white',
                   'bg-opacity-100',
                   'transition-none'

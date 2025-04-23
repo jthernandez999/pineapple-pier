@@ -1,39 +1,38 @@
+// components/layout/navbar/index.tsx
 import CartModal from 'components/cart/modal';
+import ClientDesktopMenu from 'components/navigation/ClientDesktopMenu';
 import { getMenu } from 'lib/shopify';
-import { Menu, MenuItem } from 'lib/shopify/types';
+import { Menu } from 'lib/shopify/types';
 import Link from 'next/link';
 import { Suspense } from 'react';
 import AnimatedLogo from '../../../components/animated-logo';
 import LoginModalTrigger from '../../../components/auth/ProfileAuthModal';
 import MobileMenu from './mobile-menu';
 import Search, { SearchSkeleton } from './search';
-const { SITE_NAME } = process.env;
 
 interface NavbarProps {
    siteName: string;
 }
 
-export async function Navbar() {
-   // This component is SSR because it fetches data on the server.
+export default async function Navbar() {
    const menu: Menu[] = await getMenu('main-menu');
-
+   console.log('Navbar menu:', menu);
    return (
-      // <nav className="sticky top-0 z-30 w-full border-gray-200 bg-white shadow-md dark:border-gray-600 dark:bg-gray-900">
       <nav className="bg-white-opacity-0 absolute top-0 z-[66] mt-5 w-full border-gray-200 dark:border-gray-600 dark:bg-gray-900 lg:top-20">
          <div className="mx-auto flex w-full items-center justify-between p-4">
-            {/* Left Section: Logo (and mobile menu icon) */}
+            {/* Left Section */}
             <div className="flex items-center">
-               {/* Mobile Menu icon only shows on mobile */}
                <div id="mobile-menu" className="hidden md:hidden">
                   <MobileMenu menu={menu} />
                </div>
-               {/* Logo area */}
                <LogoArea />
             </div>
 
-            {/* Center Section: Desktop Menu Items */}
+            {/* Center Section */}
+            {/* <div id="desktop-menu" className="hidden md:block lg:block"> */}
+
             <div id="desktop-menu" className="hidden md:hidden lg:hidden">
-               <DesktopMenu menu={menu} />
+               <ClientDesktopMenu menu={menu} />
             </div>
 
             {/* Right Section: Search and Cart */}
@@ -54,30 +53,16 @@ export async function Navbar() {
    );
 }
 
-// Helper component for the logo area.
 function LogoArea() {
    return (
       <div className="flex items-center">
          <Link href="/" className="flex items-center gap-2">
             <AnimatedLogo />
-            {/* <div className="ml-2 hidden text-sm font-medium uppercase md:block">{SITE_NAME}</div> */}
          </Link>
       </div>
    );
 }
 
-// Helper component for the desktop menu area.
-function DesktopMenu({ menu }: { menu: Menu[] }) {
-   return (
-      <ul className="flex gap-12">
-         {menu.map((item: MenuItem) => (
-            <MegaMenuComponent key={item.title} item={item} />
-         ))}
-      </ul>
-   );
-}
-
-// Helper component for the cart modal area.
 function CartModalArea() {
    return (
       <div className="flex items-center">
@@ -85,64 +70,3 @@ function CartModalArea() {
       </div>
    );
 }
-
-// MegaMenuComponent remains largely unchanged.
-interface MegaMenuComponentProps {
-   item: MenuItem;
-}
-const MegaMenuComponent: React.FC<MegaMenuComponentProps> = ({ item }) => {
-   const hasSubmenu = item.items && item.items.length > 0;
-   return (
-      <li className="group relative">
-         <Link
-            href={item.url}
-            className="inline-flex w-full justify-center py-2.5 text-center font-poppins text-xs font-semibold tracking-wide text-black hover:text-gray-700"
-         >
-            {item.title}
-         </Link>
-         {hasSubmenu && (
-            // The mega menu is now a fixed position element hover drop down menu.
-            <div className="duration-900 pointer-events-none fixed left-0 z-[65] min-h-[25vh] w-full translate-y-2 transform bg-white opacity-0 transition-all delay-500 group-hover:pointer-events-auto group-hover:translate-y-4 group-hover:opacity-100 lg:top-8 2xl:top-[2.2rem]">
-               <div className="flex w-full justify-around px-8 py-4">
-                  <ul className="flex justify-around space-x-8">
-                     {item.items?.map((subItem) => (
-                        <li key={subItem.title} className="text-left">
-                           <Link
-                              href={subItem.url}
-                              className="block py-2 text-sm font-normal tracking-normal text-gray-900 transition-all delay-200 hover:text-gray-400"
-                           >
-                              {subItem.title}
-                           </Link>
-                           {subItem.items && (
-                              <ul className="ml-4 mt-2 space-y-2">
-                                 {subItem.items.map((nestedItem) => (
-                                    <li key={nestedItem.title} className="justify-start">
-                                       <Link
-                                          href={nestedItem.url}
-                                          className="block text-sm text-gray-700 hover:bg-gray-400"
-                                       >
-                                          {nestedItem.title}
-                                       </Link>
-                                    </li>
-                                 ))}
-                              </ul>
-                           )}
-                        </li>
-                     ))}
-                  </ul>
-                  {/* <div className="flex flex-col-reverse">
-                     <NextImage
-                        alt="Essential Tees"
-                        src="https://cdn.shopify.com/s/files/1/1024/2207/files/essentialTees.jpg?v=1737503628"
-                        width={200}
-                        height={200}
-                     />
-                  </div> */}
-               </div>
-            </div>
-         )}
-      </li>
-   );
-};
-
-export default Navbar;

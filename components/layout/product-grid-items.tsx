@@ -231,7 +231,7 @@ export function ProductGridItemsComponent({ products, groupHandle }: ProductGrid
                               ? `/collections/${collectionSlug}/products/${product.handle}`
                               : `/products/${product.handle}`
                         }
-                        prefetch={true}
+                        prefetch={false}
                         className="flex h-full w-full flex-col"
                      >
                         <div className="relative aspect-[2/3] w-full">

@@ -190,7 +190,7 @@ export default function Search() {
                      </button>
                   </div>
 
-                  <div>
+                  {/* <div>
                      <p className="mb-2 text-sm font-medium text-gray-700">POPULAR SEARCHES:</p>
                      <ul className="flex flex-wrap gap-4">
                         {popularSearches.length > 0 ? (
@@ -211,7 +211,7 @@ export default function Search() {
                            <li className="text-gray-500">No popular searches available</li>
                         )}
                      </ul>
-                  </div>
+                  </div> */}
                   <form onSubmit={handleSearchSubmit} className="relative mt-4">
                      <input
                         ref={popupInputRef}
